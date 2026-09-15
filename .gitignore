@@ -147,4 +147,7 @@ gradle-app.setting
 # My signingConfig
 signingConfigs/*
 
-# End of https://www.toptal.com/developers/gitignore/api/linux,macos,windows,gradle,android
+# Local gradle user directory
+.gradle-user/
+
+.idea/deploymentTargetSelector.xml

@@ -1,3 +1,5 @@
+include("${CMAKE_CURRENT_LIST_DIR}/../cmake/ResolveMeson.cmake")
+
 # ソースファイルのアーカイブを取得する
 FetchContent_Populate(
         dav1d
@@ -39,7 +41,7 @@ endif()
 file(COPY "${CMAKE_CURRENT_LIST_DIR}/${BUILD_OS}" DESTINATION "${FETCHCONTENT_BASE_DIR}/dav1d-src")
 
 EXECUTE_PROCESS(
-    COMMAND meson setup ../dav1d-build/build/${ANDROID_ABI}
+    COMMAND "${MESON_EXECUTABLE}" setup ../dav1d-build/build/${ANDROID_ABI}
     --default-library=static --buildtype release
     --cross-file=${BUILD_OS}/${android_arch}-android.meson
     -Denable_tools=false -Denable_tests=false

@@ -3,7 +3,9 @@ project(comitton C CXX ASM)
 include(FetchContent)
 include(GNUInstallDirs)
 
-set(CMAKE_BUILD_TYPE Release)
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Release)
+endif()
 
 add_definitions(
         "-D__ANDROID_UNAVAILABLE_SYMBOLS_ARE_WEAK__"
