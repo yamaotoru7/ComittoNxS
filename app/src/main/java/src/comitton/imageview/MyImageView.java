@@ -79,6 +79,8 @@ public class MyImageView extends SurfaceView implements SurfaceHolder.Callback, 
 	private int mAttenuateCount = 0;
 	private int mOverScrollX = 0;
 	private int mLastOverScrollX = 0;
+	private int mOverScrollY = 0;
+	private int mLastOverScrollY = 0;
 	private int mOverScrollMax = 0;
 	private float mMomentiumX;
 	private float mMomentiumY;
@@ -394,20 +396,12 @@ public class MyImageView extends SurfaceView implements SurfaceHolder.Callback, 
 			if (effectRate != 0.0f) {
 				// オーバースクロールが画面幅を超えるときには、1画面先のページを表示する
 				if (mOverScrollX != 0) {
-/*
-					if (mOverScrollX > mDispWidth) {
-						mDrawLeft += mDispWidth;
-						drawLeft = (int)mDrawLeft;
-						mOverScrollX -= mDispWidth;
-					}
-					else if (mOverScrollX < - mDispWidth) {
-						mDrawLeft -= mDispWidth;
-						drawLeft = (int)mDrawLeft;
-						mOverScrollX += mDispWidth;
-					}
-*/
 					mLastOverScrollX = mOverScrollX;
 					mOverScrollX = 0;
+				}
+				if (mOverScrollY != 0) {
+					mLastOverScrollY = mOverScrollY;
+					mOverScrollY = 0;
 				}
 				float tx = 0;
 				float ty = 0;
@@ -450,6 +444,7 @@ public class MyImageView extends SurfaceView implements SurfaceHolder.Callback, 
 			}
 			else {
 				mLastOverScrollX = 0;
+				mLastOverScrollY = 0;
 			}
 			// ピンチイン/アウト中
 			if (pinchsel > 0) {
@@ -498,7 +493,7 @@ public class MyImageView extends SurfaceView implements SurfaceHolder.Callback, 
 				next2Page = nextPage + 1;
 
 				// 「スクロールで前後のページへ移動」の設定が有効のとき
-				if (mScrlNext && effect == 3) {
+				if (mScrlNext) {
 					mScrlNextStop = false;
 
 					if (mOverScrollX > 0) {
@@ -524,12 +519,24 @@ public class MyImageView extends SurfaceView implements SurfaceHolder.Callback, 
 						}
 					}
 
+					// 縦オーバースクロール判定
+					if (mOverScrollY > 0) {
+						if (prevPage < 0) {
+							mScrlNextStop = true;
+						}
+					}
+					if (mOverScrollY < 0) {
+						if (nextPage >= mImageManager.length()) {
+							mScrlNextStop = true;
+						}
+					}
+
 					if (!mPageLock) {	// ページロック中じゃなければ
 						// 現在のページ幅合計以上移動したら前後のページに移動する
 						if (mOverScrollX > mDrawWidthSum || mOverScrollX > mDispWidth) {
 							mPageLock = true;
 							if (mPageWay == DEF.PAGEWAY_RIGHT) {
-								if (nextPage <= mImageManager.length()) {
+								if (nextPage < mImageManager.length()) {
 									mParentAct.nextPage();
 								}
 							} else {
@@ -545,9 +552,23 @@ public class MyImageView extends SurfaceView implements SurfaceHolder.Callback, 
 									mParentAct.prevPage();
 								}
 							} else {
-								if (nextPage <= mImageManager.length()) {
+								if (nextPage < mImageManager.length()) {
 									mParentAct.nextPage();
 								}
+							}
+						}
+
+						// 縦スクロールでのページ移動
+						if (mOverScrollY > mDrawHeightMax || mOverScrollY > mDispHeight) {
+							mPageLock = true;
+							if (prevPage >= 0) {
+								mParentAct.prevPage();
+							}
+						}
+						if (mOverScrollY < -(mDrawHeightMax) || mOverScrollY < -(mDispHeight)) {
+							mPageLock = true;
+							if (nextPage < mImageManager.length()) {
+								mParentAct.nextPage();
 							}
 						}
 					}
@@ -559,6 +580,11 @@ public class MyImageView extends SurfaceView implements SurfaceHolder.Callback, 
 						} else if (mOverScrollX < 0) {
 							mOverScrollX = mOverScrollX + Math.min(drawWidthSum, cx);
 						}
+						if (mOverScrollY > 0) {
+							mOverScrollY = mOverScrollY - Math.min(mDrawHeightMax, cy);
+						} else if (mOverScrollY < 0) {
+							mOverScrollY = mOverScrollY + Math.min(mDrawHeightMax, cy);
+						}
 						mCurrentPage = mImage[0].Page;
 						mPageLock = false;
 					}
@@ -566,8 +592,10 @@ public class MyImageView extends SurfaceView implements SurfaceHolder.Callback, 
 					// スクロール量が超過している分だけ描画する位置をずらす
 					if (!pseLand) {
 						drawLeft += mOverScrollX;
+						drawTop += mOverScrollY;
 					} else {
-						drawTop = mOverScrollX;
+						drawTop += mOverScrollX;
+						drawLeft += mOverScrollY;
 					}
 				}
 
@@ -581,7 +609,34 @@ public class MyImageView extends SurfaceView implements SurfaceHolder.Callback, 
 				GradientDrawable prevGrad = null;
 				GradientDrawable nextGrad = null;
 
-				if ((mScrlNext && !mScrlNextStop) && effect == 3) {
+				if (mScrlNext && !mScrlNextStop) {
+					// 縦オーバースクロール時の前後ページ描画
+					if (mOverScrollY > 0 && prevPage >= 0 && prevPage < mImageManager.length()) {
+						prevImage = mImageManager.getImageData(prevPage);
+						if (prevImage != null) {
+							if (!pseLand) {
+								dl = (int) drawLeft + ((drawWidthSum - prevImage.SclWidth) / 2);
+								dt = (int) drawTop - prevImage.SclHeight;
+							} else {
+								dl = cy - (int) drawTop;
+								dt = (int) drawLeft + ((drawWidthSum - prevImage.SclWidth) / 2);
+							}
+							CallImgLibrary.ImageDraw(mActivity, mHandler, mCacheIndex, prevImage.Page, prevImage.HalfMode, dl, dt, mCanvasBitmap);
+						}
+					}
+					else if (mOverScrollY < 0 && nextPage >= 0 && nextPage < mImageManager.length()) {
+						nextImage = mImageManager.getImageData(nextPage);
+						if (nextImage != null) {
+							if (!pseLand) {
+								dl = (int) drawLeft + ((drawWidthSum - nextImage.SclWidth) / 2);
+								dt = (int) drawTop + mDrawHeightMax;
+							} else {
+								dl = cy - (int) drawTop - nextImage.SclHeight - mDrawHeightMax;
+								dt = (int) drawLeft + ((drawWidthSum - nextImage.SclWidth) / 2);
+							}
+							CallImgLibrary.ImageDraw(mActivity, mHandler, mCacheIndex, nextImage.Page, nextImage.HalfMode, dl, dt, mCanvasBitmap);
+						}
+					}
 
 					// 前のページを表示用Bitmapに書き込む
 					if (prevPage > 0 && prevPage < mImageManager.length()) {
@@ -771,7 +826,7 @@ public class MyImageView extends SurfaceView implements SurfaceHolder.Callback, 
     				}
     			}
 
-				if (!mViewNext && mOverScrollX == 0) {
+				if (!mViewNext && mOverScrollX == 0 && mOverScrollY == 0) {
 					if (!pseLand) {
 						// 横持ち
 						dl = (int) drawLeft;
@@ -810,7 +865,7 @@ public class MyImageView extends SurfaceView implements SurfaceHolder.Callback, 
 				}
 				// 「スクロールで前後のページへ移動」の設定が有効かつ、スクロール量超過していないなら前後のページにグラデーションを重ねる
 				// グラデーションOFFの時は表示しない
-				else if ((mScrlNext && !mScrlNextStop) && effect == 3 && mOverScrollX == 0 && mViewNext && mNextFilter) {
+				else if ((mScrlNext && !mScrlNextStop) && mOverScrollX == 0 && mOverScrollY == 0 && mViewNext && mNextFilter) {
 					if (!pseLand) {
 						// 横持ち
 						dl = (int) drawLeft;
@@ -852,7 +907,7 @@ public class MyImageView extends SurfaceView implements SurfaceHolder.Callback, 
 					// 作成した画像を表示
 					canvas.drawBitmap(mCanvasBitmap, 0, 0, null);
 
-					if (!mViewNext && mOverScrollX == 0) {
+					if (!mViewNext && mOverScrollX == 0 && mOverScrollY == 0) {
 						if (prevMask != null) {
 							prevMask.draw(canvas);
 						}
@@ -861,7 +916,7 @@ public class MyImageView extends SurfaceView implements SurfaceHolder.Callback, 
 						}
 					}
 					// 「スクロールで前後のページへ移動」の設定が有効かつ、スクロール量超過していないなら前後のページにグラデーションを重ねる
-					if ((mScrlNext && !mScrlNextStop) && effect == 3 && mOverScrollX == 0 && mViewNext) {
+					if ((mScrlNext && !mScrlNextStop) && mOverScrollX == 0 && mOverScrollY == 0 && mViewNext) {
 						if (prevGrad != null) {
 							prevGrad.draw(canvas);
 						}
@@ -1350,14 +1405,19 @@ public class MyImageView extends SurfaceView implements SurfaceHolder.Callback, 
 
 	public int checkFlick() {
 		int overX = mOverScrollX;
+		int overY = mOverScrollY;
 		// 「スクロールで前後のページへ移動」の設定が無効なら、指をあげたらスクロール超過をリセットする
 		if (!mScrlNext || mScrlNextStop) {
 			mOverScrollX = 0;
+			mOverScrollY = 0;
 		}
 		if (checkFlick(overX, mOverScrollMax)) {
 			// 100% 以上引っ張っているとき
 			// mLastAttenuate = null;
 			return overX;
+		}
+		if (checkFlick(overY, mOverScrollMax)) {
+			return overY;
 		}
 //		}
 		return 0;
@@ -1372,6 +1432,7 @@ public class MyImageView extends SurfaceView implements SurfaceHolder.Callback, 
 
 	public void scrollReset() {
 		mOverScrollX = 0;
+		mOverScrollY = 0;
 //		mDrawLeft = 0 + mMgnLeft;
 //		mDrawTop = 0 + mMgnTop;
 		mMomentiumMsg = null;
@@ -1394,6 +1455,7 @@ public class MyImageView extends SurfaceView implements SurfaceHolder.Callback, 
 		// スクロールで前後のページへ移動が有効なら、スクロール超過をリセットしない
 		if (!mScrlNext  || mScrlNextStop) {
 			mOverScrollX = 0;
+			mOverScrollY = 0;
 		}
 		mOverScrollMax = flickWidth * scroll;
 		mMomentiumMsg = null;
@@ -1424,7 +1486,7 @@ public class MyImageView extends SurfaceView implements SurfaceHolder.Callback, 
 		}
 		else {
 			// 減速なし
-//			mMomentDrain = DEF.MAX_MOMENTMODE - mode;
+			// mMomentDrain = DEF.MAX_MOMENTMODE - mode;
 			mMomentDrain = mode;
 		}
 
@@ -1465,10 +1527,11 @@ public class MyImageView extends SurfaceView implements SurfaceHolder.Callback, 
 		}
 
 		float orgLeft = mDrawLeft;
+		float orgTop  = mDrawTop;
 //		float moveX = ((x - mScrollBaseX) * scroll) + mOverScrollX;
 //		float moveY = (y - mScrollBaseY) * scroll;
 		float moveX = (x * scroll) + mOverScrollX;
-		float moveY = y * scroll;
+		float moveY = (y * scroll) + mOverScrollY;
 
 		float left = mDrawLeft + moveX;
 		float top  = mDrawTop  + moveY;
@@ -1497,14 +1560,18 @@ public class MyImageView extends SurfaceView implements SurfaceHolder.Callback, 
 		if (flag) {
 			// スクロール超過量を設定
 			mOverScrollX = (int)(moveX - (mDrawLeft - orgLeft));
+			mOverScrollY = (int)(moveY - (mDrawTop - orgTop));
 
 			if (!mScrlNext || mScrlNextStop) {
 				// スクロールで前後のページへ移動が無効ならスクロール量を減衰キャンセルさせる
 				if (Math.abs(mOverScrollX) > mOverScrollMax) {
 					mOverScrollX = mOverScrollMax * (mOverScrollX > 0 ? 1 : -1);
 				}
+				if (Math.abs(mOverScrollY) > mOverScrollMax) {
+					mOverScrollY = mOverScrollMax * (mOverScrollY > 0 ? 1 : -1);
+				}
 				//Logcat.d(logLevel, "overScroll=" + mOverScrollX + ", moveX=" + moveX + ", move=" + (int)(mDrawLeft - orgLeft));
-				if (mOverScrollX != 0) {
+				if (mOverScrollX != 0 || mOverScrollY != 0) {
 					// 減衰開始
 					attenuate();
 					// 描画
@@ -2006,8 +2073,9 @@ public class MyImageView extends SurfaceView implements SurfaceHolder.Callback, 
 
 		// 元サイズ算出
 		if (DEF.ZOOMTYPE_ORIG10 <= mZoomType && mZoomType <= DEF.ZOOMTYPE_ORIG20) {
-			src_cx = (rcDraw.right - rcDraw.left) / (1 + ((mZoomType - DEF.ZOOMTYPE_ORIG10) * 1.0)) / 2;
-			src_cy = (rcDraw.bottom - rcDraw.top) / (1 + ((mZoomType - DEF.ZOOMTYPE_ORIG10) * 1.0)) / 2;
+			float zoom_ratio = 1.0f + ((mZoomType - DEF.ZOOMTYPE_ORIG10) * 0.5f);
+			src_cx = (rcDraw.right - rcDraw.left) / zoom_ratio / 2;
+			src_cy = (rcDraw.bottom - rcDraw.top) / zoom_ratio / 2;
 
 			src1_cx = (int)src_cx;
 			src1_cy = (int)src_cy;
@@ -2045,28 +2113,30 @@ public class MyImageView extends SurfaceView implements SurfaceHolder.Callback, 
 		float pos_x[] = new float[2];
 		float pos_y[] = new float[2];
 
-		if ((mScrlNext && !mScrlNextStop) && mEffect == 3) {
+		if (mScrlNext && !mScrlNextStop) {
 			// 「スクロールで前後のページへ移動」の設定が有効ならスクロール分を補正する
-			pos_x[0] = (tch_x - (mDrawLeft + mDrawWidth[1] + cmgn) - mOverScrollX) / scale_x / fitScale1;
+			pos_x[0] = (tch_x - (mDrawLeft + mDrawWidth[1] + cmgn) - mOverScrollX) / scale_x1;
+			pos_y[0] = (tch_y - (mDrawTop + mOverScrollY)) / scale_y / fitScale1;
 		}
 		else {
-			pos_x[0] = (tch_x - (mDrawLeft + mDrawWidth[1] + cmgn)) / scale_x / fitScale1;
+			pos_x[0] = (tch_x - (mDrawLeft + mDrawWidth[1] + cmgn)) / scale_x1;
+			pos_y[0] = (tch_y - mDrawTop) / scale_y / fitScale1;
 		}
-		pos_y[0] = (tch_y - mDrawTop) / scale_y / fitScale1;
 
 		
 		RectF rcSrc[] = new RectF[2];
 		rcSrc[0] = new RectF(pos_x[0] - src1_cx + offsetX, pos_y[0] - src1_cy, pos_x[0] + src1_cx + offsetX, pos_y[0] + src1_cy);
 
 		if (mDrawWidth[1] > 0) {
-			if ((mScrlNext && !mScrlNextStop) && mEffect == 3) {
+			if (mScrlNext && !mScrlNextStop) {
 				// 「スクロールで前後のページへ移動」の設定が有効ならスクロール分を補正する
-				pos_x[1] = (int)((tch_x - (mDrawLeft) - mOverScrollX) / scale_x / fitScale2);
+				pos_x[1] = (int)((tch_x - mDrawLeft - mOverScrollX) / scale_x2);
+				pos_y[1] = (int)((tch_y - (mDrawTop + mOverScrollY)) / scale_y / fitScale2);
 			}
 			else {
-				pos_x[1] = (int)((tch_x - mDrawLeft) / scale_x / fitScale2);
+				pos_x[1] = (int)((tch_x - mDrawLeft) / scale_x2);
+				pos_y[1] = (int)((tch_y - mDrawTop) / scale_y / fitScale2);
 			}
-			pos_y[1] = (int)((tch_y - mDrawTop) / scale_y / fitScale2);
 
 			rcSrc[1] = new RectF(pos_x[1] - src2_cx, pos_y[1] - src2_cy, pos_x[1] + src2_cx, pos_y[1] + src2_cy);
 		}
@@ -2097,7 +2167,7 @@ public class MyImageView extends SurfaceView implements SurfaceHolder.Callback, 
 
 
 		// 「スクロールで前後のページへ移動」の設定が有効のとき
-		if ((mScrlNext && !mScrlNextStop) && mEffect == 3) {
+		if (mScrlNext && !mScrlNextStop) {
 
 			int prev2Page = -1;
 			int prevPage = -1;
@@ -2153,8 +2223,9 @@ public class MyImageView extends SurfaceView implements SurfaceHolder.Callback, 
 
 					// 元サイズ算出
 					if (DEF.ZOOMTYPE_ORIG10 <= mZoomType && mZoomType <= DEF.ZOOMTYPE_ORIG20) {
-						src_cx = (rcDraw.right - rcDraw.left) / (1 + ((mZoomType - DEF.ZOOMTYPE_ORIG10) * 1.0)) / 2;
-						src_cy = (rcDraw.bottom - rcDraw.top) / (1 + ((mZoomType - DEF.ZOOMTYPE_ORIG10) * 1.0)) / 2;
+						float zoom_ratio = 1.0f + ((mZoomType - DEF.ZOOMTYPE_ORIG10) * 0.5f);
+						src_cx = (rcDraw.right - rcDraw.left) / zoom_ratio / 2;
+						src_cy = (rcDraw.bottom - rcDraw.top) / zoom_ratio / 2;
 					}
 					else {
 						src_cx = ((rcDraw.right - rcDraw.left) / (1.5 + ((mZoomType - DEF.ZOOMTYPE_DISP15) * 0.5)) / 2) * origWidth / prevImage.SclWidth;
@@ -2200,8 +2271,9 @@ public class MyImageView extends SurfaceView implements SurfaceHolder.Callback, 
 
 					// 元サイズ算出
 					if (DEF.ZOOMTYPE_ORIG10 <= mZoomType && mZoomType <= DEF.ZOOMTYPE_ORIG20) {
-						src_cx = (rcDraw.right - rcDraw.left) / (1 + ((mZoomType - DEF.ZOOMTYPE_ORIG10) * 1.0)) / 2;
-						src_cy = (rcDraw.bottom - rcDraw.top) / (1 + ((mZoomType - DEF.ZOOMTYPE_ORIG10) * 1.0)) / 2;
+						float zoom_ratio = 1.0f + ((mZoomType - DEF.ZOOMTYPE_ORIG10) * 0.5f);
+						src_cx = (rcDraw.right - rcDraw.left) / zoom_ratio / 2;
+						src_cy = (rcDraw.bottom - rcDraw.top) / zoom_ratio / 2;
 					}
 					else {
 						src_cx = ((rcDraw.right - rcDraw.left) / (1.5 + ((mZoomType - DEF.ZOOMTYPE_DISP15) * 0.5)) / 2) * origWidth / prev2Image.SclWidth;
@@ -2247,8 +2319,9 @@ public class MyImageView extends SurfaceView implements SurfaceHolder.Callback, 
 
 					// 元サイズ算出
 					if (DEF.ZOOMTYPE_ORIG10 <= mZoomType && mZoomType <= DEF.ZOOMTYPE_ORIG20) {
-						src_cx = (rcDraw.right - rcDraw.left) / (1 + ((mZoomType - DEF.ZOOMTYPE_ORIG10) * 1.0)) / 2;
-						src_cy = (rcDraw.bottom - rcDraw.top) / (1 + ((mZoomType - DEF.ZOOMTYPE_ORIG10) * 1.0)) / 2;
+						float zoom_ratio = 1.0f + ((mZoomType - DEF.ZOOMTYPE_ORIG10) * 0.5f);
+						src_cx = (rcDraw.right - rcDraw.left) / zoom_ratio / 2;
+						src_cy = (rcDraw.bottom - rcDraw.top) / zoom_ratio / 2;
 					}
 					else {
 						src_cx = ((rcDraw.right - rcDraw.left) / (1.5 + ((mZoomType - DEF.ZOOMTYPE_DISP15) * 0.5)) / 2) * origWidth / nextImage.SclWidth;
@@ -2294,8 +2367,9 @@ public class MyImageView extends SurfaceView implements SurfaceHolder.Callback, 
 
 					// 元サイズ算出
 					if (DEF.ZOOMTYPE_ORIG10 <= mZoomType && mZoomType <= DEF.ZOOMTYPE_ORIG20) {
-						src_cx = (rcDraw.right - rcDraw.left) / (1 + ((mZoomType - DEF.ZOOMTYPE_ORIG10) * 1.0)) / 2;
-						src_cy = (rcDraw.bottom - rcDraw.top) / (1 + ((mZoomType - DEF.ZOOMTYPE_ORIG10) * 1.0)) / 2;
+						float zoom_ratio = 1.0f + ((mZoomType - DEF.ZOOMTYPE_ORIG10) * 0.5f);
+						src_cx = (rcDraw.right - rcDraw.left) / zoom_ratio / 2;
+						src_cy = (rcDraw.bottom - rcDraw.top) / zoom_ratio / 2;
 					}
 					else {
 						src_cx = ((rcDraw.right - rcDraw.left) / (1.5 + ((mZoomType - DEF.ZOOMTYPE_DISP15) * 0.5)) / 2) * origWidth / next2Image.SclWidth;
@@ -2400,12 +2474,12 @@ public class MyImageView extends SurfaceView implements SurfaceHolder.Callback, 
 		int view_cx = (rcDraw.right - rcDraw.left);
 		int view_cy = (rcDraw.bottom - rcDraw.top);
 		if (mImage[0] != null) {
-			src1_cx = (int)(orgWidth[0] * view_cx / pinch_scale / mImage[0].FitWidth / 2);
-			src1_cy = (int)(orgHeight[0] * view_cy / pinch_scale / mImage[0].FitHeight / 2);
+			src1_cx = (int)(orgWidth[0] * view_cx / pinch_scale / mImage[0].SclWidth / 2);
+			src1_cy = (int)(orgHeight[0] * view_cy / pinch_scale / mImage[0].SclHeight / 2);
 		}
 		if (mImage[1] != null) {
-			src2_cx = (int)(orgWidth[1] * view_cx / pinch_scale / mImage[1].FitWidth / 2);
-			src2_cy = (int)(orgHeight[1] * view_cy / pinch_scale / mImage[1].FitHeight / 2);
+			src2_cx = (int)(orgWidth[1] * view_cx / pinch_scale / mImage[1].SclWidth / 2);
+			src2_cy = (int)(orgHeight[1] * view_cy / pinch_scale / mImage[1].SclHeight / 2);
 		}
 
 		float fitScale1 = 1.0f;
@@ -2429,38 +2503,40 @@ public class MyImageView extends SurfaceView implements SurfaceHolder.Callback, 
 		float pos_x[] = new float[2];
 		float pos_y[] = new float[2];
 
-		if ((mScrlNext && !mScrlNextStop) && mEffect == 3) {
+		if (mScrlNext && !mScrlNextStop) {
 			// 「スクロールで前後のページへ移動」の設定が有効ならスクロール分を補正する
-			pos_x[0] = (tch_x - (mDrawLeft + mDrawWidth[1] + cmgn) - mOverScrollX) / scale_x / fitScale1;
+			pos_x[0] = (tch_x - (mDrawLeft + mDrawWidth[1] + cmgn) - mOverScrollX) / scale_x1;
+			pos_y[0] = (tch_y - (mDrawTop + mOverScrollY)) / scale_y / fitScale1;
 		}
 		else {
-			pos_x[0] = (tch_x - (mDrawLeft + mDrawWidth[1] + cmgn)) / scale_x / fitScale1;
+			pos_x[0] = (tch_x - (mDrawLeft + mDrawWidth[1] + cmgn)) / scale_x1;
+			pos_y[0] = (tch_y - mDrawTop) / scale_y / fitScale1;
 		}
-		pos_y[0] = (tch_y - (mDrawTop)) / scale_y / fitScale1;
 
 
 		RectF rcSrc[] = new RectF[2];
 		rcSrc[0] = new RectF(pos_x[0] - src1_cx + offsetX, pos_y[0] - src1_cy, pos_x[0] + src1_cx + offsetX, pos_y[0] + src1_cy);
 		if (cmgn != 0) {
-			int cmtn_s = (int)(cmgn / scale_x / fitScale1);
-			int cmtn_d = (int)(cmtn_s * mImage[0].SclWidth / mImage[0].FitWidth / pinch_scale);
+			int cmtn_s = (int)(cmgn / scale_x1);
+			int cmtn_d = (int)(cmtn_s / pinch_scale);
 			rcSrc[0].offset((cmtn_s - cmtn_d) / 2, 0);
 		}
 
 		if (mDrawWidth[1] > 0) {
-			if ((mScrlNext && !mScrlNextStop) && mEffect == 3) {
+			if (mScrlNext && !mScrlNextStop) {
 				// 「スクロールで前後のページへ移動」の設定が有効ならスクロール分を補正する
-				pos_x[1] = (int)((tch_x - (mDrawLeft) - mOverScrollX) / scale_x / fitScale2);
+				pos_x[1] = (int)((tch_x - mDrawLeft - mOverScrollX) / scale_x2);
+				pos_y[1] = (int)((tch_y - (mDrawTop + mOverScrollY)) / scale_y / fitScale2);
 			}
 			else {
-				pos_x[1] = (int)((tch_x - (mDrawLeft)) / scale_x / fitScale2);
+				pos_x[1] = (int)((tch_x - mDrawLeft) / scale_x2);
+				pos_y[1] = (int)((tch_y - mDrawTop) / scale_y / fitScale2);
 			}
-			pos_y[1] = (int)((tch_y - (mDrawTop)) / scale_y / fitScale2);
 			
 			rcSrc[1] = new RectF(pos_x[1] - src2_cx, pos_y[1] - src2_cy, pos_x[1] + src2_cx, pos_y[1] + src2_cy);
 			if (cmgn != 0) {
-				int cmtn_s = (int)(cmgn / scale_x / fitScale2);
-				int cmtn_d = (int)(cmtn_s * mImage[1].SclWidth / mImage[1].FitWidth / pinch_scale);
+				int cmtn_s = (int)(cmgn / scale_x2);
+				int cmtn_d = (int)(cmtn_s / pinch_scale);
 				rcSrc[1].offset((cmtn_s - cmtn_d) / 2 * -1, 0);
 			}
 		}
@@ -2468,17 +2544,12 @@ public class MyImageView extends SurfaceView implements SurfaceHolder.Callback, 
 		// はみ出したらセンタリング
 		float dwidth = rcDraw.right - rcDraw.left;
 		float dheight = rcDraw.bottom - rcDraw.top;
-		float fwidth = mImage[0].FitWidth + (mImage[1] != null ? mImage[1].FitWidth : 0);
-		float fheight = mImage[0].FitHeight;
-		if (mImage[1] != null && fheight < mImage[1].FitHeight) {
-			fheight = mImage[1].FitHeight;
-		}
-		float pwidth = fwidth * pinch_scale + cmgn;
-		float pheight = fheight * pinch_scale;
 		float swidth = mDrawWidthSum;
 		float sheight = mDrawHeightMax;
-		float pleft = tch_x - (tch_x - mDrawLeft) * pwidth / swidth;
-		float ptop = tch_y - (tch_y - mDrawTop) * pheight / sheight;
+		float pwidth = swidth * pinch_scale;
+		float pheight = sheight * pinch_scale;
+		float pleft = tch_x - (tch_x - mDrawLeft) * pinch_scale;
+		float ptop = tch_y - (tch_y - mDrawTop) * pinch_scale;
 
 		float smx = dwidth - pwidth;
 		float smy = dheight - pheight;
@@ -2511,12 +2582,12 @@ public class MyImageView extends SurfaceView implements SurfaceHolder.Callback, 
 		float shifty = ptop - ptopaft;
 
 		// 任意倍率は元画像の何倍なのか
-		float pscale_x1 = orgWidth[0] / mImage[0].FitWidth / pinch_scale;
-		float pscale_y1 = orgHeight[0] / mImage[0].FitHeight / pinch_scale;
+		float pscale_x1 = orgWidth[0] / mImage[0].SclWidth / pinch_scale;
+		float pscale_y1 = orgHeight[0] / mImage[0].SclHeight / pinch_scale;
 		rcSrc[0].offset(shiftx * pscale_x1, shifty * pscale_y1);
 		if (mDrawWidth[1] > 0) {
-			float pscale_x2 = orgWidth[1] / mImage[1].FitWidth / pinch_scale;
-			float pscale_y2 = orgHeight[1] / mImage[1].FitHeight / pinch_scale;
+			float pscale_x2 = orgWidth[1] / mImage[1].SclWidth / pinch_scale;
+			float pscale_y2 = orgHeight[1] / mImage[1].SclHeight / pinch_scale;
 
 			rcSrc[1].offset(shiftx * pscale_x2, shifty * pscale_y2);
 		}
@@ -2556,7 +2627,7 @@ public class MyImageView extends SurfaceView implements SurfaceHolder.Callback, 
 
 
 		// 「スクロールで前後のページへ移動」の設定が有効のとき
-		if ((mScrlNext && !mScrlNextStop) && mEffect == 3) {
+		if (mScrlNext && !mScrlNextStop) {
 
 			int prev2Page = -1;
 			int prevPage = -1;
@@ -2611,8 +2682,8 @@ public class MyImageView extends SurfaceView implements SurfaceHolder.Callback, 
 					scale_y = (float) prevImage.SclHeight / (float) origHeight;
 
 					// 元サイズ算出
-					int src_cx = (int) (origWidth * view_cx / pinch_scale / prevImage.FitWidth / 2);
-					int src_cy = (int) (origHeight * view_cy / pinch_scale / prevImage.FitHeight / 2);
+					int src_cx = (int) (origWidth * view_cx / pinch_scale / prevImage.SclWidth / 2);
+					int src_cy = (int) (origHeight * view_cy / pinch_scale / prevImage.SclHeight / 2);
 
 					// 表示開始位置
 					int tmpPos_x = (int) ((tch_x - (mDrawLeft + mDrawWidth[1] + cmgn) - prevImage.SclWidth - mOverScrollX) / scale_x);
@@ -2621,15 +2692,15 @@ public class MyImageView extends SurfaceView implements SurfaceHolder.Callback, 
 					RectF rectSrc = new RectF(tmpPos_x - src_cx + offsetX, tmpPos_y - src_cy, tmpPos_x + src_cx + offsetX, tmpPos_y + src_cy);
 					if (cmgn != 0) {
 						int cmtn_s = (int) (cmgn / scale_x);
-						int cmtn_d = (int) (cmtn_s * prevImage.SclWidth / prevImage.FitWidth / pinch_scale);
+						int cmtn_d = (int) (cmtn_s / pinch_scale);
 						rectSrc.offset((cmtn_s - cmtn_d) / 2 * -1, 0);
 					}
 
-					Logcat.d(logLevel,"pinch_scale=" + pinch_scale + ", origWidth=" + origWidth + ", origHeight=" + origHeight + ", prevImage.FitWidth=" + prevImage.FitWidth + ", prevImage.FitWidth=" + prevImage.FitHeight);
-					if (pinch_scale != 0 && prevImage.FitWidth != 0 && prevImage.FitHeight != 0) {
+					Logcat.d(logLevel,"pinch_scale=" + pinch_scale + ", origWidth=" + origWidth + ", origHeight=" + origHeight + ", prevImage.SclWidth=" + prevImage.SclWidth + ", prevImage.SclHeight=" + prevImage.SclHeight);
+					if (pinch_scale != 0 && prevImage.SclWidth != 0 && prevImage.SclHeight != 0) {
 						// 任意倍率は元画像の何倍なのか
-						float pscale_x = origWidth / prevImage.FitWidth / pinch_scale;
-						float pscale_y = origHeight / prevImage.FitHeight / pinch_scale;
+						float pscale_x = origWidth / prevImage.SclWidth / pinch_scale;
+						float pscale_y = origHeight / prevImage.SclHeight / pinch_scale;
 						rectSrc.offset(shiftx * pscale_x, shifty * pscale_y);
 					}
 					// 拡大描画処理
@@ -2665,8 +2736,8 @@ public class MyImageView extends SurfaceView implements SurfaceHolder.Callback, 
 
 
 					// 元サイズ算出
-					int src_cx = (int) (origWidth * view_cx / pinch_scale / prev2Image.FitWidth / 2);
-					int src_cy = (int) (origHeight * view_cy / pinch_scale / prev2Image.FitHeight / 2);
+					int src_cx = (int) (origWidth * view_cx / pinch_scale / prev2Image.SclWidth / 2);
+					int src_cy = (int) (origHeight * view_cy / pinch_scale / prev2Image.SclHeight / 2);
 
 					// 表示開始位置
 					int tmpPos_x = (int) ((tch_x - (mDrawLeft + mDrawWidth[1] + cmgn) - prev2Image.SclWidth - prev2Image.SclWidth - mOverScrollX) / scale_x);
@@ -2675,15 +2746,15 @@ public class MyImageView extends SurfaceView implements SurfaceHolder.Callback, 
 					RectF rectSrc = new RectF(tmpPos_x - src_cx + offsetX, tmpPos_y - src_cy, tmpPos_x + src_cx + offsetX, tmpPos_y + src_cy);
 					if (cmgn != 0) {
 						int cmtn_s = (int) (cmgn / scale_x);
-						int cmtn_d = (int) (cmtn_s * prev2Image.SclWidth / prev2Image.FitWidth / pinch_scale);
+						int cmtn_d = (int) (cmtn_s / pinch_scale);
 						rectSrc.offset((cmtn_s - cmtn_d) / 2 * -1, 0);
 					}
 
-					Logcat.d(logLevel,"pinch_scale=" + pinch_scale + ", origWidth=" + origWidth + ", origHeight=" + origHeight + ", prev2Image.FitWidth=" + prev2Image.FitWidth + ", prev2Image.FitWidth=" + prev2Image.FitHeight);
-					if (pinch_scale != 0 && prev2Image.FitWidth != 0 && prev2Image.FitHeight != 0) {
+					Logcat.d(logLevel,"pinch_scale=" + pinch_scale + ", origWidth=" + origWidth + ", origHeight=" + origHeight + ", prev2Image.SclWidth=" + prev2Image.SclWidth + ", prev2Image.SclHeight=" + prev2Image.SclHeight);
+					if (pinch_scale != 0 && prev2Image.SclWidth != 0 && prev2Image.SclHeight != 0) {
 						// 任意倍率は元画像の何倍なのか
-						float pscale_x = origWidth / prev2Image.FitWidth / pinch_scale;
-						float pscale_y = origHeight / prev2Image.FitHeight / pinch_scale;
+						float pscale_x = origWidth / prev2Image.SclWidth / pinch_scale;
+						float pscale_y = origHeight / prev2Image.SclHeight / pinch_scale;
 						rectSrc.offset(shiftx * pscale_x, shifty * pscale_y);
 					}
 					// 拡大描画処理
@@ -2718,8 +2789,8 @@ public class MyImageView extends SurfaceView implements SurfaceHolder.Callback, 
 					scale_y = (float) nextImage.SclHeight / (float) origHeight;
 
 					// 元サイズ算出
-					int src_cx = (int) (origWidth * view_cx / pinch_scale / nextImage.FitWidth / 2);
-					int src_cy = (int) (origHeight * view_cy / pinch_scale / nextImage.FitHeight / 2);
+					int src_cx = (int) (origWidth * view_cx / pinch_scale / nextImage.SclWidth / 2);
+					int src_cy = (int) (origHeight * view_cy / pinch_scale / nextImage.SclHeight / 2);
 
 					// 表示開始位置
 					int tmpPos_x = (int) ((tch_x - (mDrawLeft) + nextImage.SclWidth - mOverScrollX) / scale_x);
@@ -2728,15 +2799,15 @@ public class MyImageView extends SurfaceView implements SurfaceHolder.Callback, 
 					RectF rectSrc = new RectF(tmpPos_x - src_cx, tmpPos_y - src_cy, tmpPos_x + src_cx, tmpPos_y + src_cy);
 					if (cmgn != 0) {
 						int cmtn_s = (int) (cmgn / scale_x);
-						int cmtn_d = (int) (cmtn_s * nextImage.SclWidth / nextImage.FitWidth / pinch_scale);
+						int cmtn_d = (int) (cmtn_s / pinch_scale);
 						rectSrc.offset((cmtn_s - cmtn_d) / 2 * -1, 0);
 					}
 
-					Logcat.d(logLevel,"pinch_scale=" + pinch_scale + ", origWidth=" + origWidth + ", origHeight=" + origHeight + ", nextImage.FitWidth=" + nextImage.FitWidth + ", nextImage.FitWidth=" + nextImage.FitHeight);
-					if (pinch_scale != 0 && nextImage.FitWidth != 0 && nextImage.FitHeight != 0) {
+					Logcat.d(logLevel,"pinch_scale=" + pinch_scale + ", origWidth=" + origWidth + ", origHeight=" + origHeight + ", nextImage.SclWidth=" + nextImage.SclWidth + ", nextImage.SclHeight=" + nextImage.SclHeight);
+					if (pinch_scale != 0 && nextImage.SclWidth != 0 && nextImage.SclHeight != 0) {
 						// 任意倍率は元画像の何倍なのか
-						float pscale_x = origWidth / nextImage.FitWidth / pinch_scale;
-						float pscale_y = origHeight / nextImage.FitHeight / pinch_scale;
+						float pscale_x = origWidth / nextImage.SclWidth / pinch_scale;
+						float pscale_y = origHeight / nextImage.SclHeight / pinch_scale;
 						rectSrc.offset(shiftx * pscale_x, shifty * pscale_y);
 					}
 					// 拡大描画処理
@@ -2772,8 +2843,8 @@ public class MyImageView extends SurfaceView implements SurfaceHolder.Callback, 
 					scale_y = (float) next2Image.SclHeight / (float) origHeight;
 
 					// 元サイズ算出
-					int src_cx = (int) (origWidth * view_cx / pinch_scale / next2Image.FitWidth / 2);
-					int src_cy = (int) (origHeight * view_cy / pinch_scale / next2Image.FitHeight / 2);
+					int src_cx = (int) (origWidth * view_cx / pinch_scale / next2Image.SclWidth / 2);
+					int src_cy = (int) (origHeight * view_cy / pinch_scale / next2Image.SclHeight / 2);
 
 					// 表示開始位置
 					int tmpPos_x = (int) ((tch_x - (mDrawLeft) + nextImage.SclWidth + next2Image.SclWidth - mOverScrollX) / scale_x);
@@ -2782,15 +2853,15 @@ public class MyImageView extends SurfaceView implements SurfaceHolder.Callback, 
 					RectF rectSrc = new RectF(tmpPos_x - src_cx, tmpPos_y - src_cy, tmpPos_x + src_cx, tmpPos_y + src_cy);
 					if (cmgn != 0) {
 						int cmtn_s = (int) (cmgn / scale_x);
-						int cmtn_d = (int) (cmtn_s * next2Image.SclWidth / next2Image.FitWidth / pinch_scale);
+						int cmtn_d = (int) (cmtn_s / pinch_scale);
 						rectSrc.offset((cmtn_s - cmtn_d) / 2 * -1, 0);
 					}
 
-					Logcat.d(logLevel,"pinch_scale=" + pinch_scale + ", origWidth=" + origWidth + ", origHeight=" + origHeight + ", next2Image.FitWidth=" + next2Image.FitWidth + ", next2Image.FitWidth=" + next2Image.FitHeight);
-					if (pinch_scale != 0 && next2Image.FitWidth != 0 && next2Image.FitHeight != 0) {
+					Logcat.d(logLevel,"pinch_scale=" + pinch_scale + ", origWidth=" + origWidth + ", origHeight=" + origHeight + ", next2Image.SclWidth=" + next2Image.SclWidth + ", next2Image.SclHeight=" + next2Image.SclHeight);
+					if (pinch_scale != 0 && next2Image.SclWidth != 0 && next2Image.SclHeight != 0) {
 						// 任意倍率は元画像の何倍なのか
-						float pscale_x = origWidth / next2Image.FitWidth / pinch_scale;
-						float pscale_y = origHeight / next2Image.FitHeight / pinch_scale;
+						float pscale_x = origWidth / next2Image.SclWidth / pinch_scale;
+						float pscale_y = origHeight / next2Image.SclHeight / pinch_scale;
 						rectSrc.offset(shiftx * pscale_x, shifty * pscale_y);
 					}
 					// 拡大描画処理
@@ -3009,8 +3080,21 @@ public class MyImageView extends SurfaceView implements SurfaceHolder.Callback, 
 							mOverScrollX = 0;
 						}
 					}
+					if (mOverScrollY > 0) {
+						mOverScrollY -= mOverScrollMax / 8;
+						if (mOverScrollY < 0) {
+							mOverScrollY = 0;
+						}
+					}
+					else if (mOverScrollY < 0) {
+						// 8段階で減衰
+						mOverScrollY += mOverScrollMax / 8;
+						if (mOverScrollY > 0) {
+							mOverScrollY = 0;
+						}
+					}
 					updateNotify();
-					if (mOverScrollX != 0) {
+					if (mOverScrollX != 0 || mOverScrollY != 0) {
 						long NextTime = SystemClock.uptimeMillis() + ATTENUATE_TERM;
 						Message nextmsg = mHandler.obtainMessage(HMSG_ATTENUATE);
 						nextmsg.arg1 = ++ mAttenuateCount;

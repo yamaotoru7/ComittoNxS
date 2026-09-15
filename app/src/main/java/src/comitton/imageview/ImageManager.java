@@ -4342,32 +4342,16 @@ public class ImageManager extends InputStream implements Runnable {
 		}
 
 		if (img1 != null) {
-			if (mZoomType >= 3) {
-				img1.CutLeft = left[0];
-				img1.CutRight = right[0];
-				img1.CutTop = top[0];
-				img1.CutBottom = bottom[0];
-			} else {
-				//	ルーペ表示の拡大率が元画像サイズの場合はカットしない
-				img1.CutLeft = 0;
-				img1.CutRight = 0;
-				img1.CutTop = 0;
-				img1.CutBottom = 0;
-			}
+			img1.CutLeft = left[0];
+			img1.CutRight = right[0];
+			img1.CutTop = top[0];
+			img1.CutBottom = bottom[0];
 		}
 		if (img2 != null) {
-			if (mZoomType >= 3) {
-				img2.CutLeft = left[1];
-				img2.CutRight = right[1];
-				img2.CutTop = top[1];
-				img2.CutBottom = bottom[1];
-			} else {
-				//	ルーペ表示の拡大率が元画像サイズの場合はカットしない
-				img2.CutLeft = 0;
-				img2.CutRight = 0;
-				img2.CutTop = 0;
-				img2.CutBottom = 0;
-			}
+			img2.CutLeft = left[1];
+			img2.CutRight = right[1];
+			img2.CutTop = top[1];
+			img2.CutBottom = bottom[1];
 		}
 
 		if (mMarginCut == 6) {
