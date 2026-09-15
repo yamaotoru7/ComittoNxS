@@ -119,3 +119,7 @@ dependencies {
     // 文字コード判定用ライブラリ
     implementation 'com.github.albfernandez:juniversalchardet:2.0.4'
 }
+
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs << "-Xlint:deprecation"
+}

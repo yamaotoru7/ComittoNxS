@@ -371,23 +371,25 @@ public class LocalFileAccess {
 					// ファイルがなければ作成する
 					return orgfile.createNewFile();
 				}
+				return true;
 			} catch (IOException e) {
 				Logcat.e(logLevel, "", e);
 			}
 
 		}
 		else {
-				// Android10(Q) の場合
+			// Android10(Q) の場合
 
-				// SAFでファイルを作成する
-				String documentUri = documentUri(activity, uri);
-				Logcat.d(logLevel, "documentUri=" + documentUri);
-				if(!documentUri.isEmpty() && SafFileAccess.createFile(activity, documentUri, item)) {
-					Logcat.d(logLevel, "SafFileAccess.createFile() 成功しました.");
-				} else {
-					Logcat.e(logLevel, "SafFileAccess.createFile() 失敗しました.");
-				}
+			// SAFでファイルを作成する
+			String documentUri = documentUri(activity, uri);
+			Logcat.d(logLevel, "documentUri=" + documentUri);
+			if(!documentUri.isEmpty() && SafFileAccess.createFile(activity, documentUri, item)) {
+				Logcat.d(logLevel, "SafFileAccess.createFile() 成功しました.");
+				return true;
+			} else {
+				Logcat.e(logLevel, "SafFileAccess.createFile() 失敗しました.");
 			}
+		}
 
 		return false;
 	}

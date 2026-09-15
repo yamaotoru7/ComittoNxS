@@ -7,21 +7,21 @@ ComittoNxX のコードベースおよび実行環境の精査によって抽出
 
 ## 1. クイックフィックス（即効性の高いバグ・設定不備の修正）
 
-- [ ] **1.1 Android 10 でのダウンロード失敗バグの修正**
+- [x] **1.1 Android 10 でのダウンロード失敗バグの修正**
   - **対象ファイル**: `app/src/main/java/src/comitton/fileaccess/LocalFileAccess.java` (385〜392行目)
   - **内容**: Android 10 (Q) で SAF 経由のファイル作成 (`SafFileAccess.createFile`) に成功した際、`return true` を返さず末尾で無条件に `return false;` を返しているためダウンロードが必ず失敗する。`SafFileAccess.createFile(...)` の結果を戻り値として返すよう修正する。
   - **影響**: README の既知の不具合「Android 10 でファイルのダウンロードができません」を解消。
 
-- [ ] **1.2 マニフェスト内の無効な Permission 記述の削除**
+- [x] **1.2 マニフェスト内の無効な Permission 記述の削除**
   - **対象ファイル**: `app/src/main/AndroidManifest.xml` (179〜180行目)
   - **内容**: Intent Action の定数名である `android.permission.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION` および `android.permission.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION` が誤って `<uses-permission>` に指定されているため削除する。
 
-- [ ] **1.3 外部アプリからの PDF 連携（Intent-Filter）追加**
+- [x] **1.3 外部アプリからの PDF 連携（Intent-Filter）追加**
   - **対象ファイル**: `app/src/main/AndroidManifest.xml` (28〜48行目)
   - **内容**: PDF 表示機能自体は実装されているが、`FileSelectActivity` の `<intent-filter>` の mimeType に `application/pdf` が登録されていないため追加する。
   - **影響**: ファイルマネージャーやブラウザから PDF ファイルを選択した際、ComittoNxX が選択肢に表示されるようになる。
 
-- [ ] **1.4 不要な `android:exported="true"` の閉塞**
+- [x] **1.4 不要な `android:exported="true"` の閉塞**
   - **対象ファイル**: `app/src/main/AndroidManifest.xml`
   - **内容**: `<intent-filter>` を持たない内部画面（`ImageActivity`, `TextActivity` 等）に `android:exported="true"` が指定されている。外部アプリからの意図しない呼び出しやクラッシュ誘発を防ぐため `false` に変更する。
 

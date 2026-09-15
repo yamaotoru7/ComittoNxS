@@ -45,6 +45,7 @@
                 <data android:mimeType="text/html" />
                 <data android:mimeType="text/xml" />
                 <data android:mimeType="application/epub+zip" />
+                <data android:mimeType="application/pdf" />
             </intent-filter>
         </activity>
         <activity
@@ -53,7 +54,7 @@
             android:resizeableActivity="true"
             android:configChanges="keyboardHidden|orientation|keyboard|screenSize"
             android:launchMode="singleTop"
-            android:exported="true" >
+            android:exported="false" >
         </activity>
         <activity
             android:name="src.comitton.textview.TextActivity"
@@ -61,7 +62,7 @@
             android:resizeableActivity="true"
             android:configChanges="keyboardHidden|orientation|keyboard|screenSize"
             android:launchMode="singleTop"
-            android:exported="true" >
+            android:exported="false" >
         </activity>
         <activity
             android:name="src.comitton.expandview.ExpandActivity"
@@ -176,8 +177,6 @@
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION" />
-    <uses-permission android:name="android.permission.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION" />
     <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.MANAGE_MEDIA"/>
     <uses-permission android:name="android.permission.VIBRATE" />
