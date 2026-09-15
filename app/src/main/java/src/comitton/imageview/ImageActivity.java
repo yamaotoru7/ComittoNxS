@@ -20,7 +20,6 @@ import src.comitton.config.SetImageDetailActivity;
 import src.comitton.config.SetImageText;
 import src.comitton.config.SetImageTextColorActivity;
 import src.comitton.config.SetImageTextDetailActivity;
-import src.comitton.config.SetNoiseActivity;
 import src.comitton.fileaccess.FileAccess;
 import src.comitton.fileview.data.RecordItem;
 import src.comitton.dialog.BookmarkDialog;
@@ -41,7 +40,6 @@ import src.comitton.dialog.MenuDialog.MenuSelectListener;
 import src.comitton.dialog.ImageConfigDialog.ImageConfigListenerInterface;
 import src.comitton.dialog.TabDialogFragment;
 import src.comitton.fileview.filelist.RecordList;
-import src.comitton.noise.NoiseSwitch;
 import src.comitton.common.GuideView;
 
 import android.annotation.SuppressLint;
@@ -112,11 +110,6 @@ public class ImageActivity extends AppCompatActivity implements OnTouchListener,
 	private static final int[] CTL_COUNT = { 1, 1, 2, 99999 }; // 対象のページ数
 	private static final int[] CTL_RANGE = { 2, 4, 3, 1 }; // 1ページ選択に必要な移動幅(単位)
 
-	private static final int NOISE_NEXTPAGE = 1;
-	private static final int NOISE_PREVPAGE = 2;
-	private static final int NOISE_NEXTSCRL = 3;
-	private static final int NOISE_PREVSCRL = 4;
-
 	private static final int PAGE_SLIDE = 0;
 	private static final int PAGE_INPUT = 1;
 	private static final int PAGE_THUMB = 2;
@@ -167,7 +160,6 @@ public class ImageActivity extends AppCompatActivity implements OnTouchListener,
 		DEF.MENU_IMGCONF,	// 画像表示設定
 		DEF.MENU_IMGVIEW,	// 見開き設定
 		DEF.MENU_IMGSIZE,	// 画像サイズ
-		DEF.MENU_NOISE,		// 音操作
 		DEF.MENU_AUTOPLAY,	// オートプレイ開始
 		DEF.MENU_ADDBOOKMARK,// ブックマーク追加
 		DEF.MENU_SELBOOKMARK,// ブックマーク選択
@@ -196,7 +188,6 @@ public class ImageActivity extends AppCompatActivity implements OnTouchListener,
 		R.string.imgConfMenu,	// 画像表示設定
 		R.string.tguide02,		// 見開き設定
 		R.string.tguide03,		// 画像サイズ
-		R.string.noiseMenu,		// 音操作
 		R.string.playMenu,		// オートプレイ開始
 		R.string.addBookmarkMenu,// ブックマーク追加
 		R.string.selBookmarkMenu,// ブックマーク選択
@@ -287,12 +278,6 @@ public class ImageActivity extends AppCompatActivity implements OnTouchListener,
 	private boolean mDelShare;
 	private boolean mFlickPage;
 	private boolean mReverseOrder;
-
-	private int mNoiseScrl;
-	private int mNoiseUnder;
-	private int mNoiseOver;
-	private int mNoiseDec;
-	private boolean mNoiseLevel;
 
 	private int mViewWidth;
 	private int mViewHeight;
@@ -463,9 +448,6 @@ public class ImageActivity extends AppCompatActivity implements OnTouchListener,
 	private ProgressDialog mReadDialog;
 	private String[] mReadingMsg;
 	private Message mReadTimerMsg;
-
-	private NoiseSwitch mNoiseSwitch = null;
-	private int mNoiseScroll = 0;
 	private boolean mScrolling = false;
 
 	private boolean mAutoPlay;
@@ -681,9 +663,6 @@ public class ImageActivity extends AppCompatActivity implements OnTouchListener,
 		if (!mFinishActivity && mSavePage && !mReadBreak) {
 			saveCurrentPage();
 		}
-		if (mNoiseSwitch != null) {
-			mNoiseSwitch.recordPause(true);
-		}
 		Logcat.v(logLevel, "終了します.");
 	}
 
@@ -700,9 +679,6 @@ public class ImageActivity extends AppCompatActivity implements OnTouchListener,
 			saveHistory();
 		}
 
-		if (mNoiseSwitch != null) {
-			mNoiseSwitch.recordPause(true);
-		}
 		Logcat.v(logLevel, "終了します.");
 	}
 
@@ -714,11 +690,6 @@ public class ImageActivity extends AppCompatActivity implements OnTouchListener,
 		super.onDestroy();
 		int logLevel = Logcat.LOG_LEVEL_WARN;
 		Logcat.i(logLevel, "開始します.");
-
-		if (mNoiseSwitch != null) {
-			mNoiseSwitch.recordStop();
-			mNoiseSwitch = null;
-		}
 
 		if (mSourceImage[0] != null) {
 			mSourceImage[0] = null;
@@ -771,9 +742,6 @@ public class ImageActivity extends AppCompatActivity implements OnTouchListener,
 		int logLevel = Logcat.LOG_LEVEL_WARN;
 		Logcat.v(logLevel, "開始します.");
 
-		if (mNoiseSwitch != null) {
-			mNoiseSwitch.recordPause(false);
-		}
 		if (mImageView != null) {
 			mImageView.update(true);
 		}
@@ -1335,50 +1303,6 @@ public class ImageActivity extends AppCompatActivity implements OnTouchListener,
 						mark = msg.arg2;
 					}
 					mGuideView.setCacheMark(mark);
-				}
-				return true;
-
-			case DEF.HMSG_NOISESTATE:
-				// 状態表示
-				if (mNoiseSwitch != null) {
-					mGuideView.setNoiseState(msg.arg1, mNoiseLevel ? msg.arg2 : -1);
-				}
-				return true;
-
-			case DEF.HMSG_NOISE:
-				// 読込中の表示
-				if (msg.arg1 == NOISE_NEXTPAGE) {
-					if (mNoiseScroll != 0) {
-						// スクロール停止
-						mNoiseScroll = 0;
-					}
-					// else
-					startScroll(1);
-				}
-				else if (msg.arg1 == NOISE_PREVPAGE) {
-					if (mNoiseScroll != 0) {
-						// スクロール停止
-						mNoiseScroll = 0;
-					}
-					// else
-					startScroll(-1);
-				}
-				else if (msg.arg1 == NOISE_NEXTSCRL || msg.arg1 == NOISE_PREVSCRL) {
-					int way = 1;
-					if (msg.arg1 == NOISE_PREVSCRL) {
-						way = -1;
-					}
-
-					// 読込中の表示
-					if (mImageView.checkScrollPoint() && (mNoiseScroll != 0 && way == mNoiseScroll)) {
-						mImageView.moveToNextPoint(mNoiseScrl);
-					}
-					else {
-						mNoiseScroll = way;
-						// 次のポイントへスクロール開始
-						if (mImageView.setViewPosScroll(mNoiseScroll)) {
-						}
-					}
 				}
 				return true;
 
@@ -3302,8 +3226,6 @@ public class ImageActivity extends AppCompatActivity implements OnTouchListener,
 		// // ページ選択
 		// mMenuDialog.addItem(DEF.MENU_PAGESEL,
 		// res.getString(R.string.pageselMenu));
-		// 音操作
-		mMenuDialog.addItem(DEF.MENU_NOISE, res.getString(R.string.noiseMenu), mNoiseSwitch != null);
 		// 自動再生
 		mMenuDialog.addItem(DEF.MENU_AUTOPLAY, res.getString(R.string.playMenu));
 		// 画面回転
@@ -3588,24 +3510,6 @@ public class ImageActivity extends AppCompatActivity implements OnTouchListener,
 			case DEF.MENU_TOP_SETTING: {
 				// 上部の設定
 				showCheckList();
-				break;
-			}
-			case DEF.MENU_NOISE: {
-				// マイク開始
-				if (mNoiseSwitch == null) {
-					mNoiseSwitch = new NoiseSwitch(mHandler);
-					mNoiseSwitch.setConfig(mNoiseUnder, mNoiseOver, mNoiseDec);
-					mNoiseSwitch.recordStart();
-					// 画面をスリープ無効
-					getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-				}
-				else {
-					mNoiseSwitch.recordStop();
-					mNoiseSwitch = null;
-					mGuideView.setNoiseState(0, 0);
-					// 画面をスリープ有効
-					getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-				}
 				break;
 			}
 			case DEF.MENU_AUTOPLAY: {
@@ -4172,15 +4076,6 @@ public class ImageActivity extends AppCompatActivity implements OnTouchListener,
 			}
 
 			mLoupeSize = SetImageDetailActivity.getLoupeSize(sharedPreferences);
-
-			mNoiseScrl = DEF.calcScrlSpeedPix(SetNoiseActivity.getNoiseScrl(sharedPreferences), mSDensity);
-			mNoiseUnder = DEF.calcNoiseLevel(SetNoiseActivity.getNoiseUnder(sharedPreferences));
-			mNoiseOver = DEF.calcNoiseLevel(SetNoiseActivity.getNoiseOver(sharedPreferences));
-			mNoiseLevel = SetNoiseActivity.getNoiseLevel(sharedPreferences);
-			mNoiseDec = SetNoiseActivity.getNoiseDec(sharedPreferences);
-			if (mNoiseSwitch != null) {
-				mNoiseSwitch.setConfig(mNoiseUnder, mNoiseOver, mNoiseDec);
-			}
 
 			mMgnColor = SetImageTextColorActivity.getMgnColor(sharedPreferences);
 			mCenColor = SetImageTextColorActivity.getCntColor(sharedPreferences);

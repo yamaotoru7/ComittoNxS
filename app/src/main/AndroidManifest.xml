@@ -144,12 +144,6 @@
             android:resizeableActivity="true" >
         </activity>
         <activity
-            android:name="src.comitton.config.SetNoiseActivity"
-            android:theme="@style/MyTheme"
-            android:launchMode="singleTop"
-            android:resizeableActivity="true" >
-        </activity>
-        <activity
             android:name="src.comitton.config.SetCacheActivity"
             android:theme="@style/MyTheme"
             android:launchMode="singleTop"
@@ -182,5 +176,4 @@
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT" />
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.RECORD_AUDIO" />
 </manifest>

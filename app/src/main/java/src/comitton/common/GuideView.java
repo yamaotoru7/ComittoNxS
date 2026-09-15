@@ -29,10 +29,6 @@ public class GuideView {
 	private static final int FROMTYPE_LOCAL = 3;
 	private static final int FROMTYPE_SERVER = 4;
 
-	private static final int NOISESTATE_TON = 1;
-	private static final int NOISESTATE_TOO = 2;
-	private static final int NOISESTATE_YET = 4;
-
 	public static final int PAGEPOS_TL = 0; // ページ番号表示位置
 	public static final int PAGEPOS_TC = 1;
 	public static final int PAGEPOS_TR = 2;
@@ -96,21 +92,12 @@ public class GuideView {
 	private Bitmap mRightBitmap;
 	private Bitmap mLeftBitmap;
 
-	private byte mNoiseState[] = new byte[4];
-	private int mNoiseLevel;
-
 	private int mCacheMark;
 
 	private Bitmap mIconServer;
 	private Bitmap mIconLocal;
 	private Bitmap mIconCache;
 	private Bitmap mIconMemory;
-
-	private Bitmap mIconSmpl;
-	private Bitmap mIconMic;
-	private Bitmap mIconTon;
-	private Bitmap mIconToo;
-	private Bitmap mIconYet;
 
 	private String mPageText;
 	private int mPageColor;
@@ -172,12 +159,6 @@ public class GuideView {
 		mIconLocal = BitmapFactory.decodeResource(res, R.drawable.ic_ld_local);
 		mIconCache = BitmapFactory.decodeResource(res, R.drawable.ic_ld_cache);
 		mIconMemory = BitmapFactory.decodeResource(res, R.drawable.ic_ld_memory);
-
-		mIconSmpl = BitmapFactory.decodeResource(res, R.drawable.ic_mic_sample);
-		mIconMic = BitmapFactory.decodeResource(res, R.drawable.ic_mic_mic);
-		mIconTon = BitmapFactory.decodeResource(res, R.drawable.ic_mic_ton);
-		mIconToo = BitmapFactory.decodeResource(res, R.drawable.ic_mic_too);
-		mIconYet = BitmapFactory.decodeResource(res, R.drawable.ic_mic_yet);
 
 		mLoadPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 		mLoadPaint.setStyle(Paint.Style.FILL);
@@ -540,48 +521,6 @@ public class GuideView {
 				}
 			}
 		}
-
-		// 音操作の描画内容を準備
-		if (mNoiseState[0] > 1) {
-			canvas.drawBitmap(mIconSmpl, cx - 16 * 4 - 2, 2, mDrawPaint);
-		}
-		else if (mNoiseState[0] == 1) {
-			canvas.drawBitmap(mIconMic, cx - 16 * 4 - 2, 2, mDrawPaint);
-			if (mNoiseLevel >= 0) {
-				mFramePaint.setTextSize(16);
-				mFramePaint.setTypeface(Typeface.MONOSPACE);
-				mFramePaint.setTextAlign(Paint.Align.RIGHT);
-				mFramePaint.setStrokeWidth(mTextShadow);
-				canvas.drawText("" + mNoiseLevel, cx - 4, 32, mFramePaint);
-
-				mTextPaint.setTextSize(16);
-				mTextPaint.setTypeface(Typeface.MONOSPACE);
-				mTextPaint.setTextAlign(Paint.Align.RIGHT);
-				canvas.drawText("" + mNoiseLevel, cx - 4, 32, mTextPaint);
-			}
-		}
-		// 音操作の描画
-		for (int i = 1; i < mNoiseState.length; i++) {
-			if (mNoiseState[i] == 0) {
-				break;
-			}
-			else {
-				// 状態
-				Bitmap bm = null;
-				switch (mNoiseState[i]) {
-					case NOISESTATE_TON:
-						bm = mIconTon;
-						break;
-					case NOISESTATE_TOO:
-						bm = mIconToo;
-						break;
-					case NOISESTATE_YET:
-						bm = mIconYet;
-						break;
-				}
-				canvas.drawBitmap(bm, cx - 16 * (4 - i) - 2, 2, mDrawPaint);
-			}
-		}
 	}
 
 	public void drawLoading(Canvas canvas, int cx, int cy) {
@@ -820,15 +759,6 @@ public class GuideView {
 		}
 	}
 
-	// ガイドのサイズ設定
-	public void setNoiseState(int state, int level) {
-		mNoiseState[0] = (byte) (state & 0xFF);
-		mNoiseState[1] = (byte) ((state >> 8) & 0xFF);
-		mNoiseState[2] = (byte) ((state >> 16) & 0xFF);
-		mNoiseState[3] = (byte) ((state >> 24) & 0xFF);
-		mNoiseLevel = level;
-		invalidate();
-	}
 
 	public void setGuideMode(boolean dual, boolean file, boolean isRtoL, int pagemode, boolean imm) {
 		mDualView = dual;

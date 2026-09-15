@@ -262,16 +262,6 @@
         <item>1</item>
         <item>2</item>
     </string-array>
-    <string-array name="noisedec_name_list">
-        <item>Slow</item>
-        <item>Normal</item>
-        <item>Quick</item>
-    </string-array>
-    <string-array name="noisedec_value_list">
-        <item>0</item>
-        <item>1</item>
-        <item>2</item>
-    </string-array>
     <string-array name="charset_name_list">
         <item>UTF-8</item>
         <item>Shift_JIS</item>

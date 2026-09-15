@@ -548,16 +548,6 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 			}
 		}
 
-		//==== パーミッション承認状態判定(マイク使用) ====//
-		if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED)
-		{
-			Logcat.d(logLevel, "RECORD_AUDIO 権限がありません.");
-			//==== 承認要求する権限リストに追加 ====//
-			permissions.add(Manifest.permission.RECORD_AUDIO);
-		} else {
-			Logcat.d(logLevel, "RECORD_AUDIO 権限があります.");
-		}
-
 		if (permissions.size() > 0) {
 			//==== まとめて承認要求を行う ====//
 			ActivityCompat.requestPermissions(this, permissions.toArray(new String[0]), REQUEST_CODE);

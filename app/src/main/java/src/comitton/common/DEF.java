@@ -83,8 +83,6 @@ public class DEF {
 	public static final int HMSG_ERROR = 4;
 	public static final int HMSG_CACHE = 5;
 	public static final int HMSG_LOADING = 6;
-	public static final int HMSG_NOISE = 7;
-	public static final int HMSG_NOISESTATE = 8;
 	public static final int HMSG_THUMBNAIL = 9;
 	public static final int HMSG_LOADFILELIST = 10;
 	public static final int HMSG_UPDATEFILELIST = 11;
@@ -138,7 +136,6 @@ public class DEF {
 	public static final int MENU_SHORTCUT = Menu.FIRST + 7;
 	public static final int MENU_SERVER = Menu.FIRST + 8;
 	public static final int MENU_REFRESH = Menu.FIRST + 9;
-	public static final int MENU_NOISE = Menu.FIRST + 10;
 	public static final int MENU_QUIT = Menu.FIRST + 11;
 	public static final int MENU_THUMBDEL = Menu.FIRST + 12;
 	public static final int MENU_ONLINE = Menu.FIRST + 13;
@@ -324,7 +321,6 @@ public class DEF {
 	public static final String KEY_IMAGEHELP = "ImageHelp";
 	public static final String KEY_IDTLHELP = "IDtlHelp";
 	public static final String KEY_COMMHELP = "CommHelp";
-	public static final String KEY_NOISEHELP = "NoiseHelp";
 	public static final String KEY_CACHEHELP = "CacheHelp";
 	public static final String KEY_TEXTHELP = "TextHelp";
 	public static final String KEY_IMTXHELP = "ImgTxtHelp";
@@ -440,12 +436,6 @@ public class DEF {
 	public static final String KEY_OLDMENU = "OldMenu";
 
 	public static final String KEY_HIDDENFILE = "HiddenFile";
-
-	public static final String KEY_NOISESCRL = "NoiseScrlSp";
-	public static final String KEY_NOISEUNDER = "NoiseUnder";
-	public static final String KEY_NOISEOVER = "NoiseOver";
-	public static final String KEY_NOISELEVEL = "NoiseLevel";
-	public static final String KEY_NOISEDEC = "NoiseDec";
 
 	// public static final String KEY_TITLE = "Title";
 	public static final String KEY_SHARPEN = "Sharpen";
@@ -584,9 +574,6 @@ public class DEF {
 	public static final int DEFAULT_MEMSIZE = 18; // キャッシュサイズ:200MByte
 	public static final int DEFAULT_MEMNEXT = 16; // キャッシュ前方:32ページ
 	public static final int DEFAULT_MEMPREV = 8; // キャッシュ後方:16ページ
-	public static final int DEFAULT_NOISESCRL = 1; // 20ドット
-	public static final int DEFAULT_NOISEUNDER = 8; // 800
-	public static final int DEFAULT_NOISEOVER = 15; // 1500
 	public static final int DEFAULT_VOLSCRL = 6; // 32ドット
 	public static final int DEFAULT_SCRLRNGW = 6; // 35% ((6+1)*5)
 	public static final int DEFAULT_SCRLRNGH = 6; // 35% ((6+1)*5)
@@ -641,9 +628,6 @@ public class DEF {
 	public static final int MAX_MEMSIZE = 198; // 2000MByte
 	public static final int MAX_MEMNEXT = 100; // 200ページ
 	public static final int MAX_MEMPREV = 100; // 200ページ
-	public static final int MAX_NOISESCRL = 39; // 200ドット
-	public static final int MAX_NOISEUNDER = 50; // 5000
-	public static final int MAX_NOISEOVER = 50; // 5000
 	public static final int MAX_VOLSCRL = 39; // 200ドット
 	public static final int MAX_SCRLRNGW = 19; // 100% ((19+1)*5)
 	public static final int MAX_SCRLRNGH = 19; // 100% ((19+1)*5)
@@ -1154,11 +1138,6 @@ public class DEF {
 		return (val + 1) * 5;
 	}
 
-	// ノイズレベル
-	static public int calcNoiseLevel(int val) {
-		return val * 100;
-	}
-
 	// ページ番号表示
 	static public int calcPnumSize(int val) {
 		return val + 6;
@@ -1373,11 +1352,6 @@ public class DEF {
 	// ページ番号表示サイズ
 	static public String getPnumSizeStr(int val, String summ) {
 		return calcPnumSize(val) + " " + summ;
-	}
-
-	// 音量レベル
-	static public String getNoiseLevelStr(int val) {
-		return "" + calcNoiseLevel(val);
 	}
 
 	// 2バイト数値取得

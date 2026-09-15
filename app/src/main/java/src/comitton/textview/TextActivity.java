@@ -16,7 +16,6 @@ import src.comitton.config.SetImageActivity;
 import src.comitton.config.SetImageText;
 import src.comitton.config.SetImageTextColorActivity;
 import src.comitton.config.SetImageTextDetailActivity;
-import src.comitton.config.SetNoiseActivity;
 import src.comitton.config.SetTextActivity;
 import src.comitton.fileview.data.FileData;
 import src.comitton.fileview.data.RecordItem;
@@ -37,7 +36,6 @@ import src.comitton.dialog.TextConfigDialog;
 import src.comitton.dialog.TextConfigDialog.TextConfigListenerInterface;
 import src.comitton.fileview.filelist.RecordList;
 import src.comitton.imageview.PageSelectListener;
-import src.comitton.noise.NoiseSwitch;
 import src.comitton.imageview.ImageManager;
 import src.comitton.textview.TextManager.MidashiData;
 import src.comitton.common.GuideView;
@@ -90,11 +88,6 @@ public class TextActivity extends AppCompatActivity implements OnTouchListener, 
 	private static final int[] CTL_COUNT = { 1, 1, 2, 99999 }; // 対象のページ数
 	private static final int[] CTL_RANGE = { 2, 4, 3, 1 }; // 1ページ選択に必要な移動幅(単位)
 
-	private static final int NOISE_NEXTPAGE = 1;
-	private static final int NOISE_PREVPAGE = 2;
-	private static final int NOISE_NEXTSCRL = 3;
-	private static final int NOISE_PREVSCRL = 4;
-
 	private final int VOLKEY_NONE = 0;
 	private final int VOLKEY_DOWNTONEXT = 1;
 //	private final int VOLKEY_UPTONEXT   = 2;
@@ -103,7 +96,6 @@ public class TextActivity extends AppCompatActivity implements OnTouchListener, 
 	private static final int LONGTAP_TIMER_UI = 400;
 
 	private final int EVENT_READTIMER = 200;
-//	private final int EVENT_NOISE  = 203;
 
 	private static final int PAGE_SLIDE = 0;
 	private static final int PAGE_INPUT = 1;
@@ -180,12 +172,6 @@ public class TextActivity extends AppCompatActivity implements OnTouchListener, 
 	private int mPageWay = DEF.PAGEWAY_RIGHT; // テキストビュワーは右開きに固定
 
 	private boolean mIsConfSave;
-
-	private int mNoiseScrl;
-	private int mNoiseUnder;
-	private int mNoiseOver;
-	private int mNoiseDec;
-	private boolean mNoiseLevel;
 
 	private boolean mNotice;
 	private boolean mNoSleep;
@@ -296,9 +282,6 @@ public class TextActivity extends AppCompatActivity implements OnTouchListener, 
 	private ProgressDialog mReadDialog;
 	private String[] mReadingMsg;
 	private Message mReadTimerMsg;
-
-	private NoiseSwitch mNoiseSwitch = null;
-	private int mNoiseScroll = 0;
 
 	private int mTapPattern;
 	private int mTapRate;
@@ -527,9 +510,6 @@ public class TextActivity extends AppCompatActivity implements OnTouchListener, 
 		if (mTextView != null) {
 			mTextView.breakMessage(true);
 		}
-		if (mNoiseSwitch != null) {
-			mNoiseSwitch.recordPause(true);
-		}
 	}
 
 	/**
@@ -537,9 +517,6 @@ public class TextActivity extends AppCompatActivity implements OnTouchListener, 
 	 */
 	public void onResume() {
 		super.onResume();
-		if (mNoiseSwitch != null) {
-			mNoiseSwitch.recordPause(false);
-		}
 //		if (mTextView != null) {
 //			mTextView.breakMessage(false);
 //			mTextView.update(true);
@@ -555,11 +532,6 @@ public class TextActivity extends AppCompatActivity implements OnTouchListener, 
 		// 履歴保存
 		if (mHistorySaved == false) {
 			saveHistory(true);
-		}
-
-		// マイク停止
-		if (mNoiseSwitch != null) {
-			mNoiseSwitch.recordPause(true);
 		}
 	}
 
@@ -641,11 +613,6 @@ public class TextActivity extends AppCompatActivity implements OnTouchListener, 
 	// 終了処理
 	protected void onDestroy() {
 		super.onDestroy();
-
-		if (mNoiseSwitch != null) {
-			mNoiseSwitch.recordStop();
-			mNoiseSwitch = null;
-		}
 
 		if (mTextView != null) {
 			mTextView.setTextBuffer(null, null, null);
@@ -976,64 +943,6 @@ public class TextActivity extends AppCompatActivity implements OnTouchListener, 
 			case DEF.HMSG_ERROR:
 				// 読込中の表示
 				Toast.makeText(this, (String) msg.obj, Toast.LENGTH_SHORT).show();
-				return true;
-
-			case DEF.HMSG_NOISESTATE:
-				// 状態表示
-				if (mNoiseSwitch != null) {
-					mGuideView.setNoiseState(msg.arg1, mNoiseLevel ? msg.arg2 : -1);
-				}
-				return true;
-
-			case DEF.HMSG_NOISE:
-				// 読込中の表示
-				if (msg.arg1 == NOISE_NEXTPAGE) {
-					if (mNoiseScroll != 0) {
-						// スクロール停止
-						mNoiseScroll = 0;
-					}
-//					else
-					if (!mTextView.setViewPosScroll(1)) {
-						// スクロールする余地がなければ次ページ
-						nextPage();
-					}
-					else {
-						// スクロール開始
-						mTextView.startScroll();
-					}
-				}
-				else if (msg.arg1 == NOISE_PREVPAGE) {
-					if (mNoiseScroll != 0) {
-						// スクロール停止
-						mNoiseScroll = 0;
-					}
-//					else
-					if (!mTextView.setViewPosScroll(-1)) {
-						// スクロールする余地がなければ前ページ
-						prevPage();
-					}
-					else {
-						// スクロール開始
-						mTextView.startScroll();
-					}
-				}
-				else if (msg.arg1 == NOISE_NEXTSCRL || msg.arg1 == NOISE_PREVSCRL) {
-					int way = 1;
-					if (msg.arg1 == NOISE_PREVSCRL) {
-						way = -1;
-					}
-
-					// 読込中の表示
-					if (mTextView.checkScrollPoint() && (mNoiseScroll != 0 && way == mNoiseScroll)) {
-						mTextView.moveToNextPoint(mNoiseScrl);
-					}
-					else {
-						mNoiseScroll = way;
-						// 次のポイントへスクロール開始
-						if (mTextView.setViewPosScroll(mNoiseScroll)) {
-						}
-					}
-				}
 				return true;
 
 			case DEF.HMSG_READ_END:
@@ -2018,9 +1927,6 @@ public class TextActivity extends AppCompatActivity implements OnTouchListener, 
 			mMenuDialog.addItem(DEF.MENU_SEARCHJUMP, res.getString(R.string.searchJumpMenu));
 		}
 //		// ページ選択
-//		mMenuDialog.addItem(DEF.MENU_PAGESEL, res.getString(R.string.pageselMenu));
-		// 音操作
-		mMenuDialog.addItem(DEF.MENU_NOISE, res.getString(R.string.noiseMenu), mNoiseSwitch != null);
 		// 画面回転
 		if (mViewRota == DEF.ROTATE_PORTRAIT || mViewRota == DEF.ROTATE_LANDSCAPE) {
 			mMenuDialog.addItem(DEF.MENU_ROTATE, res.getString(R.string.rotateMenu));
@@ -2247,24 +2153,6 @@ public class TextActivity extends AppCompatActivity implements OnTouchListener, 
 				Intent intent = new Intent(TextActivity.this, SetConfigActivity.class);
 				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 				startActivityForResult(intent, DEF.REQUEST_SETTING);
-				break;
-			}
-			case DEF.MENU_NOISE: {
-				// マイク開始
-				if (mNoiseSwitch == null) {
-					mNoiseSwitch = new NoiseSwitch(mHandler);
-					mNoiseSwitch.setConfig(mNoiseUnder, mNoiseOver, mNoiseDec);
-					mNoiseSwitch.recordStart();
-					// 画面をスリープ無効
-					getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-				}
-				else {
-					mNoiseSwitch.recordStop();
-					mNoiseSwitch = null;
-					mGuideView.setNoiseState(0, 0);
-					// 画面をスリープ有効
-					getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-				}
 				break;
 			}
 			case DEF.MENU_CHG_OPE: {
@@ -2721,14 +2609,6 @@ public class TextActivity extends AppCompatActivity implements OnTouchListener, 
 		mScrlRngW = DEF.calcScrlRange(SetTextActivity.getScrlRngW(sharedPreferences));
 		mScrlRngH = DEF.calcScrlRange(SetTextActivity.getScrlRngH(sharedPreferences));
 
-		mNoiseScrl = DEF.calcScrlSpeedPix(SetNoiseActivity.getNoiseScrl(sharedPreferences), mDensity);
-		mNoiseUnder = DEF.calcNoiseLevel(SetNoiseActivity.getNoiseUnder(sharedPreferences));
-		mNoiseOver = DEF.calcNoiseLevel(SetNoiseActivity.getNoiseOver(sharedPreferences));
-		mNoiseLevel = SetNoiseActivity.getNoiseLevel(sharedPreferences);
-		mNoiseDec = SetNoiseActivity.getNoiseDec(sharedPreferences);
-		if (mNoiseSwitch != null) {
-			mNoiseSwitch.setConfig(mNoiseUnder, mNoiseOver, mNoiseDec);
-		}
 
 		mMgnColor = SetImageTextColorActivity.getTxtMgnColor(sharedPreferences);
 		mCenColor = SetImageTextColorActivity.getTxtCntColor(sharedPreferences);

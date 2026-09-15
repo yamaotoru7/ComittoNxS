@@ -152,12 +152,8 @@ public class SeekBarPreference extends DialogPreference implements SeekBar.OnSee
 			mSummary1 = mContext.getString(R.string.mPageSumm1);
 			mSummary2 = "";
 		}
-		else if (mKey.equals(DEF.KEY_VOLSCRL) || mKey.equals(DEF.KEY_NOISESCRL)) {
+		else if (mKey.equals(DEF.KEY_VOLSCRL)) {
 			mSummary1 = mContext.getString(R.string.unitSumm1);
-			mSummary2 = "";
-		}
-		else if (mKey.equals(DEF.KEY_NOISEUNDER) || mKey.equals(DEF.KEY_NOISEOVER)) {
-			mSummary1 = "";
 			mSummary2 = "";
 		}
 		else if (mKey.equals(DEF.KEY_TX_FONTTOP) || mKey.equals(DEF.KEY_TX_FONTBODY) || mKey.equals(DEF.KEY_TX_FONTRUBI) || mKey.equals(DEF.KEY_TX_FONTINFO)) {
@@ -264,11 +260,8 @@ public class SeekBarPreference extends DialogPreference implements SeekBar.OnSee
 		else if (mKey.equals(DEF.KEY_MEMNEXT) || mKey.equals(DEF.KEY_MEMPREV)) {
 			strSummary = DEF.getMemPageStr(num, mSummary1);
 		}
-		else if (mKey.equals(DEF.KEY_VOLSCRL) || mKey.equals(DEF.KEY_NOISESCRL)) {
+		else if (mKey.equals(DEF.KEY_VOLSCRL)) {
 			strSummary = DEF.getScrlSpeedStr(num, mSummary1);
-		}
-		else if (mKey.equals(DEF.KEY_NOISEUNDER) || mKey.equals(DEF.KEY_NOISEOVER)) {
-			strSummary = DEF.getNoiseLevelStr(num);
 		}
 		else if (mKey.equals(DEF.KEY_TX_SPACEW) || mKey.equals(DEF.KEY_TX_SPACEH)) {
 			strSummary = DEF.getTextSpaceStr(num, mSummary1);

@@ -37,10 +37,3 @@ ComittoNxX のコードベースおよび実行環境の精査によって抽出
   - **対象ファイル**: `ThumbnailLoader.java`, 各種リスナー・スレッド
   - **内容**: バックグラウンドスレッドや非同期タスクが `AppCompatActivity` の強参照を保持し、画面回転時にメモリリークが発生するのを防ぐため、WeakReference や LifecycleAware な構成に変更する。
 
-- [ ] **2.4 SMB 認証情報の安全な保管**
-  - **対象ファイル**: `RecordList.java` (`server.dat`)
-  - **内容**: 登録サーバーのユーザー名・パスワードが内部ストレージの TSV に平文保存されているため、`EncryptedSharedPreferences` や Keystore を用いた暗号化を検討・適用する。
-
-- [ ] **2.5 `RECORD_AUDIO`（マイク権限）の分離または見直し**
-  - **対象ファイル**: `AndroidManifest.xml`, `SetNoiseActivity.java`
-  - **内容**: 音声ノイズによるページめくり機能のためにマイク権限が宣言されているが、一般のビュワー利用者にとっては不要かつセキュリティ上の懸念になりやすい。機能のオプトイン化や権限要求の最適化を検討する。

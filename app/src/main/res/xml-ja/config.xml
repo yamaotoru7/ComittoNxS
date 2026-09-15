@@ -88,14 +88,6 @@
     </PreferenceCategory>
     <PreferenceCategory android:title="その他の設定" >
         <PreferenceScreen
-            android:key="NoiseSet"
-            android:title="音操作の設定"
-            android:summary="音操作での認識速度や検知レベル等のパラメータを設定する" >
-            <intent
-                android:targetClass="src.comitton.config.SetNoiseActivity"
-                android:targetPackage="@string/application_id" />
-        </PreferenceScreen>
-        <PreferenceScreen
             android:key="MemoryCache"
             android:title="メモリキャッシュの設定"
             android:summary="メモリキャッシュのサイズやページ数のパラメータを設定する（再起動で反映）" >

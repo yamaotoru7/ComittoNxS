@@ -120,7 +120,6 @@
     <string name="aboutMenu">About</string>
     <string name="downloadCountMenu">Number of Downloads</string>
     <string name="licenseMenu">License</string>
-    <string name="noiseMenu">Operation by noise</string>
     <string name="playMenu">Auto Play</string>
     <string name="thumbMenu">Delete Thumbnail Cache</string>
     <string name="shareMenu">Share</string>
@@ -396,9 +395,6 @@
     <string name="effect03">Scroll</string>
     <string name="quality00">fast, low quality</string>
     <string name="quality01">slow, high quality</string>
-    <string name="noisedec00">Slow</string>
-    <string name="noisedec01">Normal</string>
-    <string name="noisedec02">Quick</string>
     <string name="rotabtn00">No Use</string>
     <string name="rotabtn01">Camera Focus</string>
     <string name="rotabtn02">Camera Shutter</string>
@@ -478,7 +474,6 @@
     <string name="url_imagetextdetail">config/image_text_detail.html</string>
     <string name="url_imagetextcolor">config/image_text_color.html</string>
     <string name="url_common">config/common.html</string>
-    <string name="url_noise">config/noise.html</string>
     <string name="url_cache">config/cache.html</string>
     <string name="url_operate">config/operate.html</string>
     <string name="url_operatetext">config/operate_text.html</string>
