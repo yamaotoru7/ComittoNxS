@@ -25,7 +25,7 @@ import src.comitton.imageview.ImageManager;
 
 public class CropImageActivity extends AppCompatActivity implements Runnable, TextWatcher, CropImageView.CropCallback{
     private String mFile;	        	// ZIPファイル名
-    private String mPath;				// ベースuriからのパス名 (SAF未対応 (ComittoNxX v3.0.0 未満))
+    private String mPath;				// ベースuriからのパス名 (SAF未対応 (ComittoNxS v3.0.0 未満))
     private String mURI;		            // ベースディレクトリのuri
     private String mUser;			    // SMB認証用
     private String mPass;			    // SMB認証用

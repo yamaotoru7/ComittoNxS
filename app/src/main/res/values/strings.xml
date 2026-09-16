@@ -2,8 +2,8 @@
 <resources>
 
     <!-- build.gradle から上書きするためにコメントアウト
-    <string name="app_name">ComittoNxX</string>
-    <string name="app_launch_name">ComittoNxX</string>
+    <string name="app_name">ComittoNxS</string>
+    <string name="app_launch_name">ComittoNxS</string>
     -->
     <string name="noticeText">history.html</string>
     <string name="aboutText">about.html</string>
@@ -209,7 +209,7 @@
     <string name="topTitle">Top Page</string>
     <string name="backTitle">Close</string>
     <string name="cdBtnClose">Close Viewer</string>
-    <string name="cdBtnExit">Exit ComittoNxX</string>
+    <string name="cdBtnExit">Exit ComittoNxS</string>
     <string name="cdBtnCancel">Cancel</string>
     <string name="cdBtnNext">Open next file\n(marked page)</string>
     <string name="cdBtnNextTop">Open next file\n(top page)</string>
@@ -228,7 +228,7 @@
     <string name="rsMsg">Want to open the file that was last displayed?</string>
     <string name="rsBtnYes">Yes</string>
     <string name="rsBtnNo">No</string>
-    <string name="noticeTitle">Notes of ComittoNxX</string>
+    <string name="noticeTitle">Notes of ComittoNxS</string>
     <string name="aboutDonate">Donate</string>
     <string name="aboutOK">OK</string>
     <string name="aboutSource">Source Download Page</string>
@@ -363,7 +363,7 @@
     <string name="loupe04">Display x2.0</string>
     <string name="loupe05">Display x2.5</string>
     <string name="loupe06">Display x3.0</string>
-    <string name="bkmode00">Exit ComittoNxX</string>
+    <string name="bkmode00">Exit ComittoNxS</string>
     <string name="bkmode01">Parent Directory</string>
     <string name="bkmode02">History Back</string>
     <string name="volkey00">No Use</string>

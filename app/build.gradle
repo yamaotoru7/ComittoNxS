@@ -2,7 +2,7 @@ plugins {
     id 'com.android.application'
 }
 
-def applicationName = "ComittoNxX"
+def applicationName = "ComittoNxS"
 def versionMajor = 2
 def versionMinor = 4
 def versionPatch = 10
