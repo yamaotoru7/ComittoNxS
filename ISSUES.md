@@ -7,10 +7,6 @@ ComittoNxX のコードベースおよび実行環境の精査によって抽出
 
 ## 1. 最新 Android (14/15) 互換性向上
 
-- [ ] **1.2 予測型「戻る」ジェスチャー（Predictive Back）対応**
-  - **対象ファイル**: 全画面の `onKeyDown` / `onKeyUp`
-  - **内容**: 戻るキーの処理が `KeyEvent.KEYCODE_BACK` のキーイベント監視で行われており、Android 13/14+ のジェスチャーナビゲーション（スワイプで戻る）や Predictive Back と整合しない。AndroidX の `OnBackPressedDispatcher` / `OnBackPressedCallback` へ移行する。
-
 - [ ] **1.3 非推奨 Preference API (`PreferenceActivity`) の刷新**
   - **対象ファイル**: `app/src/main/java/src/comitton/config/` 配下のすべての設定画面
   - **内容**: 全ての設定 Activity が Android 10 (API 29) で非推奨となった `android.preference.PreferenceActivity` を直接継承しており、コンパイル時に大量の警告が発生している。`androidx.preference.PreferenceFragmentCompat` にリプレイスする。

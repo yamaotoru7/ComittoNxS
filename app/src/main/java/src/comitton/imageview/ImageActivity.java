@@ -43,6 +43,8 @@ import src.comitton.fileview.filelist.RecordList;
 import src.comitton.common.GuideView;
 import src.comitton.common.SystemUiHelper;
 
+import androidx.activity.OnBackPressedCallback;
+
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import androidx.appcompat.app.AlertDialog;
@@ -555,6 +557,13 @@ public class ImageActivity extends AppCompatActivity implements OnTouchListener,
 		setContentView(layout);
 		SystemUiHelper.setupEdgeToEdge(this);
 		SystemUiHelper.updateSystemBars(this, mImmEnable, mNotice);
+
+		getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+			@Override
+			public void handleOnBackPressed() {
+				operationBack();
+			}
+		});
 
 		mImageView.setFocusable(true);
 		mImageView.setGuideView(mGuideView);

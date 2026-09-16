@@ -22,6 +22,7 @@ import src.comitton.textview.TextActivity;
 import src.comitton.textview.TextManager;
 import src.comitton.common.DEF;
 import src.comitton.common.SystemUiHelper;
+import androidx.activity.OnBackPressedCallback;
 import src.comitton.cropimageview.CropImageActivity;
 import src.comitton.fileaccess.FileAccess;
 import src.comitton.common.ImageAccess;
@@ -321,6 +322,13 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 		setContentView(layout);
 		SystemUiHelper.setupEdgeToEdge(this);
 		SystemUiHelper.applySystemWindowInsets(layout, true, true, true, true);
+
+		getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+			@Override
+			public void handleOnBackPressed() {
+				operationBack();
+			}
+		});
 
 		// リストモードの設定
 		mListMode = (short) mSharedPreferences.getInt(DEF.KEY_LISTMODE, FileListArea.LISTMODE_LIST);
@@ -1187,6 +1195,66 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 
 	private boolean mEnterDown = false;
 
+	public void operationBack() {
+		int listtype = mListScreenView.getListType();
+		if (listtype != RecordList.TYPE_FILELIST) {
+			switchFileList(); // ファイルリストをアクティブ化
+			return;
+		}
+
+		// ジェスチャーナビゲーションのBack操作中に長押し判定が発生していた場合にキャンセルする
+		if (mTouchArea == ListScreenView.AREATYPE_FILELIST) {
+			mListScreenView.mFileListArea.cancelOperation();
+		} else if (mTouchArea == ListScreenView.AREATYPE_DIRLIST) {
+			mListScreenView.mDirListArea.cancelOperation();
+		} else if (mTouchArea == ListScreenView.AREATYPE_SERVERLIST) {
+			mListScreenView.mServerListArea.cancelOperation();
+		} else if (mTouchArea == ListScreenView.AREATYPE_FAVOLIST) {
+			mListScreenView.mFavoListArea.cancelOperation();
+		} else if (mTouchArea == ListScreenView.AREATYPE_HISTLIST) {
+			mListScreenView.mHistListArea.cancelOperation();
+		}
+
+		if (mBackMode == BACKMODE_EXIT) {
+			checkExitTimer();
+			return;
+		} else if (mBackMode == BACKMODE_PARENT) {
+			// 親ディレクトリに移動
+			if (mPath.equals("/")) {
+				// アプリ終了
+				checkExitTimer();
+				return;
+			}
+			moveParentDir();
+			mExitBackTimer = 0;
+
+			switchFileList(); // ファイルリストをアクティブ化
+			return;
+		} else if (mBackMode == BACKMODE_HISTORY) {
+			HistoryData data = mPathHistory.pop();
+			String uri;
+			if (data == null) {
+				// 最初のディレクトリ
+				checkExitTimer();
+				return;
+			} else if (data.mCode == null || data.mCode.length() <= 0) {
+				mServer.select(DEF.INDEX_LOCAL);
+				uri = "";
+			} else {
+				if (!mServer.select(data.mCode)) {
+					mExitBackTimer = 0;
+					return;
+				}
+				uri = mServer.getURI();
+			}
+			moveFileSelect(uri, data.mPath, data.mTopIndex, false);
+			mExitBackTimer = 0;
+
+			switchFileList(); // ファイルリストをアクティブ化
+			return;
+		}
+	}
+
 	@Override
 	public boolean dispatchKeyEvent(KeyEvent event) {
 		int keycode = event.getKeyCode();
@@ -1219,68 +1287,8 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 					break;
 				case KeyEvent.KEYCODE_ESCAPE:
 				case KeyEvent.KEYCODE_BACK:
-					int listtype = mListScreenView.getListType();
-					if(listtype != RecordList.TYPE_FILELIST){
-						switchFileList(); // ファイルリストをアクティブ化
-						return true;
-					}
-
-					// ジェスチャーナビゲーションのBack操作中に長押し判定が発生していた場合にキャンセルする
-					if (mTouchArea == ListScreenView.AREATYPE_FILELIST) {
-						mListScreenView.mFileListArea.cancelOperation();
-					} else if (mTouchArea == ListScreenView.AREATYPE_DIRLIST) {
-						mListScreenView.mDirListArea.cancelOperation();
-					} else if (mTouchArea == ListScreenView.AREATYPE_SERVERLIST) {
-						mListScreenView.mServerListArea.cancelOperation();
-					} else if (mTouchArea == ListScreenView.AREATYPE_FAVOLIST) {
-						mListScreenView.mFavoListArea.cancelOperation();
-					} else if (mTouchArea == ListScreenView.AREATYPE_HISTLIST) {
-						mListScreenView.mHistListArea.cancelOperation();
-					}
-
-					if (mBackMode == BACKMODE_EXIT) {
-						checkExitTimer();
-						return true;
-					}
-					else if (mBackMode == BACKMODE_PARENT) {
-						// 親ディレクトリに移動
-						if (mPath.equals("/")) {
-							// アプリ終了
-							checkExitTimer();
-							return true;
-						}
-						moveParentDir();
-						mExitBackTimer = 0;
-
-						switchFileList(); // ファイルリストをアクティブ化
-						return true;
-					}
-					else if (mBackMode == BACKMODE_HISTORY) {
-						HistoryData data = mPathHistory.pop();
-						String uri;
-						if (data == null) {
-							// 最初のディレクトリ
-							checkExitTimer();
-							return true;
-						}
-						else if (data.mCode == null || data.mCode.length() <= 0) {
-							mServer.select(DEF.INDEX_LOCAL);
-							uri = "";
-						}
-						else {
-							if (!mServer.select(data.mCode)) {
-								mExitBackTimer = 0;
-								return true;
-							}
-							uri = mServer.getURI();
-						}
-						moveFileSelect(uri, data.mPath, data.mTopIndex, false);
-						mExitBackTimer = 0;
-
-						switchFileList(); // ファイルリストをアクティブ化
-						return true;
-					}
-					break;
+					operationBack();
+					return true;
 				case KeyEvent.KEYCODE_CAMERA:
 				case KeyEvent.KEYCODE_FOCUS:
 					if (mRotateBtn == 0) {
@@ -1318,11 +1326,7 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 		else if (event.getAction() == KeyEvent.ACTION_UP) {
 			switch (keycode) {
 				case KeyEvent.KEYCODE_BACK:
-					if (mBackMode == BACKMODE_PARENT || mBackMode == BACKMODE_HISTORY) {
-						// 上へ又は履歴移動のときのUPは何もしない
-						return true;
-					}
-					break;
+					return true;
 				case KeyEvent.KEYCODE_ENTER:
 				case KeyEvent.KEYCODE_DPAD_CENTER:
 					if (mEnterDown) {
