@@ -8,9 +8,6 @@ ComittoNxX のコードベースおよび実行環境の精査によって抽出
 
 ## 2. アーキテクチャ・品質・セキュリティ
 
-- [ ] **2.1 God Activity の分割・責務分離**
-  - **対象ファイル**: `FileSelectActivity.java` (4,344行), `ImageActivity.java` (4,918行), `TextActivity.java` (3,159行)
-  - **内容**: UI描画、入力処理、ファイルIO、非同期スレッド、ダイアログ制御が巨大な単一クラスに密結合している。ViewModel や専用コントローラークラス等へ責務を順次切り出す。
 
 - [ ] **2.2 自動テスト環境（Unit Test / Instrumentation Test）の導入**
   - **対象ファイル**: `app/src/test/`

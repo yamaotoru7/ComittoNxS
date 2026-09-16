@@ -1408,33 +1408,10 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 					public void onClick(DialogInterface dialog, int whichButton) {
 						// ファイル削除
 						if (mFileData != null) {
-							String user = mServer.getUser();
-							String pass = mServer.getPass();
-							String uri = DEF.relativePath(mActivity, mURI, mPath, mFileData.getName());
-							Logcat.d(logLevel, "ファイルを削除します: " + uri);
-							try {
-								boolean isDeleted = FileAccess.delete(mActivity, uri, user, pass);
-								if (isDeleted) {
-									// 削除できていたら画面から消す
-									Logcat.d(logLevel, "ファイルを削除できました。");
-									int topindex = mListScreenView.mFileListArea.getTopIndex();
-									loadListView(topindex);
-									String file = DEF.createUrl(uri, user, pass);
-									Editor ed = mSharedPreferences.edit();
-									ed.remove(file + "#date");
-									ed.remove(file + "#maxpage");
-									ed.remove(file);
-									ed.remove(file + "META-INF/container.xml" + "#maxpage");
-									ed.remove(file + "META-INF/container.xml");
-									ed.apply();
-									ThumbnailLoader.deleteThumbnailCache(uri, mThumbSizeW, mThumbSizeH);
-								}
-								else {
-									Logcat.e(logLevel, getResources().getString(R.string.delErrorMsg));
-									Toast.makeText(mActivity, mActivity.getText(R.string.delErrorMsg) + "\n" + DEF.relativePath(mActivity, mURI, mPath, mFileData.getName()), Toast.LENGTH_LONG).show();
-								}
-							} catch (FileAccessException e) {
-								Toast.makeText(mActivity, e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+							boolean isDeleted = FileOperationHelper.deleteFile(mActivity, mServer, mURI, mPath, mFileData, mThumbSizeW, mThumbSizeH, mSharedPreferences);
+							if (isDeleted) {
+								int topindex = mListScreenView.mFileListArea.getTopIndex();
+								loadListView(topindex);
 							}
 							mFileData = null;
 						}
@@ -1631,76 +1608,11 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 				mTextInputDialog = new TextInputDialog(mActivity, R.style.MyDialog, title, fromfile, notice, fromfile, new TextInputDialog.SearchListener() {
 					@Override
 					public void onSearch(String filename) {
-						// ファイルリネーム
 						if (mFileData != null) {
-							String user = mServer.getUser();
-							String pass = mServer.getPass();
-							String fromfile = mFileData.getName();
-							int index;
-							int filetype = mFileData.getType();
-							if (filetype != FileData.FILETYPE_DIR) {
-								// ファイルは拡張子を除去
-								index = fromfile.lastIndexOf('.');
-								if (index < 0) {
-									return;
-								}
-								// 拡張子をつける
-								filename = filename + fromfile.substring(index);
-							}
-							try {
-								String uri = DEF.relativePath(mActivity, mURI, mPath);
-								Logcat.d(logLevel, "ファイル名を変更します: uri=" + uri);
-								boolean ret = FileAccess.renameTo(mActivity, uri, fromfile, filename, user, pass);
-								if (filetype == FileData.FILETYPE_DIR) {
-									filename = filename + "/";
-								}
-								if (ret) {
-									// 表示するファイル名を変更する
-									mFileData.setName(mActivity, filename);
-									mFileData = null;
-									updateListView();
-
-									// 既読情報の名前を変更する
-									String fromUri = DEF.relativePath(mActivity, mURI, mPath, fromfile);
-									String toUri = DEF.relativePath(mActivity, mURI, mPath, filename);
-									String from = DEF.createUrl(fromUri, user, pass);
-									String to = DEF.createUrl(toUri, user, pass);
-
-									Editor ed = mSharedPreferences.edit();
-									int nowdate = mSharedPreferences.getInt(from + "#date", 0);
-									if (nowdate != 0) {
-										ed.putInt(to + "#date", nowdate);
-									}
-									int maxpage = mSharedPreferences.getInt(from + "#maxpage", DEF.PAGENUMBER_NONE);
-									if (maxpage != DEF.PAGENUMBER_NONE) {
-										ed.putInt(to + "#maxpage", maxpage);
-									}
-									int state = mSharedPreferences.getInt(from, DEF.PAGENUMBER_UNREAD);
-									if (state != DEF.PAGENUMBER_UNREAD) {
-										ed.putInt(to, state);
-									}
-									int maxpage_epub = mSharedPreferences.getInt(from + "META-INF/container.xml" + "#maxpage", DEF.PAGENUMBER_NONE);
-									if (maxpage_epub != DEF.PAGENUMBER_NONE) {
-										ed.putInt(to + "META-INF/container.xml" + "#maxpage", maxpage_epub);
-									}
-									int state_epub = mSharedPreferences.getInt(from + "META-INF/container.xml", DEF.PAGENUMBER_UNREAD);
-									if (state_epub != DEF.PAGENUMBER_UNREAD) {
-										ed.putInt(to + "META-INF/container.xml", state_epub);
-									}
-									ed.remove(from + "#date");
-									ed.remove(from + "#maxpage");
-									ed.remove(from);
-									ed.remove(from + "META-INF/container.xml" + "#maxpage");
-									ed.remove(from + "META-INF/container.xml");
-									ed.apply();
-									ThumbnailLoader.renameThumbnailCache(fromUri, toUri, mThumbSizeW, mThumbSizeH);
-								}
-								else {
-									Logcat.e(logLevel, mActivity.getText(R.string.renameErrorMsg) + ": " + DEF.relativePath(mActivity, mURI, mPath, fromfile));
-									Toast.makeText(mActivity, mActivity.getText(R.string.renameErrorMsg) + "\n" + DEF.relativePath(mActivity, mURI, mPath, fromfile), Toast.LENGTH_LONG).show();
-								}
-							} catch (FileAccessException e) {
-								Toast.makeText(mActivity, e.getClass().getSimpleName() + ": " + e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+							boolean ret = FileOperationHelper.renameFile(mActivity, mServer, mURI, mPath, mFileData, filename, mThumbSizeW, mThumbSizeH, mSharedPreferences);
+							if (ret) {
+								mFileData = null;
+								updateListView();
 							}
 						}
 					}

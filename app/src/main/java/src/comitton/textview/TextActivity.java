@@ -283,6 +283,7 @@ public class TextActivity extends AppCompatActivity implements OnTouchListener, 
 
 	private Information mInformation;
 	private LoadingProgressDialog mReadDialog;
+	private TextDialogHelper mDialogHelper;
 	private String[] mReadingMsg;
 	private Message mReadTimerMsg;
 
@@ -340,6 +341,7 @@ public class TextActivity extends AppCompatActivity implements OnTouchListener, 
 		mReadRunning = false;
 		mHandler = new Handler(this);
 		mActivity = this;
+		mDialogHelper = new TextDialogHelper(this);
 		mDensity = getResources().getDisplayMetrics().scaledDensity;
 		mImmCancelRange = (int)(getResources().getDisplayMetrics().density * 6);
 		mIsConfSave = true;
@@ -614,6 +616,9 @@ public class TextActivity extends AppCompatActivity implements OnTouchListener, 
 				mTextMgr.release();
 			}
 			mTextView.setPictures(null);
+		}
+		if (mDialogHelper != null) {
+			mDialogHelper.dismissDialogs();
 		}
 	}
 
@@ -2838,7 +2843,7 @@ public class TextActivity extends AppCompatActivity implements OnTouchListener, 
 		finishActivity(CloseDialog.CLICK_CLOSE, resume, true);
 	}
 
-	private void finishActivity(int select, boolean resume, boolean mark) {
+	void finishActivity(int select, boolean resume, boolean mark) {
 		// 続きから読み込みの設定
 		if (!resume) {
 			removeLastFile();
@@ -2986,26 +2991,9 @@ public class TextActivity extends AppCompatActivity implements OnTouchListener, 
 	}
 
 	private void showCloseDialog(int layout) {
-		if (mCloseDialog != null) {
-			return;
+		if (mDialogHelper != null) {
+			mDialogHelper.showCloseDialog(layout);
 		}
-		mCloseDialog = new CloseDialog(this, R.style.MyDialog);
-		mCloseDialog.setTitleText(layout);
-		mCloseDialog.setCloseListear(new CloseListenerInterface() {
-			@Override
-			public void onCloseSelect(int select, boolean resume, boolean mark) {
-				if (select != CloseDialog.CLICK_CANCEL) {
-					finishActivity(select, resume, mark);
-				}
-			}
-
-			@Override
-			public void onClose() {
-				// 終了
-				mCloseDialog = null;
-			}
-		});
-		mCloseDialog.show();
 	}
 
 	//	// 長押しタイマーイベント検知処理

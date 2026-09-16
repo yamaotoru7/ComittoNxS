@@ -449,6 +449,7 @@ public class ImageActivity extends AppCompatActivity implements OnTouchListener,
 
 	private Information mInformation;
 	private LoadingProgressDialog mReadDialog;
+	private ImageDialogHelper mDialogHelper;
 	private String[] mReadingMsg;
 	private Message mReadTimerMsg;
 	private boolean mScrolling = false;
@@ -508,6 +509,7 @@ public class ImageActivity extends AppCompatActivity implements OnTouchListener,
 		mListLoading = false;
 		mHandler = new Handler(this);
 		mActivity = this;
+		mDialogHelper = new ImageDialogHelper(this);
 		mNextPage = -1;
 		mIsConfSave = true;
 
@@ -706,6 +708,9 @@ public class ImageActivity extends AppCompatActivity implements OnTouchListener,
 		}
 		if (mImageView != null) {
 			mImageView.setImageBitmap(mSourceImage);
+		}
+		if (mDialogHelper != null) {
+			mDialogHelper.dismissDialogs();
 		}
 		System.gc();
 		Logcat.i(logLevel, "終了します.");
@@ -4542,30 +4547,9 @@ public class ImageActivity extends AppCompatActivity implements OnTouchListener,
 	}
 
 	private void showCloseDialog(int layout) {
-		int logLevel = Logcat.LOG_LEVEL_WARN;
-		Logcat.d(logLevel, "開始します.");
-
-		if (mCloseDialog != null) {
-			return;
+		if (mDialogHelper != null) {
+			mDialogHelper.showCloseDialog(layout);
 		}
-		mCloseDialog = new CloseDialog(this, R.style.MyDialog);
-		mCloseDialog.setTitleText(layout);
-		mCloseDialog.setCloseListear(new CloseListenerInterface() {
-			@Override
-			public void onCloseSelect(int select, boolean resume, boolean mark) {
-				//
-				if (select != CloseDialog.CLICK_CANCEL) {
-					finishActivity(select, resume, mark);
-				}
-			}
-
-			@Override
-			public void onClose() {
-				// 終了
-				mCloseDialog = null;
-			}
-		});
-		mCloseDialog.show();
 	}
 
 	@Override
