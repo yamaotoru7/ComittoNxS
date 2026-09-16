@@ -52,7 +52,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 
 import android.app.Dialog;
-import android.app.ProgressDialog;
+import src.comitton.dialog.LoadingProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -448,7 +448,7 @@ public class ImageActivity extends AppCompatActivity implements OnTouchListener,
 	private boolean mFinishActivity;
 
 	private Information mInformation;
-	private ProgressDialog mReadDialog;
+	private LoadingProgressDialog mReadDialog;
 	private String[] mReadingMsg;
 	private Message mReadTimerMsg;
 	private boolean mScrolling = false;
@@ -630,9 +630,9 @@ public class ImageActivity extends AppCompatActivity implements OnTouchListener,
 		// プログレスダイアログ準備
 		mReadBreak = false;
 
-		mReadDialog = new ProgressDialog(this, R.style.MyDialog);
-		mReadDialog.setMessage(mReadingMsg[0] + " (0)");
-		mReadDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+		mReadDialog = new LoadingProgressDialog(this, R.style.MyDialog);
+		mReadDialog.setMessage(mReadingMsg[2] + " (0)");
+		mReadDialog.setProgressStyle(LoadingProgressDialog.STYLE_SPINNER);
 		mReadDialog.setCancelable(true);
 		mReadDialog.setOnShowListener(new DialogInterface.OnShowListener() {
 			@Override

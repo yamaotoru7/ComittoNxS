@@ -5,12 +5,6 @@ ComittoNxX のコードベースおよび実行環境の精査によって抽出
 
 ---
 
-## 1. 最新 Android (14/15) 互換性向上
-
-
-- [ ] **1.4 非推奨ダイアログ API (`ProgressDialog`, `showDialog(int)`) の移行**
-  - **対象ファイル**: `FileSelectActivity.java`, `ImageActivity.java`, `TextActivity.java` 等
-  - **内容**: Android 3.0 (API 11) 非推奨の `showDialog(int)` / `onCreateDialog(int)` および Android 8.0 非推奨の `ProgressDialog` を `DialogFragment` や現代的なプログレス表示に移行する。
 
 ## 2. アーキテクチャ・品質・セキュリティ
 

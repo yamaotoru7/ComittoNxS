@@ -1,7 +1,6 @@
 package src.comitton.cropimageview;
 
 import android.annotation.SuppressLint;
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -20,6 +19,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import jp.dip.muracoro.comittonx.R;
 import src.comitton.common.DEF;
 import src.comitton.common.Logcat;
+import src.comitton.dialog.LoadingProgressDialog;
 import src.comitton.imageview.ImageManager;
 
 
@@ -34,7 +34,7 @@ public class CropImageActivity extends AppCompatActivity implements Runnable, Te
 
 
     private CropImageView mCropImageView;
-    private ProgressDialog mProgress;
+    private LoadingProgressDialog mProgress;
     private EditText mEditAspectRatio;
     float mAspectRatio;
 
@@ -65,10 +65,10 @@ public class CropImageActivity extends AppCompatActivity implements Runnable, Te
         mCropImageView.setAspectRatio(mAspectRatio);
         mCropImageView.setCallback(this);
 
-        mProgress = new ProgressDialog(this, R.style.MyDialog);
+        mProgress = new LoadingProgressDialog(this, R.style.MyDialog);
         mProgress.setIndeterminate(true);
         mProgress.setMessage("Loading...");
-        mProgress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        mProgress.setProgressStyle(LoadingProgressDialog.STYLE_SPINNER);
         mProgress.show();
 
         mThread = new Thread(this);

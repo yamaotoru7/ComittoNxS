@@ -68,7 +68,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import android.app.Dialog;
-import android.app.ProgressDialog;
+import src.comitton.dialog.LoadingProgressDialog;
 import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.DialogInterface;
@@ -260,7 +260,7 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 
 	private StorageManager mStorageManager;
 
-	private ProgressDialog mReadDialog;
+	private LoadingProgressDialog mReadDialog;
 	private String[] mReadingMsg;
 
 	private static final int REQUEST_CODE = 1;
@@ -445,7 +445,7 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 				// 初回起動のみ(回転時などは行わない)
 				int lastView = mSharedPreferences.getInt("LastOpen", -1);
 				if (lastView != DEF.LASTOPEN_NONE) {
-					showDialog(DEF.MESSAGE_RESUME);
+					showAppDialog(DEF.MESSAGE_RESUME);
 				}
 			}
 		}
@@ -581,9 +581,9 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 			mReadingMsg[0] = res.getString(R.string.textParsing);
 
 			// プログレスダイアログ準備
-			mReadDialog = new ProgressDialog(this, R.style.MyDialog);
+			mReadDialog = new LoadingProgressDialog(this, R.style.MyDialog);
 			mReadDialog.setMessage(mReadingMsg[0]);
-			mReadDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+			mReadDialog.setProgressStyle(LoadingProgressDialog.STYLE_SPINNER);
 			mReadDialog.setCancelable(true);
 			mReadDialog.setOnShowListener(new DialogInterface.OnShowListener() {
 				@Override
@@ -1394,17 +1394,15 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 	}
 
 	/**
-	 * ダイアログのレイアウトを指定する
+	 * ダイアログを表示する
 	 */
-	// ActivityクラスのonCreateDialogをオーバーライド
-	@Override
-	protected Dialog onCreateDialog(int id) {
+	private void showAppDialog(int id) {
 		int logLevel = Logcat.LOG_LEVEL_WARN;
-		Dialog dialog = null;
 		AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this, R.style.MyDialog);
 		switch (id) {
-			case DEF.MESSAGE_FILE_DELETE:
-				dialogBuilder.setTitle("ファイル削除");
+			case DEF.MESSAGE_FILE_DELETE: {
+				String title = (mFileData != null) ? mFileData.getName() : "ファイル削除";
+				dialogBuilder.setTitle(title);
 				dialogBuilder.setMessage(R.string.delMsg);
 				dialogBuilder.setPositiveButton(R.string.btnOK, new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int whichButton) {
@@ -1448,10 +1446,21 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 						mFileData = null;
 					}
 				});
-				dialog = dialogBuilder.create();
+				dialogBuilder.create().show();
 				break;
-			case DEF.MESSAGE_RECORD_DELETE:
-				dialogBuilder.setTitle("dummy");
+			}
+			case DEF.MESSAGE_RECORD_DELETE: {
+				String title = "dummy";
+				if (mSelectRecord != null) {
+					int listtype = mListScreenView.getListType();
+					if (listtype == RecordList.TYPE_BOOKMARK) {
+						title = mSelectRecord.getDispName();
+					}
+					else {
+						title = mSelectRecord.getPath();
+					}
+				}
+				dialogBuilder.setTitle(title);
 				dialogBuilder.setMessage(R.string.delBmMsg);
 				dialogBuilder.setPositiveButton(R.string.btnOK, new DialogInterface.OnClickListener() {
 					@Override
@@ -1472,11 +1481,22 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 						// dialog.cancel();
 					}
 				});
-				dialog = dialogBuilder.create();
+				dialogBuilder.create().show();
 				break;
-			case DEF.MESSAGE_DOWNLOAD:
-				dialogBuilder.setTitle("Download");
-				dialogBuilder.setMessage("");
+			}
+			case DEF.MESSAGE_DOWNLOAD: {
+				String title = (mFileData != null) ? mFileData.getName() : "Download";
+				dialogBuilder.setTitle(title);
+				String localPath = mServer.getPath(DEF.INDEX_LOCAL);
+				Resources res = getResources();
+				String str1 = res.getString(R.string.downMsg1);
+				String str2 = res.getString(R.string.downMsg2);
+				if (!str1.isEmpty()) {
+					dialogBuilder.setMessage(str1 + " " + localPath);
+				}
+				else {
+					dialogBuilder.setMessage(localPath + " " + str2);
+				}
 				dialogBuilder.setPositiveButton(R.string.btnOK, new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int whichButton) {
 						if (mFileData != null) {
@@ -1496,8 +1516,9 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 						dialog.dismiss();
 					}
 				});
-				dialog = dialogBuilder.create();
+				dialogBuilder.create().show();
 				break;
+			}
 			case DEF.MESSAGE_SHORTCUT: {
 				Resources res = getResources();
 				String title = res.getString(R.string.scTitle);
@@ -1511,7 +1532,6 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 						Intent shortcutIntent = new Intent(Intent.ACTION_VIEW);
 						shortcutIntent.setClassName(mActivity, FileSelectActivity.class.getName());
 						shortcutIntent.putExtra("Path", mPath);
-						// shortcutIntent.putExtra("Server", mServer.getCode());
 						shortcutIntent.putExtra("ServerSelect", mServer.getSelect());
 						shortcutIntent.putExtra("File", "");
 						if (mClearTop) {
@@ -1529,13 +1549,11 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 									.setIntent(shortcutIntent)
 									.build();
 							ShortcutManager shortcutManager = getSystemService(ShortcutManager.class);
-							shortcutManager.requestPinShortcut(shortcut, null); // フツーのショートカット
-							// shortcutManager.addDynamicShortcuts(Arrays.asList(shortcut)); // ダイナミックショートカット
+							shortcutManager.requestPinShortcut(shortcut, null);
 						}
 						else {
 							// Android 7以前
 							Intent intent = new Intent();
-
 							intent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent);
 							intent.putExtra(Intent.EXTRA_SHORTCUT_NAME, title);
 							Parcelable iconResource = Intent.ShortcutIconResource.fromContext(mActivity, R.drawable.icon);
@@ -1560,7 +1578,6 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 				break;
 			}
 			case DEF.MESSAGE_MARKER: {
-
 				mMarkerInputDialog = new MarkerInputDialog(mActivity, R.style.MyDialog, mMarker, mFilter, mApplyDir, new MarkerInputDialog.SearchListener() {
 					@Override
 					public void onSearch(String text, boolean filter, boolean applyDir) {
@@ -1589,8 +1606,8 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 				Resources res = getResources();
 				String title = res.getText(R.string.renTitle).toString();
 				String notice = res.getText(R.string.renMsg).toString();
-				String fromfile = mFileData.getName();
-				int filetype = mFileData.getType();
+				String fromfile = mFileData != null ? mFileData.getName() : "";
+				int filetype = mFileData != null ? mFileData.getType() : -1;
 				int index;
 				if (filetype == FileData.FILETYPE_PARENT) {
 					break;
@@ -1792,7 +1809,7 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 						mFileData = null;
 					}
 				});
-				dialog = dialogBuilder.create();
+				dialogBuilder.create().show();
 				break;
 			}
 			case DEF.MESSAGE_RESETLOCAL:{
@@ -1805,7 +1822,6 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 					public void onClick(DialogInterface dialog, int whichButton) {
 						// ローカルの場合はストレージルートにリセット
 						String path = Environment.getExternalStorageDirectory().getAbsolutePath() + '/';
-						//path = DEF.getBaseDirectory();
 						server.select(serverindex);
 						server.setPath(path);
 						mSelectRecord.setPath(path);
@@ -1820,7 +1836,7 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 						/* キャンセル処理 */
 					}
 				});
-				dialog = dialogBuilder.create();
+				dialogBuilder.create().show();
 				break;
 			}
 			case DEF.MESSAGE_EDITSERVER:{
@@ -1860,78 +1876,6 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 				break;
 			}
 		}
-		return dialog;
-	}
-
-	/**
-	 * ダイアログに初期値を設定する
-	 */
-	// ActivityクラスのonCreateDialogをオーバーライド
-	@Override
-	protected void onPrepareDialog(final int id, final Dialog dialog) {
-		int logLevel = Logcat.LOG_LEVEL_WARN;
-		// 一度ダイアログを表示すると二回目に表示するときは中身だけ書き換える
-		switch (id) {
-			case DEF.MESSAGE_FILE_DELETE: // ファイル削除
-			case DEF.MESSAGE_DOWNLOAD: // ファイルダウンロード
-			case DEF.MESSAGE_FILE_RENAME: // リネーム
-				ArrayList<FileData> files = mFileList.getFileList(mMarker, mFilter, mApplyDir);
-				if (files != null) {
-					String title = mFileData.getName();
-					dialog.setTitle(title);
-				}
-				break;
-			case DEF.MESSAGE_RECORD_DELETE: // ファイル削除
-				if (mSelectRecord != null) {
-					String title;
-					int listtype = mListScreenView.getListType();
-					if (listtype == RecordList.TYPE_BOOKMARK) {
-						title = mSelectRecord.getDispName();
-					}
-					else {
-						title = mSelectRecord.getPath();
-					}
-					dialog.setTitle(title);
-				}
-				break;
-			case DEF.MESSAGE_RESETLOCAL: {
-				break;
-			}
-			case DEF.MESSAGE_EDITSERVER:
-				if (mEditDlg == null) {
-					break;
-				}
-				// 一度ダイアログを表示すると二回目に表示するときは中身だけ書き換える
-				EditText name = (EditText) mEditDlg.findViewById(R.id.edit_name);
-				EditText host = (EditText) mEditDlg.findViewById(R.id.edit_host);
-				EditText user = (EditText) mEditDlg.findViewById(R.id.edit_user);
-				EditText pass = (EditText) mEditDlg.findViewById(R.id.edit_pass);
-				// 属性
-				name.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_NORMAL);
-				host.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_URI);
-				user.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_URI);
-				pass.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-				// 文字列
-				name.setText(mSelectRecord.getServerName());
-				host.setText(mSelectRecord.getHost());
-				user.setText(mSelectRecord.getUser());
-				pass.setText(mSelectRecord.getPass());
-				break;
-		}
-		if (id == DEF.MESSAGE_DOWNLOAD) {
-			String localPath = mServer.getPath(DEF.INDEX_LOCAL);
-			Resources res = getResources();
-			String str1 = res.getString(R.string.downMsg1);
-			String str2 = res.getString(R.string.downMsg2);
-			AlertDialog ad = (AlertDialog) dialog;
-			if (!str1.isEmpty()) {
-				ad.setMessage(str1 + " " + localPath);
-			}
-			else {
-				ad.setMessage(localPath + " " + str2);
-			}
-		}
-		return;
 	}
 
 	/**
@@ -2008,7 +1952,7 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 		}
 		else if (id == DEF.MENU_SHORTCUT) {
 			// ショートカット名入力ダイアログ表示
-			showDialog(DEF.MESSAGE_SHORTCUT);
+			showAppDialog(DEF.MESSAGE_SHORTCUT);
 			switchFileList();
 		}
 		else if (id == DEF.MENU_REFRESH) {
@@ -2018,7 +1962,7 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 		}
 		else if (id == DEF.MENU_MARKER) {
 			// マーカー設定ダイアログ表示
-			showDialog(DEF.MESSAGE_MARKER);
+			showAppDialog(DEF.MESSAGE_MARKER);
 		}
 		else if (id == DEF.MENU_ROTATE) {
 			int rotate;
@@ -2343,7 +2287,7 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 						break;
 					case DEF.TOOLBAR_MARKER:
 						// マーカー設定ダイアログ表示
-						showDialog(DEF.MESSAGE_MARKER);
+						showAppDialog(DEF.MESSAGE_MARKER);
 						break;
 					case DEF.TOOLBAR_THUMBNAIL:
 						// リスト表示切り替え
@@ -2845,16 +2789,15 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 						break;
 
 					case OPERATE_DEL: // ファイル削除
-						showDialog(DEF.MESSAGE_FILE_DELETE);
+						showAppDialog(DEF.MESSAGE_FILE_DELETE);
 						break;
 
 					case OPERATE_DOWN: // ダウンロード
-						showDialog(DEF.MESSAGE_DOWNLOAD);
+						showAppDialog(DEF.MESSAGE_DOWNLOAD);
 						break;
 
 					case OPERATE_RENAME: // ファイル名変更
-						removeDialog(DEF.MESSAGE_FILE_RENAME);
-						showDialog(DEF.MESSAGE_FILE_RENAME);
+						showAppDialog(DEF.MESSAGE_FILE_RENAME);
 						break;
 
 					case OPERATE_DELCACHE: // サムネイルキャッシュ削除
@@ -2921,7 +2864,7 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 				public void onSelectItem(int item) {
 					switch (item) {
 						case 0: { // ブックマーク削除
-							showDialog(DEF.MESSAGE_RECORD_DELETE);
+							showAppDialog(DEF.MESSAGE_RECORD_DELETE);
 							break;
 						}
 					}
@@ -2941,11 +2884,11 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 			int serverindex = mSelectRecord.getServer(); // サーバのキーインデックス
 			if (serverindex == DEF.INDEX_LOCAL) {
 				Logcat.d(logLevel, "ローカルを選択しました.");
-				showDialog(DEF.MESSAGE_RESETLOCAL);
+				showAppDialog(DEF.MESSAGE_RESETLOCAL);
 			}
 			else {
 				Logcat.d(logLevel, "ローカル以外のサーバを選択しました.");
-				showDialog(DEF.MESSAGE_EDITSERVER);
+				showAppDialog(DEF.MESSAGE_EDITSERVER);
 			}
 		}
 		else if (listtype == RecordList.TYPE_MENU) {
@@ -2984,7 +2927,7 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 							break;
 						}
 						case 2: { // ブックマーク削除
-							showDialog(DEF.MESSAGE_RECORD_DELETE);
+							showAppDialog(DEF.MESSAGE_RECORD_DELETE);
 							break;
 						}
 					}
@@ -4190,7 +4133,7 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 							Logcat.d(logLevel, "ファイルピッカー.");
 							mLoadListNextOpen = CloseDialog.CLICK_NONE;
 							mSelectRecord = rd;
-							showDialog(DEF.MESSAGE_EDITSERVER);
+							showAppDialog(DEF.MESSAGE_EDITSERVER);
 						}
 						else {
 							Logcat.d(logLevel, "ファイルピッカー以外.");

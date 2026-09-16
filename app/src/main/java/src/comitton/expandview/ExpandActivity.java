@@ -28,8 +28,7 @@ import src.comitton.imageview.ImageManager;
 import src.comitton.textview.TextActivity;
 import src.comitton.textview.TextManager;
 import src.comitton.fileview.view.TitleView;
-
-import android.app.ProgressDialog;
+import src.comitton.dialog.LoadingProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -109,7 +108,7 @@ public class ExpandActivity extends AppCompatActivity implements Handler.Callbac
 	private String mText;
 	private int mCurrentPage;
 
-	private ProgressDialog mReadDialog;
+	private LoadingProgressDialog mReadDialog;
 	private ListDialog mListDialog;
 	private String[] mReadingMsg;
 
@@ -1051,9 +1050,9 @@ public class ExpandActivity extends AppCompatActivity implements Handler.Callbac
 		mReadingMsg[0] = res.getString(R.string.reading);
 
 		// プログレスダイアログ準備
-		mReadDialog = new ProgressDialog(this, R.style.MyDialog);
+		mReadDialog = new LoadingProgressDialog(this, R.style.MyDialog);
 		mReadDialog.setMessage(mReadingMsg[0] + " (0)");
-		mReadDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+		mReadDialog.setProgressStyle(LoadingProgressDialog.STYLE_SPINNER);
 		mReadDialog.setCancelable(true);
 		mReadDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
 			public void onCancel(DialogInterface dialog) {
