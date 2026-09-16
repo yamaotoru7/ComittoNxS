@@ -41,6 +41,7 @@ import src.comitton.dialog.ImageConfigDialog.ImageConfigListenerInterface;
 import src.comitton.dialog.TabDialogFragment;
 import src.comitton.fileview.filelist.RecordList;
 import src.comitton.common.GuideView;
+import src.comitton.common.SystemUiHelper;
 
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
@@ -552,6 +553,8 @@ public class ImageActivity extends AppCompatActivity implements OnTouchListener,
 		FrameLayout layout = new FrameLayout(this);
 		layout.addView(mImageView);
 		setContentView(layout);
+		SystemUiHelper.setupEdgeToEdge(this);
+		SystemUiHelper.updateSystemBars(this, mImmEnable, mNotice);
 
 		mImageView.setFocusable(true);
 		mImageView.setGuideView(mGuideView);
@@ -625,12 +628,7 @@ public class ImageActivity extends AppCompatActivity implements OnTouchListener,
 		mReadDialog.setOnShowListener(new DialogInterface.OnShowListener() {
 			@Override
 			public void onShow(DialogInterface dialog) {
-				if (mImmEnable && mSdkVersion >= 19) {
-					int uiOptions = getWindow().getDecorView().getSystemUiVisibility();
-					uiOptions |= View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
-					uiOptions |= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
-					getWindow().getDecorView().setSystemUiVisibility(uiOptions);
-				}
+				SystemUiHelper.updateSystemBars(ImageActivity.this, mImmEnable, mNotice);
 			}
 		});
 		mReadDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
@@ -713,12 +711,7 @@ public class ImageActivity extends AppCompatActivity implements OnTouchListener,
 		int logLevel = Logcat.LOG_LEVEL_WARN;
 		Logcat.v(logLevel, "開始します.");
 
-		if (mImmEnable && mSdkVersion >= 19) {
-			int uiOptions = getWindow().getDecorView().getSystemUiVisibility();
-			uiOptions |= View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
-			uiOptions |= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
-			getWindow().getDecorView().setSystemUiVisibility(uiOptions);
-		}
+		SystemUiHelper.updateSystemBars(this, mImmEnable, mNotice);
 		Logcat.v(logLevel, "終了します.");
 	}
 
@@ -819,12 +812,7 @@ public class ImageActivity extends AppCompatActivity implements OnTouchListener,
 		}
 
 		if (hasFocus) {
-			if (mImmEnable && mSdkVersion >= 19) {
-                int uiOptions = getWindow().getDecorView().getSystemUiVisibility();
-                uiOptions |= View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
-                uiOptions |= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
-                getWindow().getDecorView().setSystemUiVisibility(uiOptions);
-			}
+			SystemUiHelper.updateSystemBars(this, mImmEnable, mNotice);
 		}
 	}
 
@@ -2459,11 +2447,7 @@ public class ImageActivity extends AppCompatActivity implements OnTouchListener,
 								break;
 							case 10:
 								// 設定画面に遷移
-								if (mImmEnable && mSdkVersion >= 19) {
-									int uiOptions = getWindow().getDecorView().getSystemUiVisibility();
-									uiOptions &= ~(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
-									getWindow().getDecorView().setSystemUiVisibility(uiOptions);
-								}
+								SystemUiHelper.showAllSystemBars(ImageActivity.this);
 
 								// バックグラウンドでのキャッシュ読み込み停止
 								mImageMgr.setCacheSleep(true);
@@ -3493,11 +3477,7 @@ public class ImageActivity extends AppCompatActivity implements OnTouchListener,
 			}
 			case DEF.MENU_SETTING: {
 				// 設定画面に遷移
-				if (mImmEnable && mSdkVersion >= 19) {
-					int uiOptions = getWindow().getDecorView().getSystemUiVisibility();
-					uiOptions &= ~(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
-					getWindow().getDecorView().setSystemUiVisibility(uiOptions);
-				}
+				SystemUiHelper.showAllSystemBars(ImageActivity.this);
 
 				// バックグラウンドでのキャッシュ読み込み停止
 				mImageMgr.setCacheSleep(true);
@@ -3943,12 +3923,7 @@ public class ImageActivity extends AppCompatActivity implements OnTouchListener,
 
 			ReadSetting(sharedPreferences);
 
-			if (mImmEnable && mSdkVersion >= 19) {
-				int uiOptions = getWindow().getDecorView().getSystemUiVisibility();
-				uiOptions |= View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
-				uiOptions |= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
-				getWindow().getDecorView().setSystemUiVisibility(uiOptions);
-			}
+			SystemUiHelper.updateSystemBars(this, mImmEnable, mNotice);
 
 			mImageView.setImageBitmap(null);
 			setViewConfig();

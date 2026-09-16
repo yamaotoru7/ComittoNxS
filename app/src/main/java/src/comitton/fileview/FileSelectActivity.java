@@ -21,6 +21,7 @@ import src.comitton.imageview.ImageManager;
 import src.comitton.textview.TextActivity;
 import src.comitton.textview.TextManager;
 import src.comitton.common.DEF;
+import src.comitton.common.SystemUiHelper;
 import src.comitton.cropimageview.CropImageActivity;
 import src.comitton.fileaccess.FileAccess;
 import src.comitton.common.ImageAccess;
@@ -318,6 +319,8 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 		mListScreenView = new ListScreenView(this, mHandler, mDuration);
 		layout.addView(mListScreenView);
 		setContentView(layout);
+		SystemUiHelper.setupEdgeToEdge(this);
+		SystemUiHelper.applySystemWindowInsets(layout, true, true, true, true);
 
 		// リストモードの設定
 		mListMode = (short) mSharedPreferences.getInt(DEF.KEY_LISTMODE, FileListArea.LISTMODE_LIST);
@@ -577,10 +580,7 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 			mReadDialog.setOnShowListener(new DialogInterface.OnShowListener() {
 				@Override
 				public void onShow(DialogInterface dialog) {
-					int uiOptions = getWindow().getDecorView().getSystemUiVisibility();
-					uiOptions |= View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
-					uiOptions |= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
-					getWindow().getDecorView().setSystemUiVisibility(uiOptions);
+					SystemUiHelper.updateSystemBars(FileSelectActivity.this, true, false);
 				}
 			});
 

@@ -7,10 +7,6 @@ ComittoNxX のコードベースおよび実行環境の精査によって抽出
 
 ## 1. 最新 Android (14/15) 互換性向上
 
-- [ ] **1.1 Edge-to-Edge（全画面表示）対応（Android 15 必須）**
-  - **対象ファイル**: `FileSelectActivity.java`, `ImageActivity.java`, `TextActivity.java`
-  - **内容**: Target SDK 35 (Android 15) では Edge-to-Edge が強制適用されるが、現在は非推奨の `setSystemUiVisibility` (API 30 非推奨) に依存し `WindowInsets` のハンドリングがない。`WindowInsetsCompat` / `WindowInsetsControllerCompat` を導入し、ステータスバー・ナビゲーションバーやノッチとUI要素の重なりを解消する。
-
 - [ ] **1.2 予測型「戻る」ジェスチャー（Predictive Back）対応**
   - **対象ファイル**: 全画面の `onKeyDown` / `onKeyUp`
   - **内容**: 戻るキーの処理が `KeyEvent.KEYCODE_BACK` のキーイベント監視で行われており、Android 13/14+ のジェスチャーナビゲーション（スワイプで戻る）や Predictive Back と整合しない。AndroidX の `OnBackPressedDispatcher` / `OnBackPressedCallback` へ移行する。

@@ -39,6 +39,7 @@ import src.comitton.imageview.PageSelectListener;
 import src.comitton.imageview.ImageManager;
 import src.comitton.textview.TextManager.MidashiData;
 import src.comitton.common.GuideView;
+import src.comitton.common.SystemUiHelper;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
@@ -363,13 +364,6 @@ public class TextActivity extends AppCompatActivity implements OnTouchListener, 
 			// 通知領域非表示
 			getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		}
-		if (mImmEnable && mSdkVersion >= 19) {
-			int uiOptions = getWindow().getDecorView().getSystemUiVisibility();
-			uiOptions |= View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
-			uiOptions |= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
-			getWindow().getDecorView().setSystemUiVisibility(uiOptions);
-		}
-
 		if (mNoSleep) {
 	        // スリープしない
 	        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -380,6 +374,8 @@ public class TextActivity extends AppCompatActivity implements OnTouchListener, 
 		FrameLayout layout = new FrameLayout(this);
 		layout.addView(mTextView);
 		setContentView(layout);
+		SystemUiHelper.setupEdgeToEdge(this);
+		SystemUiHelper.updateSystemBars(this, mImmEnable, mNotice);
 
 		if (mGuideView != null) {
 			mGuideView.setTimeFormat(mTimeDisp, mTimeFormat, mTimePos, mTimeSize, mTimeColor);
@@ -480,12 +476,7 @@ public class TextActivity extends AppCompatActivity implements OnTouchListener, 
 		mReadDialog.setOnShowListener(new DialogInterface.OnShowListener() {
 			@Override
 			public void onShow(DialogInterface dialog) {
-				if (mImmEnable && mSdkVersion >= 19) {
-					int uiOptions = getWindow().getDecorView().getSystemUiVisibility();
-					uiOptions |= View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
-					uiOptions |= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
-					getWindow().getDecorView().setSystemUiVisibility(uiOptions);
-				}
+				SystemUiHelper.updateSystemBars(TextActivity.this, mImmEnable, mNotice);
 			}
 		});
 		mReadDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
@@ -540,13 +531,7 @@ public class TextActivity extends AppCompatActivity implements OnTouchListener, 
 	 */
 	public void onRestart(){
 		super.onRestart();
-		// IMM
-		if (mImmEnable && mSdkVersion >= 19) {
-			int uiOptions = getWindow().getDecorView().getSystemUiVisibility();
-			uiOptions |= View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
-			uiOptions |= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
-			getWindow().getDecorView().setSystemUiVisibility(uiOptions);
-		}
+		SystemUiHelper.updateSystemBars(this, mImmEnable, mNotice);
 	}
 
 	public class TextLoad implements Runnable {
@@ -678,12 +663,7 @@ public class TextActivity extends AppCompatActivity implements OnTouchListener, 
 		}
 
 		if (hasFocus) {
-			if (mImmEnable && mSdkVersion >= 19) {
-				int uiOptions = getWindow().getDecorView().getSystemUiVisibility();
-				uiOptions |= View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
-				uiOptions |= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
-				getWindow().getDecorView().setSystemUiVisibility(uiOptions);
-			}
+			SystemUiHelper.updateSystemBars(this, mImmEnable, mNotice);
 		}
 	}
 
@@ -2524,12 +2504,7 @@ public class TextActivity extends AppCompatActivity implements OnTouchListener, 
 
 	// テキストを再読み込み
 	private void reloadText() {
-		if (mImmEnable && mSdkVersion >= 19) {
-			int uiOptions = getWindow().getDecorView().getSystemUiVisibility();
-			uiOptions |= View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
-			uiOptions |= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
-			getWindow().getDecorView().setSystemUiVisibility(uiOptions);
-		}
+		SystemUiHelper.updateSystemBars(this, mImmEnable, mNotice);
 
 		// 現在ページ
 		//mCurrentPage = mTextView.getPage();

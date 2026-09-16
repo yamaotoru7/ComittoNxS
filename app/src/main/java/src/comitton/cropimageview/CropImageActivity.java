@@ -45,6 +45,8 @@ public class CropImageActivity extends AppCompatActivity implements Runnable, Te
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.cropimage);
+        src.comitton.common.SystemUiHelper.setupEdgeToEdge(this);
+        src.comitton.common.SystemUiHelper.applySystemWindowInsets(findViewById(android.R.id.content), true, true, true, true);
 
         Intent intent = getIntent();
         mCropPath = intent.getStringExtra("uri");   // 画像を切り取るファイル名

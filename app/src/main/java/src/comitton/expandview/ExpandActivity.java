@@ -214,6 +214,8 @@ public class ExpandActivity extends AppCompatActivity implements Handler.Callbac
 		}
 
 		setContentView(R.layout.serverview);
+		src.comitton.common.SystemUiHelper.setupEdgeToEdge(this);
+		src.comitton.common.SystemUiHelper.applySystemWindowInsets(findViewById(android.R.id.content), true, true, true, true);
 
 		mTitleView = (TitleView) this.findViewById(R.id.title);
 		Resources res = getResources();

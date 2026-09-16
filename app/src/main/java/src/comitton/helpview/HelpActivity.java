@@ -6,6 +6,8 @@ import android.webkit.WebView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import src.comitton.common.SystemUiHelper;
+
 public class HelpActivity extends AppCompatActivity {
 
     private WebView mWebView;
@@ -14,7 +16,6 @@ public class HelpActivity extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
         // Intentを取得する
         Intent intent = getIntent();
         String url = intent.getStringExtra("Url");
@@ -22,6 +23,7 @@ public class HelpActivity extends AppCompatActivity {
         mWebView = (WebView) new WebView(this);
         mWebView.loadUrl("file:///android_asset/" + url);
         setContentView(mWebView);
-
+        SystemUiHelper.setupEdgeToEdge(this);
+        SystemUiHelper.applySystemWindowInsets(mWebView, true, true, true, true);
     }
 }
