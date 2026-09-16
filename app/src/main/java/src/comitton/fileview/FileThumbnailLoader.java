@@ -76,7 +76,7 @@ public class FileThumbnailLoader extends ThumbnailLoader implements Runnable {
 			}
 		}
 
-		mThumbnailCacheLoader = new ThumbnailCacheLoader(mActivity, this, mURI, mPath, mUser, mPass, mHandler, mID, mFiles, mThumbSizeW, mThumbSizeH, mThumbCacheNum, mHidden, mThumbCrop, mThumbMargin, mEpubViewer);
+		mThumbnailCacheLoader = new ThumbnailCacheLoader(activity, this, mURI, mPath, mUser, mPass, mHandler, mID, mFiles, mThumbSizeW, mThumbSizeH, mThumbCacheNum, mHidden, mThumbCrop, mThumbMargin, mEpubViewer);
 
 		mWaitFor = new WaitFor(60000);
 
@@ -227,6 +227,10 @@ public class FileThumbnailLoader extends ThumbnailLoader implements Runnable {
 		}
 
 		while(!mThreadBreak) {
+			AppCompatActivity activity = getActivity();
+			if (activity == null || activity.isFinishing() || activity.isDestroyed()) {
+				break;
+			}
 			mSkip = false;
 			mCurrentFile = null;
 			synchronized (mFileListLock) {
@@ -241,7 +245,7 @@ public class FileThumbnailLoader extends ThumbnailLoader implements Runnable {
 				continue;
 			}
 
-			String uri = DEF.relativePath(mActivity,mURI, mPath, mCurrentFile.getName());
+			String uri = DEF.relativePath(activity.getApplicationContext(), mURI, mPath, mCurrentFile.getName());
 			String pathcode = DEF.makeCode(uri, mThumbSizeW, mThumbSizeH);
 			if (checkThumbnailCache(pathcode)) {
 				// ファイルキャッシュが存在すれば次のファイルを処理する
@@ -267,9 +271,14 @@ public class FileThumbnailLoader extends ThumbnailLoader implements Runnable {
     private void loadFileCache(FileData file) throws CacheException {
 		int logLevel = Logcat.LOG_LEVEL_WARN;
 
+		AppCompatActivity activity = getActivity();
+		if (activity == null || activity.isFinishing() || activity.isDestroyed()) {
+			throw new CacheException("Activity is destroyed");
+		}
+
 		int index = file.getIndex();
 		String filename = file.getName();
-		String uri = DEF.relativePath(mActivity,mURI, mPath, filename);
+		String uri = DEF.relativePath(activity.getApplicationContext(), mURI, mPath, filename);
 		String pathcode = DEF.makeCode(uri, mThumbSizeW, mThumbSizeH);
 
 		Logcat.d(logLevel,"index=" + index + " loadFileCache: 開始します. filename=" + filename);
@@ -293,6 +302,11 @@ public class FileThumbnailLoader extends ThumbnailLoader implements Runnable {
 	private boolean searchFileCache(FileData file, String uri, String pathcode) throws CacheException {
 		int logLevel = Logcat.LOG_LEVEL_WARN;
 
+		AppCompatActivity activity = getActivity();
+		if (activity == null || activity.isFinishing() || activity.isDestroyed()) {
+			throw new CacheException("Activity is destroyed");
+		}
+
 		int index = file.getIndex();
 		String filename = file.getName();
 
@@ -306,10 +320,10 @@ public class FileThumbnailLoader extends ThumbnailLoader implements Runnable {
 		ArrayList<FileData> inFiles;
 
 		// ディレクトリ(簡易判定)の場合は中のファイルを参照
-		if (FileAccess.isDirectory(mActivity, uri, mUser, mPass)) {
+		if (FileAccess.isDirectory(activity, uri, mUser, mPass)) {
 			Logcat.d(logLevel,"index=" + index + " ディレクトリの中を検索します.");
 			try {
-				inFiles = FileAccess.listFiles(mActivity, uri, mUser, mPass, null);
+				inFiles = FileAccess.listFiles(activity, uri, mUser, mPass, null);
 			} catch (FileAccessException e) {
 				Logcat.e(logLevel, "saveBitmap: " + e.getClass().getSimpleName() + ": " + e.getLocalizedMessage());
 				throw new CacheException(TAG + ": index=" + index + " searchFileCache: " + e.getClass().getSimpleName() + ": " + e.getLocalizedMessage());
@@ -333,7 +347,7 @@ public class FileThumbnailLoader extends ThumbnailLoader implements Runnable {
 
 				FileData inFile = inFiles.get(i);
 				String inFilename = inFile.getName();
-				String inUri = DEF.relativePath(mActivity, uri, inFile.getName());
+				String inUri = DEF.relativePath(activity.getApplicationContext(), uri, inFile.getName());
 
 				if (inFile.getType() == FileData.FILETYPE_DIR) {
 					Logcat.d(logLevel,"index=" + index + " ディレクトリの中にディレクトリがあります. inFilename=" + inFilename);
@@ -359,6 +373,11 @@ public class FileThumbnailLoader extends ThumbnailLoader implements Runnable {
 	private boolean saveFileCache(FileData file, String uri, String pathcode) throws CacheException {
 		int logLevel = Logcat.LOG_LEVEL_WARN;
 
+		AppCompatActivity activity = getActivity();
+		if (activity == null || activity.isFinishing() || activity.isDestroyed()) {
+			throw new CacheException("Activity is destroyed");
+		}
+
 		int index = file.getIndex();
 		String filename = file.getName();
 
@@ -381,7 +400,7 @@ public class FileThumbnailLoader extends ThumbnailLoader implements Runnable {
 		}
 
 		try {
-			mImageMgr = new ImageManager(mActivity, mUriPath, uri, mUser, mPass, mFileSort, mHandler, mHidden, openmode, 1);
+			mImageMgr = new ImageManager(activity, mUriPath, uri, mUser, mPass, mFileSort, mHandler, mHidden, openmode, 1);
 
 			if (mThreadBreak) {
 				Logcat.d(logLevel, "index=" + index + ", 中断されました. filename=" + filename);

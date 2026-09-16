@@ -30,7 +30,7 @@ import src.comitton.textview.TextManager;
 public class ThumbnailCacheLoader extends ThumbnailLoader implements Runnable {
     private static final String TAG = "ThumbnailCacheLoader";
 
-    private static SharedPreferences mSp;
+    private SharedPreferences mSp;
 
     private FileThumbnailLoader mFileThumbnailLoader;
     private FileRangeComparator mComparator;
@@ -46,7 +46,7 @@ public class ThumbnailCacheLoader extends ThumbnailLoader implements Runnable {
         int logLevel = Logcat.LOG_LEVEL_WARN;
         Logcat.d(logLevel, "開始します.");
 
-        mSp = PreferenceManager.getDefaultSharedPreferences(mActivity);
+        mSp = PreferenceManager.getDefaultSharedPreferences(activity != null ? activity.getApplicationContext() : null);
         mSkip = false;
         mSleep = false;
         mSorting = false;
@@ -138,6 +138,10 @@ public class ThumbnailCacheLoader extends ThumbnailLoader implements Runnable {
         }
 
         while(!mThreadBreak) {
+            AppCompatActivity activity = getActivity();
+            if (activity == null || activity.isFinishing() || activity.isDestroyed()) {
+                break;
+            }
             Logcat.v(logLevel,"while: 開始します. mFirstIndex=" + mFirstIndex + ", mLastIndex=" + mLastIndex);
 
             mSleep = false;
@@ -214,7 +218,12 @@ public class ThumbnailCacheLoader extends ThumbnailLoader implements Runnable {
         int logLevel = Logcat.LOG_LEVEL_WARN;
         Logcat.d(logLevel, "開始します. fileData=" + fileData.getName());
 
-        String uri = DEF.relativePath(mActivity, mURI, mPath, fileData.getName());
+        AppCompatActivity activity = getActivity();
+        if (activity == null || activity.isFinishing() || activity.isDestroyed()) {
+            return false;
+        }
+
+        String uri = DEF.relativePath(activity.getApplicationContext(), mURI, mPath, fileData.getName());
         String pathcode = DEF.makeCode(uri, mThumbSizeW, mThumbSizeH);
         Bitmap bm;
         Logcat.d(logLevel, "uri=" + uri);

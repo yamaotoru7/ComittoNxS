@@ -93,6 +93,10 @@ public class ExpandThumbnailLoader extends ThumbnailLoader implements Runnable {
 		Logcat.d(logLevel, "mFirstIndex=" + mFirstIndex+ ", mLastIndex=" + mLastIndex);
 		Logcat.d(logLevel, "メインループを開始します.");
 		while (!mThreadBreak) {
+			AppCompatActivity activity = getActivity();
+			if (activity == null || activity.isFinishing() || activity.isDestroyed()) {
+				break;
+			}
 			// 初回又は変化があるかのチェック
 			if (firstindex != mFirstIndex || lastindex != mLastIndex) {
 				Logcat.d(logLevel, "firstindex != mFirstIndex です. firstindex=" + firstindex + ", mFirstIndex=" + mFirstIndex);

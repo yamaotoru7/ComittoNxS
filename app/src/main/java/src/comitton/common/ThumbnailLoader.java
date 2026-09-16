@@ -3,6 +3,7 @@ package src.comitton.common;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -32,7 +33,7 @@ import androidx.preference.PreferenceManager;
 public class ThumbnailLoader {
 	private static final String TAG = "ThumbnailLoader";
 
-	protected AppCompatActivity mActivity;
+	protected WeakReference<AppCompatActivity> mActivityRef;
 	protected Handler mHandler;
 	protected String mURI;
 	protected String mPath;
@@ -83,18 +84,22 @@ public class ThumbnailLoader {
 	protected static String mFontFile;
 	// ここまで、テキストマネージャー用の変数
 
+	public AppCompatActivity getActivity() {
+		return mActivityRef != null ? mActivityRef.get() : null;
+	}
+
 	public ThumbnailLoader(AppCompatActivity activity, String uri, String path, Handler handler, long id, ArrayList<FileData> files, int sizeW, int sizeH, int cachenum, int crop, int margin) {
 		super();
 		int logLevel = Logcat.LOG_LEVEL_WARN;
 
-		mActivity = activity;
+		mActivityRef = new WeakReference<>(activity);
 		mHandler = handler;
 		mThreadBreak = false;
 		mThumbSizeW = sizeW;
 		mThumbSizeH = sizeH;
 		mURI = uri;
 		mPath = path;
-		mUriPath = DEF.relativePath(mActivity, mURI, mPath);
+		mUriPath = DEF.relativePath(activity != null ? activity.getApplicationContext() : null, mURI, mPath);
 		mID = id;
 		mFirstIndex = 0;
 		if (files != null) {
@@ -420,7 +425,11 @@ public class ThumbnailLoader {
 	}
 
 	public void readTextConfig() {
-		SharedPreferences mSp = PreferenceManager.getDefaultSharedPreferences(mActivity);
+		AppCompatActivity activity = getActivity();
+		if (activity == null || activity.isFinishing() || activity.isDestroyed()) {
+			return;
+		}
+		SharedPreferences mSp = PreferenceManager.getDefaultSharedPreferences(activity.getApplicationContext());
 
 		mSpaceW = SetTextActivity.getSpaceW(mSp);
 		mSpaceH = SetTextActivity.getSpaceH(mSp);
@@ -430,7 +439,7 @@ public class ThumbnailLoader {
 		mInfoSizeOrg = SetTextActivity.getFontInfo(mSp);	// ページ情報など
 		mMarginWOrg = SetTextActivity.getMarginW(mSp);	// 左右余白(設定値)
 		mMarginHOrg = SetTextActivity.getMarginH(mSp);	// 上下余白(設定値)
-		mDensity = mActivity.getResources().getDisplayMetrics().scaledDensity;
+		mDensity = activity.getResources().getDisplayMetrics().scaledDensity;
 		mHeadSize = DEF.calcFontPix(mHeadSizeOrg, mDensity);	// 見出し
 		mBodySize = DEF.calcFontPix(mBodySizeOrg, mDensity);	// 本文
 		mRubiSize = DEF.calcFontPix(mRubiSizeOrg, mDensity);	// ルビ
@@ -455,14 +464,14 @@ public class ThumbnailLoader {
 		mImmEnable = SetImageTextDetailActivity.getImmEnable(mSp);	// ナビゲーションバーを隠す
 		mViewRota = SetTextActivity.getViewRota(mSp);
 
-		int resourceId = mActivity.getResources().getIdentifier("status_bar_height", "dimen", "android");
-		int statusBarHeight = mActivity.getResources().getDimensionPixelSize(resourceId);
-		resourceId = mActivity.getResources().getIdentifier("navigation_bar_height", "dimen", "android");
-		int navigationBarHeight = mActivity.getResources().getDimensionPixelSize(resourceId);
+		int resourceId = activity.getResources().getIdentifier("status_bar_height", "dimen", "android");
+		int statusBarHeight = activity.getResources().getDimensionPixelSize(resourceId);
+		resourceId = activity.getResources().getIdentifier("navigation_bar_height", "dimen", "android");
+		int navigationBarHeight = activity.getResources().getDimensionPixelSize(resourceId);
 
 		if (mPaperSel == DEF.PAPERSEL_SCREEN) {
 			Point point = new Point();
-			mActivity.getWindowManager().getDefaultDisplay().getRealSize(point);
+			activity.getWindowManager().getDefaultDisplay().getRealSize(point);
 			int cx = point.x;
 			int cy = point.y;
 

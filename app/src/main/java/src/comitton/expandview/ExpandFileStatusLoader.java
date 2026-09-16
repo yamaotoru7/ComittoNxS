@@ -25,7 +25,7 @@ import src.comitton.textview.TextManager;
 public class ExpandFileStatusLoader extends ThumbnailLoader implements Runnable {
     private static final String TAG = "FileStatusLoader";
 
-    private static SharedPreferences mSp;
+    private SharedPreferences mSp;
 
     private final String mCmpFile;
     private String mUser;
@@ -45,7 +45,7 @@ public class ExpandFileStatusLoader extends ThumbnailLoader implements Runnable 
         int logLevel = Logcat.LOG_LEVEL_WARN;
         Logcat.d(logLevel, "開始します.");
 
-        mSp = PreferenceManager.getDefaultSharedPreferences(mActivity);
+        mSp = PreferenceManager.getDefaultSharedPreferences(activity != null ? activity.getApplicationContext() : null);
         mSkip = false;
 
         mImageMgr = imgMgr;
@@ -183,6 +183,10 @@ public class ExpandFileStatusLoader extends ThumbnailLoader implements Runnable 
         }
 
         while(!mThreadBreak) {
+            AppCompatActivity activity = getActivity();
+            if (activity == null || activity.isFinishing() || activity.isDestroyed()) {
+                break;
+            }
             mSkip = false;
             mCurrentFile = null;
             synchronized (mFileListLock) {
@@ -221,14 +225,19 @@ public class ExpandFileStatusLoader extends ThumbnailLoader implements Runnable 
             return false;
         }
 
+        AppCompatActivity activity = getActivity();
+        if (activity == null || activity.isFinishing() || activity.isDestroyed()) {
+            return false;
+        }
+
         int maxpage;
         int state;
         long date;
         long nowdate;
 
-        String currentPath = DEF.relativePath(mActivity, mURI, mPath);
+        String currentPath = DEF.relativePath(activity, mURI, mPath);
         String name = fileData.getName();
-        String uri = DEF.createUrl(DEF.relativePath(mActivity, currentPath, mCmpFile), mUser, mPass);
+        String uri = DEF.createUrl(DEF.relativePath(activity, currentPath, mCmpFile), mUser, mPass);
         Logcat.v(logLevel,"開始します. uri=" + uri);
 
         SharedPreferences.Editor ed = mSp.edit();
@@ -263,7 +272,7 @@ public class ExpandFileStatusLoader extends ThumbnailLoader implements Runnable 
                 date = fileData.getDate();
                 if (nowdate != date / 1000 || maxpage == DEF.PAGENUMBER_NONE) {
                     // タイムスタンプが変更されているか、maxpageが保存されていなければ
-                    mTextMgr = new TextManager(mImageMgr, textFile, mUser, mPass, mHandler, mActivity, fileData.getType());
+                    mTextMgr = new TextManager(mImageMgr, textFile, mUser, mPass, mHandler, activity, fileData.getType());
                     mTextMgr.formatTextFile(mTextWidth, mTextHeight, mHeadSize, mBodySize, mRubiSize, mSpaceW, mSpaceH, mMarginW, mMarginH, mPicSize, mFontFile, mAscMode);
                     maxpage = mTextMgr.length();
 
