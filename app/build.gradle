@@ -82,6 +82,10 @@ android {
         resValues = true
     }
 
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
+
     lint {
         abortOnError = false
     }
@@ -118,6 +122,8 @@ dependencies {
 
     // 文字コード判定用ライブラリ
     implementation 'com.github.albfernandez:juniversalchardet:2.0.4'
+
+    testImplementation 'junit:junit:4.13.2'
 }
 
 tasks.withType(JavaCompile).configureEach {
