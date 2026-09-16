@@ -8,7 +8,7 @@
             android:summary="Check regularly to see if new versions have been released."
             android:title="Check the release" />
         <CheckBoxPreference
-            android:defaultValue="0"
+            android:defaultValue="false"
             android:key="HiddenFile"
             android:summary="Do not show files that start with dot."
             android:title="Not show hidden files in Mac OS X" />
@@ -83,53 +83,43 @@
         <EditTextPreference
             android:key="SortPriorityWord01"
             android:title="priority word 1"
-            app:useSimpleSummaryProvider="true"
             android:defaultValue="cover"
             android:dialogTitle="priority word 1" />
         <EditTextPreference
             android:key="SortPriorityWord02"
             android:title="priority word 2"
-            app:useSimpleSummaryProvider="true"
             android:dialogTitle="priority word 2" />
         <EditTextPreference
             android:key="SortPriorityWord03"
             android:title="priority word 3"
-            app:useSimpleSummaryProvider="true"
             android:dialogTitle="priority word 3" />
         <EditTextPreference
             android:key="SortPriorityWord04"
             android:title="priority word 4"
-            app:useSimpleSummaryProvider="true"
             android:dialogTitle="priority word 4" />
         <EditTextPreference
             android:key="SortPriorityWord05"
             android:title="priority word 5"
-            app:useSimpleSummaryProvider="true"
             android:dialogTitle="priority word 5" />
         <EditTextPreference
             android:key="SortPriorityWord06"
             android:title="priority word 6"
-            app:useSimpleSummaryProvider="true"
             android:dialogTitle="priority word 6" />
         <EditTextPreference
             android:key="SortPriorityWord07"
             android:title="priority word 7"
-            app:useSimpleSummaryProvider="true"
             android:dialogTitle="priority word 7" />
         <EditTextPreference
             android:key="SortPriorityWord08"
             android:title="priority word 8"
-            app:useSimpleSummaryProvider="true"
             android:dialogTitle="priority word 8" />
         <EditTextPreference
             android:key="SortPriorityWord09"
             android:title="priority word 9"
-            app:useSimpleSummaryProvider="true"
             android:dialogTitle="priority word 9" />
         <EditTextPreference
             android:key="SortPriorityWord10"
             android:title="priority word 10"
-            app:useSimpleSummaryProvider="true"
             android:dialogTitle="priority word 10" />
     </PreferenceCategory>
 

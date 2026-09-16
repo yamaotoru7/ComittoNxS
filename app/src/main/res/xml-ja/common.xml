@@ -82,53 +82,43 @@
         <EditTextPreference
             android:key="SortPriorityWord01"
             android:title="優先ワード1"
-            app:useSimpleSummaryProvider="true"
             android:defaultValue="cover"
             android:dialogTitle="優先ワード1" />
         <EditTextPreference
             android:key="SortPriorityWord02"
             android:title="優先ワード2"
-            app:useSimpleSummaryProvider="true"
             android:dialogTitle="優先ワード2" />
         <EditTextPreference
             android:key="SortPriorityWord03"
             android:title="優先ワード3"
-            app:useSimpleSummaryProvider="true"
             android:dialogTitle="優先ワード3" />
         <EditTextPreference
             android:key="SortPriorityWord04"
             android:title="優先ワード4"
-            app:useSimpleSummaryProvider="true"
             android:dialogTitle="優先ワード4" />
         <EditTextPreference
             android:key="SortPriorityWord05"
             android:title="優先ワード5"
-            app:useSimpleSummaryProvider="true"
             android:dialogTitle="優先ワード5" />
         <EditTextPreference
             android:key="SortPriorityWord06"
             android:title="優先ワード6"
-            app:useSimpleSummaryProvider="true"
             android:dialogTitle="優先ワード6" />
         <EditTextPreference
             android:key="SortPriorityWord07"
             android:title="優先ワード7"
-            app:useSimpleSummaryProvider="true"
             android:dialogTitle="優先ワード7" />
         <EditTextPreference
             android:key="SortPriorityWord08"
             android:title="優先ワード8"
-            app:useSimpleSummaryProvider="true"
             android:dialogTitle="優先ワード8" />
         <EditTextPreference
             android:key="SortPriorityWord09"
             android:title="優先ワード9"
-            app:useSimpleSummaryProvider="true"
             android:dialogTitle="優先ワード9" />
         <EditTextPreference
             android:key="SortPriorityWord10"
             android:title="優先ワード10"
-            app:useSimpleSummaryProvider="true"
             android:dialogTitle="優先ワード10" />
     </PreferenceCategory>
 
