@@ -1,40 +1,298 @@
 package src.comitton.config;
 
-import src.comitton.helpview.HelpActivity;
-import src.comitton.common.DEF;
-import jp.dip.muracoro.comittonx.R;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.res.Resources;
 import android.os.Bundle;
-import android.preference.ListPreference;
-import android.preference.Preference;
-import android.preference.Preference.OnPreferenceClickListener;
-import android.preference.PreferenceActivity;
-import android.preference.PreferenceScreen;
 
-public class SetImageActivity extends PreferenceActivity implements OnSharedPreferenceChangeListener {
-	private ListPreference mViewRota;
-	private ListPreference mFileSort;
-	private ListPreference mIniScale;
-	private ListPreference mQuality;
-	private ListPreference mPageWay;
-	private ListPreference mInitView;
-	private ListPreference mAlgoMode;
-	private ListPreference mZoomType;
-	private ListPreference mScrlWay;
-	private ListPreference mMgnCut;
-	private ListPreference mMgnCutColor;
-	private ListPreference mEffect;
-	private ListPreference mViewPt;
-	private ListPreference mVolKey;
-	private ListPreference mLastPage;
-	private ListPreference mPageSel;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.preference.ListPreference;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceFragmentCompat;
 
-	private OperationPreference mTapPattern;
-	private PageNumberPreference mPageNumber;
-	private TimeAndBatteryPreference mTimeAndBattery;
+import jp.dip.muracoro.comittonx.R;
+import src.comitton.common.DEF;
+import src.comitton.helpview.HelpActivity;
+
+public class SetImageActivity extends BasePreferenceActivity {
+
+	@Override
+	protected PreferenceFragmentCompat createPreferenceFragment() {
+		return new SetImageFragment();
+	}
+
+	public static class SetImageFragment extends PreferenceFragmentCompat implements OnSharedPreferenceChangeListener {
+		private ListPreference mViewRota;
+		private ListPreference mFileSort;
+		private ListPreference mIniScale;
+		private ListPreference mQuality;
+		private ListPreference mPageWay;
+		private ListPreference mInitView;
+		private ListPreference mAlgoMode;
+		private ListPreference mZoomType;
+		private ListPreference mScrlWay;
+		private ListPreference mMgnCut;
+		private ListPreference mMgnCutColor;
+		private ListPreference mEffect;
+		private ListPreference mViewPt;
+		private ListPreference mVolKey;
+		private ListPreference mLastPage;
+		private ListPreference mPageSel;
+
+		private OperationPreference mTapPattern;
+		private PageNumberPreference mPageNumber;
+		private TimeAndBatteryPreference mTimeAndBattery;
+
+		private Resources mResources;
+
+		@Override
+		public void onCreatePreferences(@Nullable Bundle savedInstanceState, @Nullable String rootKey) {
+			setPreferencesFromResource(R.xml.image, rootKey);
+
+			mViewRota = findPreference(DEF.KEY_VIEWROTA);
+			mFileSort = findPreference(DEF.KEY_FILESORT);
+
+			mIniScale  = findPreference(DEF.KEY_INISCALE);
+			mPageWay   = findPreference(DEF.KEY_PAGEWAY);
+			mInitView  = findPreference(DEF.KEY_INITVIEW);
+
+			mZoomType  = findPreference(DEF.KEY_ZOOMTYPE);
+
+			mAlgoMode   = findPreference(DEF.KEY_ALGOMODE);
+			mScrlWay    = findPreference(DEF.KEY_SCRLWAY);
+
+			mMgnCut     = findPreference(DEF.KEY_MARGINCUT);
+			mMgnCutColor = findPreference(DEF.KEY_MARGINCUTCOLOR);
+			mEffect     = findPreference(DEF.KEY_EFFECTLIST);
+
+			mTapPattern = findPreference(DEF.KEY_TAPPATTERN);
+			mPageNumber = findPreference(DEF.KEY_PAGENUMBER);
+
+			mTimeAndBattery = findPreference(DEF.KEY_TIMEANDBATTERY);
+
+			mViewPt    = findPreference(DEF.KEY_VIEWPT);
+			mVolKey    = findPreference(DEF.KEY_VOLKEY);
+
+			mQuality  = findPreference(DEF.KEY_QUALITY);
+
+			mLastPage = findPreference(DEF.KEY_LASTPAGE);
+			mPageSel = findPreference(DEF.KEY_PAGESELECT);
+
+			mResources = getResources();
+
+			// 項目選択
+			Preference onlineHelp = findPreference(DEF.KEY_IMAGEHELP);
+			if (onlineHelp != null) {
+				onlineHelp.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+					@Override
+					public boolean onPreferenceClick(@NonNull Preference preference) {
+						if (getActivity() == null) {
+							return false;
+						}
+						// Activityの遷移
+						Resources res = getResources();
+						String url = res.getString(R.string.url_image);	// 設定画面
+						Intent intent = new Intent(getActivity(), HelpActivity.class);
+						intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+						intent.putExtra("Url", url);
+						startActivity(intent);
+						return true;
+					}
+				});
+			}
+		}
+
+		@Override
+		public void onResume() {
+			super.onResume();
+			SharedPreferences sharedPreferences = getPreferenceScreen().getSharedPreferences();
+			if (sharedPreferences != null) {
+				sharedPreferences.registerOnSharedPreferenceChangeListener(this);
+
+				if (mViewRota != null) mViewRota.setSummary(getViewRotaSummary(sharedPreferences));
+				if (mFileSort != null) mFileSort.setSummary(getFileSortSummary(sharedPreferences));
+				if (mIniScale != null) mIniScale.setSummary(getIniScaleSummary(sharedPreferences));
+				if (mPageWay != null) mPageWay.setSummary(getPageWaySummary(sharedPreferences));
+				if (mInitView != null) mInitView.setSummary(getInitViewSummary(sharedPreferences));
+				if (mZoomType != null) mZoomType.setSummary(getZoomTypeSummary(sharedPreferences));
+				if (mAlgoMode != null) mAlgoMode.setSummary(getAlgoModeSummary(sharedPreferences));
+				if (mScrlWay != null) mScrlWay.setSummary(getScrlWaySummary(sharedPreferences));
+				if (mMgnCut != null) mMgnCut.setSummary(getMgnCutSummary(sharedPreferences));
+				if (mMgnCutColor != null) mMgnCutColor.setSummary(getMgnCutColorSummary(sharedPreferences));
+				if (mEffect != null) mEffect.setSummary(getEffectSummary(sharedPreferences));
+
+				if (mTapPattern != null) mTapPattern.setSummary(SetImageText.getTapPatternSummary(mResources, sharedPreferences));
+				if (mPageNumber != null) mPageNumber.setSummary(getPageNumberSummary(sharedPreferences));
+				if (mTimeAndBattery != null) mTimeAndBattery.setSummary(getTimeSummary(sharedPreferences));
+
+				if (mViewPt != null) mViewPt.setSummary(SetImageText.getViewPtSummary(mResources, sharedPreferences));
+				if (mVolKey != null) mVolKey.setSummary(SetImageText.getVolKeySummary(mResources, sharedPreferences));
+				if (mLastPage != null) mLastPage.setSummary(SetImageText.getLastPageSummary(mResources, sharedPreferences));
+				if (mPageSel != null) mPageSel.setSummary(SetImageText.getPageSelectSummary(mResources, sharedPreferences));
+			}
+		}
+
+		@Override
+		public void onPause() {
+			super.onPause();
+			SharedPreferences sharedPreferences = getPreferenceScreen().getSharedPreferences();
+			if (sharedPreferences != null) {
+				sharedPreferences.unregisterOnSharedPreferenceChangeListener(this);
+			}
+		}
+
+		@Override
+		public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+			if (key == null) return;
+			if (key.equals(DEF.KEY_VIEWROTA)) {
+				if (mViewRota != null) mViewRota.setSummary(getViewRotaSummary(sharedPreferences));
+			} else if (key.equals(DEF.KEY_FILESORT)) {
+				if (mFileSort != null) mFileSort.setSummary(getFileSortSummary(sharedPreferences));
+			} else if (key.equals(DEF.KEY_INISCALE)) {
+				if (mIniScale != null) mIniScale.setSummary(getIniScaleSummary(sharedPreferences));
+			} else if (key.equals(DEF.KEY_PAGEWAY)) {
+				if (mPageWay != null) mPageWay.setSummary(getPageWaySummary(sharedPreferences));
+			} else if (key.equals(DEF.KEY_INITVIEW)) {
+				if (mInitView != null) mInitView.setSummary(getInitViewSummary(sharedPreferences));
+			} else if (key.equals(DEF.KEY_ZOOMTYPE)) {
+				if (mZoomType != null) mZoomType.setSummary(getZoomTypeSummary(sharedPreferences));
+			} else if (key.equals(DEF.KEY_ALGOMODE)) {
+				if (mAlgoMode != null) mAlgoMode.setSummary(getAlgoModeSummary(sharedPreferences));
+			} else if (key.equals(DEF.KEY_SCRLWAY)) {
+				if (mScrlWay != null) mScrlWay.setSummary(getScrlWaySummary(sharedPreferences));
+			} else if (key.equals(DEF.KEY_MARGINCUT)) {
+				if (mMgnCut != null) mMgnCut.setSummary(getMgnCutSummary(sharedPreferences));
+			} else if (key.equals(DEF.KEY_MARGINCUTCOLOR)) {
+				if (mMgnCutColor != null) mMgnCutColor.setSummary(getMgnCutColorSummary(sharedPreferences));
+			} else if (key.equals(DEF.KEY_EFFECTLIST)) {
+				if (mEffect != null) mEffect.setSummary(getEffectSummary(sharedPreferences));
+			} else if (key.equals(DEF.KEY_TAPPATTERN) || key.equals(DEF.KEY_TAPRATE)) {
+				if (mTapPattern != null) mTapPattern.setSummary(SetImageText.getTapPatternSummary(mResources, sharedPreferences));
+			} else if (key.equals(DEF.KEY_PNUMDISP) || key.equals(DEF.KEY_PNUMFORMAT) || key.equals(DEF.KEY_PNUMPOS) || key.equals(DEF.KEY_PNUMSIZE) || key.equals(DEF.KEY_PNUMCOLOR)) {
+				if (mPageNumber != null) mPageNumber.setSummary(getPageNumberSummary(sharedPreferences));
+			} else if (key.equals(DEF.KEY_TIMEDISP) || key.equals(DEF.KEY_TIMEFORMAT) || key.equals(DEF.KEY_TIMEPOS) || key.equals(DEF.KEY_TIMESIZE) || key.equals(DEF.KEY_TIMECOLOR)) {
+				if (mTimeAndBattery != null) mTimeAndBattery.setSummary(getTimeSummary(sharedPreferences));
+			} else if (key.equals(DEF.KEY_VIEWPT)) {
+				if (mViewPt != null) mViewPt.setSummary(SetImageText.getViewPtSummary(mResources, sharedPreferences));
+			} else if (key.equals(DEF.KEY_VOLKEY)) {
+				if (mVolKey != null) mVolKey.setSummary(SetImageText.getVolKeySummary(mResources, sharedPreferences));
+			} else if (key.equals(DEF.KEY_LASTPAGE)) {
+				if (mLastPage != null) mLastPage.setSummary(SetImageText.getLastPageSummary(mResources, sharedPreferences));
+			} else if (key.equals(DEF.KEY_PAGESELECT)) {
+				if (mPageSel != null) mPageSel.setSummary(SetImageText.getPageSelectSummary(mResources, sharedPreferences));
+			}
+		}
+
+		private String getViewRotaSummary(SharedPreferences sharedPreferences){
+			int val = getViewRota(sharedPreferences);
+			Resources res = getResources();
+			return res.getString(RotateName[val]);
+		}
+
+		private String getFileSortSummary(SharedPreferences sharedPreferences){
+			int val = getFileSort(sharedPreferences);
+			Resources res = getResources();
+			return res.getString(FileSortName[val]);
+		}
+
+		private String getIniScaleSummary(SharedPreferences sharedPreferences){
+			int val = getIniScale(sharedPreferences);
+			Resources res = getResources();
+			return res.getString(ScaleName[val]);
+		}
+
+		private String getPageWaySummary(SharedPreferences sharedPreferences){
+			int val = getPageWay(sharedPreferences);
+			Resources res = getResources();
+			return res.getString(PageWayName[val]);
+		}
+
+		private String getInitViewSummary(SharedPreferences sharedPreferences){
+			int val = getInitView(sharedPreferences);
+			Resources res = getResources();
+			return res.getString(ViewName[val]);
+		}
+
+		private String getZoomTypeSummary(SharedPreferences sharedPreferences){
+			int val = getZoomType(sharedPreferences);
+			Resources res = getResources();
+			return res.getString(LoupeName[val]);
+		}
+
+		private String getAlgoModeSummary(SharedPreferences sharedPreferences){
+			int val = getAlgoMode(sharedPreferences);
+			Resources res = getResources();
+			return res.getString(AlgoModeName[val]);
+		}
+
+		private String getScrlWaySummary(SharedPreferences sharedPreferences){
+			int val = getScrlWay(sharedPreferences);
+			Resources res = getResources();
+			return res.getString(ScrlWayName[val]);
+		}
+
+		private String getMgnCutSummary(SharedPreferences sharedPreferences){
+			int val = getMgnCut(sharedPreferences);
+			Resources res = getResources();
+			return res.getString(MgnCutName[val]);
+		}
+
+		private String getMgnCutColorSummary(SharedPreferences sharedPreferences){
+			int val = getMgnCutColor(sharedPreferences);
+			Resources res = getResources();
+			return res.getString(MgnCutColorName[val]);
+		}
+
+		private String getEffectSummary(SharedPreferences sharedPreferences){
+			int val = getEffect(sharedPreferences);
+			Resources res = getResources();
+			return res.getString(EffectName[val]);
+		}
+
+		private String getPageNumberSummary(SharedPreferences sharedPreferences){
+			boolean disp = getPnumDisp(sharedPreferences);
+			int format = getPnumFormat(sharedPreferences);
+			int pos = getPnumPos(sharedPreferences);
+			int size = getPnumSize(sharedPreferences);
+			int color = getPnumColor(sharedPreferences);
+			Resources res = getResources();
+
+			String summ;
+			if (disp) {
+				summ = res.getString(PnumFormatName[format])
+						+ ", " + res.getString(PnumPosName[pos])
+						+ ", " + DEF.getPnumSizeStr(size, res.getString(R.string.unitSumm1))
+						+ ", " + res.getString(PnumColorName[color]);
+			}
+			else {
+				summ = res.getString(R.string.pnumnodisp);
+			}
+			return summ;
+		}
+
+		private String getTimeSummary(SharedPreferences sharedPreferences){
+			boolean disp = getTimeDisp(sharedPreferences);
+			int format = getTimeFormat(sharedPreferences);
+			int pos = getTimePos(sharedPreferences);
+			int size = getTimeSize(sharedPreferences);
+			int color = getTimeColor(sharedPreferences);
+			Resources res = getResources();
+
+			String summ;
+			if (disp) {
+				summ = res.getString(TimeFormatName[format])
+						+ ", " + res.getString(PnumPosName[pos])
+						+ ", " + DEF.getPnumSizeStr(size, res.getString(R.string.unitSumm1))
+						+ ", " + res.getString(PnumColorName[color]);
+			}
+			else {
+				summ = res.getString(R.string.pnumnodisp);
+			}
+			return summ;
+		}
+	}
 
 	public static final int[] FileSortName =
 		{ R.string.fsort00		// ソートなし
@@ -131,179 +389,6 @@ public class SetImageActivity extends PreferenceActivity implements OnSharedPref
 		, R.string.timeformat03		// 24:00
 		, R.string.timeformat04		// 24:00 [100%]
 		, R.string.timeformat05 };	// 24:00 [100%] [AC]
-
-	Resources mResources;
-
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-
-		addPreferencesFromResource(R.xml.image);
-		mViewRota = (ListPreference)getPreferenceScreen().findPreference(DEF.KEY_VIEWROTA);
-		mFileSort = (ListPreference)getPreferenceScreen().findPreference(DEF.KEY_FILESORT);
-
-		mIniScale  = (ListPreference)getPreferenceScreen().findPreference(DEF.KEY_INISCALE);
-		mPageWay   = (ListPreference)getPreferenceScreen().findPreference(DEF.KEY_PAGEWAY);
-		mInitView  = (ListPreference)getPreferenceScreen().findPreference(DEF.KEY_INITVIEW);
-
-		mZoomType  = (ListPreference)getPreferenceScreen().findPreference(DEF.KEY_ZOOMTYPE);
-
-		mAlgoMode   = (ListPreference)getPreferenceScreen().findPreference(DEF.KEY_ALGOMODE);
-		mScrlWay    = (ListPreference)getPreferenceScreen().findPreference(DEF.KEY_SCRLWAY);
-
-		mMgnCut     = (ListPreference)getPreferenceScreen().findPreference(DEF.KEY_MARGINCUT);
-		mMgnCutColor = (ListPreference)getPreferenceScreen().findPreference(DEF.KEY_MARGINCUTCOLOR);
-		mEffect     = (ListPreference)getPreferenceScreen().findPreference(DEF.KEY_EFFECTLIST);
-
-		mTapPattern = (OperationPreference)getPreferenceScreen().findPreference(DEF.KEY_TAPPATTERN);
-		mPageNumber = (PageNumberPreference)getPreferenceScreen().findPreference(DEF.KEY_PAGENUMBER);
-
-		mTimeAndBattery = (TimeAndBatteryPreference) getPreferenceScreen().findPreference(DEF.KEY_TIMEANDBATTERY);
-
-		mViewPt    = (ListPreference)getPreferenceScreen().findPreference(DEF.KEY_VIEWPT);
-		mVolKey    = (ListPreference)getPreferenceScreen().findPreference(DEF.KEY_VOLKEY);
-
-		mQuality  = (ListPreference)getPreferenceScreen().findPreference(DEF.KEY_QUALITY);
-
-		mLastPage = (ListPreference)getPreferenceScreen().findPreference(DEF.KEY_LASTPAGE);
-		mPageSel = (ListPreference)getPreferenceScreen().findPreference(DEF.KEY_PAGESELECT);
-
-		mResources = getResources();
-
-		// 項目選択
-		PreferenceScreen onlineHelp = (PreferenceScreen) findPreference(DEF.KEY_IMAGEHELP);
-		onlineHelp.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-			@Override
-			public boolean onPreferenceClick(Preference preference) {
-				// Activityの遷移
-				Resources res = getResources();
-				String url = res.getString(R.string.url_image);	// 設定画面
-				Intent intent;
-				intent = new Intent(SetImageActivity.this, HelpActivity.class);
-				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-				intent.putExtra("Url", url);
-				startActivity(intent);
-				return true;
-			}
-		});
-	}
-
-	@Override
-	protected void onResume() {
-		super.onResume();
-
-		SharedPreferences sharedPreferences = getPreferenceScreen().getSharedPreferences();
-		sharedPreferences.registerOnSharedPreferenceChangeListener(this);
-
-		mViewRota.setSummary(getViewRotaSummary(sharedPreferences));	// イメージ画面の回転制御
-		mFileSort.setSummary(getFileSortSummary(sharedPreferences));	// 書庫内ファイルソート
-
-		mIniScale.setSummary(getIniScaleSummary(sharedPreferences));	// 初期拡大モード
-		mPageWay.setSummary(getPageWaySummary(sharedPreferences));		// ページめくり方向
-		mInitView.setSummary(getInitViewSummary(sharedPreferences));	// 表示モード
-
-		mZoomType.setSummary(getZoomTypeSummary(sharedPreferences));	// ルーペ拡大率
-
-		mAlgoMode.setSummary(getAlgoModeSummary(sharedPreferences));	// 補間方式
-
-		mScrlWay.setSummary(getScrlWaySummary(sharedPreferences));		// スクロール方向
-
-		mMgnCut.setSummary(getMgnCutSummary(sharedPreferences));		// 余白削除
-		mMgnCutColor.setSummary(getMgnCutColorSummary(sharedPreferences));		// 余白削除の色
-		mEffect.setSummary(getEffectSummary(sharedPreferences));		// エフェクト
-
-		mTapPattern.setSummary(SetImageText.getTapPatternSummary(mResources, sharedPreferences));	// 操作パターン
-		mPageNumber.setSummary(getPageNumberSummary(sharedPreferences));	// ページ表示
-
-		mTimeAndBattery.setSummary(getTimeSummary(sharedPreferences));	// 時刻と充電表示
-
-		mViewPt.setSummary(SetImageText.getViewPtSummary(mResources, sharedPreferences));		// イメージ画面の回転制御
-		mVolKey.setSummary(SetImageText.getVolKeySummary(mResources, sharedPreferences));		// Volキー動作
-
-		mLastPage.setSummary(SetImageText.getLastPageSummary(mResources, sharedPreferences));	// 最終ページでの確認
-		mPageSel.setSummary(SetImageText.getPageSelectSummary(mResources, sharedPreferences));		// ページ選択方法
-	}
-
-	@Override
-	protected void onPause() {
-		super.onPause();
-		getPreferenceScreen().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
-	}
-
-	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-		if(key.equals(DEF.KEY_VIEWROTA)){
-			//
-			mViewRota.setSummary(getViewRotaSummary(sharedPreferences));
-		}
-		else if(key.equals(DEF.KEY_FILESORT)){
-			//
-			mFileSort.setSummary(getFileSortSummary(sharedPreferences));
-		}
-		else if(key.equals(DEF.KEY_INISCALE)){
-			//
-			mIniScale.setSummary(getIniScaleSummary(sharedPreferences));
-		}
-		else if(key.equals(DEF.KEY_PAGEWAY)){
-			//
-			mPageWay.setSummary(getPageWaySummary(sharedPreferences));
-		}
-		else if(key.equals(DEF.KEY_INITVIEW)){
-			//
-			mInitView.setSummary(getInitViewSummary(sharedPreferences));
-		}
-		else if(key.equals(DEF.KEY_ZOOMTYPE)){
-			//
-			mZoomType.setSummary(getZoomTypeSummary(sharedPreferences));
-		}
-		else if(key.equals(DEF.KEY_ALGOMODE)){
-			//
-			mAlgoMode.setSummary(getAlgoModeSummary(sharedPreferences));
-		}
-		else if(key.equals(DEF.KEY_SCRLWAY)){
-			//
-			mScrlWay.setSummary(getScrlWaySummary(sharedPreferences));
-		}
-		else if(key.equals(DEF.KEY_MARGINCUT)){
-			//
-			mMgnCut.setSummary(getMgnCutSummary(sharedPreferences));
-		}
-		else if(key.equals(DEF.KEY_MARGINCUTCOLOR)){
-			//
-			mMgnCutColor.setSummary(getMgnCutColorSummary(sharedPreferences));
-		}
-		else if(key.equals(DEF.KEY_EFFECTLIST)){
-			//
-			mEffect.setSummary(getEffectSummary(sharedPreferences));
-		}
-		else if(key.equals(DEF.KEY_TAPPATTERN) || key.equals(DEF.KEY_TAPRATE)){
-			//
-			mTapPattern.setSummary(SetImageText.getTapPatternSummary(mResources, sharedPreferences));
-		}
-		else if(key.equals(DEF.KEY_PNUMDISP) || key.equals(DEF.KEY_PNUMFORMAT) || key.equals(DEF.KEY_PNUMPOS) || key.equals(DEF.KEY_PNUMSIZE) || key.equals(DEF.KEY_PNUMCOLOR)){
-			//
-			mPageNumber.setSummary(getPageNumberSummary(sharedPreferences));
-		}
-		else if(key.equals(DEF.KEY_TIMEDISP) || key.equals(DEF.KEY_TIMEFORMAT) || key.equals(DEF.KEY_TIMEPOS) || key.equals(DEF.KEY_TIMESIZE) || key.equals(DEF.KEY_TIMECOLOR)){
-			//
-			mTimeAndBattery.setSummary(getTimeSummary(sharedPreferences));
-		}
-		else if(key.equals(DEF.KEY_VIEWPT)){
-			//
-			mViewPt.setSummary(SetImageText.getViewPtSummary(mResources, sharedPreferences));
-		}
-		else if(key.equals(DEF.KEY_VOLKEY)){
-			//
-			mVolKey.setSummary(SetImageText.getVolKeySummary(mResources, sharedPreferences));
-		}
-		else if(key.equals(DEF.KEY_LASTPAGE)){
-			//
-			mLastPage.setSummary(SetImageText.getLastPageSummary(mResources, sharedPreferences));
-		}
-		else if(key.equals(DEF.KEY_PAGESELECT)){
-			//
-			mPageSel.setSummary(SetImageText.getPageSelectSummary(mResources, sharedPreferences));
-		}
-	}
 
 	// 設定の読込
 	public static int getPinScale(SharedPreferences sharedPreferences){
@@ -580,115 +665,5 @@ public class SetImageActivity extends PreferenceActivity implements OnSharedPref
 		boolean flag;
 		flag =  DEF.getBoolean(sharedPreferences, DEF.KEY_DELSHARE, true);
 		return flag;
-	}
-
-	// 設定の読込(定義変更中)
-	private String getViewRotaSummary(SharedPreferences sharedPreferences){
-		int val = getViewRota(sharedPreferences);
-		Resources res = getResources();
-		return res.getString(RotateName[val]);
-	}
-
-	private String getFileSortSummary(SharedPreferences sharedPreferences){
-		int val = getFileSort(sharedPreferences);
-		Resources res = getResources();
-		return res.getString(FileSortName[val]);
-	}
-
-	private String getIniScaleSummary(SharedPreferences sharedPreferences){
-		int val = getIniScale(sharedPreferences);
-		Resources res = getResources();
-		return res.getString(ScaleName[val]);
-	}
-
-	private String getPageWaySummary(SharedPreferences sharedPreferences){
-		int val = getPageWay(sharedPreferences);
-		Resources res = getResources();
-		return res.getString(PageWayName[val]);
-	}
-
-	private String getInitViewSummary(SharedPreferences sharedPreferences){
-		int val = getInitView(sharedPreferences);
-		Resources res = getResources();
-		return res.getString(ViewName[val]);
-	}
-
-	private String getZoomTypeSummary(SharedPreferences sharedPreferences){
-		int val = getZoomType(sharedPreferences);
-		Resources res = getResources();
-		return res.getString(LoupeName[val]);
-	}
-
-	private String getAlgoModeSummary(SharedPreferences sharedPreferences){
-		int val = getAlgoMode(sharedPreferences);
-		Resources res = getResources();
-		return res.getString(AlgoModeName[val]);
-	}
-
-	private String getScrlWaySummary(SharedPreferences sharedPreferences){
-		int val = getScrlWay(sharedPreferences);
-		Resources res = getResources();
-		return res.getString(ScrlWayName[val]);
-	}
-
-	private String getMgnCutSummary(SharedPreferences sharedPreferences){
-		int val = getMgnCut(sharedPreferences);
-		Resources res = getResources();
-		return res.getString(MgnCutName[val]);
-	}
-
-	private String getMgnCutColorSummary(SharedPreferences sharedPreferences){
-		int val = getMgnCutColor(sharedPreferences);
-		Resources res = getResources();
-		String ret = res.getString(MgnCutColorName[val]);
-		return ret;
-	}
-
-	private String getEffectSummary(SharedPreferences sharedPreferences){
-		int val = getEffect(sharedPreferences);
-		Resources res = getResources();
-		return res.getString(EffectName[val]);
-	}
-
-	private String getPageNumberSummary(SharedPreferences sharedPreferences){
-		boolean disp = getPnumDisp(sharedPreferences);
-		int format = getPnumFormat(sharedPreferences);
-		int pos = getPnumPos(sharedPreferences);
-		int size = getPnumSize(sharedPreferences);
-		int color = getPnumColor(sharedPreferences);
-		Resources res = getResources();
-
-		String summ;
-		if (disp) {
-			summ = res.getString(PnumFormatName[format])
-					+ ", " + res.getString(PnumPosName[pos])
-					+ ", " + DEF.getPnumSizeStr(size, res.getString(R.string.unitSumm1))
-					+ ", " + res.getString(PnumColorName[color]);
-		}
-		else {
-			summ = res.getString(R.string.pnumnodisp);
-		}
-		return summ;
-	}
-
-	private String getTimeSummary(SharedPreferences sharedPreferences){
-		boolean disp = getTimeDisp(sharedPreferences);
-		int format = getTimeFormat(sharedPreferences);
-		int pos = getTimePos(sharedPreferences);
-		int size = getTimeSize(sharedPreferences);
-		int color = getTimeColor(sharedPreferences);
-		Resources res = getResources();
-
-		String summ;
-		if (disp) {
-			summ = res.getString(TimeFormatName[format])
-					+ ", " + res.getString(PnumPosName[pos])
-					+ ", " + DEF.getPnumSizeStr(size, res.getString(R.string.unitSumm1))
-					+ ", " + res.getString(PnumColorName[color]);
-		}
-		else {
-			summ = res.getString(R.string.pnumnodisp);
-		}
-		return summ;
 	}
 }

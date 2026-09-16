@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.res.Resources;
-import android.preference.DialogPreference;
 import androidx.preference.PreferenceManager;
 import android.util.AttributeSet;
 import android.view.View;
@@ -15,7 +14,7 @@ import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-public class PageNumberPreference extends DialogPreference implements SeekBar.OnSeekBarChangeListener {
+public class PageNumberPreference extends CustomDialogPreference implements SeekBar.OnSeekBarChangeListener {
 	private CheckBox mChkDisp;
 	private Spinner mSpinFormat;
 	private Spinner mSpinPos;

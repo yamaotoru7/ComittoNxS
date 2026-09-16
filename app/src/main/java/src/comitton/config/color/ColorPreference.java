@@ -6,7 +6,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.preference.DialogPreference;
+import src.comitton.config.CustomDialogPreference;
 import androidx.preference.PreferenceManager;
 import android.util.AttributeSet;
 import android.view.Gravity;
@@ -16,7 +16,7 @@ import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-public class ColorPreference extends DialogPreference implements SeekBar.OnSeekBarChangeListener {
+public class ColorPreference extends CustomDialogPreference implements SeekBar.OnSeekBarChangeListener {
 	private Context mContext;
 	private TextView mMsgView;
 	private SeekBar mSeekBar[] = {null, null, null};

@@ -1,5 +1,20 @@
 package src.comitton.config;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.content.res.Resources;
+import android.os.Bundle;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.preference.ListPreference;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceFragmentCompat;
+
+import jp.dip.muracoro.comittonx.R;
+import src.comitton.common.DEF;
 import src.comitton.config.color.ColorAftSetting;
 import src.comitton.config.color.ColorBakSetting;
 import src.comitton.config.color.ColorBefSetting;
@@ -15,44 +30,212 @@ import src.comitton.config.color.ColorTlbSetting;
 import src.comitton.config.color.ColorTldSetting;
 import src.comitton.config.color.ColorTxtSetting;
 import src.comitton.helpview.HelpActivity;
-import src.comitton.common.DEF;
-import jp.dip.muracoro.comittonx.R;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
-import android.content.res.Resources;
-import android.os.Bundle;
-import android.preference.ListPreference;
-import android.preference.Preference;
-import android.preference.Preference.OnPreferenceClickListener;
-import android.preference.PreferenceActivity;
-import android.preference.PreferenceScreen;
 
-public class SetFileColorActivity extends PreferenceActivity implements OnSharedPreferenceChangeListener {
-	private ListPreference mPreset;
+public class SetFileColorActivity extends BasePreferenceActivity {
 
-	private PreferenceScreen mCustomUpdate;
-//	private ListPreference mTitleColor;
-//	private ListPreference mToolbarColor;
+	@Override
+	protected PreferenceFragmentCompat createPreferenceFragment() {
+		return new SetFileColorFragment();
+	}
 
-	private ColorTxtSetting mTxtColor;
-	private ColorDirSetting mDirColor;
-	private ColorBefSetting mBefColor;
-	private ColorNowSetting mNowColor;
-	private ColorAftSetting mAftColor;
-	private ColorImgSetting mImgColor;
-	private ColorInfSetting mInfColor;
-	private ColorMrkSetting mMrkColor;
-	private ColorBakSetting mBakColor;
-	private ColorCurSetting mCurColor;
+	public static class SetFileColorFragment extends PreferenceFragmentCompat implements OnSharedPreferenceChangeListener {
+		private ListPreference mPreset;
+		private Preference mCustomUpdate;
 
-	private ColorTitSetting mTitColor;
-	private ColorTibSetting mTibColor;
-	private ColorTldSetting mTldColor;	// ツールバーの描画
-	private ColorTlbSetting mTlbColor;	// ツールバーの背景
+		private ColorTxtSetting mTxtColor;
+		private ColorDirSetting mDirColor;
+		private ColorBefSetting mBefColor;
+		private ColorNowSetting mNowColor;
+		private ColorAftSetting mAftColor;
+		private ColorImgSetting mImgColor;
+		private ColorInfSetting mInfColor;
+		private ColorMrkSetting mMrkColor;
+		private ColorBakSetting mBakColor;
+		private ColorCurSetting mCurColor;
 
-	SharedPreferences mSharedPreferences;
+		private ColorTitSetting mTitColor;
+		private ColorTibSetting mTibColor;
+		private ColorTldSetting mTldColor;
+		private ColorTlbSetting mTlbColor;
+
+		private SharedPreferences mSharedPreferences;
+
+		@Override
+		public void onCreatePreferences(@Nullable Bundle savedInstanceState, @Nullable String rootKey) {
+			setPreferencesFromResource(R.xml.filecolor, rootKey);
+
+			mPreset = findPreference(DEF.KEY_PRESET);
+
+			mTxtColor = findPreference(DEF.KEY_TXTRGB);
+			mDirColor = findPreference(DEF.KEY_DIRRGB);
+			mBefColor = findPreference(DEF.KEY_BEFRGB);
+			mNowColor = findPreference(DEF.KEY_NOWRGB);
+			mAftColor = findPreference(DEF.KEY_AFTRGB);
+			mImgColor = findPreference(DEF.KEY_IMGRGB);
+			mInfColor = findPreference(DEF.KEY_INFRGB);
+			mMrkColor = findPreference(DEF.KEY_MRKRGB);
+			mBakColor = findPreference(DEF.KEY_BAKRGB);
+			mCurColor = findPreference(DEF.KEY_CURRGB);
+
+			mTitColor = findPreference(DEF.KEY_TITRGB);
+			mTibColor = findPreference(DEF.KEY_TIBRGB);
+			mTldColor = findPreference(DEF.KEY_TLDRGB);
+			mTlbColor = findPreference(DEF.KEY_TLBRGB);
+
+			// 項目選択
+			Preference onlineHelp = findPreference(DEF.KEY_FCLRHELP);
+			if (onlineHelp != null) {
+				onlineHelp.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+					@Override
+					public boolean onPreferenceClick(@NonNull Preference preference) {
+						if (getActivity() == null) {
+							return false;
+						}
+						// ヘルプを起動
+						Resources res = getResources();
+						String url = res.getString(R.string.url_filecolor);	// 設定画面
+						Intent intent = new Intent(getActivity(), HelpActivity.class);
+						intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+						intent.putExtra("Url", url);
+						startActivity(intent);
+						return true;
+					}
+				});
+			}
+
+			mCustomUpdate = findPreference(DEF.KEY_CSTUPDATE);
+			if (mCustomUpdate != null) {
+				mCustomUpdate.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+					@Override
+					public boolean onPreferenceClick(@NonNull Preference preference) {
+						if (mSharedPreferences == null) return false;
+						// プリセットを反映
+						int index = getPreset(mSharedPreferences);
+						if (index > 0 && index < mPresetColor.length) {
+							String[] newKeys = { DEF.KEY_TXTRGB, DEF.KEY_DIRRGB, DEF.KEY_BEFRGB, DEF.KEY_NOWRGB, DEF.KEY_AFTRGB, DEF.KEY_IMGRGB, DEF.KEY_INFRGB, DEF.KEY_MRKRGB, DEF.KEY_BAKRGB, DEF.KEY_CURRGB, DEF.KEY_TITRGB, DEF.KEY_TIBRGB, DEF.KEY_TLDRGB, DEF.KEY_TLBRGB };
+
+							Editor ed = mSharedPreferences.edit();
+							for (int i = 0 ; i < newKeys.length ; i ++) {
+								ed.putInt(newKeys[i], mPresetColor[index][i]);
+							}
+							ed.apply();
+							updateSummarys();
+						}
+						return true;
+					}
+				});
+			}
+		}
+
+		@Override
+		public void onResume() {
+			super.onResume();
+			mSharedPreferences = getPreferenceScreen().getSharedPreferences();
+			if (mSharedPreferences != null) {
+				mSharedPreferences.registerOnSharedPreferenceChangeListener(this);
+
+				// 色設定
+				int val = getPreset(mSharedPreferences);
+				if (mPreset != null) mPreset.setSummary(getPresetSummary(val));
+				setEnableViews(val == 0);
+
+				updateSummarys();
+			}
+		}
+
+		@Override
+		public void onPause() {
+			super.onPause();
+			if (mSharedPreferences != null) {
+				mSharedPreferences.unregisterOnSharedPreferenceChangeListener(this);
+			}
+		}
+
+		@Override
+		public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+			if (key == null) return;
+			// 色
+			if (key.equals(DEF.KEY_PRESET)) {
+				// プリセット選択
+				int val = getPreset(sharedPreferences);
+				if (mPreset != null) mPreset.setSummary(getPresetSummary(val));
+				setEnableViews(val == 0);
+			} else if (key.equals(DEF.KEY_TXTRGB)) {
+				if (mTxtColor != null) mTxtColor.setSummary(getColorSummary(getTxtColor(sharedPreferences, true)));
+			} else if (key.equals(DEF.KEY_DIRRGB)) {
+				if (mDirColor != null) mDirColor.setSummary(getColorSummary(getDirColor(sharedPreferences, true)));
+			} else if (key.equals(DEF.KEY_BEFRGB)) {
+				if (mBefColor != null) mBefColor.setSummary(getColorSummary(getBefColor(sharedPreferences, true)));
+			} else if (key.equals(DEF.KEY_NOWRGB)) {
+				if (mNowColor != null) mNowColor.setSummary(getColorSummary(getNowColor(sharedPreferences, true)));
+			} else if (key.equals(DEF.KEY_AFTRGB)) {
+				if (mAftColor != null) mAftColor.setSummary(getColorSummary(getAftColor(sharedPreferences, true)));
+			} else if (key.equals(DEF.KEY_IMGRGB)) {
+				if (mImgColor != null) mImgColor.setSummary(getColorSummary(getImgColor(sharedPreferences, true)));
+			} else if (key.equals(DEF.KEY_INFRGB)) {
+				if (mInfColor != null) mInfColor.setSummary(getColorSummary(getInfColor(sharedPreferences, true)));
+			} else if (key.equals(DEF.KEY_MRKRGB)) {
+				if (mMrkColor != null) mMrkColor.setSummary(getColorSummary(getMrkColor(sharedPreferences, true)));
+			} else if (key.equals(DEF.KEY_BAKRGB)) {
+				if (mBakColor != null) mBakColor.setSummary(getColorSummary(getBakColor(sharedPreferences, true)));
+			} else if (key.equals(DEF.KEY_CURRGB)) {
+				if (mCurColor != null) mCurColor.setSummary(getColorSummary(getCurColor(sharedPreferences, true)));
+			} else if (key.equals(DEF.KEY_TITRGB)) {
+				if (mTitColor != null) mTitColor.setSummary(getColorSummary(getTitColor(sharedPreferences, true)));
+			} else if (key.equals(DEF.KEY_TIBRGB)) {
+				if (mTibColor != null) mTibColor.setSummary(getColorSummary(getTibColor(sharedPreferences, true)));
+			} else if (key.equals(DEF.KEY_TLDRGB)) {
+				if (mTldColor != null) mTldColor.setSummary(getColorSummary(getTldColor(sharedPreferences, true)));
+			} else if (key.equals(DEF.KEY_TLBRGB)) {
+				if (mTlbColor != null) mTlbColor.setSummary(getColorSummary(getTlbColor(sharedPreferences, true)));
+			}
+		}
+
+		private void setEnableViews(boolean enable) {
+			if (mCustomUpdate != null) mCustomUpdate.setEnabled(!enable);
+			if (mTxtColor != null) mTxtColor.setEnabled(enable);
+			if (mDirColor != null) mDirColor.setEnabled(enable);
+			if (mBefColor != null) mBefColor.setEnabled(enable);
+			if (mNowColor != null) mNowColor.setEnabled(enable);
+			if (mAftColor != null) mAftColor.setEnabled(enable);
+			if (mImgColor != null) mImgColor.setEnabled(enable);
+			if (mInfColor != null) mInfColor.setEnabled(enable);
+			if (mMrkColor != null) mMrkColor.setEnabled(enable);
+			if (mBakColor != null) mBakColor.setEnabled(enable);
+			if (mCurColor != null) mCurColor.setEnabled(enable);
+			if (mTitColor != null) mTitColor.setEnabled(enable);
+			if (mTibColor != null) mTibColor.setEnabled(enable);
+			if (mTldColor != null) mTldColor.setEnabled(enable);
+			if (mTlbColor != null) mTlbColor.setEnabled(enable);
+		}
+
+		private void updateSummarys() {
+			if (mSharedPreferences == null) return;
+			if (mTxtColor != null) mTxtColor.setSummary(getColorSummary(getTxtColor(mSharedPreferences, true)));
+			if (mDirColor != null) mDirColor.setSummary(getColorSummary(getDirColor(mSharedPreferences, true)));
+			if (mBefColor != null) mBefColor.setSummary(getColorSummary(getBefColor(mSharedPreferences, true)));
+			if (mNowColor != null) mNowColor.setSummary(getColorSummary(getNowColor(mSharedPreferences, true)));
+			if (mAftColor != null) mAftColor.setSummary(getColorSummary(getAftColor(mSharedPreferences, true)));
+			if (mImgColor != null) mImgColor.setSummary(getColorSummary(getImgColor(mSharedPreferences, true)));
+			if (mInfColor != null) mInfColor.setSummary(getColorSummary(getInfColor(mSharedPreferences, true)));
+			if (mMrkColor != null) mMrkColor.setSummary(getColorSummary(getMrkColor(mSharedPreferences, true)));
+			if (mBakColor != null) mBakColor.setSummary(getColorSummary(getBakColor(mSharedPreferences, true)));
+			if (mCurColor != null) mCurColor.setSummary(getColorSummary(getCurColor(mSharedPreferences, true)));
+			if (mTitColor != null) mTitColor.setSummary(getColorSummary(getTitColor(mSharedPreferences, true)));
+			if (mTibColor != null) mTibColor.setSummary(getColorSummary(getTibColor(mSharedPreferences, true)));
+			if (mTldColor != null) mTldColor.setSummary(getColorSummary(getTldColor(mSharedPreferences, true)));
+			if (mTlbColor != null) mTlbColor.setSummary(getColorSummary(getTlbColor(mSharedPreferences, true)));
+		}
+
+		private String getPresetSummary(int val) {
+			Resources res = getResources();
+			return res.getString(mPresetName[val]);
+		}
+
+		private String getColorSummary(int color) {
+			return String.format("#%06X", (0xFFFFFF & color));
+		}
+	}
 
 	static final int[] mPresetName =
 	{ R.string.preset00		// カスタム
@@ -92,202 +275,7 @@ public class SetFileColorActivity extends PreferenceActivity implements OnShared
 /*墨*/	{ 0xFFDEDEE1, 0xFF2DA6C8, 0xFFDEDED1, 0xFF76AFC3, 0xFF4A4A4B, 0xFFC5C123, 0xFF9F9F9F, 0xFF004D24, 0xFF282828, 0xFF1F4594, 0xFFFFFFFF, 0xFF202020, 0xFF3A3A3F, 0xFF6F767C }
 	};
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
 
-		addPreferencesFromResource(R.xml.filecolor);
-
-		mPreset = (ListPreference) getPreferenceScreen().findPreference(DEF.KEY_PRESET);
-//		mTitleColor = (ListPreference)getPreferenceScreen().findPreference(DEF.KEY_TITLECLR);
-//		mToolbarColor = (ListPreference)getPreferenceScreen().findPreference(DEF.KEY_TOOLBCLR);
-
-		mTxtColor = (ColorTxtSetting) getPreferenceScreen().findPreference(DEF.KEY_TXTRGB);
-		mDirColor = (ColorDirSetting) getPreferenceScreen().findPreference(DEF.KEY_DIRRGB);
-		mBefColor = (ColorBefSetting) getPreferenceScreen().findPreference(DEF.KEY_BEFRGB);
-		mNowColor = (ColorNowSetting) getPreferenceScreen().findPreference(DEF.KEY_NOWRGB);
-		mAftColor = (ColorAftSetting) getPreferenceScreen().findPreference(DEF.KEY_AFTRGB);
-		mImgColor = (ColorImgSetting) getPreferenceScreen().findPreference(DEF.KEY_IMGRGB);
-		mInfColor = (ColorInfSetting) getPreferenceScreen().findPreference(DEF.KEY_INFRGB);
-		mMrkColor = (ColorMrkSetting) getPreferenceScreen().findPreference(DEF.KEY_MRKRGB);
-		mBakColor = (ColorBakSetting) getPreferenceScreen().findPreference(DEF.KEY_BAKRGB);
-		mCurColor = (ColorCurSetting) getPreferenceScreen().findPreference(DEF.KEY_CURRGB);
-
-		mTitColor = (ColorTitSetting) getPreferenceScreen().findPreference(DEF.KEY_TITRGB);
-		mTibColor = (ColorTibSetting) getPreferenceScreen().findPreference(DEF.KEY_TIBRGB);
-		mTldColor = (ColorTldSetting) getPreferenceScreen().findPreference(DEF.KEY_TLDRGB);
-		mTlbColor = (ColorTlbSetting) getPreferenceScreen().findPreference(DEF.KEY_TLBRGB);
-
-		// 項目選択
-		PreferenceScreen onlineHelp = (PreferenceScreen) findPreference(DEF.KEY_FCLRHELP);
-		onlineHelp.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-			@Override
-			public boolean onPreferenceClick(Preference preference) {
-				// ヘルプを起動
-				Resources res = getResources();
-				String url = res.getString(R.string.url_filecolor);	// 設定画面
-				Intent intent;
-				intent = new Intent(SetFileColorActivity.this, HelpActivity.class);
-				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-				intent.putExtra("Url", url);
-				startActivity(intent);
-				return true;
-			}
-		});
-
-		mCustomUpdate = (PreferenceScreen) findPreference(DEF.KEY_CSTUPDATE);
-		mCustomUpdate.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-			@Override
-			public boolean onPreferenceClick(Preference preference) {
-				// プリセットを反映
-				int index = getPreset(mSharedPreferences);
-				if (index > 0 || index < mPresetColor.length) {
-					String[] newKeys = { DEF.KEY_TXTRGB, DEF.KEY_DIRRGB, DEF.KEY_BEFRGB, DEF.KEY_NOWRGB, DEF.KEY_AFTRGB, DEF.KEY_IMGRGB, DEF.KEY_INFRGB, DEF.KEY_MRKRGB, DEF.KEY_BAKRGB, DEF.KEY_CURRGB, DEF.KEY_TITRGB, DEF.KEY_TIBRGB, DEF.KEY_TLDRGB, DEF.KEY_TLBRGB };
-
-					Editor ed = mSharedPreferences.edit();
-					for (int i = 0 ; i < newKeys.length ; i ++) {
-						ed.putInt(newKeys[i], mPresetColor[index][i]);
-					}
-					ed.apply();
-					updateSummarys();
-				}
-				return true;
-			}
-		});
-	}
-
-	@Override
-	protected void onResume() {
-		super.onResume();
-		mSharedPreferences = getPreferenceScreen().getSharedPreferences();
-		mSharedPreferences.registerOnSharedPreferenceChangeListener(this);
-
-		// 色設定
-		int val = getPreset(mSharedPreferences);
-		mPreset.setSummary(getPresetSummary(val)); // プリセット
-		setEnableViews(val == 0);
-
-//		mTitleColor.setSummary(getTitleColorSummary(getTitleColor(mSharedPreferences))); // タイトル
-//		mToolbarColor.setSummary(getToolbarColorSummary(getToolbarColor(mSharedPreferences))); // ツールバー
-		updateSummarys();
-	}
-
-	@Override
-	protected void onPause() {
-		super.onPause();
-		getPreferenceScreen().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
-
-	}
-
-	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-		// 色
-		if (key.equals(DEF.KEY_PRESET)) {
-			// プリセット選択
-			int val = getPreset(sharedPreferences);
-			mPreset.setSummary(getPresetSummary(val));
-			setEnableViews(val == 0);
-		}
-//		if(key.equals(DEF.KEY_TITLECLR)){
-//			//
-//			mTitleColor.setSummary(getTitleColorSummary(getTitleColor(sharedPreferences)));
-//		}
-//		else if(key.equals(DEF.KEY_TOOLBCLR)){
-//			//
-//			mToolbarColor.setSummary(getToolbarColorSummary(getToolbarColor(sharedPreferences)));
-//		}
-		else if (key.equals(DEF.KEY_TXTRGB)) {
-			//
-			mTxtColor.setSummary(getColorSummary(getTxtColor(sharedPreferences, true)));
-		}
-		else if (key.equals(DEF.KEY_DIRRGB)) {
-			//
-			mDirColor.setSummary(getColorSummary(getDirColor(sharedPreferences, true)));
-		}
-		else if (key.equals(DEF.KEY_BEFRGB)) {
-			//
-			mBefColor.setSummary(getColorSummary(getBefColor(sharedPreferences, true)));
-		}
-		else if (key.equals(DEF.KEY_NOWRGB)) {
-			//
-			mNowColor.setSummary(getColorSummary(getNowColor(sharedPreferences, true)));
-		}
-		else if (key.equals(DEF.KEY_AFTRGB)) {
-			//
-			mAftColor.setSummary(getColorSummary(getAftColor(sharedPreferences, true)));
-		}
-		else if (key.equals(DEF.KEY_IMGRGB)) {
-			//
-			mImgColor.setSummary(getColorSummary(getImgColor(sharedPreferences, true)));
-		}
-		else if (key.equals(DEF.KEY_INFRGB)) {
-			//
-			mInfColor.setSummary(getColorSummary(getInfColor(sharedPreferences, true)));
-		}
-		else if (key.equals(DEF.KEY_MRKRGB)) {
-			//
-			mMrkColor.setSummary(getColorSummary(getMrkColor(sharedPreferences, true)));
-		}
-		else if (key.equals(DEF.KEY_BAKRGB)) {
-			//
-			mBakColor.setSummary(getColorSummary(getBakColor(sharedPreferences, true)));
-		}
-		else if (key.equals(DEF.KEY_CURRGB)) {
-			//
-			mCurColor.setSummary(getColorSummary(getCurColor(sharedPreferences, true)));
-		}
-		else if (key.equals(DEF.KEY_TITRGB)) {
-			//
-			mTitColor.setSummary(getColorSummary(getTitColor(sharedPreferences, true)));
-		}
-		else if (key.equals(DEF.KEY_TLBRGB)) {
-			//
-			mTibColor.setSummary(getColorSummary(getTibColor(sharedPreferences, true)));
-		}
-		else if (key.equals(DEF.KEY_TLDRGB)) {
-			//
-			mTldColor.setSummary(getColorSummary(getTldColor(sharedPreferences, true)));
-		}
-		else if (key.equals(DEF.KEY_TLBRGB)) {
-			//
-			mTlbColor.setSummary(getColorSummary(getTlbColor(sharedPreferences, true)));
-		}
-	}
-
-	private void setEnableViews(boolean enable) {
-		mCustomUpdate.setEnabled(!enable);
-		mTxtColor.setEnabled(enable);
-		mDirColor.setEnabled(enable);
-		mBefColor.setEnabled(enable);
-		mNowColor.setEnabled(enable);
-		mAftColor.setEnabled(enable);
-		mImgColor.setEnabled(enable);
-		mInfColor.setEnabled(enable);
-		mMrkColor.setEnabled(enable);
-		mBakColor.setEnabled(enable);
-		mCurColor.setEnabled(enable);
-		mTitColor.setEnabled(enable);
-		mTibColor.setEnabled(enable);
-		mTldColor.setEnabled(enable);
-		mTlbColor.setEnabled(enable);
-	}
-
-	private void updateSummarys() {
-		mTxtColor.setSummary(getColorSummary(getTxtColor(mSharedPreferences, true))); // サーバ名
-		mDirColor.setSummary(getColorSummary(getDirColor(mSharedPreferences, true))); // ディレクトリ
-		mBefColor.setSummary(getColorSummary(getBefColor(mSharedPreferences, true))); // 未読
-		mNowColor.setSummary(getColorSummary(getNowColor(mSharedPreferences, true))); // 読中
-		mAftColor.setSummary(getColorSummary(getAftColor(mSharedPreferences, true))); // 既読
-		mImgColor.setSummary(getColorSummary(getImgColor(mSharedPreferences, true))); // 画像
-		mInfColor.setSummary(getColorSummary(getInfColor(mSharedPreferences, true))); // ファイル情報
-		mMrkColor.setSummary(getColorSummary(getMrkColor(mSharedPreferences, true))); // マーカー
-		mBakColor.setSummary(getColorSummary(getBakColor(mSharedPreferences, true))); // 背景
-		mCurColor.setSummary(getColorSummary(getCurColor(mSharedPreferences, true))); // カーソル
-
-		mTitColor.setSummary(getColorSummary(getTitColor(mSharedPreferences, true))); // タイトルテキスト
-		mTibColor.setSummary(getColorSummary(getTibColor(mSharedPreferences, true))); // タイトル背景
-		mTldColor.setSummary(getColorSummary(getTldColor(mSharedPreferences, true))); // ツールバー描画
-		mTlbColor.setSummary(getColorSummary(getTlbColor(mSharedPreferences, true))); // ツールバー背景
-	}
 
 	// 設定の読込（リストビュー）
 	public static int getPreset(SharedPreferences sp) {

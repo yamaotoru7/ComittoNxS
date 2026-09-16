@@ -21,8 +21,6 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Environment;
-import android.preference.DialogPreference;
-import android.preference.ListPreference;
 import androidx.preference.PreferenceManager;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -40,7 +38,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class ExportSettingPreference extends DialogPreference implements OnItemClickListener, OnClickListener {
+public class ExportSettingPreference extends CustomDialogPreference implements OnItemClickListener, OnClickListener {
 	private Context mContext;
 	private SharedPreferences mSp;
 

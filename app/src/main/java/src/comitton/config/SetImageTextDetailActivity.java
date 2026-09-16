@@ -1,5 +1,18 @@
 package src.comitton.config;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.content.res.Resources;
+import android.os.Bundle;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceFragmentCompat;
+
+import jp.dip.muracoro.comittonx.R;
+import src.comitton.common.DEF;
 import src.comitton.config.seekbar.CenterSeekbar;
 import src.comitton.config.seekbar.ClickAreaSeekbar;
 import src.comitton.config.seekbar.EffectTimeSeekbar;
@@ -11,133 +24,188 @@ import src.comitton.config.seekbar.ScrollSeekbar;
 import src.comitton.config.seekbar.TapRangeSeekbar;
 import src.comitton.config.seekbar.VolScrlSeekbar;
 import src.comitton.helpview.HelpActivity;
-import src.comitton.common.DEF;
-import jp.dip.muracoro.comittonx.R;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
-import android.content.res.Resources;
-import android.os.Bundle;
-import android.preference.Preference;
-import android.preference.Preference.OnPreferenceClickListener;
-import android.preference.PreferenceActivity;
-import android.preference.PreferenceScreen;
 
-public class SetImageTextDetailActivity extends PreferenceActivity implements OnSharedPreferenceChangeListener {
-	private ScrollSeekbar mScroll;
-	private ClickAreaSeekbar mClickArea;
-	private PageRangeSeekbar mPageRange;
-	private TapRangeSeekbar mTapRange;
-	private MarginSeekbar mMargin;
-	private CenterSeekbar mCenter;
-	private GradationSeekbar mGradation;
-	private VolScrlSeekbar mVolScrl;
-	private EffectTimeSeekbar mEffectTime;
-	private MomentModeSeekbar mMomentMode;
+public class SetImageTextDetailActivity extends BasePreferenceActivity {
 
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+	protected PreferenceFragmentCompat createPreferenceFragment() {
+		return new SetImageTextDetailFragment();
+	}
 
-		addPreferencesFromResource(R.xml.imagetextdetail);
+	public static class SetImageTextDetailFragment extends PreferenceFragmentCompat implements OnSharedPreferenceChangeListener {
+		private ScrollSeekbar mScroll;
+		private ClickAreaSeekbar mClickArea;
+		private PageRangeSeekbar mPageRange;
+		private TapRangeSeekbar mTapRange;
+		private MarginSeekbar mMargin;
+		private CenterSeekbar mCenter;
+		private GradationSeekbar mGradation;
+		private VolScrlSeekbar mVolScrl;
+		private EffectTimeSeekbar mEffectTime;
+		private MomentModeSeekbar mMomentMode;
 
-		mScroll = (ScrollSeekbar) getPreferenceScreen().findPreference(DEF.KEY_SCROLL);
-		mClickArea = (ClickAreaSeekbar) getPreferenceScreen().findPreference(DEF.KEY_CLICKAREA);
-		mPageRange = (PageRangeSeekbar) getPreferenceScreen().findPreference(DEF.KEY_PAGERANGE);
-		mTapRange = (TapRangeSeekbar) getPreferenceScreen().findPreference(DEF.KEY_TAPRANGE);
-		mMargin = (MarginSeekbar) getPreferenceScreen().findPreference(DEF.KEY_MARGIN);
-		mCenter = (CenterSeekbar) getPreferenceScreen().findPreference(DEF.KEY_CENTER);
-		mGradation = (GradationSeekbar) getPreferenceScreen().findPreference(DEF.KEY_GRADATION);
-		mVolScrl = (VolScrlSeekbar) getPreferenceScreen().findPreference(DEF.KEY_VOLSCRL);
-		mEffectTime = (EffectTimeSeekbar) getPreferenceScreen().findPreference(DEF.KEY_EFFECTTIME);
-		mMomentMode = (MomentModeSeekbar) getPreferenceScreen().findPreference(DEF.KEY_MOMENTMODE);
+		@Override
+		public void onCreatePreferences(@Nullable Bundle savedInstanceState, @Nullable String rootKey) {
+			setPreferencesFromResource(R.xml.imagetextdetail, rootKey);
 
-		// 項目選択
-		PreferenceScreen onlineHelp = (PreferenceScreen) findPreference(DEF.KEY_ITDTLHELP);
-		onlineHelp.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-			@Override
-			public boolean onPreferenceClick(Preference preference) {
-				// Activityの遷移
-				Resources res = getResources();
-				String url = res.getString(R.string.url_imagetextdetail);	// 設定画面
-				Intent intent;
-				intent = new Intent(SetImageTextDetailActivity.this, HelpActivity.class);
-				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-				intent.putExtra("Url", url);
-				startActivity(intent);
-				return true;
+			mScroll = findPreference(DEF.KEY_SCROLL);
+			mClickArea = findPreference(DEF.KEY_CLICKAREA);
+			mPageRange = findPreference(DEF.KEY_PAGERANGE);
+			mTapRange = findPreference(DEF.KEY_TAPRANGE);
+			mMargin = findPreference(DEF.KEY_MARGIN);
+			mCenter = findPreference(DEF.KEY_CENTER);
+			mGradation = findPreference(DEF.KEY_GRADATION);
+			mVolScrl = findPreference(DEF.KEY_VOLSCRL);
+			mEffectTime = findPreference(DEF.KEY_EFFECTTIME);
+			mMomentMode = findPreference(DEF.KEY_MOMENTMODE);
+
+			// 項目選択
+			Preference onlineHelp = findPreference(DEF.KEY_ITDTLHELP);
+			if (onlineHelp != null) {
+				onlineHelp.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+					@Override
+					public boolean onPreferenceClick(@NonNull Preference preference) {
+						if (getActivity() == null) {
+							return false;
+						}
+						// Activityの遷移
+						Resources res = getResources();
+						String url = res.getString(R.string.url_imagetextdetail);	// 設定画面
+						Intent intent = new Intent(getActivity(), HelpActivity.class);
+						intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+						intent.putExtra("Url", url);
+						startActivity(intent);
+						return true;
+					}
+				});
 			}
-		});
-	}
+		}
 
-	@Override
-	protected void onResume() {
-		super.onResume();
-		SharedPreferences sharedPreferences = getPreferenceScreen().getSharedPreferences();
-		sharedPreferences.registerOnSharedPreferenceChangeListener(this);
+		@Override
+		public void onResume() {
+			super.onResume();
+			SharedPreferences sharedPreferences = getPreferenceScreen().getSharedPreferences();
+			if (sharedPreferences != null) {
+				sharedPreferences.registerOnSharedPreferenceChangeListener(this);
 
-		// シークバー
-		mScroll.setSummary(getScrollSummary(sharedPreferences)); // スクロール倍率
-		mClickArea.setSummary(getClickAreaSummary(sharedPreferences));
-		mPageRange.setSummary(getPageRangeSummary(sharedPreferences));
-		mTapRange.setSummary(getTapRangeSummary(sharedPreferences));
-		mMargin.setSummary(getMarginSummary(sharedPreferences));
-		mCenter.setSummary(getCenterSummary(sharedPreferences)); // 中央余白幅
-		mGradation.setSummary(getGradationSummary(sharedPreferences)); // 中央影幅
-		mVolScrl.setSummary(getVolScrlSummary(sharedPreferences));
-		mEffectTime.setSummary(getEffectTimeSummary(sharedPreferences));
-		mMomentMode.setSummary(getMomentModeSummary(sharedPreferences));
-	}
+				// シークバー
+				if (mScroll != null) mScroll.setSummary(getScrollSummary(sharedPreferences));
+				if (mClickArea != null) mClickArea.setSummary(getClickAreaSummary(sharedPreferences));
+				if (mPageRange != null) mPageRange.setSummary(getPageRangeSummary(sharedPreferences));
+				if (mTapRange != null) mTapRange.setSummary(getTapRangeSummary(sharedPreferences));
+				if (mMargin != null) mMargin.setSummary(getMarginSummary(sharedPreferences));
+				if (mCenter != null) mCenter.setSummary(getCenterSummary(sharedPreferences));
+				if (mGradation != null) mGradation.setSummary(getGradationSummary(sharedPreferences));
+				if (mVolScrl != null) mVolScrl.setSummary(getVolScrlSummary(sharedPreferences));
+				if (mEffectTime != null) mEffectTime.setSummary(getEffectTimeSummary(sharedPreferences));
+				if (mMomentMode != null) mMomentMode.setSummary(getMomentModeSummary(sharedPreferences));
+			}
+		}
 
-	@Override
-	protected void onPause() {
-		super.onPause();
-		getPreferenceScreen().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
+		@Override
+		public void onPause() {
+			super.onPause();
+			SharedPreferences sharedPreferences = getPreferenceScreen().getSharedPreferences();
+			if (sharedPreferences != null) {
+				sharedPreferences.unregisterOnSharedPreferenceChangeListener(this);
+			}
+		}
 
-	}
+		@Override
+		public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+			if (key == null) return;
+			// シークバー
+			if (key.equals(DEF.KEY_SCROLL)) {
+				if (mScroll != null) mScroll.setSummary(getScrollSummary(sharedPreferences));
+			} else if (key.equals(DEF.KEY_CLICKAREA)) {
+				if (mClickArea != null) mClickArea.setSummary(getClickAreaSummary(sharedPreferences));
+			} else if (key.equals(DEF.KEY_PAGERANGE)) {
+				if (mPageRange != null) mPageRange.setSummary(getPageRangeSummary(sharedPreferences));
+			} else if (key.equals(DEF.KEY_TAPRANGE)) {
+				if (mTapRange != null) mTapRange.setSummary(getTapRangeSummary(sharedPreferences));
+			} else if (key.equals(DEF.KEY_MARGIN)) {
+				if (mMargin != null) mMargin.setSummary(getMarginSummary(sharedPreferences));
+			} else if (key.equals(DEF.KEY_CENTER)) {
+				if (mCenter != null) mCenter.setSummary(getCenterSummary(sharedPreferences));
+			} else if (key.equals(DEF.KEY_GRADATION)) {
+				if (mGradation != null) mGradation.setSummary(getGradationSummary(sharedPreferences));
+			} else if (key.equals(DEF.KEY_VOLSCRL)) {
+				if (mVolScrl != null) mVolScrl.setSummary(getVolScrlSummary(sharedPreferences));
+			} else if (key.equals(DEF.KEY_EFFECTTIME)) {
+				if (mEffectTime != null) mEffectTime.setSummary(getEffectTimeSummary(sharedPreferences));
+			} else if (key.equals(DEF.KEY_MOMENTMODE)) {
+				if (mMomentMode != null) mMomentMode.setSummary(getMomentModeSummary(sharedPreferences));
+			}
+		}
 
-	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+		private String getScrollSummary(SharedPreferences sharedPreferences) {
+			int val = getScroll(sharedPreferences);
+			Resources res = getResources();
+			String summ1 = res.getString(R.string.scrlSumm1);
+			String summ2 = res.getString(R.string.scrlSumm2);
+			return DEF.getScrollStr(val, summ1, summ2);
+		}
 
-		// シークバー
-		if (key.equals(DEF.KEY_SCROLL)) {
-			// スクロール倍率
-			mScroll.setSummary(getScrollSummary(sharedPreferences));
+		private String getClickAreaSummary(SharedPreferences sharedPreferences) {
+			int val = getClickArea(sharedPreferences);
+			Resources res = getResources();
+			String summ1 = res.getString(R.string.unitSumm1);
+			return DEF.getClickAreaStr(val, summ1);
 		}
-		else if (key.equals(DEF.KEY_CLICKAREA)) {
-			// 操作領域サイズ
-			mClickArea.setSummary(getClickAreaSummary(sharedPreferences));
+
+		private String getPageRangeSummary(SharedPreferences sharedPreferences) {
+			int val = getPageRange(sharedPreferences);
+			Resources res = getResources();
+			String summ1 = res.getString(R.string.unitSumm1);
+			return DEF.getPageRangeStr(val, summ1);
 		}
-		else if (key.equals(DEF.KEY_PAGERANGE)) {
-			// ページ選択感度
-			mPageRange.setSummary(getPageRangeSummary(sharedPreferences));
+
+		private String getTapRangeSummary(SharedPreferences sharedPreferences) {
+			int val = getTapRange(sharedPreferences);
+			Resources res = getResources();
+			String summ1 = res.getString(R.string.unitSumm1);
+			return DEF.getTapRangeStr(val, summ1);
 		}
-		else if (key.equals(DEF.KEY_TAPRANGE)) {
-			// スクロール開始感度
-			mTapRange.setSummary(getTapRangeSummary(sharedPreferences));
+
+		private String getMarginSummary(SharedPreferences sharedPreferences) {
+			int val = getMargin(sharedPreferences);
+			Resources res = getResources();
+			String summ1 = res.getString(R.string.rangeSumm1);
+			return DEF.getMarginStr(val, summ1);
 		}
-		else if (key.equals(DEF.KEY_MARGIN)) {
-			// 余白サイズ
-			mMargin.setSummary(getMarginSummary(sharedPreferences));
+
+		private String getCenterSummary(SharedPreferences sharedPreferences) {
+			int val = getCenter(sharedPreferences);
+			Resources res = getResources();
+			String summ1 = res.getString(R.string.centSumm1);
+			return DEF.getCenterStr(val, summ1);
 		}
-		else if (key.equals(DEF.KEY_CENTER)) {
-			// 中央余白幅
-			mCenter.setSummary(getCenterSummary(sharedPreferences));
+
+		private String getGradationSummary(SharedPreferences sharedPreferences) {
+			int val = getGradation(sharedPreferences);
+			return DEF.getGradationStr(val);
 		}
-		else if (key.equals(DEF.KEY_GRADATION)) {
-			// 中央影幅
-			mGradation.setSummary(getGradationSummary(sharedPreferences));
+
+		private String getVolScrlSummary(SharedPreferences sharedPreferences) {
+			int val = getVolScrl(sharedPreferences);
+			Resources res = getResources();
+			String summ1 = res.getString(R.string.unitSumm1);
+			return DEF.getScrlSpeedStr(val, summ1);
 		}
-		else if (key.equals(DEF.KEY_VOLSCRL)) {
-			// スクロール速度
-			mVolScrl.setSummary(getVolScrlSummary(sharedPreferences));
+
+		private String getEffectTimeSummary(SharedPreferences sharedPreferences) {
+			int val = getEffectTime(sharedPreferences);
+			Resources res = getResources();
+			String summ1 = res.getString(R.string.msecSumm1);
+			return DEF.getEffectTimeStr(val, summ1);
 		}
-		else if (key.equals(DEF.KEY_EFFECTTIME)) {
-			// スクロール速度
-			mEffectTime.setSummary(getEffectTimeSummary(sharedPreferences));
-		}
-		else if (key.equals(DEF.KEY_MOMENTMODE)) {
-			// スクロール速度
-			mMomentMode.setSummary(getMomentModeSummary(sharedPreferences));
+
+		private String getMomentModeSummary(SharedPreferences sharedPreferences) {
+			int val = getMomentMode(sharedPreferences);
+			Resources res = getResources();
+			String summ1 = res.getString(R.string.mmentSumm1);
+			String summ2 = res.getString(R.string.mmentSumm2);
+			return DEF.getMomentModeStr(val, summ1, summ2);
 		}
 	}
 
@@ -215,85 +283,5 @@ public class SetImageTextDetailActivity extends PreferenceActivity implements On
 		int num;
 		num = DEF.getInt(sharedPreferences, DEF.KEY_MOMENTMODE, DEF.DEFAULT_MOMENTMODE);
 		return num;
-	}
-
-	private String getScrollSummary(SharedPreferences sharedPreferences) {
-		int val = getScroll(sharedPreferences);
-		Resources res = getResources();
-		String summ1 = res.getString(R.string.scrlSumm1);
-		String summ2 = res.getString(R.string.scrlSumm2);
-
-		return DEF.getScrollStr(val, summ1, summ2);
-	}
-
-	private String getClickAreaSummary(SharedPreferences sharedPreferences) {
-		int val = getClickArea(sharedPreferences);
-		Resources res = getResources();
-		String summ1 = res.getString(R.string.unitSumm1);
-
-		return DEF.getClickAreaStr(val, summ1);
-	}
-
-	private String getPageRangeSummary(SharedPreferences sharedPreferences) {
-		int val = getPageRange(sharedPreferences);
-		Resources res = getResources();
-		String summ1 = res.getString(R.string.unitSumm1);
-
-		return DEF.getPageRangeStr(val, summ1);
-	}
-
-	private String getTapRangeSummary(SharedPreferences sharedPreferences) {
-		int val = getTapRange(sharedPreferences);
-		Resources res = getResources();
-		String summ1 = res.getString(R.string.unitSumm1);
-
-		return DEF.getTapRangeStr(val, summ1);
-	}
-
-	private String getMarginSummary(SharedPreferences sharedPreferences) {
-		int val = getMargin(sharedPreferences);
-		Resources res = getResources();
-		String summ1 = res.getString(R.string.rangeSumm1);
-
-		return DEF.getMarginStr(val, summ1);
-	}
-
-	private String getCenterSummary(SharedPreferences sharedPreferences) {
-		int val = getCenter(sharedPreferences);
-		Resources res = getResources();
-		String summ1 = res.getString(R.string.centSumm1);
-
-		return DEF.getCenterStr(val, summ1);
-	}
-
-	private String getGradationSummary(SharedPreferences sharedPreferences) {
-		int val = getGradation(sharedPreferences);
-
-		return DEF.getGradationStr(val);
-	}
-
-	private String getVolScrlSummary(SharedPreferences sharedPreferences) {
-		int val = getVolScrl(sharedPreferences);
-		Resources res = getResources();
-		String summ1 = res.getString(R.string.unitSumm1);
-
-		return DEF.getScrlSpeedStr(val, summ1);
-	}
-
-	private String getEffectTimeSummary(SharedPreferences sharedPreferences) {
-		int val = getEffectTime(sharedPreferences);
-		Resources res = getResources();
-		String summ1 = res.getString(R.string.msecSumm1);
-
-		return DEF.getEffectTimeStr(val, summ1);
-	}
-
-	private String getMomentModeSummary(SharedPreferences sharedPreferences) {
-		int val = getMomentMode(sharedPreferences);
-		Resources res = getResources();
-		String summ1 = res.getString(R.string.mmentSumm1);
-		String summ2 = res.getString(R.string.mmentSumm2);
-
-		return DEF.getMomentModeStr(val, summ1, summ2);
 	}
 }

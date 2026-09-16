@@ -1,35 +1,26 @@
 package src.comitton.config;
 
 import android.content.SharedPreferences;
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
-import android.content.res.Resources;
 import android.os.Bundle;
-import android.preference.PreferenceActivity;
+
+import androidx.annotation.Nullable;
+import androidx.preference.PreferenceFragmentCompat;
 
 import jp.dip.muracoro.comittonx.R;
 import src.comitton.common.DEF;
 
-public class SetEpubActivity extends PreferenceActivity implements OnSharedPreferenceChangeListener {
-	Resources mResources;
+public class SetEpubActivity extends BasePreferenceActivity {
 
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		addPreferencesFromResource(R.xml.epub);
+	protected PreferenceFragmentCompat createPreferenceFragment() {
+		return new SetEpubFragment();
 	}
 
-	@Override
-	protected void onResume() {
-		super.onResume();
-	}
-
-	@Override
-	protected void onPause() {
-		super.onPause();
-		getPreferenceScreen().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
-	}
-
-	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+	public static class SetEpubFragment extends PreferenceFragmentCompat {
+		@Override
+		public void onCreatePreferences(@Nullable Bundle savedInstanceState, @Nullable String rootKey) {
+			setPreferencesFromResource(R.xml.epub, rootKey);
+		}
 	}
 
 	// 設定の読込
@@ -53,3 +44,4 @@ public class SetEpubActivity extends PreferenceActivity implements OnSharedPrefe
 		return flag;
 	}
 }
+

@@ -1,5 +1,20 @@
 package src.comitton.config;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.content.res.Resources;
+import android.os.Bundle;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.preference.ListPreference;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceFragmentCompat;
+
+import jp.dip.muracoro.comittonx.R;
+import src.comitton.common.DEF;
 import src.comitton.config.seekbar.FontMainSeekbar;
 import src.comitton.config.seekbar.FontSubSeekbar;
 import src.comitton.config.seekbar.FontTileSeekbar;
@@ -9,45 +24,291 @@ import src.comitton.config.seekbar.ListThumbSeekbar;
 import src.comitton.config.seekbar.MenuLongTapSeekbar;
 import src.comitton.config.seekbar.ToolbarSeekbar;
 import src.comitton.helpview.HelpActivity;
-import src.comitton.common.DEF;
-import jp.dip.muracoro.comittonx.R;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
-import android.content.res.Resources;
-import android.os.Bundle;
-import android.preference.ListPreference;
-import android.preference.Preference;
-import android.preference.Preference.OnPreferenceClickListener;
-import android.preference.PreferenceActivity;
-import android.preference.PreferenceScreen;
 
-public class SetFileListActivity extends PreferenceActivity implements OnSharedPreferenceChangeListener {
-	private ListPreference mListRota;
-	private ListPreference mListSort;
-	private ListPreference mBackMode;
+public class SetFileListActivity extends BasePreferenceActivity {
 
-	private ListPreference mMaxLines;
-	private ListPreference mFileDelMenu;
-	private ListPreference mFileRenMenu;
+	@Override
+	protected PreferenceFragmentCompat createPreferenceFragment() {
+		return new SetFileListFragment();
+	}
 
-	private FontTitleSeekbar mFontTitle;
-	private FontMainSeekbar mFontMain;
-	private FontSubSeekbar mFontSub;
-	private FontTileSeekbar mFontTile;
-	private ItemMarginSeekbar mItemMrgn;
-	private MenuLongTapSeekbar mMenuLongTap;
+	public static class SetFileListFragment extends PreferenceFragmentCompat implements OnSharedPreferenceChangeListener {
+		private ListPreference mListRota;
+		private ListPreference mListSort;
+		private ListPreference mBackMode;
 
-	private ListPreference mThumbCache;
-	private ListPreference mThumbSortType;
-	private ListPreference mThumbCrop;
-	private ListPreference mThumbMargin;
+		private ListPreference mMaxLines;
+		private ListPreference mFileDelMenu;
+		private ListPreference mFileRenMenu;
 
-	private ToolbarSeekbar mToolbarSeek;
-	private ListThumbSeekbar mListThumbSeek;
+		private FontTitleSeekbar mFontTitle;
+		private FontMainSeekbar mFontMain;
+		private FontSubSeekbar mFontSub;
+		private FontTileSeekbar mFontTile;
+		private ItemMarginSeekbar mItemMrgn;
+		private MenuLongTapSeekbar mMenuLongTap;
 
-	private ThumbnailPreference mThumbnail;
+		private ListPreference mThumbCache;
+		private ListPreference mThumbSortType;
+		private ListPreference mThumbCrop;
+		private ListPreference mThumbMargin;
+
+		private ToolbarSeekbar mToolbarSeek;
+		private ListThumbSeekbar mListThumbSeek;
+
+		private ThumbnailPreference mThumbnail;
+
+		@Override
+		public void onCreatePreferences(@Nullable Bundle savedInstanceState, @Nullable String rootKey) {
+			setPreferencesFromResource(R.xml.filelist, rootKey);
+
+			mListRota  = findPreference(DEF.KEY_LISTROTA);
+			mListSort  = findPreference(DEF.KEY_LISTSORT);
+			mBackMode  = findPreference(DEF.KEY_BACKMODE);
+			mMaxLines = findPreference(DEF.KEY_MAX_LINES);
+			mFileDelMenu = findPreference(DEF.KEY_FILEDELMENU);
+			mFileRenMenu = findPreference(DEF.KEY_FILERENMENU);
+			mFontTitle = findPreference(DEF.KEY_FONTTITLE);
+			mFontMain  = findPreference(DEF.KEY_FONTMAIN);
+			mFontSub   = findPreference(DEF.KEY_FONTSUB);
+			mFontTile  = findPreference(DEF.KEY_FONTTILE);
+			mItemMrgn  = findPreference(DEF.KEY_ITEMMRGN);
+			mThumbnail = findPreference(DEF.KEY_THUMBSEEK);
+			mThumbCache = findPreference(DEF.KEY_THUMBCACHE);
+			mThumbSortType = findPreference(DEF.KEY_THUMBSORTTYPE);
+			mThumbCrop = findPreference(DEF.KEY_THUMBCROP);
+			mThumbMargin = findPreference(DEF.KEY_THUMBMARGIN);
+			mToolbarSeek = findPreference(DEF.KEY_TOOLBARSEEK);
+			mListThumbSeek = findPreference(DEF.KEY_LISTTHUMBSEEK);
+			mMenuLongTap   = findPreference(DEF.KEY_MENULONGTAP);
+
+			// 項目選択
+			Preference onlineHelp = findPreference(DEF.KEY_FILEHELP);
+			if (onlineHelp != null) {
+				onlineHelp.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+					@Override
+					public boolean onPreferenceClick(@NonNull Preference preference) {
+						if (getActivity() == null) {
+							return false;
+						}
+						// Activityの遷移
+						Resources res = getResources();
+						String url = res.getString(R.string.url_filelist);	// 設定画面
+						Intent intent = new Intent(getActivity(), HelpActivity.class);
+						intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+						intent.putExtra("Url", url);
+						startActivity(intent);
+						return true;
+					}
+				});
+			}
+		}
+
+		@Override
+		public void onResume() {
+			super.onResume();
+			SharedPreferences sharedPreferences = getPreferenceScreen().getSharedPreferences();
+			if (sharedPreferences != null) {
+				sharedPreferences.registerOnSharedPreferenceChangeListener(this);
+
+				if (mListRota != null) mListRota.setSummary(getListRotaSummary(sharedPreferences));
+				if (mListSort != null) mListSort.setSummary(getListSortSummary(sharedPreferences));
+				if (mBackMode != null) mBackMode.setSummary(getBackModeSummary(sharedPreferences));
+				if (mMaxLines != null) mMaxLines.setSummary(getMaxLinesSummary(sharedPreferences));
+				if (mFileDelMenu != null) mFileDelMenu.setSummary(getFileDelMenuSummary(sharedPreferences));
+				if (mFileRenMenu != null) mFileRenMenu.setSummary(getFileRenMenuSummary(sharedPreferences));
+				if (mFontTitle != null) mFontTitle.setSummary(getFontTitleSummary(sharedPreferences));
+				if (mFontMain != null) mFontMain.setSummary(getFontMainSummary(sharedPreferences));
+				if (mFontSub != null) mFontSub.setSummary(getFontSubSummary(sharedPreferences));
+				if (mFontTile != null) mFontTile.setSummary(getFontTileSummary(sharedPreferences));
+				if (mItemMrgn != null) mItemMrgn.setSummary(getItemMarginSummary(sharedPreferences));
+				if (mThumbnail != null) mThumbnail.setSummary(getThumbnailSummary(sharedPreferences));
+				if (mThumbCache != null) mThumbCache.setSummary(getThumbCacheSummary(sharedPreferences));
+				if (mThumbSortType != null) mThumbSortType.setSummary(getThumbSortTypeSummary(sharedPreferences));
+				if (mThumbCrop != null) mThumbCrop.setSummary(getThumbCropSummary(sharedPreferences));
+				if (mThumbMargin != null) mThumbMargin.setSummary(getThumbMarginSummary(sharedPreferences));
+				if (mToolbarSeek != null) mToolbarSeek.setSummary(getToolbarSeekSummary(sharedPreferences));
+				if (mListThumbSeek != null) mListThumbSeek.setSummary(getListThumbSeekSummary(sharedPreferences));
+				if (mMenuLongTap != null) mMenuLongTap.setSummary(getMenuLongTapSummary(sharedPreferences));
+			}
+		}
+
+		@Override
+		public void onPause() {
+			super.onPause();
+			SharedPreferences sharedPreferences = getPreferenceScreen().getSharedPreferences();
+			if (sharedPreferences != null) {
+				sharedPreferences.unregisterOnSharedPreferenceChangeListener(this);
+			}
+		}
+
+		@Override
+		public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+			if (key == null) return;
+			if (key.equals(DEF.KEY_LISTROTA)) {
+				if (mListRota != null) mListRota.setSummary(getListRotaSummary(sharedPreferences));
+			} else if (key.equals(DEF.KEY_LISTSORT)) {
+				if (mListSort != null) mListSort.setSummary(getListSortSummary(sharedPreferences));
+			} else if (key.equals(DEF.KEY_FONTTITLE)) {
+				if (mFontTitle != null) mFontTitle.setSummary(getFontTitleSummary(sharedPreferences));
+			} else if (key.equals(DEF.KEY_FONTMAIN)) {
+				if (mFontMain != null) mFontMain.setSummary(getFontMainSummary(sharedPreferences));
+			} else if (key.equals(DEF.KEY_FONTSUB)) {
+				if (mFontSub != null) mFontSub.setSummary(getFontSubSummary(sharedPreferences));
+			} else if (key.equals(DEF.KEY_FONTTILE)) {
+				if (mFontTile != null) mFontTile.setSummary(getFontTileSummary(sharedPreferences));
+			} else if (key.equals(DEF.KEY_ITEMMRGN)) {
+				if (mItemMrgn != null) mItemMrgn.setSummary(getItemMarginSummary(sharedPreferences));
+			} else if (key.equals(DEF.KEY_BACKMODE)) {
+				if (mBackMode != null) mBackMode.setSummary(getBackModeSummary(sharedPreferences));
+			} else if (key.equals(DEF.KEY_THUMBSIZEW) || key.equals(DEF.KEY_THUMBSIZEH)) {
+				if (mThumbnail != null) mThumbnail.setSummary(getThumbnailSummary(sharedPreferences));
+			} else if (key.equals(DEF.KEY_THUMBCACHE)) {
+				if (mThumbCache != null) mThumbCache.setSummary(getThumbCacheSummary(sharedPreferences));
+			} else if (key.equals(DEF.KEY_THUMBSORTTYPE)) {
+				if (mThumbSortType != null) mThumbSortType.setSummary(getThumbSortTypeSummary(sharedPreferences));
+			} else if (key.equals(DEF.KEY_THUMBCROP)) {
+				if (mThumbCrop != null) mThumbCrop.setSummary(getThumbCropSummary(sharedPreferences));
+			} else if (key.equals(DEF.KEY_THUMBMARGIN)) {
+				if (mThumbMargin != null) mThumbMargin.setSummary(getThumbMarginSummary(sharedPreferences));
+			} else if (key.equals(DEF.KEY_TOOLBARSEEK)) {
+				if (mToolbarSeek != null) mToolbarSeek.setSummary(getToolbarSeekSummary(sharedPreferences));
+			} else if (key.equals(DEF.KEY_LISTTHUMBSEEK)) {
+				if (mListThumbSeek != null) mListThumbSeek.setSummary(getListThumbSeekSummary(sharedPreferences));
+			} else if (key.equals(DEF.KEY_MAX_LINES)) {
+				if (mMaxLines != null) mMaxLines.setSummary(getMaxLinesSummary(sharedPreferences));
+			} else if (key.equals(DEF.KEY_FILEDELMENU)) {
+				if (mFileDelMenu != null) mFileDelMenu.setSummary(getFileDelMenuSummary(sharedPreferences));
+			} else if (key.equals(DEF.KEY_FILERENMENU)) {
+				if (mFileRenMenu != null) mFileRenMenu.setSummary(getFileRenMenuSummary(sharedPreferences));
+			} else if (key.equals(DEF.KEY_MENULONGTAP)) {
+				if (mMenuLongTap != null) mMenuLongTap.setSummary(getMenuLongTapSummary(sharedPreferences));
+			}
+		}
+
+		private String getListRotaSummary(SharedPreferences sharedPreferences){
+			int val = getListRota(sharedPreferences);
+			Resources res = getResources();
+			return res.getString(RotateName[val]);
+		}
+
+		private String getListSortSummary(SharedPreferences sharedPreferences){
+			int val = getListSort(sharedPreferences);
+			Resources res = getResources();
+			return res.getString(ListSortName[val]);
+		}
+
+		private String getMaxLinesSummary(SharedPreferences sharedPreferences){
+			int val = getMaxLines(sharedPreferences);
+			return String.valueOf(val);
+		}
+
+		private String getFileDelMenuSummary(SharedPreferences sharedPreferences){
+			int val = getFileDelMenu(sharedPreferences);
+			Resources res = getResources();
+			return res.getString(ShowMenu[val]);
+		}
+
+		private String getFileRenMenuSummary(SharedPreferences sharedPreferences){
+			int val = getFileRenMenu(sharedPreferences);
+			Resources res = getResources();
+			return res.getString(ShowMenu[val]);
+		}
+
+		private String getFontTitleSummary(SharedPreferences sharedPreferences){
+			int val = getFontTitle(sharedPreferences);
+			Resources res = getResources();
+			String summ1 = res.getString(R.string.unitSumm1);
+			return DEF.getFontSpStr(val, summ1);
+		}
+
+		private String getFontMainSummary(SharedPreferences sharedPreferences){
+			int val = getFontMain(sharedPreferences);
+			Resources res = getResources();
+			String summ1 = res.getString(R.string.unitSumm1);
+			return DEF.getFontSpStr(val, summ1);
+		}
+
+		private String getFontSubSummary(SharedPreferences sharedPreferences){
+			int val = getFontSub(sharedPreferences);
+			Resources res = getResources();
+			String summ1 = res.getString(R.string.unitSumm1);
+			return DEF.getFontSpStr(val, summ1);
+		}
+
+		private String getFontTileSummary(SharedPreferences sharedPreferences){
+			int val = getFontTile(sharedPreferences);
+			Resources res = getResources();
+			String summ1 = res.getString(R.string.unitSumm1);
+			return DEF.getFontSpStr(val, summ1);
+		}
+
+		private String getItemMarginSummary(SharedPreferences sharedPreferences){
+			int val = getItemMargin(sharedPreferences);
+			Resources res = getResources();
+			String summ1 = res.getString(R.string.unitSumm1);
+			return DEF.getMarginSpStr(val, summ1);
+		}
+
+		private String getBackModeSummary(SharedPreferences sharedPreferences){
+			int val = getBackMode(sharedPreferences);
+			Resources res = getResources();
+			return res.getString(BackModeName[val]);
+		}
+
+		private String getThumbnailSummary(SharedPreferences sharedPreferences){
+			int w = getThumbSizeW(sharedPreferences);
+			int h = getThumbSizeH(sharedPreferences);
+			Resources res = getResources();
+			String summ1 = res.getString(R.string.rangeSumm1);
+			return DEF.getThumbnailStr(w, h, summ1);
+		}
+
+		private String getToolbarSeekSummary(SharedPreferences sharedPreferences){
+			int size = getToolbarSize(sharedPreferences);
+			Resources res = getResources();
+			String summ1 = res.getString(R.string.unitSumm1);
+			return DEF.getToolbarSeekStr(size, summ1);
+		}
+
+		private String getListThumbSeekSummary(SharedPreferences sharedPreferences){
+			int size = getListThumbSizeH(sharedPreferences);
+			Resources res = getResources();
+			String summ1 = res.getString(R.string.rangeSumm1);
+			return DEF.getListThumbSeekStr(size, summ1);
+		}
+
+		private String getThumbCacheSummary(SharedPreferences sharedPreferences){
+			int val = getThumbCache(sharedPreferences);
+			Resources res = getResources();
+			return res.getString(ThumCacheName[val]);
+		}
+
+		private String getThumbSortTypeSummary(SharedPreferences sharedPreferences){
+			int val = getThumbSortType(sharedPreferences);
+			Resources res = getResources();
+			return res.getString(ThumSortTypeName[val]);
+		}
+
+		private String getThumbCropSummary(SharedPreferences sharedPreferences){
+			int val = getThumbCrop(sharedPreferences);
+			Resources res = getResources();
+			return res.getString(ThumCropName[val]);
+		}
+
+		private String getThumbMarginSummary(SharedPreferences sharedPreferences){
+			int val = getThumbMargin(sharedPreferences);
+			Resources res = getResources();
+			return res.getString(ThumMarginName[val]);
+		}
+
+		private String getMenuLongTapSummary(SharedPreferences sharedPreferences){
+			int val = getMenuLongTap(sharedPreferences);
+			Resources res = getResources();
+			String summ1 = res.getString(R.string.msecSumm1);
+			return DEF.getMSecStr100(val, summ1);
+		}
+	}
 
  	public static final int[] ListSortName =
 		{ R.string.lsort00		// ソートなし
@@ -59,8 +320,8 @@ public class SetFileListActivity extends PreferenceActivity implements OnSharedP
 		, R.string.lsort06 };	// 古い順(ディレクトリ分離)
 	public static final int[] FileSortName =
 		{ R.string.fsort00		// ソートなし
-		, R.string.fsort01		// ファイル名-昇順
-		, R.string.fsort02 };	// ファイル名-降順
+		, R.string.fsort01		// ファイル名昇順
+		, R.string.fsort02 };	// ファイル名降順
 	public static final int[] RotateName =
 		{ R.string.rota00		// 回転あり
 		, R.string.rota01		// 縦固定
@@ -90,7 +351,7 @@ public class SetFileListActivity extends PreferenceActivity implements OnSharedP
 			, R.string.thumbcrop01		// 左
 			, R.string.thumbcrop02		// 右
 			, R.string.thumbcrop03	// 幅に合わせる
-			, R.string.thumbcrop04 };	// 紙の表紙カバーに合わせる
+			, R.string.thumbcrop04 };	// 縦の表紙カバーに合わせる
 	public static final int[] ThumMarginName =
 			{ R.string.mgncut00		// なし
 			, R.string.mgncut01		// 弱
@@ -98,165 +359,6 @@ public class SetFileListActivity extends PreferenceActivity implements OnSharedP
 			, R.string.mgncut03		// 強
 			, R.string.mgncut04		// 特上
 			, R.string.mgncut05 };		// 最強
-
-	@SuppressWarnings("deprecation")
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-
-		addPreferencesFromResource(R.xml.filelist);
-		mListRota  = (ListPreference)getPreferenceScreen().findPreference(DEF.KEY_LISTROTA);
-		mListSort  = (ListPreference)getPreferenceScreen().findPreference(DEF.KEY_LISTSORT);
-		mBackMode  = (ListPreference)getPreferenceScreen().findPreference(DEF.KEY_BACKMODE);
-		mMaxLines = (ListPreference)getPreferenceScreen().findPreference(DEF.KEY_MAX_LINES);
-		mFileDelMenu = (ListPreference)getPreferenceScreen().findPreference(DEF.KEY_FILEDELMENU);
-		mFileRenMenu = (ListPreference)getPreferenceScreen().findPreference(DEF.KEY_FILERENMENU);
-		mFontTitle = (FontTitleSeekbar)getPreferenceScreen().findPreference(DEF.KEY_FONTTITLE);
-		mFontMain  = (FontMainSeekbar)getPreferenceScreen().findPreference(DEF.KEY_FONTMAIN);
-		mFontSub   = (FontSubSeekbar)getPreferenceScreen().findPreference(DEF.KEY_FONTSUB);
-		mFontTile  = (FontTileSeekbar)getPreferenceScreen().findPreference(DEF.KEY_FONTTILE);
-		mItemMrgn  = (ItemMarginSeekbar)getPreferenceScreen().findPreference(DEF.KEY_ITEMMRGN);
-		mThumbnail = (ThumbnailPreference)getPreferenceScreen().findPreference(DEF.KEY_THUMBSEEK);
-		mThumbCache = (ListPreference)getPreferenceScreen().findPreference(DEF.KEY_THUMBCACHE);
-		mThumbSortType = (ListPreference)getPreferenceScreen().findPreference(DEF.KEY_THUMBSORTTYPE);
-		mThumbCrop = (ListPreference)getPreferenceScreen().findPreference(DEF.KEY_THUMBCROP);
-		mThumbMargin = (ListPreference)getPreferenceScreen().findPreference(DEF.KEY_THUMBMARGIN);
-		mToolbarSeek = (ToolbarSeekbar)getPreferenceScreen().findPreference(DEF.KEY_TOOLBARSEEK);
-		mListThumbSeek = (ListThumbSeekbar)getPreferenceScreen().findPreference(DEF.KEY_LISTTHUMBSEEK);
-		mMenuLongTap   = (MenuLongTapSeekbar)getPreferenceScreen().findPreference(DEF.KEY_MENULONGTAP);
-
-		// 項目選択
-		PreferenceScreen onlineHelp = (PreferenceScreen) findPreference(DEF.KEY_FILEHELP);
-		onlineHelp.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-			@Override
-			public boolean onPreferenceClick(Preference preference) {
-				// Activityの遷移
-				Resources res = getResources();
-				String url = res.getString(R.string.url_filelist);	// 設定画面
-				Intent intent;
-				intent = new Intent(SetFileListActivity.this, HelpActivity.class);
-				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-				intent.putExtra("Url", url);
-				startActivity(intent);
-				return true;
-			}
-		});
-	}
-
-	@SuppressWarnings("deprecation")
-	@Override
-	protected void onResume() {
-		super.onResume();
-		SharedPreferences sharedPreferences = getPreferenceScreen().getSharedPreferences();
-		sharedPreferences.registerOnSharedPreferenceChangeListener(this);
-
-		mListRota.setSummary(getListRotaSummary(sharedPreferences));	// ファイル選択画面の回転制御
-		mListSort.setSummary(getListSortSummary(sharedPreferences));	// ソート
-		mBackMode.setSummary(getBackModeSummary(sharedPreferences));	// 戻るボタン動作
-		mMaxLines.setSummary(getMaxLinesSummary(sharedPreferences));		// ファイル名の行数
-		mFileDelMenu.setSummary(getFileDelMenuSummary(sharedPreferences));		// 削除メニュー表示
-		mFileRenMenu.setSummary(getFileRenMenuSummary(sharedPreferences));		// 名前変更メニュー表示
-		mFontTitle.setSummary(getFontTitleSummary(sharedPreferences));	// フォントサイズ(px)
-		mFontMain.setSummary(getFontMainSummary(sharedPreferences));	// フォントサイズ(px)
-		mFontSub.setSummary(getFontSubSummary(sharedPreferences));		// フォントサイズ(px)
-		mFontTile.setSummary(getFontTileSummary(sharedPreferences));	// フォントサイズ(px)
-		mItemMrgn.setSummary(getItemMarginSummary(sharedPreferences));	// 余白サイズ
-		mThumbnail.setSummary(getThumbnailSummary(sharedPreferences));	// サムネイルサイズ
-		mThumbCache.setSummary(getThumbCacheSummary(sharedPreferences));	// サムネイルキャッシュ保持数
-		mThumbSortType.setSummary(getThumbSortTypeSummary(sharedPreferences));	// RARファイルの先頭ファイル名のサムネイル作成条件
-		mThumbCrop.setSummary(getThumbCropSummary(sharedPreferences));	// サムネイルキャッシュ保持数
-		mThumbMargin.setSummary(getThumbMarginSummary(sharedPreferences));	// サムネイルキャッシュ保持数
-		mToolbarSeek.setSummary(getToolbarSeekSummary(sharedPreferences));		// ツールバー表示
-		mListThumbSeek.setSummary(getListThumbSeekSummary(sharedPreferences));		// リストサムネイルサイズ表示
-		mMenuLongTap.setSummary(getMenuLongTapSummary(sharedPreferences));
-}
-
-	@Override
-	protected void onPause() {
-		super.onPause();
-		getPreferenceScreen().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
-
-	}
-
-	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-
-		if(key.equals(DEF.KEY_LISTROTA)){
-			//
-			mListRota.setSummary(getListRotaSummary(sharedPreferences));
-		}
-		else if(key.equals(DEF.KEY_LISTSORT)){
-			//
-			mListSort.setSummary(getListSortSummary(sharedPreferences));
-		}
-		else if(key.equals(DEF.KEY_FONTTITLE)){
-			// テキストのフォントサイズ
-			mFontTitle.setSummary(getFontTitleSummary(sharedPreferences));
-		}
-		else if(key.equals(DEF.KEY_FONTMAIN)){
-			// テキストのフォントサイズ
-			mFontMain.setSummary(getFontMainSummary(sharedPreferences));
-		}
-		else if(key.equals(DEF.KEY_FONTSUB)){
-			// サマリのフォントサイズ
-			mFontSub.setSummary(getFontSubSummary(sharedPreferences));
-		}
-		else if(key.equals(DEF.KEY_FONTTILE)){
-			// テキストのフォントサイズ
-			mFontTile.setSummary(getFontTileSummary(sharedPreferences));
-		}
-		else if(key.equals(DEF.KEY_ITEMMRGN)){
-			// 余白サイズ
-			mItemMrgn.setSummary(getItemMarginSummary(sharedPreferences));
-		}
-		else if(key.equals(DEF.KEY_BACKMODE)){
-			//
-			mBackMode.setSummary(getBackModeSummary(sharedPreferences));
-		}
-		else if(key.equals(DEF.KEY_THUMBSIZEW) || key.equals(DEF.KEY_THUMBSIZEH)){
-			// サムネイルサイズ
-			mThumbnail.setSummary(getThumbnailSummary(sharedPreferences));
-		}
-		else if(key.equals(DEF.KEY_THUMBCACHE)){
-			//
-			mThumbCache.setSummary(getThumbCacheSummary(sharedPreferences));
-		}
-		else if(key.equals(DEF.KEY_THUMBSORTTYPE)){
-			//
-			mThumbSortType.setSummary(getThumbSortTypeSummary(sharedPreferences));
-		}
-		else if(key.equals(DEF.KEY_THUMBCROP)){
-			//
-			mThumbCrop.setSummary(getThumbCropSummary(sharedPreferences));
-		}
-		else if(key.equals(DEF.KEY_THUMBMARGIN)){
-			//
-			mThumbMargin.setSummary(getThumbMarginSummary(sharedPreferences));
-		}
-		else if(key.equals(DEF.KEY_TOOLBARSEEK)){
-			//
-			mToolbarSeek.setSummary(getToolbarSeekSummary(sharedPreferences));
-		}
-		else if(key.equals(DEF.KEY_LISTTHUMBSEEK)){
-			//
-			mListThumbSeek.setSummary(getListThumbSeekSummary(sharedPreferences));
-		}
-		else if(key.equals(DEF.KEY_MAX_LINES)){
-			//
-			mMaxLines.setSummary(getMaxLinesSummary(sharedPreferences));
-		}
-		else if(key.equals(DEF.KEY_FILEDELMENU)){
-			//
-			mFileDelMenu.setSummary(getFileDelMenuSummary(sharedPreferences));
-		}
-		else if(key.equals(DEF.KEY_FILERENMENU)){
-			//
-			mFileRenMenu.setSummary(getFileRenMenuSummary(sharedPreferences));
-		}
-		else if(key.equals(DEF.KEY_MENULONGTAP)){
-			// 長押し時間
-			mMenuLongTap.setSummary(getMenuLongTapSummary(sharedPreferences));
-		}
-	}
 
 	// 設定の読込
 	// フォントサイズ(px)
@@ -539,136 +641,5 @@ public class SetFileListActivity extends PreferenceActivity implements OnSharedP
 	// 設定を保存
 	public static void setThumbnail(SharedPreferences sharedPreferences, boolean value){
 		Editor ed = sharedPreferences.edit();
-		ed.putBoolean(DEF.KEY_THUMBNAIL, value);
-		ed.apply();
-	}
-
-	// 設定の読込(定義変更中)
-	private String getListRotaSummary(SharedPreferences sharedPreferences){
-		int val = getListRota(sharedPreferences);
-		Resources res = getResources();
-		return res.getString(RotateName[val]);
-	}
-
-	private String getListSortSummary(SharedPreferences sharedPreferences){
-		int val = getListSort(sharedPreferences);
-		Resources res = getResources();
-		return res.getString(ListSortName[val]);
-	}
-
-	private String getMaxLinesSummary(SharedPreferences sharedPreferences){
-		int val = getMaxLines(sharedPreferences);
-		return String.valueOf(val);
-	}
-
-	private String getFileDelMenuSummary(SharedPreferences sharedPreferences){
-		int val = getFileDelMenu(sharedPreferences);
-		Resources res = getResources();
-		return res.getString(ShowMenu[val]);
-	}
-
-	private String getFileRenMenuSummary(SharedPreferences sharedPreferences){
-		int val = getFileRenMenu(sharedPreferences);
-		Resources res = getResources();
-		return res.getString(ShowMenu[val]);
-	}
-
-	private String getFontTitleSummary(SharedPreferences sharedPreferences){
-		int val = getFontTitle(sharedPreferences);
-		Resources res = getResources();
-		String summ1 = res.getString(R.string.unitSumm1);
-
-		return	DEF.getFontSpStr(val, summ1);
-	}
-
-	private String getFontMainSummary(SharedPreferences sharedPreferences){
-		int val = getFontMain(sharedPreferences);
-		Resources res = getResources();
-		String summ1 = res.getString(R.string.unitSumm1);
-
-		return	DEF.getFontSpStr(val, summ1);
-	}
-
-	private String getFontSubSummary(SharedPreferences sharedPreferences){
-		int val = getFontSub(sharedPreferences);
-		Resources res = getResources();
-		String summ1 = res.getString(R.string.unitSumm1);
-
-		return	DEF.getFontSpStr(val, summ1);
-	}
-
-	private String getFontTileSummary(SharedPreferences sharedPreferences){
-		int val = getFontTile(sharedPreferences);
-		Resources res = getResources();
-		String summ1 = res.getString(R.string.unitSumm1);
-
-		return	DEF.getFontSpStr(val, summ1);
-	}
-
-	private String getItemMarginSummary(SharedPreferences sharedPreferences){
-		int val = getItemMargin(sharedPreferences);
-		Resources res = getResources();
-		String summ1 = res.getString(R.string.unitSumm1);
-
-		return	DEF.getMarginSpStr(val, summ1);
-	}
-
-	private String getBackModeSummary(SharedPreferences sharedPreferences){
-		int val = getBackMode(sharedPreferences);
-		Resources res = getResources();
-		return res.getString(BackModeName[val]);
-	}
-
-	private String getThumbnailSummary(SharedPreferences sharedPreferences){
-		int w = getThumbSizeW(sharedPreferences);
-		int h = getThumbSizeH(sharedPreferences);
-		Resources res = getResources();
-		String summ1 = res.getString(R.string.rangeSumm1);
-		return DEF.getThumbnailStr(w, h, summ1);
-	}
-
-	private String getToolbarSeekSummary(SharedPreferences sharedPreferences){
-		int size = getToolbarSize(sharedPreferences);
-		Resources res = getResources();
-		String summ1 = res.getString(R.string.unitSumm1);
-		return DEF.getToolbarSeekStr(size, summ1);
-	}
-
-	private String getListThumbSeekSummary(SharedPreferences sharedPreferences){
-		int size = getListThumbSizeH(sharedPreferences);
-		Resources res = getResources();
-		String summ1 = res.getString(R.string.rangeSumm1);
-		return DEF.getListThumbSeekStr(size, summ1);
-	}
-
-	private String getThumbCacheSummary(SharedPreferences sharedPreferences){
-		int val = getThumbCache(sharedPreferences);
-		Resources res = getResources();
-		return res.getString(ThumCacheName[val]);
-	}
-
-	private String getThumbSortTypeSummary(SharedPreferences sharedPreferences){
-		int val = getThumbSortType(sharedPreferences);
-		Resources res = getResources();
-		return res.getString(ThumSortTypeName[val]);
-	}
-
-	private String getThumbCropSummary(SharedPreferences sharedPreferences){
-		int val = getThumbCrop(sharedPreferences);
-		Resources res = getResources();
-		return res.getString(ThumCropName[val]);
-	}
-
-	private String getThumbMarginSummary(SharedPreferences sharedPreferences){
-		int val = getThumbMargin(sharedPreferences);
-		Resources res = getResources();
-		return res.getString(ThumMarginName[val]);
-	}
-
-	private String getMenuLongTapSummary(SharedPreferences sharedPreferences){
-		int val = getMenuLongTap(sharedPreferences);
-		Resources res = getResources();
-		String summ1 = res.getString(R.string.msecSumm1);
-		return	DEF.getMSecStr100(val, summ1);
 	}
 }

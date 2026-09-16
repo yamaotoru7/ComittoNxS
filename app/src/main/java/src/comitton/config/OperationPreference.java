@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.res.Resources;
-import android.preference.DialogPreference;
 import androidx.preference.PreferenceManager;
 import android.util.AttributeSet;
 import android.view.Gravity;
@@ -21,7 +20,7 @@ import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-public class OperationPreference extends DialogPreference implements OnClickListener {
+public class OperationPreference extends CustomDialogPreference implements OnClickListener {
 	private Context mContext;
 	private static SharedPreferences mSP;
 	private float mDensity;

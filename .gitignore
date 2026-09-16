@@ -151,3 +151,4 @@ signingConfigs/*
 .gradle-user/
 
 .idea/deploymentTargetSelector.xml
+.vscode/

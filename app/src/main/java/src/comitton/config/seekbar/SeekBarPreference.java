@@ -5,7 +5,7 @@ import jp.dip.muracoro.comittonx.R;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.preference.DialogPreference;
+import src.comitton.config.CustomDialogPreference;
 import androidx.preference.PreferenceManager;
 import android.util.AttributeSet;
 import android.view.View;
@@ -14,7 +14,7 @@ import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-public class SeekBarPreference extends DialogPreference implements SeekBar.OnSeekBarChangeListener {
+public class SeekBarPreference extends CustomDialogPreference implements SeekBar.OnSeekBarChangeListener {
 	private SeekBar mSeekBar;
 	private Context mContext;
 	private TextView mTextView;

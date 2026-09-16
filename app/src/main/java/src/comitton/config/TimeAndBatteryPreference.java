@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.res.Resources;
-import android.preference.DialogPreference;
 import androidx.preference.PreferenceManager;
 import android.util.AttributeSet;
 import android.view.View;
@@ -16,7 +15,7 @@ import android.widget.TextView;
 import jp.dip.muracoro.comittonx.R;
 import src.comitton.common.DEF;
 
-public class TimeAndBatteryPreference extends DialogPreference implements SeekBar.OnSeekBarChangeListener {
+public class TimeAndBatteryPreference extends CustomDialogPreference implements SeekBar.OnSeekBarChangeListener {
 	private CheckBox mChkDisp;
 	private Spinner mSpinFormat;
 	private Spinner mSpinPos;

@@ -1,24 +1,25 @@
 package src.comitton.config;
 
-import src.comitton.helpview.HelpActivity;
-import src.comitton.common.DEF;
-import src.comitton.fileview.filelist.RecordList;
-import jp.dip.muracoro.comittonx.R;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.res.Resources;
 import android.os.Bundle;
-import android.preference.ListPreference;
-import android.preference.Preference;
-import android.preference.Preference.OnPreferenceClickListener;
-import android.preference.PreferenceActivity;
-import android.preference.PreferenceScreen;
 
-public class SetRecorderActivity extends PreferenceActivity implements OnSharedPreferenceChangeListener {
-	private ListPreference mHistNum;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.preference.ListPreference;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceFragmentCompat;
 
- 	public static final int[] HistNumName =
+import jp.dip.muracoro.comittonx.R;
+import src.comitton.common.DEF;
+import src.comitton.fileview.filelist.RecordList;
+import src.comitton.helpview.HelpActivity;
+
+public class SetRecorderActivity extends BasePreferenceActivity {
+
+	public static final int[] HistNumName =
 		{ R.string.histnum00	// 保存しない
 		, R.string.histnum01	// 20
 		, R.string.histnum02	// 40
@@ -27,50 +28,74 @@ public class SetRecorderActivity extends PreferenceActivity implements OnSharedP
 		, R.string.histnum05 };	// 100
 
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+	protected PreferenceFragmentCompat createPreferenceFragment() {
+		return new SetRecorderFragment();
+	}
 
-		addPreferencesFromResource(R.xml.recorder);
-		mHistNum = (ListPreference)getPreferenceScreen().findPreference(DEF.KEY_HISTNUM);
+	public static class SetRecorderFragment extends PreferenceFragmentCompat implements OnSharedPreferenceChangeListener {
+		private ListPreference mHistNum;
 
-		// 項目選択
-		PreferenceScreen onlineHelp = (PreferenceScreen) findPreference(DEF.KEY_RECHELP);
-		onlineHelp.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-			@Override
-			public boolean onPreferenceClick(Preference preference) {
-				// Activityの遷移
-				Resources res = getResources();
-				String url = res.getString(R.string.url_recordlist);	// 設定画面
-				Intent intent;
-				intent = new Intent(SetRecorderActivity.this, HelpActivity.class);
-				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-				intent.putExtra("Url", url);
-				startActivity(intent);
-				return true;
+		@Override
+		public void onCreatePreferences(@Nullable Bundle savedInstanceState, @Nullable String rootKey) {
+			setPreferencesFromResource(R.xml.recorder, rootKey);
+			mHistNum = findPreference(DEF.KEY_HISTNUM);
+
+			// 項目選択
+			Preference onlineHelp = findPreference(DEF.KEY_RECHELP);
+			if (onlineHelp != null) {
+				onlineHelp.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+					@Override
+					public boolean onPreferenceClick(@NonNull Preference preference) {
+						if (getActivity() == null) {
+							return false;
+						}
+						// Activityの遷移
+						Resources res = getResources();
+						String url = res.getString(R.string.url_recordlist);	// 設定画面
+						Intent intent = new Intent(getActivity(), HelpActivity.class);
+						intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+						intent.putExtra("Url", url);
+						startActivity(intent);
+						return true;
+					}
+				});
 			}
-		});
-	}
+		}
 
-	@Override
-	protected void onResume() {
-		super.onResume();
-		SharedPreferences sharedPreferences = getPreferenceScreen().getSharedPreferences();
-		sharedPreferences.registerOnSharedPreferenceChangeListener(this);
+		@Override
+		public void onResume() {
+			super.onResume();
+			SharedPreferences sharedPreferences = getPreferenceScreen().getSharedPreferences();
+			if (sharedPreferences != null) {
+				sharedPreferences.registerOnSharedPreferenceChangeListener(this);
+				if (mHistNum != null) {
+					mHistNum.setSummary(getHistNumSummary(sharedPreferences));
+				}
+			}
+		}
 
-		mHistNum.setSummary(getHistNumSummary(sharedPreferences));		// 履歴保存件数
-	}
+		@Override
+		public void onPause() {
+			super.onPause();
+			SharedPreferences sharedPreferences = getPreferenceScreen().getSharedPreferences();
+			if (sharedPreferences != null) {
+				sharedPreferences.unregisterOnSharedPreferenceChangeListener(this);
+			}
+		}
 
-	@Override
-	protected void onPause() {
-		super.onPause();
-		getPreferenceScreen().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
+		@Override
+		public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+			if (key != null && key.equals(DEF.KEY_HISTNUM)) {
+				if (mHistNum != null) {
+					mHistNum.setSummary(getHistNumSummary(sharedPreferences));
+				}
+			}
+		}
 
-	}
-
-	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-		if(key.equals(DEF.KEY_HISTNUM)){
-			// 履歴数
-			mHistNum.setSummary(getHistNumSummary(sharedPreferences));
+		private String getHistNumSummary(SharedPreferences sharedPreferences){
+			int val = getHistNum(sharedPreferences);
+			Resources res = getResources();
+			return res.getString(HistNumName[val]);
 		}
 	}
 
@@ -131,11 +156,6 @@ public class SetRecorderActivity extends PreferenceActivity implements OnSharedP
 		return flag;
 	}
 
-	private String getHistNumSummary(SharedPreferences sharedPreferences){
-		int val = getHistNum(sharedPreferences);
-		Resources res = getResources();
-		return res.getString(HistNumName[val]);
-	}
 
 	// 表示するリストを返す
 	public static short[] getListTypes(SharedPreferences sharedPreferences) {

@@ -2,6 +2,21 @@ package src.comitton.config;
 
 import java.io.File;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.content.res.Resources;
+import android.os.Bundle;
+import android.os.Environment;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.preference.ListPreference;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceFragmentCompat;
+
+import jp.dip.muracoro.comittonx.R;
+import src.comitton.common.DEF;
 import src.comitton.config.seekbar.TextFontBodySeekbar;
 import src.comitton.config.seekbar.TextFontInfoSeekbar;
 import src.comitton.config.seekbar.TextFontRubiSeekbar;
@@ -13,48 +28,379 @@ import src.comitton.config.seekbar.TextScrlRngWSeekbar;
 import src.comitton.config.seekbar.TextSpaceHSeekbar;
 import src.comitton.config.seekbar.TextSpaceWSeekbar;
 import src.comitton.helpview.HelpActivity;
-import src.comitton.common.DEF;
 
-import jp.dip.muracoro.comittonx.R;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
-import android.content.res.Resources;
-import android.os.Bundle;
-import android.os.Environment;
-import android.preference.ListPreference;
-import android.preference.Preference;
-import android.preference.Preference.OnPreferenceClickListener;
-import android.preference.PreferenceActivity;
-import android.preference.PreferenceScreen;
+public class SetTextActivity extends BasePreferenceActivity {
 
-public class SetTextActivity extends PreferenceActivity implements OnSharedPreferenceChangeListener {
-	private TextFontTopSeekbar mFontTop;
-	private TextFontBodySeekbar mFontBody;
-	private TextFontRubiSeekbar mFontRubi;
-	private TextFontInfoSeekbar mFontInfo;
-	private TextSpaceWSeekbar mSpaceW;
-	private TextSpaceHSeekbar mSpaceH;
-	private TextMarginWSeekbar mMarginW;
-	private TextMarginHSeekbar mMarginH;
+	@Override
+	protected PreferenceFragmentCompat createPreferenceFragment() {
+		return new SetTextFragment();
+	}
 
-	private TextScrlRngWSeekbar mScrlRngW;
-	private TextScrlRngHSeekbar mScrlRngH;
+	public static class SetTextFragment extends PreferenceFragmentCompat implements OnSharedPreferenceChangeListener {
+		private TextFontTopSeekbar mFontTop;
+		private TextFontBodySeekbar mFontBody;
+		private TextFontRubiSeekbar mFontRubi;
+		private TextFontInfoSeekbar mFontInfo;
+		private TextSpaceWSeekbar mSpaceW;
+		private TextSpaceHSeekbar mSpaceH;
+		private TextMarginWSeekbar mMarginW;
+		private TextMarginHSeekbar mMarginH;
 
-	private ListPreference mViewRota;
-	private ListPreference mIniScale;
-	private ListPreference mInitView;
-	private ListPreference mPaper;
-	private ListPreference mPicSize;
+		private TextScrlRngWSeekbar mScrlRngW;
+		private TextScrlRngHSeekbar mScrlRngH;
 
-	private ListPreference	mFontName;
-	private ListPreference mViewPt;
-	private ListPreference mVolKey;
-	private ListPreference mLastPage;
-	private ListPreference mPageSel;
+		private ListPreference mViewRota;
+		private ListPreference mIniScale;
+		private ListPreference mInitView;
+		private ListPreference mPaper;
+		private ListPreference mPicSize;
 
-	private OperationPreference mTapPattern;
-	private TimeAndBatteryPreference mTimeAndBattery;
+		private ListPreference	mFontName;
+		private ListPreference mViewPt;
+		private ListPreference mVolKey;
+		private ListPreference mLastPage;
+		private ListPreference mPageSel;
+
+		private OperationPreference mTapPattern;
+		private TimeAndBatteryPreference mTimeAndBattery;
+
+		private Resources mResources;
+
+		@Override
+		public void onCreatePreferences(@Nullable Bundle savedInstanceState, @Nullable String rootKey) {
+			setPreferencesFromResource(R.xml.text, rootKey);
+
+			mFontTop  = findPreference(DEF.KEY_TX_FONTTOP);
+			mFontBody = findPreference(DEF.KEY_TX_FONTBODY);
+			mFontRubi = findPreference(DEF.KEY_TX_FONTRUBI);
+			mFontInfo = findPreference(DEF.KEY_TX_FONTINFO);
+			mSpaceW   = findPreference(DEF.KEY_TX_SPACEW);
+			mSpaceH   = findPreference(DEF.KEY_TX_SPACEH);
+			mMarginW  = findPreference(DEF.KEY_TX_MARGINW);
+			mMarginH  = findPreference(DEF.KEY_TX_MARGINH);
+
+			mIniScale = findPreference(DEF.KEY_TX_INISCALE);
+			mInitView = findPreference(DEF.KEY_TX_INITVIEW);
+			mViewRota = findPreference(DEF.KEY_TX_VIEWROTA);
+			mPaper    = findPreference(DEF.KEY_TX_PAPER);
+			mPicSize  = findPreference(DEF.KEY_TX_PICSIZE);
+
+			mScrlRngW = findPreference(DEF.KEY_TX_SCRLRNGW);
+			mScrlRngH = findPreference(DEF.KEY_TX_SCRLRNGH);
+
+			mFontName = findPreference(DEF.KEY_TX_FONTNAME);
+			if (mFontName != null) {
+				mFontName.setTitle(mFontName.getTitle().toString().replace("[sdcard]", "[" + Environment.getExternalStorageDirectory().getAbsolutePath() + "]"));
+			}
+
+			mTapPattern = findPreference(DEF.KEY_TAPPATTERN);
+
+			mViewPt = findPreference(DEF.KEY_VIEWPT);
+			mVolKey = findPreference(DEF.KEY_VOLKEY);
+
+			mLastPage = findPreference(DEF.KEY_LASTPAGE);
+			mPageSel = findPreference(DEF.KEY_TX_PAGESELECT);
+
+			mTimeAndBattery = findPreference(DEF.KEY_TIMEANDBATTERY);
+
+			mResources = getResources();
+
+			String fontpath = DEF.getFontDirectory();
+			CharSequence[] items;
+			CharSequence[] values;
+
+			File[] files = new File(fontpath).listFiles();
+			if (files == null) {
+				items = new CharSequence[1];
+				values = new CharSequence[1];
+			} else {
+				int i = 1;
+				for (File file : files) {
+					if (file != null && file.isFile()) {
+						i ++;
+					}
+				}
+				items = new CharSequence[i];
+				values = new CharSequence[i];
+
+				i = 1;
+				for (File file : files) {
+					if (file != null && file.isFile()) {
+						if (i < items.length) {
+							items[i] = file.getName();
+							values[i] = file.getName();
+							i ++;
+						}
+					}
+				}
+			}
+
+			Resources res = getResources();
+			items[0] = res.getString(R.string.defaultFont);
+			values[0] = "";
+
+			if (mFontName != null) {
+				mFontName.setEntries(items);
+				mFontName.setEntryValues(values);
+				mFontName.setDefaultValue(values[0]);
+			}
+
+			// 項目選択
+			Preference onlineHelp = findPreference(DEF.KEY_TEXTHELP);
+			if (onlineHelp != null) {
+				onlineHelp.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+					@Override
+					public boolean onPreferenceClick(@NonNull Preference preference) {
+						if (getActivity() == null) {
+							return false;
+						}
+						// Activityの遷移
+						Resources res = getResources();
+						String url = res.getString(R.string.url_text);	// 設定画面
+						Intent intent = new Intent(getActivity(), HelpActivity.class);
+						intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+						intent.putExtra("Url", url);
+						startActivity(intent);
+						return true;
+					}
+				});
+			}
+		}
+
+		@Override
+		public void onResume() {
+			super.onResume();
+			SharedPreferences sharedPreferences = getPreferenceScreen().getSharedPreferences();
+			if (sharedPreferences != null) {
+				sharedPreferences.registerOnSharedPreferenceChangeListener(this);
+
+				if (mFontTop != null) mFontTop.setSummary(getFontTopSummary(sharedPreferences));
+				if (mFontBody != null) mFontBody.setSummary(getFontBodySummary(sharedPreferences));
+				if (mFontRubi != null) mFontRubi.setSummary(getFontRubiSummary(sharedPreferences));
+				if (mFontInfo != null) mFontInfo.setSummary(getFontInfoSummary(sharedPreferences));
+				if (mSpaceW != null) mSpaceW.setSummary(getSpaceWSummary(sharedPreferences));
+				if (mSpaceH != null) mSpaceH.setSummary(getSpaceHSummary(sharedPreferences));
+				if (mMarginW != null) mMarginW.setSummary(getMarginWSummary(sharedPreferences));
+				if (mMarginH != null) mMarginH.setSummary(getMarginHSummary(sharedPreferences));
+
+				if (mIniScale != null) mIniScale.setSummary(getIniScaleSummary(sharedPreferences));
+				if (mInitView != null) mInitView.setSummary(getInitViewSummary(sharedPreferences));
+				if (mViewRota != null) mViewRota.setSummary(getViewRotaSummary(sharedPreferences));
+				if (mPaper != null) mPaper.setSummary(getPaperSummary(sharedPreferences));
+				if (mPicSize != null) mPicSize.setSummary(getPicSizeSummary(sharedPreferences));
+
+				if (mScrlRngW != null) mScrlRngW.setSummary(getScrlRngWSummary(sharedPreferences));
+				if (mScrlRngH != null) mScrlRngH.setSummary(getScrlRngHSummary(sharedPreferences));
+
+				if (mFontName != null) mFontName.setSummary(getFontNameSummary(sharedPreferences));
+
+				if (mTapPattern != null) mTapPattern.setSummary(SetImageText.getTapPatternSummary(mResources, sharedPreferences));
+
+				if (mViewPt != null) mViewPt.setSummary(SetImageText.getViewPtSummary(mResources, sharedPreferences));
+				if (mVolKey != null) mVolKey.setSummary(SetImageText.getVolKeySummary(mResources, sharedPreferences));
+				if (mLastPage != null) mLastPage.setSummary(SetImageText.getLastPageSummary(mResources, sharedPreferences));
+				if (mPageSel != null) mPageSel.setSummary(SetImageText.getTxPageSelectSummary(mResources, sharedPreferences));
+				if (mTimeAndBattery != null) mTimeAndBattery.setSummary(getTimeSummary(sharedPreferences));
+			}
+		}
+
+		@Override
+		public void onPause() {
+			super.onPause();
+			SharedPreferences sharedPreferences = getPreferenceScreen().getSharedPreferences();
+			if (sharedPreferences != null) {
+				sharedPreferences.unregisterOnSharedPreferenceChangeListener(this);
+			}
+		}
+
+		@Override
+		public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+			if (key == null) return;
+			if (key.equals(DEF.KEY_TX_INISCALE)) {
+				if (mIniScale != null) mIniScale.setSummary(getIniScaleSummary(sharedPreferences));
+			} else if (key.equals(DEF.KEY_TX_INITVIEW)) {
+				if (mInitView != null) mInitView.setSummary(getInitViewSummary(sharedPreferences));
+			} else if (key.equals(DEF.KEY_TX_VIEWROTA)) {
+				if (mViewRota != null) mViewRota.setSummary(getViewRotaSummary(sharedPreferences));
+			} else if (key.equals(DEF.KEY_TX_PAPER)) {
+				if (mPaper != null) mPaper.setSummary(getPaperSummary(sharedPreferences));
+			} else if (key.equals(DEF.KEY_TX_PICSIZE)) {
+				if (mPicSize != null) mPicSize.setSummary(getPicSizeSummary(sharedPreferences));
+			} else if (key.equals(DEF.KEY_TX_FONTTOP)) {
+				if (mFontTop != null) mFontTop.setSummary(getFontTopSummary(sharedPreferences));
+			} else if (key.equals(DEF.KEY_TX_FONTBODY)) {
+				if (mFontBody != null) mFontBody.setSummary(getFontBodySummary(sharedPreferences));
+			} else if (key.equals(DEF.KEY_TX_FONTRUBI)) {
+				if (mFontRubi != null) mFontRubi.setSummary(getFontRubiSummary(sharedPreferences));
+			} else if (key.equals(DEF.KEY_TX_FONTINFO)) {
+				if (mFontInfo != null) mFontInfo.setSummary(getFontInfoSummary(sharedPreferences));
+			} else if (key.equals(DEF.KEY_TX_SPACEW)) {
+				if (mSpaceW != null) mSpaceW.setSummary(getSpaceWSummary(sharedPreferences));
+			} else if (key.equals(DEF.KEY_TX_SPACEH)) {
+				if (mSpaceH != null) mSpaceH.setSummary(getSpaceHSummary(sharedPreferences));
+			} else if (key.equals(DEF.KEY_TX_MARGINW)) {
+				if (mMarginW != null) mMarginW.setSummary(getMarginWSummary(sharedPreferences));
+			} else if (key.equals(DEF.KEY_TX_MARGINH)) {
+				if (mMarginH != null) mMarginH.setSummary(getMarginHSummary(sharedPreferences));
+			} else if (key.equals(DEF.KEY_TX_SCRLRNGW)) {
+				if (mScrlRngW != null) mScrlRngW.setSummary(getScrlRngWSummary(sharedPreferences));
+			} else if (key.equals(DEF.KEY_TX_SCRLRNGH)) {
+				if (mScrlRngH != null) mScrlRngH.setSummary(getScrlRngHSummary(sharedPreferences));
+			} else if (key.equals(DEF.KEY_TX_FONTNAME)) {
+				if (mFontName != null) mFontName.setSummary(getFontNameSummary(sharedPreferences));
+			} else if (key.equals(DEF.KEY_TAPPATTERN) || key.equals(DEF.KEY_TAPRATE)) {
+				if (mTapPattern != null) mTapPattern.setSummary(SetImageText.getTapPatternSummary(mResources, sharedPreferences));
+			} else if (key.equals(DEF.KEY_VIEWPT)) {
+				if (mViewPt != null) mViewPt.setSummary(SetImageText.getViewPtSummary(mResources, sharedPreferences));
+			} else if (key.equals(DEF.KEY_VOLKEY)) {
+				if (mVolKey != null) mVolKey.setSummary(SetImageText.getVolKeySummary(mResources, sharedPreferences));
+			} else if (key.equals(DEF.KEY_LASTPAGE)) {
+				if (mLastPage != null) mLastPage.setSummary(SetImageText.getLastPageSummary(mResources, sharedPreferences));
+			} else if (key.equals(DEF.KEY_TX_PAGESELECT)) {
+				if (mPageSel != null) mPageSel.setSummary(SetImageText.getTxPageSelectSummary(mResources, sharedPreferences));
+			} else if (key.equals(DEF.KEY_TIMEDISP) || key.equals(DEF.KEY_TIMEFORMAT) || key.equals(DEF.KEY_TIMEPOS) || key.equals(DEF.KEY_TIMESIZE) || key.equals(DEF.KEY_TIMECOLOR)) {
+				if (mTimeAndBattery != null) mTimeAndBattery.setSummary(getTimeSummary(sharedPreferences));
+			}
+		}
+
+		private String getViewRotaSummary(SharedPreferences sharedPreferences){
+			int val = getViewRota(sharedPreferences);
+			Resources res = getResources();
+			return res.getString(RotateName[val]);
+		}
+
+		private String getIniScaleSummary(SharedPreferences sharedPreferences){
+			int val = getIniScale(sharedPreferences);
+			Resources res = getResources();
+			return res.getString(ScaleName[val]);
+		}
+
+		private String getInitViewSummary(SharedPreferences sharedPreferences){
+			int val = getInitView(sharedPreferences);
+			Resources res = getResources();
+			return res.getString(ViewName[val]);
+		}
+
+		private String getPaperSummary(SharedPreferences sharedPreferences){
+			int val = getPaper(sharedPreferences);
+			Resources res = getResources();
+			return res.getString(PaperName[val]);
+		}
+
+		private String getPicSizeSummary(SharedPreferences sharedPreferences){
+			int val = getPicSize(sharedPreferences);
+			Resources res = getResources();
+			return res.getString(PicSizeName[val]);
+		}
+
+		private String getAscModeSummary(SharedPreferences sharedPreferences){
+			int val = getAscMode(sharedPreferences);
+			Resources res = getResources();
+			return res.getString(AscModeName[val]);
+		}
+
+		private String getFontNameSummary(SharedPreferences sharedPreferences){
+			String val = getFontName(sharedPreferences);
+			if (val != null && val.length() > 0) {
+				return val;
+			}
+			Resources res = getResources();
+			return res.getString(R.string.defaultFont);
+		}
+
+		private String getFontTopSummary(SharedPreferences sharedPreferences){
+			int val = getFontTop(sharedPreferences);
+			Resources res = getResources();
+			String summ1 = res.getString(R.string.unitSumm1);
+			return DEF.getFontSpStr(val, summ1);
+		}
+
+		private String getFontBodySummary(SharedPreferences sharedPreferences){
+			int val = getFontBody(sharedPreferences);
+			Resources res = getResources();
+			String summ1 = res.getString(R.string.unitSumm1);
+			return DEF.getFontSpStr(val, summ1);
+		}
+
+		private String getFontRubiSummary(SharedPreferences sharedPreferences){
+			int val = getFontRubi(sharedPreferences);
+			Resources res = getResources();
+			String summ1 = res.getString(R.string.unitSumm1);
+			return DEF.getFontSpStr(val, summ1);
+		}
+
+		private String getFontInfoSummary(SharedPreferences sharedPreferences){
+			int val = getFontInfo(sharedPreferences);
+			Resources res = getResources();
+			String summ1 = res.getString(R.string.unitSumm1);
+			return DEF.getFontSpStr(val, summ1);
+		}
+
+		private String getSpaceWSummary(SharedPreferences sharedPreferences){
+			int val = getSpaceW(sharedPreferences);
+			Resources res = getResources();
+			String summ1 = res.getString(R.string.rangeSumm1);
+			return DEF.getTextSpaceStr(val, summ1);
+		}
+
+		private String getSpaceHSummary(SharedPreferences sharedPreferences){
+			int val = getSpaceH(sharedPreferences);
+			Resources res = getResources();
+			String summ1 = res.getString(R.string.rangeSumm1);
+			return DEF.getTextSpaceStr(val, summ1);
+		}
+
+		private String getMarginWSummary(SharedPreferences sharedPreferences){
+			int val = getMarginW(sharedPreferences);
+			Resources res = getResources();
+			String summ1 = res.getString(R.string.rangeSumm1);
+			return DEF.getDispMarginStr(val, summ1);
+		}
+
+		private String getMarginHSummary(SharedPreferences sharedPreferences){
+			int val = getMarginH(sharedPreferences);
+			Resources res = getResources();
+			String summ1 = res.getString(R.string.rangeSumm1);
+			return DEF.getDispMarginStr(val, summ1);
+		}
+
+		private String getScrlRngWSummary(SharedPreferences sharedPreferences){
+			int val = getScrlRngW(sharedPreferences);
+			Resources res = getResources();
+			String summ1 = res.getString(R.string.srngSumm1);
+			String summ2 = res.getString(R.string.srngSumm2);
+			return DEF.getScrlRangeStr(val, summ1, summ2);
+		}
+
+		private String getScrlRngHSummary(SharedPreferences sharedPreferences){
+			int val = getScrlRngH(sharedPreferences);
+			Resources res = getResources();
+			String summ1 = res.getString(R.string.srngSumm1);
+			String summ2 = res.getString(R.string.srngSumm2);
+			return DEF.getScrlRangeStr(val, summ1, summ2);
+		}
+
+		private String getTimeSummary(SharedPreferences sharedPreferences){
+			boolean disp = getTimeDisp(sharedPreferences);
+			int format = getTimeFormat(sharedPreferences);
+			int pos = getTimePos(sharedPreferences);
+			int size = getTimeSize(sharedPreferences);
+			int color = getTimeColor(sharedPreferences);
+			Resources res = getResources();
+
+			String summ;
+			if (disp) {
+				summ = res.getString(TimeFormatName[format])
+						+ ", " + res.getString(TimePosName[pos])
+						+ ", " + DEF.getPnumSizeStr(size, res.getString(R.string.unitSumm1))
+						+ ", " + res.getString(PnumColorName[color]);
+			}
+			else {
+				summ = res.getString(R.string.pnumnodisp);
+			}
+			return summ;
+		}
+	}
 
 	public static final int[] ScaleName =
 		{ R.string.selsize00	// 元のサイズで表示
@@ -106,244 +452,6 @@ public class SetTextActivity extends PreferenceActivity implements OnSharedPrefe
 		, R.string.timeformat03		// 24:00
 		, R.string.timeformat04		// 24:00 [100%]
 		, R.string.timeformat05 };	// 24:00 [100%] [AC]
-
-	Resources mResources;
-
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-
-		addPreferencesFromResource(R.xml.text);
-		mFontTop  = (TextFontTopSeekbar)getPreferenceScreen().findPreference(DEF.KEY_TX_FONTTOP);
-		mFontBody = (TextFontBodySeekbar)getPreferenceScreen().findPreference(DEF.KEY_TX_FONTBODY);
-		mFontRubi = (TextFontRubiSeekbar)getPreferenceScreen().findPreference(DEF.KEY_TX_FONTRUBI);
-		mFontInfo = (TextFontInfoSeekbar)getPreferenceScreen().findPreference(DEF.KEY_TX_FONTINFO);
-		mSpaceW   = (TextSpaceWSeekbar)getPreferenceScreen().findPreference(DEF.KEY_TX_SPACEW);
-		mSpaceH   = (TextSpaceHSeekbar)getPreferenceScreen().findPreference(DEF.KEY_TX_SPACEH);
-		mMarginW  = (TextMarginWSeekbar)getPreferenceScreen().findPreference(DEF.KEY_TX_MARGINW);
-		mMarginH  = (TextMarginHSeekbar)getPreferenceScreen().findPreference(DEF.KEY_TX_MARGINH);
-
-		mIniScale = (ListPreference)getPreferenceScreen().findPreference(DEF.KEY_TX_INISCALE);
-		mInitView = (ListPreference)getPreferenceScreen().findPreference(DEF.KEY_TX_INITVIEW);
-		mViewRota = (ListPreference)getPreferenceScreen().findPreference(DEF.KEY_TX_VIEWROTA);
-		mPaper    = (ListPreference)getPreferenceScreen().findPreference(DEF.KEY_TX_PAPER);
-		mPicSize  = (ListPreference)getPreferenceScreen().findPreference(DEF.KEY_TX_PICSIZE);
-
-		mScrlRngW = (TextScrlRngWSeekbar)getPreferenceScreen().findPreference(DEF.KEY_TX_SCRLRNGW);
-		mScrlRngH = (TextScrlRngHSeekbar)getPreferenceScreen().findPreference(DEF.KEY_TX_SCRLRNGH);
-
-		mFontName = (ListPreference)getPreferenceScreen().findPreference(DEF.KEY_TX_FONTNAME);
-		mFontName.setTitle(mFontName.getTitle().toString().replace("[sdcard]", "[" + Environment.getExternalStorageDirectory().getAbsolutePath() + "]"));
-
-		mTapPattern = (OperationPreference)getPreferenceScreen().findPreference(DEF.KEY_TAPPATTERN);
-
-		mViewPt = (ListPreference)getPreferenceScreen().findPreference(DEF.KEY_VIEWPT);
-		mVolKey = (ListPreference)getPreferenceScreen().findPreference(DEF.KEY_VOLKEY);
-
-		mLastPage = (ListPreference)getPreferenceScreen().findPreference(DEF.KEY_LASTPAGE);
-		mPageSel = (ListPreference)getPreferenceScreen().findPreference(DEF.KEY_TX_PAGESELECT);
-
-		mTimeAndBattery = (TimeAndBatteryPreference) getPreferenceScreen().findPreference(DEF.KEY_TIMEANDBATTERY);
-
-
-		mResources = getResources();
-
-		String fontpath = DEF.getFontDirectory();
-		CharSequence[] items;
-		CharSequence[] values;
-		// キャッシュ保存先
-
-		File[] files = new File(fontpath).listFiles();
-		if (files == null) {
-			// ファイルなし
-			items = new CharSequence[1];
-			values = new CharSequence[1];
-		}
-		else {
-			// 数える
-			int i = 1;
-			for (File file : files) {
-				if (file != null && file.isFile()) {
-					i ++;
-				}
-			}
-			items = new CharSequence[i];
-			values = new CharSequence[i];
-
-			// 設定
-			i = 1;
-			for (File file : files) {
-				if (file != null && file.isFile()) {
-					if (i < items.length) {
-						items[i] = file.getName();
-						values[i] = file.getName();
-						i ++;
-					}
-				}
-			}
-		}
-
-		// リソースから読み込み
-		Resources res = getResources();
-		items[0] = res.getString(R.string.defaultFont);
-		values[0] = "";
-
-		mFontName.setEntries(items);
-		mFontName.setEntryValues(values);
-		mFontName.setDefaultValue(values[0]);
-
-		// 項目選択
-		PreferenceScreen onlineHelp = (PreferenceScreen) findPreference(DEF.KEY_TEXTHELP);
-		onlineHelp.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-			@Override
-			public boolean onPreferenceClick(Preference preference) {
-				// Activityの遷移
-				Resources res = getResources();
-				String url = res.getString(R.string.url_text);	// 設定画面
-				Intent intent;
-				intent = new Intent(SetTextActivity.this, HelpActivity.class);
-				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-				intent.putExtra("Url", url);
-				startActivity(intent);
-				return true;
-			}
-		});
-	}
-
-	@Override
-	protected void onResume() {
-		super.onResume();
-		SharedPreferences sharedPreferences = getPreferenceScreen().getSharedPreferences();
-		sharedPreferences.registerOnSharedPreferenceChangeListener(this);
-
-		mFontTop.setSummary(getFontTopSummary(sharedPreferences));		// フォントサイズ(px)
-		mFontBody.setSummary(getFontBodySummary(sharedPreferences));	// フォントサイズ(px)
-		mFontRubi.setSummary(getFontRubiSummary(sharedPreferences));	// フォントサイズ(px)
-		mFontInfo.setSummary(getFontInfoSummary(sharedPreferences));	// フォントサイズ(px)
-		mSpaceW.setSummary(getSpaceWSummary(sharedPreferences));		// 行間(px)
-		mSpaceH.setSummary(getSpaceHSummary(sharedPreferences));		// 字間(px)
-		mMarginW.setSummary(getMarginWSummary(sharedPreferences));		// 左右余白(px)
-		mMarginH.setSummary(getMarginHSummary(sharedPreferences));		// 上下余白(px)
-
-		mIniScale.setSummary(getIniScaleSummary(sharedPreferences));	// 初期拡大モード
-		mInitView.setSummary(getInitViewSummary(sharedPreferences));	// 表示モード
-		mViewRota.setSummary(getViewRotaSummary(sharedPreferences));	// イメージ画面の回転制御
-		mPaper.setSummary(getPaperSummary(sharedPreferences));			// 用紙サイズ
-		mPicSize.setSummary(getPicSizeSummary(sharedPreferences));		// 挿絵サイズ
-
-		mScrlRngW.setSummary(getScrlRngWSummary(sharedPreferences));	// 音量等でのスクロール量(幅)
-		mScrlRngH.setSummary(getScrlRngHSummary(sharedPreferences));	// 音量等でのスクロール量(高さ)
-
-		mFontName.setSummary(getFontNameSummary(sharedPreferences));	// フォント名
-
-		mTapPattern.setSummary(SetImageText.getTapPatternSummary(mResources, sharedPreferences));	// 操作パターン
-
-		mViewPt.setSummary(SetImageText.getViewPtSummary(mResources, sharedPreferences));		// イメージ画面の回転制御
-		mVolKey.setSummary(SetImageText.getVolKeySummary(mResources, sharedPreferences));		// Volキー動作
-		mLastPage.setSummary(SetImageText.getLastPageSummary(mResources, sharedPreferences));	// 確認メッセージ
-		mPageSel.setSummary(SetImageText.getTxPageSelectSummary(mResources, sharedPreferences));		// ページ選択方法
-		mTimeAndBattery.setSummary(getTimeSummary(sharedPreferences));	// 時刻と充電表示
-
-	}
-
-	@Override
-	protected void onPause() {
-		super.onPause();
-		getPreferenceScreen().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
-
-	}
-
-	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-
-		if(key.equals(DEF.KEY_TX_INISCALE)){
-			//
-			mIniScale.setSummary(getIniScaleSummary(sharedPreferences));
-		}
-		else if(key.equals(DEF.KEY_TX_INITVIEW)){
-			//
-			mInitView.setSummary(getInitViewSummary(sharedPreferences));
-		}
-		else if(key.equals(DEF.KEY_TX_VIEWROTA)){
-			//
-			mViewRota.setSummary(getViewRotaSummary(sharedPreferences));
-		}
-		else if(key.equals(DEF.KEY_TX_PAPER)){
-			//
-			mPaper.setSummary(getPaperSummary(sharedPreferences));
-		}
-		else if(key.equals(DEF.KEY_TX_PICSIZE)){
-			//
-			mPicSize.setSummary(getPicSizeSummary(sharedPreferences));
-		}
-		else if(key.equals(DEF.KEY_TX_FONTTOP)){
-			// テキストのフォントサイズ
-			mFontTop.setSummary(getFontTopSummary(sharedPreferences));
-		}
-		else if(key.equals(DEF.KEY_TX_FONTBODY)){
-			// テキストのフォントサイズ
-			mFontBody.setSummary(getFontBodySummary(sharedPreferences));
-		}
-		else if(key.equals(DEF.KEY_TX_FONTRUBI)){
-			// テキストのフォントサイズ
-			mFontRubi.setSummary(getFontRubiSummary(sharedPreferences));
-		}
-		else if(key.equals(DEF.KEY_TX_FONTINFO)){
-			// テキストのフォントサイズ
-			mFontInfo.setSummary(getFontInfoSummary(sharedPreferences));
-		}
-		else if(key.equals(DEF.KEY_TX_SPACEW)){
-			// テキストのフォントサイズ
-			mSpaceW.setSummary(getSpaceWSummary(sharedPreferences));
-		}
-		else if(key.equals(DEF.KEY_TX_SPACEH)){
-			// テキストのフォントサイズ
-			mSpaceH.setSummary(getSpaceHSummary(sharedPreferences));
-		}
-		else if(key.equals(DEF.KEY_TX_MARGINW)){
-			// テキストのフォントサイズ
-			mMarginW.setSummary(getMarginWSummary(sharedPreferences));
-		}
-		else if(key.equals(DEF.KEY_TX_MARGINH)){
-			// テキストのフォントサイズ
-			mMarginH.setSummary(getMarginHSummary(sharedPreferences));
-		}
-		else if(key.equals(DEF.KEY_TX_SCRLRNGW)){
-			// スクロール量
-			mScrlRngW.setSummary(getScrlRngWSummary(sharedPreferences));
-		}
-		else if(key.equals(DEF.KEY_TX_SCRLRNGH)){
-			// スクロール量
-			mScrlRngH.setSummary(getScrlRngHSummary(sharedPreferences));
-		}
-		else if(key.equals(DEF.KEY_TX_FONTNAME)){
-			// スクロール量
-			mFontName.setSummary(getFontNameSummary(sharedPreferences));
-		}
-		else if(key.equals(DEF.KEY_TAPPATTERN) || key.equals(DEF.KEY_TAPRATE)){
-			// タップパターン
-			mTapPattern.setSummary(SetImageText.getTapPatternSummary(mResources, sharedPreferences));
-		}
-		else if(key.equals(DEF.KEY_VIEWPT)){
-			//
-			mViewPt.setSummary(SetImageText.getViewPtSummary(mResources, sharedPreferences));
-		}
-		else if(key.equals(DEF.KEY_VOLKEY)){
-			//
-			mVolKey.setSummary(SetImageText.getVolKeySummary(mResources, sharedPreferences));
-		}
-		else if(key.equals(DEF.KEY_LASTPAGE)){
-			//
-			mLastPage.setSummary(SetImageText.getLastPageSummary(mResources, sharedPreferences));
-		}
-		else if(key.equals(DEF.KEY_TX_PAGESELECT)){
-			//
-			mPageSel.setSummary(SetImageText.getTxPageSelectSummary(mResources, sharedPreferences));
-		}
-		else if(key.equals(DEF.KEY_TIMEDISP) || key.equals(DEF.KEY_TIMEFORMAT) || key.equals(DEF.KEY_TIMEPOS) || key.equals(DEF.KEY_TIMESIZE) || key.equals(DEF.KEY_TIMECOLOR)){
-			//
-			mTimeAndBattery.setSummary(getTimeSummary(sharedPreferences));
-		}
-	}
 
 	// 設定の読込
 	public static int getPinScale(SharedPreferences sharedPreferences){
@@ -509,154 +617,5 @@ public class SetTextActivity extends PreferenceActivity implements OnSharedPrefe
 			val = 1;
 		}
 		return val;
-	}
-
-	// 設定の読込(定義変更中)
-	private String getViewRotaSummary(SharedPreferences sharedPreferences){
-		int val = getViewRota(sharedPreferences);
-		Resources res = getResources();
-		return res.getString(RotateName[val]);
-	}
-
-	private String getIniScaleSummary(SharedPreferences sharedPreferences){
-		int val = getIniScale(sharedPreferences);
-		Resources res = getResources();
-		return res.getString(ScaleName[val]);
-	}
-
-	private String getInitViewSummary(SharedPreferences sharedPreferences){
-		int val = getInitView(sharedPreferences);
-		Resources res = getResources();
-		return res.getString(ViewName[val]);
-	}
-
-	private String getPaperSummary(SharedPreferences sharedPreferences){
-		int val = getPaper(sharedPreferences);
-		Resources res = getResources();
-		return res.getString(PaperName[val]);
-	}
-
-	private String getPicSizeSummary(SharedPreferences sharedPreferences){
-		int val = getPicSize(sharedPreferences);
-		Resources res = getResources();
-		return res.getString(PicSizeName[val]);
-	}
-
-	private String getAscModeSummary(SharedPreferences sharedPreferences){
-		int val = getAscMode(sharedPreferences);
-		Resources res = getResources();
-		return res.getString(AscModeName[val]);
-	}
-
-	private String getFontNameSummary(SharedPreferences sharedPreferences){
-		String val = getFontName(sharedPreferences);
-		if (val != null && val.length() > 0) {
-			return val;
-		}
-		Resources res = getResources();
-		return res.getString(R.string.defaultFont);
-	}
-
-	private String getFontTopSummary(SharedPreferences sharedPreferences){
-		int val = getFontTop(sharedPreferences);
-		Resources res = getResources();
-		String summ1 = res.getString(R.string.unitSumm1);
-
-		return	DEF.getFontSpStr(val, summ1);
-	}
-
-	private String getFontBodySummary(SharedPreferences sharedPreferences){
-		int val = getFontBody(sharedPreferences);
-		Resources res = getResources();
-		String summ1 = res.getString(R.string.unitSumm1);
-
-		return	DEF.getFontSpStr(val, summ1);
-	}
-
-	private String getFontRubiSummary(SharedPreferences sharedPreferences){
-		int val = getFontRubi(sharedPreferences);
-		Resources res = getResources();
-		String summ1 = res.getString(R.string.unitSumm1);
-
-		return	DEF.getFontSpStr(val, summ1);
-	}
-
-	private String getFontInfoSummary(SharedPreferences sharedPreferences){
-		int val = getFontInfo(sharedPreferences);
-		Resources res = getResources();
-		String summ1 = res.getString(R.string.unitSumm1);
-
-		return	DEF.getFontSpStr(val, summ1);
-	}
-
-	private String getSpaceWSummary(SharedPreferences sharedPreferences){
-		int val = getSpaceW(sharedPreferences);
-		Resources res = getResources();
-		String summ1 = res.getString(R.string.rangeSumm1);
-
-		return	DEF.getTextSpaceStr(val, summ1);
-	}
-
-	private String getSpaceHSummary(SharedPreferences sharedPreferences){
-		int val = getSpaceH(sharedPreferences);
-		Resources res = getResources();
-		String summ1 = res.getString(R.string.rangeSumm1);
-
-		return	DEF.getTextSpaceStr(val, summ1);
-	}
-
-	private String getMarginWSummary(SharedPreferences sharedPreferences){
-		int val = getMarginW(sharedPreferences);
-		Resources res = getResources();
-		String summ1 = res.getString(R.string.rangeSumm1);
-
-		return	DEF.getDispMarginStr(val, summ1);
-	}
-
-	private String getMarginHSummary(SharedPreferences sharedPreferences){
-		int val = getMarginH(sharedPreferences);
-		Resources res = getResources();
-		String summ1 = res.getString(R.string.rangeSumm1);
-
-		return	DEF.getDispMarginStr(val, summ1);
-	}
-
-	private String getScrlRngWSummary(SharedPreferences sharedPreferences){
-		int val = getScrlRngW(sharedPreferences);
-		Resources res = getResources();
-		String summ1 = res.getString(R.string.srngSumm1);
-		String summ2 = res.getString(R.string.srngSumm2);
-
-		return	DEF.getScrlRangeStr(val, summ1, summ2);
-	}
-
-	private String getScrlRngHSummary(SharedPreferences sharedPreferences){
-		int val = getScrlRngH(sharedPreferences);
-		Resources res = getResources();
-		String summ1 = res.getString(R.string.srngSumm1);
-		String summ2 = res.getString(R.string.srngSumm2);
-
-		return	DEF.getScrlRangeStr(val, summ1, summ2);
-	}
-
-	private String getTimeSummary(SharedPreferences sharedPreferences){
-		boolean disp = getTimeDisp(sharedPreferences);
-		int format = getTimeFormat(sharedPreferences);
-		int pos = getTimePos(sharedPreferences);
-		int size = getTimeSize(sharedPreferences);
-		int color = getTimeColor(sharedPreferences);
-		Resources res = getResources();
-
-		String summ;
-		if (disp) {
-			summ = res.getString(TimeFormatName[format])
-					+ ", " + res.getString(TimePosName[pos])
-					+ ", " + DEF.getPnumSizeStr(size, res.getString(R.string.unitSumm1))
-					+ ", " + res.getString(PnumColorName[color]);
-		}
-		else {
-			summ = res.getString(R.string.pnumnodisp);
-		}
-		return summ;
 	}
 }

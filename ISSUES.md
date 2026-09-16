@@ -7,9 +7,6 @@ ComittoNxX のコードベースおよび実行環境の精査によって抽出
 
 ## 1. 最新 Android (14/15) 互換性向上
 
-- [ ] **1.3 非推奨 Preference API (`PreferenceActivity`) の刷新**
-  - **対象ファイル**: `app/src/main/java/src/comitton/config/` 配下のすべての設定画面
-  - **内容**: 全ての設定 Activity が Android 10 (API 29) で非推奨となった `android.preference.PreferenceActivity` を直接継承しており、コンパイル時に大量の警告が発生している。`androidx.preference.PreferenceFragmentCompat` にリプレイスする。
 
 - [ ] **1.4 非推奨ダイアログ API (`ProgressDialog`, `showDialog(int)`) の移行**
   - **対象ファイル**: `FileSelectActivity.java`, `ImageActivity.java`, `TextActivity.java` 等

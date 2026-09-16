@@ -1,5 +1,19 @@
 package src.comitton.config;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.content.res.Resources;
+import android.os.Bundle;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.preference.ListPreference;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceFragmentCompat;
+
+import jp.dip.muracoro.comittonx.R;
+import src.comitton.common.DEF;
 import src.comitton.config.seekbar.AutoPlaySeekbar;
 import src.comitton.config.seekbar.LongTapSeekbar;
 import src.comitton.config.seekbar.ScalingSeekbar;
@@ -8,29 +22,195 @@ import src.comitton.config.seekbar.ScrlRngWSeekbar;
 import src.comitton.config.seekbar.WAdjustSeekbar;
 import src.comitton.config.seekbar.WScalingSeekbar;
 import src.comitton.helpview.HelpActivity;
-import src.comitton.common.DEF;
-import jp.dip.muracoro.comittonx.R;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
-import android.content.res.Resources;
-import android.os.Bundle;
-import android.preference.ListPreference;
-import android.preference.Preference;
-import android.preference.Preference.OnPreferenceClickListener;
-import android.preference.PreferenceActivity;
-import android.preference.PreferenceScreen;
 
-public class SetImageDetailActivity extends PreferenceActivity implements OnSharedPreferenceChangeListener {
-	private WAdjustSeekbar mWAdjust;
-	private WScalingSeekbar mWScaling;
-	private ScalingSeekbar mScaling;
-	private LongTapSeekbar mLongTap;
-	private ScrlRngWSeekbar mScrlRngW;
-	private ScrlRngHSeekbar mScrlRngH;
-	private AutoPlaySeekbar mAutoPlay;
-	private ListPreference mMaxThread;
-	private ListPreference mLoupeSize;
+public class SetImageDetailActivity extends BasePreferenceActivity {
+
+	@Override
+	protected PreferenceFragmentCompat createPreferenceFragment() {
+		return new SetImageDetailFragment();
+	}
+
+	public static class SetImageDetailFragment extends PreferenceFragmentCompat implements OnSharedPreferenceChangeListener {
+		private WAdjustSeekbar mWAdjust;
+		private WScalingSeekbar mWScaling;
+		private ScalingSeekbar mScaling;
+		private LongTapSeekbar mLongTap;
+		private ScrlRngWSeekbar mScrlRngW;
+		private ScrlRngHSeekbar mScrlRngH;
+		private AutoPlaySeekbar mAutoPlay;
+		private ListPreference mMaxThread;
+		private ListPreference mLoupeSize;
+
+		@Override
+		public void onCreatePreferences(@Nullable Bundle savedInstanceState, @Nullable String rootKey) {
+			setPreferencesFromResource(R.xml.imagedetail, rootKey);
+
+			mLongTap   = findPreference(DEF.KEY_LONGTAP);
+			mWAdjust   = findPreference(DEF.KEY_WADJUST);
+			mWScaling   = findPreference(DEF.KEY_WSCALING);
+			mScaling   = findPreference(DEF.KEY_SCALING);
+			mScrlRngW  = findPreference(DEF.KEY_SCRLRNGW);
+			mScrlRngH  = findPreference(DEF.KEY_SCRLRNGH);
+			mAutoPlay = findPreference(DEF.KEY_AUTOPLAY);
+			mMaxThread = findPreference(DEF.KEY_MAXTHREAD);
+			mLoupeSize = findPreference(DEF.KEY_LOUPESIZE);
+
+			// 項目選択
+			Preference onlineHelp = findPreference(DEF.KEY_IDTLHELP);
+			if (onlineHelp != null) {
+				onlineHelp.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+					@Override
+					public boolean onPreferenceClick(@NonNull Preference preference) {
+						if (getActivity() == null) {
+							return false;
+						}
+						// Activityの遷移
+						Resources res = getResources();
+						String url = res.getString(R.string.url_imagedetail);	// 設定画面
+						Intent intent = new Intent(getActivity(), HelpActivity.class);
+						intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+						intent.putExtra("Url", url);
+						startActivity(intent);
+						return true;
+					}
+				});
+			}
+		}
+
+		@Override
+		public void onResume() {
+			super.onResume();
+			SharedPreferences sharedPreferences = getPreferenceScreen().getSharedPreferences();
+			if (sharedPreferences != null) {
+				sharedPreferences.registerOnSharedPreferenceChangeListener(this);
+
+				// シークバー
+				if (mLongTap != null) mLongTap.setSummary(getLongTapSummary(sharedPreferences));
+				if (mWAdjust != null) mWAdjust.setSummary(getWAdjustSummary(sharedPreferences));
+				if (mWScaling != null) mWScaling.setSummary(getWScalingSummary(sharedPreferences));
+				if (mScaling != null) mScaling.setSummary(getScalingSummary(sharedPreferences));
+				if (mScrlRngW != null) mScrlRngW.setSummary(getScrlRngWSummary(sharedPreferences));
+				if (mScrlRngH != null) mScrlRngH.setSummary(getScrlRngHSummary(sharedPreferences));
+				if (mAutoPlay != null) mAutoPlay.setSummary(getAutoPlaySummary(sharedPreferences));
+				if (mMaxThread != null) mMaxThread.setSummary(getMaxThreadSummary(sharedPreferences));
+				if (mLoupeSize != null) mLoupeSize.setSummary(getLoupeSizeSummary(sharedPreferences));
+			}
+		}
+
+		@Override
+		public void onPause() {
+			super.onPause();
+			SharedPreferences sharedPreferences = getPreferenceScreen().getSharedPreferences();
+			if (sharedPreferences != null) {
+				sharedPreferences.unregisterOnSharedPreferenceChangeListener(this);
+			}
+		}
+
+		@Override
+		public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+			if (key == null) return;
+			// シークバー
+			if (key.equals(DEF.KEY_LONGTAP)) {
+				if (mLongTap != null) mLongTap.setSummary(getLongTapSummary(sharedPreferences));
+			} else if (key.equals(DEF.KEY_WADJUST)) {
+				if (mWAdjust != null) mWAdjust.setSummary(getWAdjustSummary(sharedPreferences));
+			} else if (key.equals(DEF.KEY_WSCALING)) {
+				if (mWScaling != null) mWScaling.setSummary(getWScalingSummary(sharedPreferences));
+			} else if (key.equals(DEF.KEY_SCALING)) {
+				if (mScaling != null) mScaling.setSummary(getScalingSummary(sharedPreferences));
+			} else if (key.equals(DEF.KEY_SCRLRNGW)) {
+				if (mScrlRngW != null) mScrlRngW.setSummary(getScrlRngWSummary(sharedPreferences));
+			} else if (key.equals(DEF.KEY_SCRLRNGH)) {
+				if (mScrlRngH != null) mScrlRngH.setSummary(getScrlRngHSummary(sharedPreferences));
+			} else if (key.equals(DEF.KEY_AUTOPLAY)) {
+				if (mAutoPlay != null) mAutoPlay.setSummary(getAutoPlaySummary(sharedPreferences));
+			} else if (key.equals(DEF.KEY_MAXTHREAD)) {
+				if (mMaxThread != null) mMaxThread.setSummary(getMaxThreadSummary(sharedPreferences));
+			} else if (key.equals(DEF.KEY_LOUPESIZE)) {
+				if (mLoupeSize != null) mLoupeSize.setSummary(getLoupeSizeSummary(sharedPreferences));
+			}
+		}
+
+		private String getLongTapSummary(SharedPreferences sharedPreferences){
+			int val = getLongTap(sharedPreferences);
+			Resources res = getResources();
+			String summ1 = res.getString(R.string.msecSumm1);
+			return DEF.getMSecStr200(val, summ1);
+		}
+
+		private String getWAdjustSummary(SharedPreferences sharedPreferences){
+			int val = getWAdjust(sharedPreferences);
+			Resources res = getResources();
+			String summ1 = res.getString(R.string.aspcSumm1);
+			String summ2 = res.getString(R.string.aspcSumm2);
+			return DEF.getAdjustStr(val, summ1, summ2);
+		}
+
+		private String getWScalingSummary(SharedPreferences sharedPreferences){
+			int val = getWScaling(sharedPreferences);
+			Resources res = getResources();
+			String summ1 = res.getString(R.string.scalSumm1);
+			String summ2 = res.getString(R.string.scalSumm2);
+			return DEF.getWScalingStr(val, summ1, summ2);
+		}
+
+		private String getScalingSummary(SharedPreferences sharedPreferences){
+			int val = getScaling(sharedPreferences);
+			Resources res = getResources();
+			String summ1 = res.getString(R.string.scalSumm1);
+			String summ2 = res.getString(R.string.scalSumm2);
+			return DEF.getScalingStr(val, summ1, summ2);
+		}
+
+		private String getScrlRngWSummary(SharedPreferences sharedPreferences) {
+			int val = getScrlRngW(sharedPreferences);
+			Resources res = getResources();
+			String summ1 = res.getString(R.string.srngSumm1);
+			String summ2 = res.getString(R.string.srngSumm2);
+			return DEF.getScrlRangeStr(val, summ1, summ2);
+		}
+
+		private String getScrlRngHSummary(SharedPreferences sharedPreferences) {
+			int val = getScrlRngH(sharedPreferences);
+			Resources res = getResources();
+			String summ1 = res.getString(R.string.srngSumm1);
+			String summ2 = res.getString(R.string.srngSumm2);
+			return DEF.getScrlRangeStr(val, summ1, summ2);
+		}
+
+		private String getAutoPlaySummary(SharedPreferences sharedPreferences) {
+			int val = getAutoPlay(sharedPreferences);
+			Resources res = getResources();
+			String summ1 = res.getString(R.string.msecSumm1);
+			return DEF.getAutoPlayStr(val, summ1);
+		}
+
+		private String getMaxThreadSummary(SharedPreferences sharedPreferences){
+			int val = getMaxThread(sharedPreferences);
+			String str;
+			Resources res = getResources();
+			str = res.getString(MaxThread[val]);
+			if (val == 0) {
+				int threads = Runtime.getRuntime().availableProcessors();
+				if (threads > 7) {
+					threads = 7;
+				}
+				else if (threads <= 0) {
+					threads = 1;
+				}
+				str += " (" + res.getString(MaxThread[threads]) + ")";
+			}
+			return str;
+		}
+
+		private String getLoupeSizeSummary(SharedPreferences sharedPreferences){
+			int val = getLoupeSize(sharedPreferences);
+			String str;
+			Resources res = getResources();
+			str = res.getString(LoupeSize[val]);
+			return str;
+		}
+	}
 
 	public static final int[] MaxThread =
 		{ R.string.maxthread00		// 自動
@@ -48,107 +228,6 @@ public class SetImageDetailActivity extends PreferenceActivity implements OnShar
 			R.string.loupesize01,
 			R.string.loupesize02
 		};
-
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-
-		addPreferencesFromResource(R.xml.imagedetail);
-
-		mLongTap   = (LongTapSeekbar)getPreferenceScreen().findPreference(DEF.KEY_LONGTAP);
-		mWAdjust   = (WAdjustSeekbar)getPreferenceScreen().findPreference(DEF.KEY_WADJUST);
-		mWScaling   = (WScalingSeekbar)getPreferenceScreen().findPreference(DEF.KEY_WSCALING);
-		mScaling   = (ScalingSeekbar)getPreferenceScreen().findPreference(DEF.KEY_SCALING);
-		mScrlRngW  = (ScrlRngWSeekbar)getPreferenceScreen().findPreference(DEF.KEY_SCRLRNGW);
-		mScrlRngH  = (ScrlRngHSeekbar)getPreferenceScreen().findPreference(DEF.KEY_SCRLRNGH);
-		mAutoPlay = (AutoPlaySeekbar) getPreferenceScreen().findPreference(DEF.KEY_AUTOPLAY);
-		mMaxThread = (ListPreference)getPreferenceScreen().findPreference(DEF.KEY_MAXTHREAD);
-		mLoupeSize = (ListPreference)getPreferenceScreen().findPreference(DEF.KEY_LOUPESIZE);
-
-
-		// 項目選択
-		PreferenceScreen onlineHelp = (PreferenceScreen) findPreference(DEF.KEY_IDTLHELP);
-		onlineHelp.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-			@Override
-			public boolean onPreferenceClick(Preference preference) {
-				// Activityの遷移
-				Resources res = getResources();
-				String url = res.getString(R.string.url_imagedetail);	// 設定画面
-				Intent intent;
-				intent = new Intent(SetImageDetailActivity.this, HelpActivity.class);
-				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-				intent.putExtra("Url", url);
-				startActivity(intent);
-				return true;
-			}
-		});
-	}
-
-	@Override
-	protected void onResume() {
-		super.onResume();
-		SharedPreferences sharedPreferences = getPreferenceScreen().getSharedPreferences();
-		sharedPreferences.registerOnSharedPreferenceChangeListener(this);
-
-		// シークバー
-		mLongTap.setSummary(getLongTapSummary(sharedPreferences));
-		mWAdjust.setSummary(getWAdjustSummary(sharedPreferences));
-		mWScaling.setSummary(getWScalingSummary(sharedPreferences));	// イメージ幅調整
-		mScaling.setSummary(getScalingSummary(sharedPreferences));		// イメージ拡大縮小
-		mScrlRngW.setSummary(getScrlRngWSummary(sharedPreferences));
-		mScrlRngH.setSummary(getScrlRngHSummary(sharedPreferences));
-		mAutoPlay.setSummary(getAutoPlaySummary(sharedPreferences));
-		mMaxThread.setSummary(getMaxThreadSummary(sharedPreferences));	// 最大スレッド数
-		mLoupeSize.setSummary(getLoupeSizeSummary(sharedPreferences));
-	}
-
-	@Override
-	protected void onPause() {
-		super.onPause();
-		getPreferenceScreen().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
-
-	}
-
-	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-
-		// シークバー
-		if(key.equals(DEF.KEY_LONGTAP)){
-			// 長押し時間
-			mLongTap.setSummary(getLongTapSummary(sharedPreferences));
-		}
-		else if(key.equals(DEF.KEY_WADJUST)){
-			// 縦横比調整
-			mWAdjust.setSummary(getWAdjustSummary(sharedPreferences));
-		}
-		else if(key.equals(DEF.KEY_WSCALING)){
-			// 幅調整
-			mWScaling.setSummary(getWScalingSummary(sharedPreferences));
-		}
-		else if(key.equals(DEF.KEY_SCALING)){
-			// 拡大縮小
-			mScaling.setSummary(getScalingSummary(sharedPreferences));
-		}
-		else if(key.equals(DEF.KEY_SCRLRNGW)){
-			// スクロール量
-			mScrlRngW.setSummary(getScrlRngWSummary(sharedPreferences));
-		}
-		else if(key.equals(DEF.KEY_SCRLRNGH)){
-			// スクロール量
-			mScrlRngH.setSummary(getScrlRngHSummary(sharedPreferences));
-		}
-		else if (key.equals(DEF.KEY_AUTOPLAY)) {
-			// 自動再生
-			mAutoPlay.setSummary(getAutoPlaySummary(sharedPreferences));
-		}
-		else if(key.equals(DEF.KEY_MAXTHREAD)){
-			// 最大スレッド数
-			mMaxThread.setSummary(getMaxThreadSummary(sharedPreferences));
-		}
-		else if(key.equals(DEF.KEY_LOUPESIZE)){
-			// ルーペサイズ
-			mLoupeSize.setSummary(getLoupeSizeSummary(sharedPreferences));
-		}
-	}
 
 	// 設定の読込
 	public static int getLongTap(SharedPreferences sharedPreferences){
@@ -216,92 +295,4 @@ public class SetImageDetailActivity extends PreferenceActivity implements OnShar
 		}
 		return val;
 	}
-
-	private String getLongTapSummary(SharedPreferences sharedPreferences){
-		int val = getLongTap(sharedPreferences);
-		Resources res = getResources();
-		String summ1 = res.getString(R.string.msecSumm1);
-
-		return	DEF.getMSecStr200(val, summ1);
-	}
-
-	private String getWAdjustSummary(SharedPreferences sharedPreferences){
-		int val = getWAdjust(sharedPreferences);
-		Resources res = getResources();
-		String summ1 = res.getString(R.string.aspcSumm1);
-		String summ2 = res.getString(R.string.aspcSumm2);
-
-		return	DEF.getAdjustStr(val, summ1, summ2);
-	}
-
-	private String getWScalingSummary(SharedPreferences sharedPreferences){
-		int val = getWScaling(sharedPreferences);
-		Resources res = getResources();
-		String summ1 = res.getString(R.string.scalSumm1);
-		String summ2 = res.getString(R.string.scalSumm2);
-
-		return	DEF.getWScalingStr(val, summ1, summ2);
-	}
-
-	private String getScalingSummary(SharedPreferences sharedPreferences){
-		int val = getScaling(sharedPreferences);
-		Resources res = getResources();
-		String summ1 = res.getString(R.string.scalSumm1);
-		String summ2 = res.getString(R.string.scalSumm2);
-
-		return	DEF.getScalingStr(val, summ1, summ2);
-	}
-
-	private String getScrlRngWSummary(SharedPreferences sharedPreferences) {
-		int val = getScrlRngW(sharedPreferences);
-		Resources res = getResources();
-		String summ1 = res.getString(R.string.srngSumm1);
-		String summ2 = res.getString(R.string.srngSumm2);
-
-		return	DEF.getScrlRangeStr(val, summ1, summ2);
-	}
-
-	private String getScrlRngHSummary(SharedPreferences sharedPreferences) {
-		int val = getScrlRngH(sharedPreferences);
-		Resources res = getResources();
-		String summ1 = res.getString(R.string.srngSumm1);
-		String summ2 = res.getString(R.string.srngSumm2);
-
-		return	DEF.getScrlRangeStr(val, summ1, summ2);
-	}
-
-	private String getAutoPlaySummary(SharedPreferences sharedPreferences) {
-		int val = getAutoPlay(sharedPreferences);
-		Resources res = getResources();
-		String summ1 = res.getString(R.string.msecSumm1);
-
-		return DEF.getAutoPlayStr(val, summ1);
-	}
-
-	private String getMaxThreadSummary(SharedPreferences sharedPreferences){
-		int val = getMaxThread(sharedPreferences);
-		String str;
-		Resources res = getResources();
-		str = res.getString(MaxThread[val]);
-		if (val == 0) {
-			int threads = Runtime.getRuntime().availableProcessors();
-			if (threads > 7) {
-				threads = 7;
-			}
-			else if (threads <= 0) {
-				threads = 1;
-			}
-			str += " (" + res.getString(MaxThread[threads]) + ")";
-		}
-		return str;
-	}
-
-	private String getLoupeSizeSummary(SharedPreferences sharedPreferences){
-		int val = getLoupeSize(sharedPreferences);
-		String str;
-		Resources res = getResources();
-		str = res.getString(LoupeSize[val]);
-		return str;
-	}
-
 }

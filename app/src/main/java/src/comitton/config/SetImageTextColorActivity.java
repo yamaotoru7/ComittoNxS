@@ -1,5 +1,19 @@
 package src.comitton.config;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.content.res.Resources;
+import android.os.Bundle;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.preference.ListPreference;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceFragmentCompat;
+
+import jp.dip.muracoro.comittonx.R;
+import src.comitton.common.DEF;
 import src.comitton.config.color.ColorCntSetting;
 import src.comitton.config.color.ColorGuiSetting;
 import src.comitton.config.color.ColorHitSetting;
@@ -11,37 +25,10 @@ import src.comitton.config.color.ColorTxtCntSetting;
 import src.comitton.config.color.ColorTxtGuiSetting;
 import src.comitton.config.color.ColorTxtMgnSetting;
 import src.comitton.helpview.HelpActivity;
-import src.comitton.common.DEF;
-import jp.dip.muracoro.comittonx.R;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
-import android.content.res.Resources;
-import android.os.Bundle;
-import android.preference.ListPreference;
-import android.preference.Preference;
-import android.preference.Preference.OnPreferenceClickListener;
-import android.preference.PreferenceActivity;
-import android.preference.PreferenceScreen;
 
-public class SetImageTextColorActivity extends PreferenceActivity implements OnSharedPreferenceChangeListener {
-	private ColorMgnSetting mMgnColor;
-	private ColorCntSetting mCntColor;
-	private ColorGuiSetting mGuiColor;
+public class SetImageTextColorActivity extends BasePreferenceActivity {
 
-	private ColorTxtMgnSetting mTxtMgnColor;
-	private ColorTxtCntSetting mTxtCntColor;
-	private ColorTxtGuiSetting mTxtGuiColor;
-
-	private ColorTvtSetting mTvtColor;
-	private ColorTvbSetting mTvbColor;
-	private ColorTvgSetting mTvgColor;
-
-	private ColorHitSetting mHitColor;
-
-	private ListPreference mGradation;
-
- 	public static final int[] GradationName =
+	public static final int[] GradationName =
 		{ R.string.txgrad00		// グラデーションなし
 		, R.string.txgrad01		// 左上→右下
 		, R.string.txgrad02		// 上  →下
@@ -53,121 +40,151 @@ public class SetImageTextColorActivity extends PreferenceActivity implements OnS
 		, R.string.txgrad08 };	// 左  →右
 
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+	protected PreferenceFragmentCompat createPreferenceFragment() {
+		return new SetImageTextColorFragment();
+	}
 
-		addPreferencesFromResource(R.xml.imagetextcolor);
+	public static class SetImageTextColorFragment extends PreferenceFragmentCompat implements OnSharedPreferenceChangeListener {
+		private ColorMgnSetting mMgnColor;
+		private ColorCntSetting mCntColor;
+		private ColorGuiSetting mGuiColor;
 
-		mMgnColor = (ColorMgnSetting) getPreferenceScreen().findPreference(DEF.KEY_MGNRGB);
-		mCntColor = (ColorCntSetting) getPreferenceScreen().findPreference(DEF.KEY_CNTRGB);
-		mGuiColor = (ColorGuiSetting) getPreferenceScreen().findPreference(DEF.KEY_GUIRGB);
+		private ColorTxtMgnSetting mTxtMgnColor;
+		private ColorTxtCntSetting mTxtCntColor;
+		private ColorTxtGuiSetting mTxtGuiColor;
 
-		mTxtMgnColor = (ColorTxtMgnSetting) getPreferenceScreen().findPreference(DEF.KEY_TX_MGNRGB);
-		mTxtCntColor = (ColorTxtCntSetting) getPreferenceScreen().findPreference(DEF.KEY_TX_CNTRGB);
-		mTxtGuiColor = (ColorTxtGuiSetting) getPreferenceScreen().findPreference(DEF.KEY_TX_GUIRGB);
+		private ColorTvtSetting mTvtColor;
+		private ColorTvbSetting mTvbColor;
+		private ColorTvgSetting mTvgColor;
 
-		mTvtColor = (ColorTvtSetting) getPreferenceScreen().findPreference(DEF.KEY_TX_TVTRGB);
-		mTvbColor = (ColorTvbSetting) getPreferenceScreen().findPreference(DEF.KEY_TX_TVBRGB);
-		mTvgColor = (ColorTvgSetting) getPreferenceScreen().findPreference(DEF.KEY_TX_TVGRGB);
+		private ColorHitSetting mHitColor;
 
-		mHitColor = (ColorHitSetting) getPreferenceScreen().findPreference(DEF.KEY_TX_HITRGB);
+		private ListPreference mGradation;
 
-		mGradation  = (ListPreference)getPreferenceScreen().findPreference(DEF.KEY_TX_GRADATION);
+		@Override
+		public void onCreatePreferences(@Nullable Bundle savedInstanceState, @Nullable String rootKey) {
+			setPreferencesFromResource(R.xml.imagetextcolor, rootKey);
 
-		// 項目選択
-		PreferenceScreen onlineHelp = (PreferenceScreen) findPreference(DEF.KEY_ITCLRHELP);
-		onlineHelp.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-			@Override
-			public boolean onPreferenceClick(Preference preference) {
-				// Activityの遷移
-				Resources res = getResources();
-				String url = res.getString(R.string.url_imagetextcolor);	// 設定画面
-				Intent intent;
-				intent = new Intent(SetImageTextColorActivity.this, HelpActivity.class);
-				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-				intent.putExtra("Url", url);
-				startActivity(intent);
-				return true;
+			mMgnColor = findPreference(DEF.KEY_MGNRGB);
+			mCntColor = findPreference(DEF.KEY_CNTRGB);
+			mGuiColor = findPreference(DEF.KEY_GUIRGB);
+
+			mTxtMgnColor = findPreference(DEF.KEY_TX_MGNRGB);
+			mTxtCntColor = findPreference(DEF.KEY_TX_CNTRGB);
+			mTxtGuiColor = findPreference(DEF.KEY_TX_GUIRGB);
+
+			mTvtColor = findPreference(DEF.KEY_TX_TVTRGB);
+			mTvbColor = findPreference(DEF.KEY_TX_TVBRGB);
+			mTvgColor = findPreference(DEF.KEY_TX_TVGRGB);
+
+			mHitColor = findPreference(DEF.KEY_TX_HITRGB);
+
+			mGradation  = findPreference(DEF.KEY_TX_GRADATION);
+
+			// 項目選択
+			Preference onlineHelp = findPreference(DEF.KEY_ITCLRHELP);
+			if (onlineHelp != null) {
+				onlineHelp.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+					@Override
+					public boolean onPreferenceClick(@NonNull Preference preference) {
+						if (getActivity() == null) {
+							return false;
+						}
+						// Activityの遷移
+						Resources res = getResources();
+						String url = res.getString(R.string.url_imagetextcolor);	// 設定画面
+						Intent intent = new Intent(getActivity(), HelpActivity.class);
+						intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+						intent.putExtra("Url", url);
+						startActivity(intent);
+						return true;
+					}
+				});
 			}
-		});
-	}
+		}
 
-	@Override
-	protected void onResume() {
-		super.onResume();
-		SharedPreferences sharedPreferences = getPreferenceScreen().getSharedPreferences();
-		sharedPreferences.registerOnSharedPreferenceChangeListener(this);
+		@Override
+		public void onResume() {
+			super.onResume();
+			SharedPreferences sharedPreferences = getPreferenceScreen().getSharedPreferences();
+			if (sharedPreferences != null) {
+				sharedPreferences.registerOnSharedPreferenceChangeListener(this);
 
-		// 色設定
-		mMgnColor.setSummary(getColorSummary(getMgnColor(sharedPreferences)));	// 余白
-		mCntColor.setSummary(getColorSummary(getCntColor(sharedPreferences)));	// 中央余白
-		mGuiColor.setSummary(getColorSummary(getGuiColor(sharedPreferences)));	// ガイド
+				// 色設定
+				if (mMgnColor != null) mMgnColor.setSummary(getColorSummary(getMgnColor(sharedPreferences)));
+				if (mCntColor != null) mCntColor.setSummary(getColorSummary(getCntColor(sharedPreferences)));
+				if (mGuiColor != null) mGuiColor.setSummary(getColorSummary(getGuiColor(sharedPreferences)));
 
-		mTxtMgnColor.setSummary(getColorSummary(getTxtMgnColor(sharedPreferences)));	// 余白
-		mTxtCntColor.setSummary(getColorSummary(getTxtCntColor(sharedPreferences)));	// 中央余白
-		mTxtGuiColor.setSummary(getColorSummary(getTxtGuiColor(sharedPreferences)));	// ガイド
+				if (mTxtMgnColor != null) mTxtMgnColor.setSummary(getColorSummary(getTxtMgnColor(sharedPreferences)));
+				if (mTxtCntColor != null) mTxtCntColor.setSummary(getColorSummary(getTxtCntColor(sharedPreferences)));
+				if (mTxtGuiColor != null) mTxtGuiColor.setSummary(getColorSummary(getTxtGuiColor(sharedPreferences)));
 
-		mTvtColor.setSummary(getColorSummary(getTvtColor(sharedPreferences)));	// テキスト
-		mTvbColor.setSummary(getColorSummary(getTvbColor(sharedPreferences)));	// 背景１
-		mTvgColor.setSummary(getColorSummary(getTvgColor(sharedPreferences)));	// 背景２
+				if (mTvtColor != null) mTvtColor.setSummary(getColorSummary(getTvtColor(sharedPreferences)));
+				if (mTvbColor != null) mTvbColor.setSummary(getColorSummary(getTvbColor(sharedPreferences)));
+				if (mTvgColor != null) mTvgColor.setSummary(getColorSummary(getTvgColor(sharedPreferences)));
 
-		mHitColor.setSummary(getColorSummary(getHitColor(sharedPreferences)));	// 検索ヒット
+				if (mHitColor != null) mHitColor.setSummary(getColorSummary(getHitColor(sharedPreferences)));
 
-		mGradation.setSummary(getGradationSummary(sharedPreferences));	// ファイル選択画面の回転制御
-	}
+				if (mGradation != null) mGradation.setSummary(getGradationSummary(sharedPreferences));
+			}
+		}
 
-	@Override
-	protected void onPause() {
-		super.onPause();
-		getPreferenceScreen().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
+		@Override
+		public void onPause() {
+			super.onPause();
+			SharedPreferences sharedPreferences = getPreferenceScreen().getSharedPreferences();
+			if (sharedPreferences != null) {
+				sharedPreferences.unregisterOnSharedPreferenceChangeListener(this);
+			}
+		}
 
-	}
+		@Override
+		public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+			if (key == null) return;
+			// 色
+			if (key.equals(DEF.KEY_MGNRGB)) {
+				if (mMgnColor != null) mMgnColor.setSummary(getColorSummary(getMgnColor(sharedPreferences)));
+			} else if (key.equals(DEF.KEY_CNTRGB)) {
+				if (mCntColor != null) mCntColor.setSummary(getColorSummary(getCntColor(sharedPreferences)));
+			} else if (key.equals(DEF.KEY_GUIRGB)) {
+				if (mGuiColor != null) mGuiColor.setSummary(getColorSummary(getGuiColor(sharedPreferences)));
+			} else if (key.equals(DEF.KEY_TX_MGNRGB)) {
+				if (mTxtMgnColor != null) mTxtMgnColor.setSummary(getColorSummary(getTxtMgnColor(sharedPreferences)));
+			} else if (key.equals(DEF.KEY_TX_CNTRGB)) {
+				if (mTxtCntColor != null) mTxtCntColor.setSummary(getColorSummary(getTxtCntColor(sharedPreferences)));
+			} else if (key.equals(DEF.KEY_TX_GUIRGB)) {
+				if (mTxtGuiColor != null) mTxtGuiColor.setSummary(getColorSummary(getTxtGuiColor(sharedPreferences)));
+			} else if (key.equals(DEF.KEY_TX_TVTRGB)) {
+				if (mTvtColor != null) mTvtColor.setSummary(getColorSummary(getTvtColor(sharedPreferences)));
+			} else if (key.equals(DEF.KEY_TX_TVBRGB)) {
+				if (mTvbColor != null) mTvbColor.setSummary(getColorSummary(getTvbColor(sharedPreferences)));
+			} else if (key.equals(DEF.KEY_TX_TVGRGB)) {
+				if (mTvgColor != null) mTvgColor.setSummary(getColorSummary(getTvgColor(sharedPreferences)));
+			} else if (key.equals(DEF.KEY_TX_GRADATION)) {
+				if (mGradation != null) mGradation.setSummary(getGradationSummary(sharedPreferences));
+			} else if (key.equals(DEF.KEY_TX_HITRGB)) {
+				if (mHitColor != null) mHitColor.setSummary(getColorSummary(getHitColor(sharedPreferences)));
+			}
+		}
 
-	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-		// 色
-		if(key.equals(DEF.KEY_MGNRGB)){
-			//
-			mMgnColor.setSummary(getColorSummary(getMgnColor(sharedPreferences)));
+		private String getGradationSummary(SharedPreferences sharedPreferences){
+			int val = getGradation(sharedPreferences);
+			Resources res = getResources();
+			return res.getString(GradationName[val]);
 		}
-		else if(key.equals(DEF.KEY_CNTRGB)){
-			//
-			mCntColor.setSummary(getColorSummary(getCntColor(sharedPreferences)));
-		}
-		else if(key.equals(DEF.KEY_GUIRGB)){
-			//
-			mGuiColor.setSummary(getColorSummary(getGuiColor(sharedPreferences)));
-		}
-		else if(key.equals(DEF.KEY_TX_MGNRGB)){
-			//
-			mTxtMgnColor.setSummary(getColorSummary(getMgnColor(sharedPreferences)));
-		}
-		else if(key.equals(DEF.KEY_TX_CNTRGB)){
-			//
-			mTxtCntColor.setSummary(getColorSummary(getCntColor(sharedPreferences)));
-		}
-		else if(key.equals(DEF.KEY_TX_GUIRGB)){
-			//
-			mTxtGuiColor.setSummary(getColorSummary(getGuiColor(sharedPreferences)));
-		}
-		else if(key.equals(DEF.KEY_TX_TVTRGB)){
-			//
-			mTvtColor.setSummary(getColorSummary(getTvtColor(sharedPreferences)));
-		}
-		else if(key.equals(DEF.KEY_TX_TVBRGB)){
-			//
-			mTvbColor.setSummary(getColorSummary(getTvbColor(sharedPreferences)));
-		}
-		else if(key.equals(DEF.KEY_TX_TVGRGB)){
-			//
-			mTvgColor.setSummary(getColorSummary(getTvgColor(sharedPreferences)));
-		}
-		else if(key.equals(DEF.KEY_TX_GRADATION)){
-			//
-			mGradation.setSummary(getGradationSummary(sharedPreferences));
-		}
-		else if(key.equals(DEF.KEY_TX_HITRGB)){
-			//
-			mHitColor.setSummary(getColorSummary(getHitColor(sharedPreferences)));
+
+		private String getColorSummary(int val) {
+			String[] str = { "Red", "Green", "Blue" };
+			StringBuilder result = new StringBuilder();
+			for (int i = 0; i < 3; i++) {
+				int v = ((val >> 8 * (2 - i)) & 0x000000FF);
+				result.append(str[i]).append("=").append(v);
+				if (i != 2) {
+					result.append(", ");
+				}
+			}
+			result.append(String.format(" (%1$06X)", val & 0x00FFFFFF));
+			return result.toString();
 		}
 	}
 
@@ -232,24 +249,5 @@ public class SetImageTextColorActivity extends PreferenceActivity implements OnS
 		int val = DEF.getInt(sharedPreferences, DEF.KEY_TX_GRADATION, "1");
 		return val;
 	}
-
-	private String getGradationSummary(SharedPreferences sharedPreferences){
-		int val = getGradation(sharedPreferences);
-		Resources res = getResources();
-		return res.getString(GradationName[val]);
-	}
-
-	private String getColorSummary(int val) {
-		String[] str = { "Red", "Green", "Blue" };
-		String result = "";
-		for (int i = 0; i < 3; i++) {
-			int v = ((val >> 8 * (2 - i)) & 0x000000FF);
-			result += str[i] + "=" + v;
-			if (i != 2) {
-				result += ", ";
-			}
-		}
-		result += String.format(" (%1$06X)", val & 0x00FFFFFF);
-		return result;
-	}
 }
+

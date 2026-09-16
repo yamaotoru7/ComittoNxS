@@ -1,68 +1,28 @@
 package src.comitton.config;
 
-import src.comitton.common.Logcat;
-import src.comitton.helpview.HelpActivity;
-import src.comitton.common.DEF;
-import jp.dip.muracoro.comittonx.R;
-
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.res.Resources;
 import android.os.Bundle;
-import android.preference.EditTextPreference;
-import android.preference.ListPreference;
-import android.preference.Preference;
-import android.preference.Preference.OnPreferenceClickListener;
-import android.preference.PreferenceActivity;
-import android.preference.PreferenceScreen;
-import android.util.Log;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.preference.EditTextPreference;
+import androidx.preference.ListPreference;
+import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
-import androidx.preference.PreferenceHeaderFragmentCompat;
+import androidx.preference.PreferenceManager;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import jp.dip.muracoro.comittonx.R;
+import src.comitton.common.DEF;
+import src.comitton.common.Logcat;
+import src.comitton.helpview.HelpActivity;
 
-public class SetCommonActivity extends PreferenceActivity implements OnSharedPreferenceChangeListener {
-	private static final String TAG = "SetCommonActivity";
-
-
-	public class SetCommonFragment extends PreferenceHeaderFragmentCompat implements PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
-
-		public SetCommonFragment () {
-
-		}
-
-		@Override
-		public PreferenceFragmentCompat onCreatePreferenceHeader() {
-			return new HeaderFragment();
-		}
-
-	}
-
-	public class HeaderFragment extends PreferenceFragmentCompat {
-		@Override
-		public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
-			setPreferencesFromResource(R.xml.common, rootKey);
-		}
-	}
-
-
-	private ListPreference mRotateBtn;
-	private ListPreference mCharset;
-
-	private EditTextPreference mPriorityWord01;
-	private EditTextPreference mPriorityWord02;
-	private EditTextPreference mPriorityWord03;
-	private EditTextPreference mPriorityWord04;
-	private EditTextPreference mPriorityWord05;
-	private EditTextPreference mPriorityWord06;
-	private EditTextPreference mPriorityWord07;
-	private EditTextPreference mPriorityWord08;
-	private EditTextPreference mPriorityWord09;
-	private EditTextPreference mPriorityWord10;
+public class SetCommonActivity extends BasePreferenceActivity {
 
 	public static final int[] RotateBtnName =
 		{ R.string.rotabtn00	// 使用しない
@@ -70,110 +30,137 @@ public class SetCommonActivity extends PreferenceActivity implements OnSharedPre
 		, R.string.rotabtn02 };	// シャッターキー
 
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+	protected PreferenceFragmentCompat createPreferenceFragment() {
+		return new SetCommonFragment();
+	}
 
-		addPreferencesFromResource(R.xml.common);
-		mRotateBtn  = (ListPreference)getPreferenceScreen().findPreference(DEF.KEY_ROTATEBTN);
-		mCharset    = (ListPreference)getPreferenceScreen().findPreference(DEF.KEY_CHARSET);
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		loadSettings(PreferenceManager.getDefaultSharedPreferences(this));
+	}
 
-		mPriorityWord01 = (EditTextPreference)getPreferenceScreen().findPreference(DEF.KEY_SORT_PRIORITY_WORD_01);
-		mPriorityWord02 = (EditTextPreference)getPreferenceScreen().findPreference(DEF.KEY_SORT_PRIORITY_WORD_02);
-		mPriorityWord03 = (EditTextPreference)getPreferenceScreen().findPreference(DEF.KEY_SORT_PRIORITY_WORD_03);
-		mPriorityWord04 = (EditTextPreference)getPreferenceScreen().findPreference(DEF.KEY_SORT_PRIORITY_WORD_04);
-		mPriorityWord05 = (EditTextPreference)getPreferenceScreen().findPreference(DEF.KEY_SORT_PRIORITY_WORD_05);
-		mPriorityWord06 = (EditTextPreference)getPreferenceScreen().findPreference(DEF.KEY_SORT_PRIORITY_WORD_06);
-		mPriorityWord07 = (EditTextPreference)getPreferenceScreen().findPreference(DEF.KEY_SORT_PRIORITY_WORD_07);
-		mPriorityWord08 = (EditTextPreference)getPreferenceScreen().findPreference(DEF.KEY_SORT_PRIORITY_WORD_08);
-		mPriorityWord09 = (EditTextPreference)getPreferenceScreen().findPreference(DEF.KEY_SORT_PRIORITY_WORD_09);
-		mPriorityWord10 = (EditTextPreference)getPreferenceScreen().findPreference(DEF.KEY_SORT_PRIORITY_WORD_10);
+	public static class SetCommonFragment extends PreferenceFragmentCompat implements OnSharedPreferenceChangeListener {
+		private ListPreference mRotateBtn;
+		private ListPreference mCharset;
 
-		// 項目選択
-		PreferenceScreen onlineHelp = (PreferenceScreen) findPreference(DEF.KEY_COMMHELP);
-		onlineHelp.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-			@Override
-			public boolean onPreferenceClick(Preference preference) {
-				// Activityの遷移
-				Resources res = getResources();
-				String url = res.getString(R.string.url_common);	// 設定画面
-				Intent intent;
-				intent = new Intent(SetCommonActivity.this, HelpActivity.class);
-				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-				intent.putExtra("Url", url);
-				startActivity(intent);
-				return true;
+		private EditTextPreference mPriorityWord01;
+		private EditTextPreference mPriorityWord02;
+		private EditTextPreference mPriorityWord03;
+		private EditTextPreference mPriorityWord04;
+		private EditTextPreference mPriorityWord05;
+		private EditTextPreference mPriorityWord06;
+		private EditTextPreference mPriorityWord07;
+		private EditTextPreference mPriorityWord08;
+		private EditTextPreference mPriorityWord09;
+		private EditTextPreference mPriorityWord10;
+
+		@Override
+		public void onCreatePreferences(@Nullable Bundle savedInstanceState, @Nullable String rootKey) {
+			setPreferencesFromResource(R.xml.common, rootKey);
+
+			mRotateBtn  = findPreference(DEF.KEY_ROTATEBTN);
+			mCharset    = findPreference(DEF.KEY_CHARSET);
+
+			mPriorityWord01 = findPreference(DEF.KEY_SORT_PRIORITY_WORD_01);
+			mPriorityWord02 = findPreference(DEF.KEY_SORT_PRIORITY_WORD_02);
+			mPriorityWord03 = findPreference(DEF.KEY_SORT_PRIORITY_WORD_03);
+			mPriorityWord04 = findPreference(DEF.KEY_SORT_PRIORITY_WORD_04);
+			mPriorityWord05 = findPreference(DEF.KEY_SORT_PRIORITY_WORD_05);
+			mPriorityWord06 = findPreference(DEF.KEY_SORT_PRIORITY_WORD_06);
+			mPriorityWord07 = findPreference(DEF.KEY_SORT_PRIORITY_WORD_07);
+			mPriorityWord08 = findPreference(DEF.KEY_SORT_PRIORITY_WORD_08);
+			mPriorityWord09 = findPreference(DEF.KEY_SORT_PRIORITY_WORD_09);
+			mPriorityWord10 = findPreference(DEF.KEY_SORT_PRIORITY_WORD_10);
+
+			// 項目選択
+			Preference onlineHelp = findPreference(DEF.KEY_COMMHELP);
+			if (onlineHelp != null) {
+				onlineHelp.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+					@Override
+					public boolean onPreferenceClick(@NonNull Preference preference) {
+						if (getActivity() == null) {
+							return false;
+						}
+						// Activityの遷移
+						Resources res = getResources();
+						String url = res.getString(R.string.url_common);	// 設定画面
+						Intent intent = new Intent(getActivity(), HelpActivity.class);
+						intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+						intent.putExtra("Url", url);
+						startActivity(intent);
+						return true;
+					}
+				});
 			}
-		});
-	}
-
-	@Override
-	protected void onResume() {
-		super.onResume();
-		SharedPreferences sharedPreferences = getPreferenceScreen().getSharedPreferences();
-		sharedPreferences.registerOnSharedPreferenceChangeListener(this);
-
-		mRotateBtn.setSummary(getRotateBtnSummary(sharedPreferences));	// 回転用ボタン
-		mCharset.setSummary(getCharsetSummary(sharedPreferences));		// 文字コード
-
-		mPriorityWord01.setSummary(sharedPreferences.getString(DEF.KEY_SORT_PRIORITY_WORD_01, ""));
-		mPriorityWord02.setSummary(sharedPreferences.getString(DEF.KEY_SORT_PRIORITY_WORD_02, ""));
-		mPriorityWord03.setSummary(sharedPreferences.getString(DEF.KEY_SORT_PRIORITY_WORD_03, ""));
-		mPriorityWord04.setSummary(sharedPreferences.getString(DEF.KEY_SORT_PRIORITY_WORD_04, ""));
-		mPriorityWord05.setSummary(sharedPreferences.getString(DEF.KEY_SORT_PRIORITY_WORD_05, ""));
-		mPriorityWord06.setSummary(sharedPreferences.getString(DEF.KEY_SORT_PRIORITY_WORD_06, ""));
-		mPriorityWord07.setSummary(sharedPreferences.getString(DEF.KEY_SORT_PRIORITY_WORD_07, ""));
-		mPriorityWord08.setSummary(sharedPreferences.getString(DEF.KEY_SORT_PRIORITY_WORD_08, ""));
-		mPriorityWord09.setSummary(sharedPreferences.getString(DEF.KEY_SORT_PRIORITY_WORD_09, ""));
-		mPriorityWord10.setSummary(sharedPreferences.getString(DEF.KEY_SORT_PRIORITY_WORD_10, ""));
-	}
-
-	@Override
-	protected void onPause() {
-		super.onPause();
-		getPreferenceScreen().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
-
-	}
-
-	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-
-		if(key.equals(DEF.KEY_ROTATEBTN)){
-			//
-			mRotateBtn.setSummary(getRotateBtnSummary(sharedPreferences));
-		}
-		else if(key.equals(DEF.KEY_CHARSET)){
-			//
-			mCharset.setSummary(getCharsetSummary(sharedPreferences));
 		}
 
-		else if(key.equals(DEF.KEY_SORT_PRIORITY_WORD_01)){
-			mPriorityWord01.setSummary(sharedPreferences.getString(DEF.KEY_SORT_PRIORITY_WORD_01, ""));
+		@Override
+		public void onResume() {
+			super.onResume();
+			SharedPreferences sharedPreferences = getPreferenceScreen().getSharedPreferences();
+			if (sharedPreferences != null) {
+				sharedPreferences.registerOnSharedPreferenceChangeListener(this);
+
+				if (mRotateBtn != null) mRotateBtn.setSummary(getRotateBtnSummary(sharedPreferences));
+				if (mCharset != null) mCharset.setSummary(getCharsetSummary(sharedPreferences));
+
+				if (mPriorityWord01 != null) mPriorityWord01.setSummary(sharedPreferences.getString(DEF.KEY_SORT_PRIORITY_WORD_01, ""));
+				if (mPriorityWord02 != null) mPriorityWord02.setSummary(sharedPreferences.getString(DEF.KEY_SORT_PRIORITY_WORD_02, ""));
+				if (mPriorityWord03 != null) mPriorityWord03.setSummary(sharedPreferences.getString(DEF.KEY_SORT_PRIORITY_WORD_03, ""));
+				if (mPriorityWord04 != null) mPriorityWord04.setSummary(sharedPreferences.getString(DEF.KEY_SORT_PRIORITY_WORD_04, ""));
+				if (mPriorityWord05 != null) mPriorityWord05.setSummary(sharedPreferences.getString(DEF.KEY_SORT_PRIORITY_WORD_05, ""));
+				if (mPriorityWord06 != null) mPriorityWord06.setSummary(sharedPreferences.getString(DEF.KEY_SORT_PRIORITY_WORD_06, ""));
+				if (mPriorityWord07 != null) mPriorityWord07.setSummary(sharedPreferences.getString(DEF.KEY_SORT_PRIORITY_WORD_07, ""));
+				if (mPriorityWord08 != null) mPriorityWord08.setSummary(sharedPreferences.getString(DEF.KEY_SORT_PRIORITY_WORD_08, ""));
+				if (mPriorityWord09 != null) mPriorityWord09.setSummary(sharedPreferences.getString(DEF.KEY_SORT_PRIORITY_WORD_09, ""));
+				if (mPriorityWord10 != null) mPriorityWord10.setSummary(sharedPreferences.getString(DEF.KEY_SORT_PRIORITY_WORD_10, ""));
+			}
 		}
-		else if(key.equals(DEF.KEY_SORT_PRIORITY_WORD_02)){
-			mPriorityWord01.setSummary(sharedPreferences.getString(DEF.KEY_SORT_PRIORITY_WORD_02, ""));
+
+		@Override
+		public void onPause() {
+			super.onPause();
+			SharedPreferences sharedPreferences = getPreferenceScreen().getSharedPreferences();
+			if (sharedPreferences != null) {
+				sharedPreferences.unregisterOnSharedPreferenceChangeListener(this);
+			}
 		}
-		else if(key.equals(DEF.KEY_SORT_PRIORITY_WORD_03)){
-			mPriorityWord01.setSummary(sharedPreferences.getString(DEF.KEY_SORT_PRIORITY_WORD_03, ""));
+
+		@Override
+		public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+			if (key == null) return;
+			if (key.equals(DEF.KEY_ROTATEBTN)) {
+				if (mRotateBtn != null) mRotateBtn.setSummary(getRotateBtnSummary(sharedPreferences));
+			} else if (key.equals(DEF.KEY_CHARSET)) {
+				if (mCharset != null) mCharset.setSummary(getCharsetSummary(sharedPreferences));
+			} else if (key.equals(DEF.KEY_SORT_PRIORITY_WORD_01)) {
+				if (mPriorityWord01 != null) mPriorityWord01.setSummary(sharedPreferences.getString(DEF.KEY_SORT_PRIORITY_WORD_01, ""));
+			} else if (key.equals(DEF.KEY_SORT_PRIORITY_WORD_02)) {
+				if (mPriorityWord02 != null) mPriorityWord02.setSummary(sharedPreferences.getString(DEF.KEY_SORT_PRIORITY_WORD_02, ""));
+			} else if (key.equals(DEF.KEY_SORT_PRIORITY_WORD_03)) {
+				if (mPriorityWord03 != null) mPriorityWord03.setSummary(sharedPreferences.getString(DEF.KEY_SORT_PRIORITY_WORD_03, ""));
+			} else if (key.equals(DEF.KEY_SORT_PRIORITY_WORD_04)) {
+				if (mPriorityWord04 != null) mPriorityWord04.setSummary(sharedPreferences.getString(DEF.KEY_SORT_PRIORITY_WORD_04, ""));
+			} else if (key.equals(DEF.KEY_SORT_PRIORITY_WORD_05)) {
+				if (mPriorityWord05 != null) mPriorityWord05.setSummary(sharedPreferences.getString(DEF.KEY_SORT_PRIORITY_WORD_05, ""));
+			} else if (key.equals(DEF.KEY_SORT_PRIORITY_WORD_06)) {
+				if (mPriorityWord06 != null) mPriorityWord06.setSummary(sharedPreferences.getString(DEF.KEY_SORT_PRIORITY_WORD_06, ""));
+			} else if (key.equals(DEF.KEY_SORT_PRIORITY_WORD_07)) {
+				if (mPriorityWord07 != null) mPriorityWord07.setSummary(sharedPreferences.getString(DEF.KEY_SORT_PRIORITY_WORD_07, ""));
+			} else if (key.equals(DEF.KEY_SORT_PRIORITY_WORD_08)) {
+				if (mPriorityWord08 != null) mPriorityWord08.setSummary(sharedPreferences.getString(DEF.KEY_SORT_PRIORITY_WORD_08, ""));
+			} else if (key.equals(DEF.KEY_SORT_PRIORITY_WORD_09)) {
+				if (mPriorityWord09 != null) mPriorityWord09.setSummary(sharedPreferences.getString(DEF.KEY_SORT_PRIORITY_WORD_09, ""));
+			} else if (key.equals(DEF.KEY_SORT_PRIORITY_WORD_10)) {
+				if (mPriorityWord10 != null) mPriorityWord10.setSummary(sharedPreferences.getString(DEF.KEY_SORT_PRIORITY_WORD_10, ""));
+			}
 		}
-		else if(key.equals(DEF.KEY_SORT_PRIORITY_WORD_04)){
-			mPriorityWord01.setSummary(sharedPreferences.getString(DEF.KEY_SORT_PRIORITY_WORD_04, ""));
-		}
-		else if(key.equals(DEF.KEY_SORT_PRIORITY_WORD_05)){
-			mPriorityWord01.setSummary(sharedPreferences.getString(DEF.KEY_SORT_PRIORITY_WORD_05, ""));
-		}
-		else if(key.equals(DEF.KEY_SORT_PRIORITY_WORD_06)){
-			mPriorityWord01.setSummary(sharedPreferences.getString(DEF.KEY_SORT_PRIORITY_WORD_06, ""));
-		}
-		else if(key.equals(DEF.KEY_SORT_PRIORITY_WORD_07)){
-			mPriorityWord01.setSummary(sharedPreferences.getString(DEF.KEY_SORT_PRIORITY_WORD_07, ""));
-		}
-		else if(key.equals(DEF.KEY_SORT_PRIORITY_WORD_08)){
-			mPriorityWord01.setSummary(sharedPreferences.getString(DEF.KEY_SORT_PRIORITY_WORD_08, ""));
-		}
-		else if(key.equals(DEF.KEY_SORT_PRIORITY_WORD_09)){
-			mPriorityWord01.setSummary(sharedPreferences.getString(DEF.KEY_SORT_PRIORITY_WORD_09, ""));
-		}
-		else if(key.equals(DEF.KEY_SORT_PRIORITY_WORD_10)){
-			mPriorityWord01.setSummary(sharedPreferences.getString(DEF.KEY_SORT_PRIORITY_WORD_10, ""));
+
+		private String getRotateBtnSummary(SharedPreferences sharedPreferences){
+			int val = getRotateBtn(sharedPreferences);
+			Resources res = getResources();
+			return res.getString(RotateBtnName[val]);
 		}
 	}
 
@@ -200,14 +187,7 @@ public class SetCommonActivity extends PreferenceActivity implements OnSharedPre
 		return flag;
 	}
 
-	// 設定の読込(定義変更中)
-	private String getRotateBtnSummary(SharedPreferences sharedPreferences){
-		int val = getRotateBtn(sharedPreferences);
-		Resources res = getResources();
-		return res.getString(RotateBtnName[val]);
-	}
-
-	private static String getCharsetSummary(SharedPreferences sharedPreferences){
+	public static String getCharsetSummary(SharedPreferences sharedPreferences){
 		int val = getCharset(sharedPreferences);
 		return DEF.CharsetList[val];
 	}
@@ -271,9 +251,5 @@ public class SetCommonActivity extends PreferenceActivity implements OnSharedPre
 
 		Logcat.d(logLevel, "DEF.PRIORITY_WORDS=" + Arrays.toString(DEF.PRIORITY_WORDS));
 	}
-	// 終了処理
-	protected void onDestroy() {
-		super.onDestroy();
-		loadSettings(getPreferenceScreen().getSharedPreferences());
-	}
 }
+

@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.graphics.Typeface;
-import android.preference.DialogPreference;
 import androidx.preference.PreferenceManager;
 import android.util.AttributeSet;
 import android.view.View;
@@ -15,7 +14,7 @@ import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-public class ThumbnailPreference extends DialogPreference implements SeekBar.OnSeekBarChangeListener {
+public class ThumbnailPreference extends CustomDialogPreference implements SeekBar.OnSeekBarChangeListener {
 	private static SharedPreferences mSP;
 	private Context mContext;
 	private TextView mMsgView;
