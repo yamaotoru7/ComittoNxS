@@ -39,8 +39,26 @@ int			gThImageNum = 0;	// 表示するイメージの数
 
 THUMBINFO	*gThImageMng = nullptr;	// イメージ管理(最大イメージ数分)
 
-bool gThMutexInit = false;
-pthread_mutex_t gThMutex;  // Mutex
+// 再帰 mutex. 静的に初期化するので ThumbnailAlloc より前に呼ばれても安全
+pthread_mutex_t gThMutex = PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP;
+
+namespace {
+// スコープを抜けるときに gThMutex を解放する
+struct ThLock {
+	ThLock() { pthread_mutex_lock(&gThMutex); }
+	~ThLock() { pthread_mutex_unlock(&gThMutex); }
+	ThLock(const ThLock &) = delete;
+	ThLock &operator=(const ThLock &) = delete;
+};
+
+// 1 ブロックに入る行数. 幅が不正なら 0
+int ThumbLinesPerBlock(int width) {
+	if (width <= 0 || width * (int)sizeof(WORD) > THUMB_BLOCKSIZE) {
+		return 0;
+	}
+	return THUMB_BLOCKSIZE / (width * (int)sizeof(WORD));
+}
+}
 
 void ThumbnailImageFree(int index);
 //void CountLog(const char*);
@@ -49,16 +67,6 @@ void ThumbnailImageFree(int index);
 int ThumbnailAlloc(long long id, int pagesize, int pagenum, int imagenum)
 {
 	int ret = 0;
-
-	if (!gThMutexInit) {
-//		LOGD("ThumbnailInitialize : Mutex Init");
-		// mutex 作成
-		pthread_mutexattr_t attr;
-		pthread_mutexattr_init(&attr);
-		pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE_NP);
-		pthread_mutex_init(&gThMutex, &attr);
-		gThMutexInit = true;
-	}
 
 //	LOGD("ThumbnailAlloc : Mutex Lock/Pre");
 	pthread_mutex_lock(&gThMutex);
@@ -162,6 +170,7 @@ ERROREND:
 
 int ThumbnailCheck(long long id, int index)
 {
+	ThLock lock;
 	// IDの一致チェック
 	if (gThumbnailId != id) {
 		// 初期化したIDと異なる
@@ -174,6 +183,9 @@ int ThumbnailCheck(long long id, int index)
 		return -2;
 	}
 
+	if (index < 0 || index >= gThImageNum) {
+		return -3;
+	}
 //	LOGD("ThumbnailCheck : index=%d, blockindex=%d", index, gThImageMng[index].BlockIndex);
 	if (gThImageMng[index].BlockIndex == -1) {
 		return 0;
@@ -186,6 +198,7 @@ int ThumbnailCheck(long long id, int index)
 
 int ThumbnailSetNone(long long id, int index)
 {
+	ThLock lock;
 	// IDの一致チェック
 	if (gThumbnailId != id) {
 		// 初期化したIDと異なる
@@ -198,6 +211,9 @@ int ThumbnailSetNone(long long id, int index)
 		return -2;
 	}
 
+	if (index < 0 || index >= gThImageNum) {
+		return -3;
+	}
 //	LOGD("ThumbnailSetNone : index=%d, blockindex=%d->-2", index, gThImageMng[index].BlockIndex);
 	gThImageMng[index].BlockIndex = -2;
 	return 0;
@@ -205,6 +221,7 @@ int ThumbnailSetNone(long long id, int index)
 
 int ThumbnailCheckAll(long long id)
 {
+	ThLock lock;
 	// IDの一致チェック
 	if (gThumbnailId != id) {
 		// 初期化したIDと異なる
@@ -228,6 +245,7 @@ int ThumbnailCheckAll(long long id)
 
 int ThumbnailMemorySizeCheck(long long id, int bmp_width, int bmp_height)
 {
+	ThLock lock;
 #ifdef DEBUG
 	LOGD("ThumbnailMemorySizeCheck : id=%lld, width=%d, height=%d", id, bmp_width, bmp_height);
 #endif
@@ -244,7 +262,11 @@ int ThumbnailMemorySizeCheck(long long id, int bmp_width, int bmp_height)
 	}
 
 	// 何ブロック必要か
-	int lines = THUMB_BLOCKSIZE / (bmp_width * sizeof(WORD));
+	int lines = ThumbLinesPerBlock(bmp_width);
+	if (lines <= 0 || bmp_height <= 0 || bmp_height > 0x7fff) {
+		// 保存できないサイズ (幅が 0 やブロックより広い、高さが short を超える)
+		return -3;
+	}
 	int blocks = (bmp_height + (lines - 1)) / lines;
 
 //	LOGD("ThumbnailMemorySizeCheck: blocknum=%d, usenum=%d, chknum=%d, lines=%d", gThBlockNum, gThUseBlockNum, blocks, lines);
@@ -256,6 +278,7 @@ int ThumbnailMemorySizeCheck(long long id, int bmp_width, int bmp_height)
 
 int ThumbnailImageAlloc(long long id, int blocks, int index)
 {
+	ThLock lock;
 #ifdef DEBUG
 	LOGD("ThumbnailImageAlloc : id = %lld, blocks=%d, index=%d", id, blocks, index);
 #endif
@@ -388,7 +411,11 @@ int ThumbnailSave(long long id, int index, int bmp_width, int bmp_height, int bm
 	gThImageMng[index].Height = bmp_height;
 
 	// ブロックに何行入るか
-	linenum = THUMB_BLOCKSIZE / (bmp_width * sizeof(WORD));
+	linenum = ThumbLinesPerBlock(bmp_width);
+	if (linenum <= 0 || bmp_stride < bmp_width * (int)sizeof(WORD)) {
+		ret = -5;
+		goto ERROREND;
+	}
 	// 何ブロック必要か
 	blocknum = (bmp_height + (linenum - 1)) / linenum;
 	count = 0;
@@ -459,6 +486,7 @@ ERROREND:
 
 int ThumbnailRemove(long long id, int index)
 {
+    ThLock lock;
     int ret = 0;
 
     // IDの一致チェック
@@ -488,6 +516,7 @@ ERROREND:
 
 int ThumbnailImageSize(long long id, int index)
 {
+    ThLock lock;
 #ifdef DEBUG
     LOGD("ImageThumbnail: ThumbnailImageSize: 開始します. id=%lld, index=%d", id, index);
 #endif
@@ -560,7 +589,11 @@ int ThumbnailDraw(long long id, int index, int bmp_width, int bmp_height, int bm
 	height = gThImageMng[index].Height;
 
 	// ブロックに何行入るか
-	linenum = THUMB_BLOCKSIZE / (width * sizeof(WORD));
+	linenum = ThumbLinesPerBlock(width);
+	if (linenum <= 0) {
+		ret = -5;
+		goto ERROREND;
+	}
 
 //	LOGD("ThumbnailDraw : idx=%d, w=%d, h=%d, iw=%d, ih=%d, st=%d", index, width, height, bmp_width, bmp_height, bmp_stride);
 
@@ -583,7 +616,8 @@ int ThumbnailDraw(long long id, int index, int bmp_width, int bmp_height, int bm
 			nextindex = gThBlockMng[nextindex];
 			linecount = 0;
 		}
-		memcpy (pos, buff, linesize);
+		// 描画先の 1 行より長くコピーしない
+		memcpy (pos, buff, linesize < bmp_stride ? linesize : bmp_stride);
 		pos += bmp_stride;
 		buff += linesize;
 		linecount ++;

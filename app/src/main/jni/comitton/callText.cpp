@@ -56,12 +56,14 @@ JNIEXPORT jint JNICALL Java_src_comitton_jni_CallTxtLibrary_SetTextImage (JNIEnv
 	if (gTextImageSize != size) {
         // メモリ再獲得
 		if (TextImagesAlloc(size) != 0) {
+			AndroidBitmap_unlockPixels(env, bitmap);
 			return -5;
 		}
 	}
 
 	int index = TextImageGetFree(current_page);
 	if (index == -1) {
+		AndroidBitmap_unlockPixels(env, bitmap);
 		return -6;
 	}
 

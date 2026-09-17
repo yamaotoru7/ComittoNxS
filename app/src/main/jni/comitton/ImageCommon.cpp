@@ -170,6 +170,24 @@ int DrawScaleBitmap(int index, int page, int rotate, int s_x, int s_y, int s_cx,
 	if (pData->UseFlag == 0) {
 		return -5;
 	}
+	if (pData->OrgWidth <= 0 || pData->OrgHeight <= 0) {
+		return -5;
+	}
+
+	// 描画先はビットマップの範囲に収める (1 行あたり d_cx 画素、d_cy 行を書く. psel では d_cx 行)
+	int maxColumns = stride / (int)sizeof(LONG);
+	if (psel == 0) {
+		if (d_cx > maxColumns) d_cx = maxColumns;
+		if (d_cy > height) d_cy = height;
+	}
+	else {
+		if (d_cx > maxColumns) d_cx = maxColumns;
+		if (d_cx > height) d_cx = height;
+	}
+	if (d_cx <= 0 || d_cy <= 0) {
+		// 描画する範囲がない (ゼロ除算も避ける)
+		return 0;
+	}
 
 	int buffpos = 0;
 	int linesize = (pData->OrgWidth + HOKAN_DOTS);

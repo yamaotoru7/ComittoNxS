@@ -988,6 +988,11 @@ JNIEXPORT jint JNICALL Java_src_comitton_jni_CallImgLibrary_ImageScaleDraw (JNIE
 		LOGE("callImage: ImageScaleDraw : AndroidBitmap_getInfo() failed ! error=%d", ret);
 		return -3;
 	}
+	if (info.format != ANDROID_BITMAP_FORMAT_RGBA_8888) {
+		// 1 画素 4 バイトで書き込むため
+		LOGE("callImage: ImageScaleDraw : unsupported bitmap format=%d", info.format);
+		return -4;
+	}
 
 	if ((ret = AndroidBitmap_lockPixels(env, bitmap, &canvas)) < 0) {
 		LOGE("callImage: ImageScaleDraw : AndroidBitmap_lockPixels() failed ! error=%d", ret);

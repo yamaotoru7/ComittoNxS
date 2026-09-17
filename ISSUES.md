@@ -69,10 +69,10 @@ lint (`:app:lintDebug`) とユニットテスト (`:app:testDebugUnitTest`) の�
 | B-23 | 中 | `expandview/ExpandFileStatusLoader.java:88-103, 270-297` | 別スレッドから `mTextMgr` を null にして意図的に例外を起こしキャンセルしている。`setBreakTrigger` + interrupt に置き換える。 | 未対応 | |
 | B-24 | 中 | `textview/TextActivity.java:427-460, 672-678, 2509-2556` | intent extras を null チェック前に参照。`mPath == null` で半初期化のまま `TextLoad` が走る。`reloadText` が読込中でも二重起動する。 | 対応済 | Path / Text が無ければ画面を閉じ、Uri / File / User / Pass の null は空文字に補正する。起動に失敗した画面ではフォーカス取得時に読み込みを始めない。reloadText は読み込み中や読み込み失敗時には何もしない。 |
 | B-25 | 中 | `dialog/PageSelectDialog.java:35`, `dialog/PageThumbnail.java:26`, `common/ThumbnailLoader.java:60-84, 317-350`, `fileview/filelist/FileSelectList.java:54`, `RecordList.java:61` | static な可変状態 (`mIsOpened`、ローダーの設定値、Activity 参照)。並行ローダー間で上書きされ、Activity が静的に保持される (lint StaticFieldLeak)。 | 未対応 | |
-| B-26 | 中 | `jni/comitton/callText.cpp:56-66` | `SetTextImage` が `-5`/`-6` で戻るときに `AndroidBitmap_unlockPixels` していない。 | 未対応 | |
+| B-26 | 中 | `jni/comitton/callText.cpp:56-66` | `SetTextImage` が `-5`/`-6` で戻るときに `AndroidBitmap_unlockPixels` していない。 | 対応済 | -5 / -6 で戻る前にビットマップのロックを解除する。 |
 | B-27 | 中 | `jni/comitton/callUnrar.cpp:92, 191`, `ImageManager.java:1028` | 辞書サイズ固定 4MB・非 solid 前提・`version=50` 固定のため、大辞書 RAR5 や RAR7 のエントリが無警告で壊れる。 | 対応済 | A-14 で対応。RAR5 / RAR7 の辞書サイズとアルゴリズム版をヘッダから取得し、エントリごとに展開器を初期化する。 |
-| B-28 | 中 | `jni/comitton/ImageCommon.cpp:151-322`, `callImage.cpp:957-1002` | `DrawScaleBitmap` が矩形をビットマップに対して検証せず、`d_cx/d_cy == 0` でゼロ除算。フォーマットチェックなし。 | 未対応 | |
-| B-29 | 中 | `jni/comitton/ImageThumbnail.cpp:178, 202, 247-248, 391-393, 563, 586` | `bmp_width` が 0 または 4096 超でゼロ除算。`ThumbnailDraw` が保存幅で行コピーし小さい描画先を越える。一部関数に index 境界チェックなし。mutex 外でのアクセス。 | 未対応 | |
+| B-28 | 中 | `jni/comitton/ImageCommon.cpp:151-322`, `callImage.cpp:957-1002` | `DrawScaleBitmap` が矩形をビットマップに対して検証せず、`d_cx/d_cy == 0` でゼロ除算。フォーマットチェックなし。 | 対応済 | JNI 側でビットマップが RGBA_8888 かを確認し、DrawScaleBitmap では描画幅・行数をビットマップの幅 (stride) と高さに収め、0 以下なら何もしない (ゼロ除算回避)。 |
+| B-29 | 中 | `jni/comitton/ImageThumbnail.cpp:178, 202, 247-248, 391-393, 563, 586` | `bmp_width` が 0 または 4096 超でゼロ除算。`ThumbnailDraw` が保存幅で行コピーし小さい描画先を越える。一部関数に index 境界チェックなし。mutex 外でのアクセス。 | 対応済 | 幅が 0 または 1 ブロックより広い画像、高さが short を超える画像は保存しない (ゼロ除算と格納あふれの回避)。描画時は描画先の 1 行より長くコピーしない。ThumbnailCheck / SetNone に範囲チェックを追加。mutex を静的初期化にし、管理情報を触る関数はすべてロックを取る。 |
 | B-30 | 中 | `ImageManager.java:2253, 4987` | `mDataSize == 0` でゼロ除算。キャッシュスレッドで非チェック例外となりプロセスが落ちる。 | 対応済 | 進捗計算でデータサイズが 0 のときは 0% とする。 |
 | B-31 | 中 | `textview/TextManager.java:6030-6049, 6185-6231` | `loadBitmap` で例外時に `WorkStream` を閉じない。`searchText` が `release()` 後に NPE し、`substring().equals` の O(n·m) 割り当て。 | 対応済 | 画像サイズ取得で例外時も WorkStream を閉じる。searchText は解放済み・空文字で何もせず、照合を部分文字列の生成なしで行う。 |
 
