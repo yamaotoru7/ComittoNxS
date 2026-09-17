@@ -2,19 +2,15 @@ package src.comitton.fileaccess;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.util.Log;
+import android.system.ErrnoException;
+import android.system.OsConstants;
 
 import androidx.annotation.NonNull;
 
 import java.io.IOException;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 
 import jcifs.smb.SmbException;
 import jcifs.smb.SmbRandomAccessFile;
-import src.comitton.common.DEF;
 import src.comitton.common.Logcat;
 import src.comitton.common.BackgroundExecutor;
 
@@ -37,81 +33,54 @@ public class SambaProxyFileCallback extends StorageManagerCompat.ProxyFileDescri
     }
 
     @Override
-    public long onGetSize() {
-        int logLevel = Logcat.LOG_LEVEL_WARN;
+    public long onGetSize() throws ErrnoException {
+        final SmbRandomAccessFile file = openedFile("onGetSize");
         try {
-          return mSmbRandomAccessFile.length();
+            return BackgroundExecutor.callOffUiThread(TAG, file::length);
         } catch (IOException e) {
-          Logcat.e(logLevel,"Get File Size Error.", e);
+            Logcat.e(Logcat.LOG_LEVEL_WARN, "Get File Size Error.", e);
+            throw new ErrnoException("onGetSize", OsConstants.EIO);
         }
-        return 0;
     }
 
     @Override
-    public int onRead(long offset, int size, byte[] data) {
-        int logLevel = Logcat.LOG_LEVEL_WARN;
+    public int onRead(long offset, int size, byte[] data) throws ErrnoException {
+        final SmbRandomAccessFile file = openedFile("onRead");
         try {
-            if (!DEF.isUiThread()) {
-                // UIスレッドではない時はそのまま実行
-                mSmbRandomAccessFile.seek(offset);
-                return mSmbRandomAccessFile.read(data, 0, size);
-            } else {
-                // UIスレッドの時は新しいスレッド内で実行
-                ExecutorService executor = BackgroundExecutor.get();
-                Future<Integer> future = executor.submit(new Callable<Integer>() {
-
-                    @Override
-                    public Integer call() throws SmbException {
-                        mSmbRandomAccessFile.seek(offset);
-                        return mSmbRandomAccessFile.read(data, 0, size);
-                    }
-                });
-
-                try {
-                    return future.get(BackgroundExecutor.UI_WAIT_TIMEOUT_SEC, TimeUnit.SECONDS);
-                } catch (Exception e) {
-                    Logcat.e(logLevel, "File read error. ", e);
-                    return 0;
-                }
-            }
+            return BackgroundExecutor.callOffUiThread(TAG, () -> {
+                file.seek(offset);
+                return file.read(data, 0, size);
+            });
         } catch (IOException e) {
-          Logcat.e(logLevel,"File Read Error.", e);
+            Logcat.e(Logcat.LOG_LEVEL_WARN, "File Read Error.", e);
+            throw new ErrnoException("onRead", OsConstants.EIO);
         }
-      return 0;
     }
 
     @Override
-    public int onWrite(long offset, int size, byte[] data) {
-        int logLevel = Logcat.LOG_LEVEL_WARN;
+    public int onWrite(long offset, int size, byte[] data) throws ErrnoException {
+        final SmbRandomAccessFile file = openedFile("onWrite");
         try {
-            if (!DEF.isUiThread()) {
-                // UIスレッドではない時はそのまま実行
-                mSmbRandomAccessFile.seek(offset);
-                mSmbRandomAccessFile.write(data, 0, size);
-            } else {
-                // UIスレッドの時は新しいスレッド内で実行
-                ExecutorService executor = BackgroundExecutor.get();
-                Future<Integer> future = executor.submit(new Callable<Integer>() {
-
-                    @Override
-                    public Integer call() throws SmbException {
-                        mSmbRandomAccessFile.seek(offset);
-                        mSmbRandomAccessFile.write(data, 0, size);
-                        return size;
-                    }
-                });
-
-                try {
-                    return future.get(BackgroundExecutor.UI_WAIT_TIMEOUT_SEC, TimeUnit.SECONDS);
-                } catch (Exception e) {
-                    Logcat.e(logLevel, "File read error. ", e);
-                    return 0;
-                }
-            }
+            // 以前は失敗しても書けたことにしていた
+            return BackgroundExecutor.callOffUiThread(TAG, () -> {
+                file.seek(offset);
+                file.write(data, 0, size);
+                return size;
+            });
         } catch (IOException e) {
-            Logcat.e(logLevel, "File Read Error.", e);
+            Logcat.e(Logcat.LOG_LEVEL_WARN, "File Write Error.", e);
+            throw new ErrnoException("onWrite", OsConstants.EIO);
         }
-        return size;
+    }
+
+    /** コンストラクタで開けなかった場合は EBADF */
+    @NonNull
+    private SmbRandomAccessFile openedFile(@NonNull String function) throws ErrnoException {
+        SmbRandomAccessFile file = mSmbRandomAccessFile;
+        if (file == null) {
+            throw new ErrnoException(function, OsConstants.EBADF);
+        }
+        return file;
     }
 
     @Override
@@ -121,17 +90,16 @@ public class SambaProxyFileCallback extends StorageManagerCompat.ProxyFileDescri
 
     @Override
     public void onRelease() {
-        int logLevel = Logcat.LOG_LEVEL_WARN;
+        final SmbRandomAccessFile file = mSmbRandomAccessFile;
+        if (file == null) {
+            return;
+        }
         // 非同期処理にする
-        ExecutorService executor = BackgroundExecutor.get();
-        executor.submit(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    mSmbRandomAccessFile.close();
-                } catch (SmbException e) {
-                    Logcat.e(logLevel, "File Release Error.", e);
-                }
+        BackgroundExecutor.execute(() -> {
+            try {
+                file.close();
+            } catch (SmbException e) {
+                Logcat.e(Logcat.LOG_LEVEL_WARN, "File Release Error.", e);
             }
         });
     }

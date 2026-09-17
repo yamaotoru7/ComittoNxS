@@ -1,6 +1,5 @@
 package src.comitton.fileaccess;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.os.Handler;
 import android.os.ParcelFileDescriptor;
@@ -17,10 +16,6 @@ import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Properties;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 
 import jcifs.CIFSContext;
 import jcifs.CIFSException;
@@ -302,8 +297,6 @@ public class SmbFileAccess {
 	public static SmbRandomAccessFile openRandomAccessFile(@NonNull final String uri, @NonNull final String user, @NonNull final String pass, @NonNull final String mode) throws FileAccessException {
 		int logLevel = Logcat.LOG_LEVEL_WARN;
 		Logcat.d(logLevel, "uri=" + uri + ", user=" + user);
-		//if (debug) {DEF.StackTrace(TAG, "smbAccessFile: ");}
-		SmbRandomAccessFile stream;
 		try {
 			if (!exists(uri, user, pass)) {
 				throw new FileAccessException(TAG + ": smbAccessFile: File not found.");
@@ -312,36 +305,13 @@ public class SmbFileAccess {
 			throw new FileAccessException(TAG + ": smbAccessFile: File not found.");
 		}
 
-		if (!DEF.isUiThread()) {
-			// UIスレッドではない時はそのまま実行
-			SmbFile sfile = smbFile(uri, user, pass);
-            try {
-                stream = new SmbRandomAccessFile(sfile, mode);
-            } catch (SmbException e) {
-				throw new FileAccessException(TAG + ": smbAccessFile: Can not get SmbRandomAccessFile.");
-            }
-        } else {
-			// UIスレッドの時は新しいスレッド内で実行
-			DEF.warnUiThreadIo("SmbFileAccess");
-			ExecutorService executor = BackgroundExecutor.get();
-			Future<SmbRandomAccessFile> future = executor.submit(new Callable<SmbRandomAccessFile>() {
-
-				@Override
-				public SmbRandomAccessFile call() throws SmbException, MalformedURLException, FileAccessException {
-					SmbFile sfile = smbFile(uri, user, pass);
-					return new SmbRandomAccessFile(sfile, "r");
-				}
-			});
-
-			try {
-				stream = future.get(BackgroundExecutor.UI_WAIT_TIMEOUT_SEC, TimeUnit.SECONDS);
-			} catch (Exception e) {
-				Logcat.e(logLevel, "Can not get SmbRandomAccessFile.", e);
-				throw new FileAccessException(TAG + ": smbAccessFile: Can not get SmbRandomAccessFile.");
-			}
+		try {
+			// 以前は UI スレッドから呼ばれたときだけ mode を無視して "r" で開いていた
+			return BackgroundExecutor.callOffUiThread(TAG, () -> new SmbRandomAccessFile(smbFile(uri, user, pass), mode));
+		} catch (IOException e) {
+			Logcat.e(logLevel, "Can not get SmbRandomAccessFile.", e);
+			throw new FileAccessException(TAG + ": smbAccessFile: Can not get SmbRandomAccessFile.");
 		}
-
-		return stream;
 	}
 
 	public static SmbFileInputStream getInputStream(@NonNull final String uri, @NonNull final String user, @NonNull final String pass) throws FileAccessException {
@@ -372,292 +342,132 @@ public class SmbFileAccess {
 		}
 	}
 
+	/** FileAccessException はそのまま、それ以外は操作名を付けて包む */
+	private static FileAccessException toFileAccessException(@NonNull String op, @NonNull IOException e) {
+		if (e instanceof FileAccessException) {
+			return (FileAccessException) e;
+		}
+		return new FileAccessException(TAG + ": " + op + ": " + e.getLocalizedMessage());
+	}
+
 	// ファイル存在チェック
 	public static boolean exists(@NonNull final String uri, @NonNull final String user, @NonNull final String pass) throws FileAccessException {
 		int logLevel = Logcat.LOG_LEVEL_WARN;
 		Logcat.d(logLevel, "uri=" + uri + ", user=" + user);
-		boolean result = false;
-
-		if (!DEF.isUiThread()) {
-			// UIスレッドではない時はそのまま実行
-			SmbFile orgfile;
-			orgfile = SmbFileAccess.smbFile(uri, user, pass);
-
-			try {
-				result = orgfile.exists();
-			} catch (SmbException e) {
-				throw new FileAccessException(TAG + ": exists: " + e.getLocalizedMessage());
-			}
-			return result;
-
-		} else {
-			// UIスレッドの時は新しいスレッド内で実行
-			DEF.warnUiThreadIo("SmbFileAccess");
-			ExecutorService executor = BackgroundExecutor.get();
-			Future<Boolean> future = executor.submit(new Callable<Boolean>() {
-
-				@Override
-				public Boolean call() throws FileAccessException {
-					SmbFile orgfile;
-					boolean result = false;
-					orgfile = SmbFileAccess.smbFile(uri, user, pass);
-					try {
-						result = orgfile.exists();
-					} catch (SmbException e) {
-						throw new FileAccessException(TAG + ": exists: " + e.getLocalizedMessage());
-					}
-					return result;
-				}
-			});
-
-			try {
-				result = future.get(BackgroundExecutor.UI_WAIT_TIMEOUT_SEC, TimeUnit.SECONDS);
-			} catch (Exception e) {
-				Logcat.e(logLevel, "", e);
-				throw new FileAccessException(TAG + ": exists: " + e.getLocalizedMessage());
-			}
+		try {
+			return BackgroundExecutor.callOffUiThread(TAG, () -> smbFile(uri, user, pass).exists());
+		} catch (IOException e) {
+			Logcat.e(logLevel, "", e);
+			throw toFileAccessException("exists", e);
 		}
-
-		return result;
 	}
 
 	public static boolean isDirectory(@NonNull final String uri, @NonNull final String user, @NonNull final String pass) {
 		int logLevel = Logcat.LOG_LEVEL_WARN;
 		Logcat.d(logLevel, "開始します. uri=" + uri);
-		boolean result = false;
-
-		// SMBの場合
-		if (!DEF.isUiThread()) {
-			// UIスレッドではない時はそのまま実行
-			try {
-				SmbFile orgfile = SmbFileAccess.smbFile(uri, user, pass);
-				result = orgfile.isDirectory();
-			} catch (IOException e) {
-				result = false;
-			}
-		} else {
-			// UIスレッドの時は新しいスレッド内で実行
-			DEF.warnUiThreadIo("SmbFileAccess");
-			ExecutorService executor = BackgroundExecutor.get();
-			Future<Boolean> future = executor.submit(new Callable<Boolean>() {
-
-				@Override
-				public Boolean call() throws FileAccessException {
-					SmbFile orgfile;
-					boolean result = false;
-					orgfile = SmbFileAccess.smbFile(uri, user, pass);
-					try {
-						result = orgfile.isDirectory();
-					} catch (SmbException e) {
-						result = false;
-					}
-					return result;
-				}
-			});
-
-			try {
-				result = future.get(BackgroundExecutor.UI_WAIT_TIMEOUT_SEC, TimeUnit.SECONDS);
-			} catch (Exception e) {
-				Logcat.e(logLevel, "File not found.", e);
-			}
+		boolean result;
+		try {
+			result = BackgroundExecutor.callOffUiThread(TAG, () -> smbFile(uri, user, pass).isDirectory());
+		} catch (IOException e) {
+			Logcat.d(logLevel, "isDirectory failed. uri=" + uri, e);
+			result = false;
 		}
-
 		Logcat.d(logLevel, "終了します. uri=" + uri + ", result=" + result);
 		return result;
 	}
 
-	@SuppressLint("SuspiciousIndentation")
-    public static ArrayList<FileData> listFiles(@NonNull final Activity activity, @NonNull final String uri, @NonNull final String user, @NonNull final String pass, @Nullable Handler handler) {
+	public static ArrayList<FileData> listFiles(@NonNull final Activity activity, @NonNull final String uri, @NonNull final String user, @NonNull final String pass, @Nullable Handler handler) {
 		int logLevel = Logcat.LOG_LEVEL_WARN;
 		Logcat.d(logLevel, "開始します. uri=" + uri + ", user=" + user);
-		boolean isLocal;
-
-		String[] urlData = parseUri(uri);
-		// [0]=host, [1]=share, [2]=path
-		String share = urlData[1];
-
-		ArrayList<FileData> fileList = new ArrayList<FileData>();
-
-		if (!DEF.isUiThread()) {
-			// UIスレッドではない時はそのまま実行
-
-			// ファイルリストを取得
-			File[] lfiles = null;
-			SmbFile smbFile;
-			SmbFile[] smbFiles = null;
-			String[] fnames = null;
-			int length;
-
-			// ファイル一覧取得
-			try {
-				smbFile = SmbFileAccess.smbFile(uri, user, pass);
-			} catch (FileAccessException e) {
-				Logcat.e(logLevel, "SMB に接続できません. uri=" + uri, e);
-				return fileList;
-			}
-
-			try {
-				if (share.isEmpty()) {
-					// ホスト名までしか指定されていない場合
-					fnames = smbFile.list();
-					if (fnames == null || fnames.length == 0) {
-						return fileList;
-					}
-					length = fnames.length;
-				} else {
-					// 共有ポイントまで指定済みの場合
-					smbFiles = smbFile.listFiles();
-					if (smbFiles == null || smbFiles.length == 0) {
-						return fileList;
-					}
-					length = smbFiles.length;
-				}
-			} catch (SmbException e) {
-				Logcat.e(logLevel, "エラーが発生しました. uri=" + uri, e);
-				DEF.sendMessage(activity.getString(R.string.SmbAccessError) + ":\n" + e.getLocalizedMessage(), Toast.LENGTH_LONG, handler);
-				return fileList;
-			}
-
-			Logcat.d(logLevel, "length=" + length);
-
-			// FileData型のリストを作成
-			boolean isDir;
-			String name;
-			long size = 0;
-			long date = 0;
-
-			for (int i = 0; i < length; i++) {
-				if (share.isEmpty()) {
-					// ホスト名までしか指定されていない場合
-					name = fnames[i];
-					// 全部フォルダ扱い
-					isDir = true;
-				} else {
-					// 共有ポイントまで指定済みの場合
-					name = smbFiles[i].getName();
-					isDir = name.endsWith("/");
-					try {
-						size = smbFiles[i].length();
-						date = smbFiles[i].lastModified();
-					} catch (SmbException e) {
-						Logcat.e(logLevel, "エラーが発生しました. uri=" + uri, e);
-						DEF.sendMessage(activity.getString(R.string.SmbAccessError) + ":\n" + e.getLocalizedMessage(), Toast.LENGTH_LONG, handler);
-						return fileList;
-					}
-				}
-
-				if (isDir) {
-					// ディレクトリの場合
-					if (!name.endsWith("/")) {
-						name += "/";
-					}
-				}
-
-				FileData fileData = new FileData(activity, name, size, date);
-				fileList.add(fileData);
-
-				Logcat.d(logLevel, "index=" + (fileList.size() - 1) + ", name=" + fileData.getName() + ", type=" + fileData.getType() + ", extType=" + fileData.getExtType());
-			}
-
-			if (!fileList.isEmpty()) {
-				Collections.sort(fileList, new FileAccess.FileDataComparator());
-			}
+		try {
+			return BackgroundExecutor.callOffUiThread(TAG, () -> listFilesNow(activity, uri, user, pass, handler));
+		} catch (IOException e) {
+			Logcat.e(logLevel, "エラーが発生しました. uri=" + uri, e);
+			DEF.sendMessage(activity.getString(R.string.SmbAccessError) + ":\n" + e.getLocalizedMessage(), Toast.LENGTH_LONG, handler);
+			return new ArrayList<>();
 		}
-		else {
-			// UIスレッドの時は新しいスレッド内で実行
-			DEF.warnUiThreadIo("SmbFileAccess");
-			ExecutorService executor = BackgroundExecutor.get();
-			Future<ArrayList<FileData>> future = executor.submit(new Callable<ArrayList<FileData>>() {
+	}
 
-				@Override
-				public ArrayList<FileData> call() throws FileAccessException {
-					// ファイルリストを取得
-					File[] lfiles = null;
-					SmbFile smbFile;
-					SmbFile[] smbFiles = null;
-					String[] fnames = null;
-					ArrayList<FileData> fileList = new ArrayList<FileData>();
-					int length;
+	/** listFiles の本体. 呼び出したスレッドで SMB にアクセスする */
+	private static ArrayList<FileData> listFilesNow(@NonNull final Activity activity, @NonNull final String uri, @NonNull final String user, @NonNull final String pass, @Nullable Handler handler) {
+		int logLevel = Logcat.LOG_LEVEL_WARN;
+		// [0]=host, [1]=share, [2]=path
+		String share = parseUri(uri)[1];
+		ArrayList<FileData> fileList = new ArrayList<>();
 
-					// ファイル一覧取得
-					smbFile = SmbFileAccess.smbFile(uri, user, pass);
+		SmbFile smbFile;
+		SmbFile[] smbFiles = null;
+		String[] fnames = null;
+		int length;
 
-					try {
-						if (share.isEmpty()) {
-							// ホスト名までしか指定されていない場合
-							fnames = smbFile.list();
-							if (fnames == null || fnames.length == 0) {
-								return fileList;
-							}
-							length = fnames.length;
-						} else {
-							// 共有ポイントまで指定済みの場合
-							smbFiles = smbFile.listFiles();
-							if (smbFiles == null || smbFiles.length == 0) {
-								return fileList;
-							}
-							length = smbFiles.length;
-						}
-					} catch (SmbException e) {
-						Logcat.e(logLevel, "エラーが発生しました. uri=" + uri, e);
-						DEF.sendMessage(activity.getString(R.string.SmbAccessError) + ":\n" + e.getLocalizedMessage(), Toast.LENGTH_LONG, handler);
-						return fileList;
-					}
+		// ファイル一覧取得
+		try {
+			smbFile = smbFile(uri, user, pass);
+		} catch (FileAccessException e) {
+			Logcat.e(logLevel, "SMB に接続できません. uri=" + uri, e);
+			return fileList;
+		}
 
-					Logcat.d(logLevel, "length=" + length);
-
-					// FileData型のリストを作成
-					boolean isDir;
-					String name;
-					long size = 0;
-					long date = 0;
-
-					for (int i = 0; i < length; i++) {
-						if (share.isEmpty()) {
-							// ホスト名までしか指定されていない場合
-							name = fnames[i];
-							// 全部フォルダ扱い
-							isDir = true;
-						} else {
-							// 共有ポイントまで指定済みの場合
-							name = smbFiles[i].getName();
-							isDir = name.endsWith("/");
-							try {
-								size = smbFiles[i].length();
-								date = smbFiles[i].lastModified();
-							} catch (SmbException e) {
-								Logcat.e(logLevel, "エラーが発生しました. uri=" + uri, e);
-								DEF.sendMessage(activity.getString(R.string.SmbAccessError) + ":\n" + e.getLocalizedMessage(), Toast.LENGTH_LONG, handler);
-								return fileList;
-							}
-						}
-
-						if (isDir) {
-							// ディレクトリの場合
-							if (!name.endsWith("/")) {
-								name += "/";
-							}
-						}
-
-						FileData fileData = new FileData(activity, name, size, date);
-						fileList.add(fileData);
-
-						Logcat.d(logLevel, "index=" + (fileList.size() - 1) + ", name=" + fileData.getName() + ", type=" + fileData.getType() + ", extType=" + fileData.getExtType());
-					}
-
-					if (!fileList.isEmpty()) {
-						Collections.sort(fileList, new FileAccess.FileDataComparator());
-					}
+		try {
+			if (share.isEmpty()) {
+				// ホスト名までしか指定されていない場合
+				fnames = smbFile.list();
+				if (fnames == null || fnames.length == 0) {
 					return fileList;
 				}
-			});
-			try {
-				fileList = future.get(BackgroundExecutor.UI_WAIT_TIMEOUT_SEC, TimeUnit.SECONDS);
-			} catch (Exception e) {
-				Logcat.e(logLevel, "エラーが発生しました. uri=" + uri, e);
-				DEF.sendMessage(activity.getString(R.string.SmbAccessError) + ":\n" + e.getLocalizedMessage(), Toast.LENGTH_LONG, handler);
-				return fileList;
+				length = fnames.length;
+			} else {
+				// 共有ポイントまで指定済みの場合
+				smbFiles = smbFile.listFiles();
+				if (smbFiles == null || smbFiles.length == 0) {
+					return fileList;
+				}
+				length = smbFiles.length;
 			}
+		} catch (SmbException e) {
+			Logcat.e(logLevel, "エラーが発生しました. uri=" + uri, e);
+			DEF.sendMessage(activity.getString(R.string.SmbAccessError) + ":\n" + e.getLocalizedMessage(), Toast.LENGTH_LONG, handler);
+			return fileList;
+		}
+
+		Logcat.d(logLevel, "length=" + length);
+
+		// FileData型のリストを作成
+		for (int i = 0; i < length; i++) {
+			String name;
+			boolean isDir;
+			long size = 0;
+			long date = 0;
+			if (share.isEmpty()) {
+				// ホスト名までしか指定されていない場合. 全部フォルダ扱い
+				name = fnames[i];
+				isDir = true;
+			} else {
+				// 共有ポイントまで指定済みの場合
+				name = smbFiles[i].getName();
+				isDir = name.endsWith("/");
+				try {
+					size = smbFiles[i].length();
+					date = smbFiles[i].lastModified();
+				} catch (SmbException e) {
+					Logcat.e(logLevel, "エラーが発生しました. uri=" + uri, e);
+					DEF.sendMessage(activity.getString(R.string.SmbAccessError) + ":\n" + e.getLocalizedMessage(), Toast.LENGTH_LONG, handler);
+					return fileList;
+				}
+			}
+
+			if (isDir && !name.endsWith("/")) {
+				name += "/";
+			}
+
+			FileData fileData = new FileData(activity, name, size, date);
+			fileList.add(fileData);
+
+			Logcat.d(logLevel, "index=" + (fileList.size() - 1) + ", name=" + fileData.getName() + ", type=" + fileData.getType() + ", extType=" + fileData.getExtType());
+		}
+
+		if (!fileList.isEmpty()) {
+			Collections.sort(fileList, new FileAccess.FileDataComparator());
 		}
 		return fileList;
 	}
@@ -668,93 +478,27 @@ public class SmbFileAccess {
 		if (tofile.indexOf('/') > 0) {
 			throw new FileAccessException(TAG + ": renameTo: Invalid file name.");
 		}
-
-		if (!DEF.isUiThread()) {
-			// UIスレッドではない時はそのまま実行
-			SmbFile orgfile;
-			try {
-				orgfile = SmbFileAccess.smbFile(uri + fromfile, user, pass);
+		try {
+			return BackgroundExecutor.callOffUiThread(TAG, () -> {
+				SmbFile orgfile = smbFile(uri + fromfile, user, pass);
 				if (!orgfile.exists()) {
 					// 変更前ファイルが存在しなければエラー
 					Logcat.e(logLevel, "File not found.");
 					throw new FileAccessException(TAG + ": renameTo: File not found.");
 				}
-			} catch (SmbException e) {
-				Logcat.e(logLevel, "", e);
-				throw new FileAccessException(TAG + ": renameTo: " + e.getLocalizedMessage());
-			}
-
-			SmbFile dstfile;
-			try {
-				dstfile = SmbFileAccess.smbFile(uri + tofile, user, pass);
+				SmbFile dstfile = smbFile(uri + tofile, user, pass);
 				if (dstfile.exists()) {
 					// 変更後ファイルが存在すればエラー
 					Logcat.e(logLevel, "File access error.");
 					throw new FileAccessException(TAG + ": renameTo: File access error.");
 				}
-			} catch (SmbException e) {
-				Logcat.e(logLevel, "", e);
-				throw new FileAccessException(TAG + ": renameTo: " + e.getLocalizedMessage());
-			}
-
-			// ファイル名変更
-			try {
+				// ファイル名変更
 				orgfile.renameTo(dstfile);
 				return dstfile.exists();
-			} catch (SmbException e) {
-				Logcat.e(logLevel, "", e);
-				throw new FileAccessException(TAG + ": renameTo: " + e.getLocalizedMessage());
-			}
-		}
-		else {
-			// UIスレッドの時は新しいスレッド内で実行
-			DEF.warnUiThreadIo("SmbFileAccess");
-			ExecutorService executor = BackgroundExecutor.get();
-			Future<Boolean> future = executor.submit(new Callable<Boolean>() {
-
-				@Override
-				public Boolean call() throws FileAccessException {
-					SmbFile orgfile;
-					try {
-						orgfile = SmbFileAccess.smbFile(uri + fromfile, user, pass);
-						if (!orgfile.exists()) {
-							// 変更前ファイルが存在しなければエラー
-							Logcat.e(logLevel, "File not found.");
-							throw new FileAccessException(TAG + ": renameTo: File not found.");
-						}
-					} catch (SmbException e) {
-						Logcat.e(logLevel, "", e);
-						throw new FileAccessException(TAG + ": renameTo: " + e.getLocalizedMessage());
-					}
-
-					SmbFile dstfile;
-					try {
-						dstfile = SmbFileAccess.smbFile(uri + tofile, user, pass);
-						if (dstfile.exists()) {
-							// 変更後ファイルが存在すればエラー
-							Logcat.e(logLevel, "File access error.");
-							throw new FileAccessException(TAG + ": renameTo: File access error.");
-						}
-					} catch (SmbException e) {
-						Logcat.e(logLevel, "", e);
-						throw new FileAccessException(TAG + ": renameTo: " + e.getLocalizedMessage());
-					}
-
-					// ファイル名変更
-					try {
-						orgfile.renameTo(dstfile);
-						return dstfile.exists();
-					} catch (SmbException e) {
-						Logcat.e(logLevel, "", e);
-						throw new FileAccessException(TAG + ": renameTo: " + e.getLocalizedMessage());
-					}
-				}
 			});
-			try {
-				return future.get(BackgroundExecutor.UI_WAIT_TIMEOUT_SEC, TimeUnit.SECONDS);
-			} catch (Exception e) {
-				throw new FileAccessException(TAG + ": renameTo: " + e.getLocalizedMessage());
-			}
+		} catch (IOException e) {
+			Logcat.e(logLevel, "", e);
+			throw toFileAccessException("renameTo", e);
 		}
 	}
 
@@ -776,149 +520,48 @@ public class SmbFileAccess {
 	public static boolean delete(@NonNull final String uri, @NonNull final String user, @NonNull final String pass) throws FileAccessException {
 		int logLevel = Logcat.LOG_LEVEL_WARN;
 		Logcat.d(logLevel, "開始します. uri=" + uri + ", user=" + user );
-
-		if (!DEF.isUiThread()) {
-			// UIスレッドではない時はそのまま実行
-			SmbFile orgfile;
-			orgfile = SmbFileAccess.smbFile(uri, user, pass);
-			try {
+		try {
+			return BackgroundExecutor.callOffUiThread(TAG, () -> {
+				SmbFile orgfile = smbFile(uri, user, pass);
 				orgfile.delete();
 				return !orgfile.exists();
-			} catch (SmbException e) {
-				throw new FileAccessException(TAG + ": delete: " + e.getLocalizedMessage());
-			}
-		} else {
-			// UIスレッドの時は新しいスレッド内で実行
-			DEF.warnUiThreadIo("SmbFileAccess");
-			ExecutorService executor = BackgroundExecutor.get();
-			Future<Boolean> future = executor.submit(new Callable<Boolean>() {
-
-				@Override
-				public Boolean call() throws FileAccessException {
-					SmbFile orgfile;
-					orgfile = SmbFileAccess.smbFile(uri, user, pass);
-					try {
-						orgfile.delete();
-						return !orgfile.exists();
-					} catch (SmbException e) {
-						throw new FileAccessException(TAG + ": delete: " + e.getLocalizedMessage());
-					}
-				}
 			});
-			try {
-				return future.get(BackgroundExecutor.UI_WAIT_TIMEOUT_SEC, TimeUnit.SECONDS);
-			} catch (Exception e) {
-				throw new FileAccessException(TAG + ": delete: " + e.getLocalizedMessage());
-			}
+		} catch (IOException e) {
+			throw toFileAccessException("delete", e);
 		}
 	}
 
 	// ディレクトリ作成
 	public static boolean mkdir(@NonNull final String uri, @NonNull final String user, @NonNull final String pass, @NonNull final String item) {
-		int logLevel = Logcat.LOG_LEVEL_WARN;
-		Logcat.d(logLevel, "開始します. uri=" + uri + ", item=" + item);
-
-		boolean result = false;
-		if (!DEF.isUiThread()) {
-			try {
-				// UIスレッドではない時はそのまま実行
-				SmbFile smbFile = smbFile(uri + item, user, pass);
-				if (smbFile.exists()) {
-					result = false;
-				}
-				else {
-					smbFile.mkdir();
-					result = smbFile.exists();
-				}
-			} catch (IOException e) {
-				result = false;
-				Logcat.e(logLevel, "エラーが発生しました. uri=" + uri, e);
-			}
-		} else {
-			// UIスレッドの時は新しいスレッド内で実行
-			DEF.warnUiThreadIo("SmbFileAccess");
-			ExecutorService executor = BackgroundExecutor.get();
-			Future<Boolean> future = executor.submit(new Callable<Boolean>() {
-
-				@Override
-				public Boolean call() throws FileAccessException {
-					try {
-						SmbFile smbFile = smbFile(uri + item, user, pass);
-						if (smbFile.exists()) {
-							return false;
-						}
-						else {
-							smbFile.mkdir();
-							return smbFile.exists();
-						}
-					} catch (SmbException e) {
-						Logcat.e(logLevel, "エラーが発生しました. uri=" + uri, e);
-						return false;
-					}
-				}
-			});
-			try {
-				result = future.get(BackgroundExecutor.UI_WAIT_TIMEOUT_SEC, TimeUnit.SECONDS);
-			} catch (Exception e) {
-				result = false;
-				Logcat.e(logLevel, "エラーが発生しました. uri=" + uri, e);
-			}
-		}
-		return result;
+		return createNew(uri, user, pass, item, true);
 	}
 
 	// ファイル作成
 	public static boolean createFile(@NonNull final String uri, @NonNull final String user, @NonNull final String pass, @NonNull final String item) {
-		int logLevel = Logcat.LOG_LEVEL_WARN;
-		Logcat.d(logLevel, "開始します. uri=" + uri + ", item=" + item);
+		return createNew(uri, user, pass, item, false);
+	}
 
-		boolean result = false;
-		if (!DEF.isUiThread()) {
-			try {
-				// UIスレッドではない時はそのまま実行
+	/** 同名のものが無ければディレクトリかファイルを作る. 作れたら true */
+	private static boolean createNew(@NonNull final String uri, @NonNull final String user, @NonNull final String pass, @NonNull final String item, final boolean directory) {
+		int logLevel = Logcat.LOG_LEVEL_WARN;
+		Logcat.d(logLevel, "開始します. uri=" + uri + ", item=" + item + ", directory=" + directory);
+		try {
+			return BackgroundExecutor.callOffUiThread(TAG, () -> {
 				SmbFile smbFile = smbFile(uri + item, user, pass);
 				if (smbFile.exists()) {
-					result = false;
+					return false;
 				}
-				else {
+				if (directory) {
+					smbFile.mkdir();
+				} else {
 					smbFile.createNewFile();
-					result = smbFile.exists();
 				}
-			} catch (IOException e) {
-				result = false;
-				Logcat.e(logLevel, "エラーが発生しました. uri=" + uri, e);
-			}
-		} else {
-			// UIスレッドの時は新しいスレッド内で実行
-			DEF.warnUiThreadIo("SmbFileAccess");
-			ExecutorService executor = BackgroundExecutor.get();
-			Future<Boolean> future = executor.submit(new Callable<Boolean>() {
-
-				@Override
-				public Boolean call() throws FileAccessException {
-					try {
-						SmbFile smbFile = smbFile(uri + item, user, pass);
-						if (smbFile.exists()) {
-							return false;
-						}
-						else {
-							smbFile.createNewFile();
-							return smbFile.exists();
-						}
-					} catch (SmbException e) {
-						Logcat.e(logLevel, "エラーが発生しました. uri=" + uri, e);
-						return false;
-					}
-				}
+				return smbFile.exists();
 			});
-			try {
-				result = future.get(BackgroundExecutor.UI_WAIT_TIMEOUT_SEC, TimeUnit.SECONDS);
-			} catch (Exception e) {
-				result = false;
-				Logcat.e(logLevel, "エラーが発生しました. uri=" + uri, e);
-			}
+		} catch (IOException e) {
+			Logcat.e(logLevel, "エラーが発生しました. uri=" + uri, e);
+			return false;
 		}
-		return result;
 	}
 
 }

@@ -25,12 +25,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 
-import jcifs.smb.SmbException;
 import jcifs.smb.SmbFile;
 import jcifs.smb.SmbRandomAccessFile;
 
@@ -327,23 +322,10 @@ public class FileAccess {
 				if (smbFile == null) {
 					throw new FileAccessException(TAG + ": seek: SMB file is not open.");
 				}
-				if (!DEF.isUiThread()) {
-					// UIスレッドではない時はそのまま実行
-					Logcat.d(logLevel, "UIスレッドではありません.");
+				BackgroundExecutor.callOffUiThread(TAG, () -> {
 					smbFile.seek(pos);
-				} else {
-					// UIスレッドの時は新しいスレッド内で実行し、終わるまで待つ
-					// (待たずに戻ると、続く read が古い位置から読んでしまう)
-					Logcat.d(logLevel, "UIスレッドです.");
-					DEF.warnUiThreadIo("FileAccess");
-					Future<?> future = BackgroundExecutor.get().submit(() -> smbFile.seek(pos));
-					try {
-						future.get(BackgroundExecutor.UI_WAIT_TIMEOUT_SEC, TimeUnit.SECONDS);
-					} catch (Exception e) {
-						Logcat.e(logLevel, "seek error.", e);
-						throw new FileAccessException(TAG + ": seek: " + e.getLocalizedMessage());
-					}
-				}
+					return null;
+				});
 				break;
 			}
 			case DEF.ACCESS_TYPE_SAF: {
@@ -367,30 +349,7 @@ public class FileAccess {
 			}
 			case DEF.ACCESS_TYPE_SMB: {
 				// SMBなら
-				if (!DEF.isUiThread()) {
-					// UIスレッドではない時はそのまま実行
-					Logcat.d(logLevel, "UIスレッドではありません.");
-					result = mSmbRandomAccessFile.getFilePointer();
-				} else {
-					// UIスレッドの時は新しいスレッド内で実行
-					Logcat.d(logLevel, "UIスレッドです.");
-					DEF.warnUiThreadIo("FileAccess");
-					ExecutorService executor = BackgroundExecutor.get();
-					Future<Long> future = executor.submit(new Callable<Long>() {
-
-						@Override
-						public Long call() {
-							return mSmbRandomAccessFile.getFilePointer();
-						}
-					});
-
-					try {
-						result = future.get(BackgroundExecutor.UI_WAIT_TIMEOUT_SEC, TimeUnit.SECONDS);
-					} catch (Exception e) {
-						Logcat.e(logLevel, "File read error.", e);
-						result = 0l;
-					}
-				}
+				result = BackgroundExecutor.callOffUiThread(TAG, () -> mSmbRandomAccessFile.getFilePointer());
 				break;
 			}
 			case DEF.ACCESS_TYPE_SAF: {
@@ -415,31 +374,7 @@ public class FileAccess {
 			}
 			case DEF.ACCESS_TYPE_SMB: {
 				// SMBなら
-				if (!DEF.isUiThread()) {
-					// UIスレッドではない時はそのまま実行
-					Logcat.d(logLevel, "UIスレッドではありません.");
-					result = mSmbRandomAccessFile.read(buf, off, size);
-				} else {
-					// UIスレッドの時は新しいスレッド内で実行
-					Logcat.d(logLevel, "UIスレッドです.");
-					DEF.warnUiThreadIo("FileAccess");
-					ExecutorService executor = BackgroundExecutor.get();
-					Future<Integer> future = executor.submit(new Callable<Integer>() {
-
-						@Override
-						public Integer call() throws SmbException {
-							return mSmbRandomAccessFile.read(buf, off, size);
-						}
-					});
-
-					try {
-						result = future.get(BackgroundExecutor.UI_WAIT_TIMEOUT_SEC, TimeUnit.SECONDS);
-					} catch (Exception e) {
-						// 0 を返すと呼び出し側が正常な空読みと区別できない
-						Logcat.e(logLevel, "read: File read error.", e);
-						throw new FileAccessException(TAG + ": read: " + e.getLocalizedMessage());
-					}
-				}
+				result = BackgroundExecutor.callOffUiThread(TAG, () -> mSmbRandomAccessFile.read(buf, off, size));
 				break;
 			}
 			case DEF.ACCESS_TYPE_SAF: {
@@ -464,31 +399,10 @@ public class FileAccess {
 			}
 			case DEF.ACCESS_TYPE_SMB: {
 				// SMBなら
-				if (!DEF.isUiThread()) {
-					// UIスレッドではない時はそのまま実行
-					Logcat.d(logLevel, "UIスレッドではありません.");
+				BackgroundExecutor.callOffUiThread(TAG, () -> {
 					mSmbRandomAccessFile.write(buf, off, size);
-				} else {
-					// UIスレッドの時は新しいスレッド内で実行
-					Logcat.d(logLevel, "UIスレッドです.");
-					DEF.warnUiThreadIo("FileAccess");
-					ExecutorService executor = BackgroundExecutor.get();
-					Future<Boolean> future = executor.submit(new Callable<Boolean>() {
-
-						@Override
-						public Boolean call() throws SmbException {
-							mSmbRandomAccessFile.write(buf, off, size);
-							return true;
-						}
-					});
-
-					try {
-						future.get(BackgroundExecutor.UI_WAIT_TIMEOUT_SEC, TimeUnit.SECONDS);
-					} catch (Exception e) {
-						Logcat.e(logLevel, "File write error.", e);
-						throw new FileAccessException(TAG + ": write: " + e.getLocalizedMessage());
-					}
-				}
+					return null;
+				});
 				break;
 			}
 			case DEF.ACCESS_TYPE_SAF: {
@@ -615,30 +529,7 @@ public class FileAccess {
 			}
 			case DEF.ACCESS_TYPE_SMB: {
 				// SMBなら
-				if (!DEF.isUiThread()) {
-					// UIスレッドではない時はそのまま実行
-					Logcat.d(logLevel, "UIスレッドではありません.");
-					result = SmbFileAccess.exists(uri, user, pass);
-				} else {
-					// UIスレッドの時は新しいスレッド内で実行
-					Logcat.d(logLevel, "UIスレッドです.");
-					DEF.warnUiThreadIo("FileAccess");
-					ExecutorService executor = BackgroundExecutor.get();
-					Future<Boolean> future = executor.submit(new Callable<Boolean>() {
-
-						@Override
-						public Boolean call() throws FileAccessException {
-							return SmbFileAccess.exists(uri, user, pass);
-						}
-					});
-
-					try {
-						result = future.get(BackgroundExecutor.UI_WAIT_TIMEOUT_SEC, TimeUnit.SECONDS);
-					} catch (Exception e) {
-						Logcat.e(logLevel, "File read error.", e);
-						result = false;
-					}
-				}
+				result = SmbFileAccess.exists(uri, user, pass);
 				break;
 			}
 			case DEF.ACCESS_TYPE_SAF: {
@@ -745,29 +636,11 @@ public class FileAccess {
 			}
 			case DEF.ACCESS_TYPE_SMB: {
 				// SMBなら
-				if (!DEF.isUiThread()) {
-					// UIスレッドではない時はそのまま実行
-					Logcat.d(logLevel, "UIスレッドではありません.");
-					result = SmbFileAccess.date(uri, user, pass);
-				} else {
-					// UIスレッドの時は新しいスレッド内で実行
-					Logcat.d(logLevel, "UIスレッドです.");
-					DEF.warnUiThreadIo("FileAccess");
-					ExecutorService executor = BackgroundExecutor.get();
-					Future<Long> future = executor.submit(new Callable<Long>() {
-
-						@Override
-						public Long call() throws FileAccessException {
-							return SmbFileAccess.date(uri, user, pass);
-						}
-					});
-
-					try {
-						result = future.get(BackgroundExecutor.UI_WAIT_TIMEOUT_SEC, TimeUnit.SECONDS);
-					} catch (Exception e) {
-						Logcat.e(logLevel, "File read error.", e);
-						result = 0L;
-					}
+				try {
+					result = BackgroundExecutor.callOffUiThread(TAG, () -> SmbFileAccess.date(uri, user, pass));
+				} catch (IOException e) {
+					Logcat.e(logLevel, "File read error.", e);
+					result = 0L;
 				}
 				break;
 			}
@@ -796,30 +669,7 @@ public class FileAccess {
 			}
 			case DEF.ACCESS_TYPE_SMB: {
 				// SMBなら
-				if (!DEF.isUiThread()) {
-					// UIスレッドではない時はそのまま実行
-					Logcat.d(logLevel, "UIスレッドではありません.");
-					result = SmbFileAccess.delete(uri, user, pass);
-				} else {
-					// UIスレッドの時は新しいスレッド内で実行
-					Logcat.d(logLevel, "UIスレッドです.");
-					DEF.warnUiThreadIo("FileAccess");
-					ExecutorService executor = BackgroundExecutor.get();
-					Future<Boolean> future = executor.submit(new Callable<Boolean>() {
-
-						@Override
-						public Boolean call() throws FileAccessException {
-							return SmbFileAccess.delete(uri, user, pass);
-						}
-					});
-
-					try {
-						result = future.get(BackgroundExecutor.UI_WAIT_TIMEOUT_SEC, TimeUnit.SECONDS);
-					} catch (Exception e) {
-						Logcat.e(logLevel, "File read error.", e);
-						result = false;
-					}
-				}
+				result = SmbFileAccess.delete(uri, user, pass);
 				break;
 			}
 			case DEF.ACCESS_TYPE_SAF: {
