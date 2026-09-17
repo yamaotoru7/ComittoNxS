@@ -706,6 +706,9 @@ public class ImageActivity extends AppCompatActivity implements OnTouchListener,
 		Logcat.i(logLevel, "開始します.");
 
 		mDestroyed = true;
+		// 表示中フラグは static なので、ダイアログが閉じられずに破棄された場合に備えて戻す
+		PageThumbnail.mIsOpened = false;
+		PageSelectDialog.mIsOpened = false;
 		// 破棄後に遅延メッセージ (オートプレイ, エフェクト, 長押し等) が届かないようにする
 		if (mHandler != null) {
 			mHandler.removeCallbacksAndMessages(null);

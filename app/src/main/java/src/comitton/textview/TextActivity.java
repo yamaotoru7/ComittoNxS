@@ -652,6 +652,8 @@ public class TextActivity extends AppCompatActivity implements OnTouchListener, 
 		super.onDestroy();
 
 		mDestroyed = true;
+		// 表示中フラグは static なので、ダイアログが閉じられずに破棄された場合に備えて戻す
+		PageSelectDialog.mIsOpened = false;
 		// 破棄後に遅延メッセージが届かないようにする
 		if (mHandler != null) {
 			mHandler.removeCallbacksAndMessages(null);

@@ -51,38 +51,38 @@ public class FileSelectList implements Runnable, Callback, DialogInterface.OnDis
 	public LoadingDialog mDialog;
 	private Handler mHandler;
 	private Handler mActivityHandler;
-	private static AppCompatActivity mActivity;
-	private static SharedPreferences mSp;
+	private AppCompatActivity mActivity;
+	private SharedPreferences mSp;
 	private ImageManager mImageMgr = null;
 	private TextManager mTextMgr;
 	private Thread mThread;
 
-	private static float mDensity;
-	private static int mHeadSizeOrg;
-	private static int mBodySizeOrg;
-	private static int mRubiSizeOrg;
-	private static int mInfoSizeOrg;
-	private static int mMarginWOrg;
-	private static int mMarginHOrg;
+	private float mDensity;
+	private int mHeadSizeOrg;
+	private int mBodySizeOrg;
+	private int mRubiSizeOrg;
+	private int mInfoSizeOrg;
+	private int mMarginWOrg;
+	private int mMarginHOrg;
 
-	private static int mPaperSel;
-	private static boolean mNotice;
-	private static boolean mImmEnable;
-	private static int mViewRota;
-	private static int mTextWidth;
-	private static int mTextHeight;
-	private static int mHeadSize;
-	private static int mBodySize;
-	private static int mRubiSize;
-	private static int mInfoSize;
-	private static int mPicSize;
-	private static int mSpaceW;
-	private static int mSpaceH;
-	private static int mMarginW;
-	private static int mMarginH;
+	private int mPaperSel;
+	private boolean mNotice;
+	private boolean mImmEnable;
+	private int mViewRota;
+	private int mTextWidth;
+	private int mTextHeight;
+	private int mHeadSize;
+	private int mBodySize;
+	private int mRubiSize;
+	private int mInfoSize;
+	private int mPicSize;
+	private int mSpaceW;
+	private int mSpaceH;
+	private int mMarginW;
+	private int mMarginH;
 
-	private static int mAscMode;	// 半角の表示方法
-	private static String mFontFile;
+	private int mAscMode;	// 半角の表示方法
+	private String mFontFile;
 	private static boolean mCacheFile = false;
 
 	public FileSelectList(Handler handler, AppCompatActivity activity, SharedPreferences sp) {

@@ -458,6 +458,7 @@ public class RecordList {
 		return path + FILENAME[type];
 	}
 
-	public static void setContext(Context context){ mContext = context; }
+	// Activity を static に保持するとリークするので、アプリの Context を保持する
+	public static void setContext(Context context){ mContext = context.getApplicationContext(); }
 
 }

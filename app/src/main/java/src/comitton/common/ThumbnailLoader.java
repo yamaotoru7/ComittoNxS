@@ -56,32 +56,32 @@ public class ThumbnailLoader {
 	protected boolean mOut_of_memory = false;
 
 	// 以下、テキストマネージャー用の変数
-	protected static float mDensity;
-	protected static int mHeadSizeOrg;
-	protected static int mBodySizeOrg;
-	protected static int mRubiSizeOrg;
-	protected static int mInfoSizeOrg;
-	protected static int mMarginWOrg;
-	protected static int mMarginHOrg;
+	protected float mDensity;
+	protected int mHeadSizeOrg;
+	protected int mBodySizeOrg;
+	protected int mRubiSizeOrg;
+	protected int mInfoSizeOrg;
+	protected int mMarginWOrg;
+	protected int mMarginHOrg;
 
-	protected static int mPaperSel;
-	protected static boolean mNotice;
-	protected static boolean mImmEnable;
-	protected static int mViewRota;
-	protected static int mTextWidth;
-	protected static int mTextHeight;
-	protected static int mHeadSize;
-	protected static int mBodySize;
-	protected static int mRubiSize;
-	protected static int mInfoSize;
-	protected static int mPicSize;
-	protected static int mSpaceW;
-	protected static int mSpaceH;
-	protected static int mMarginW;
-	protected static int mMarginH;
+	protected int mPaperSel;
+	protected boolean mNotice;
+	protected boolean mImmEnable;
+	protected int mViewRota;
+	protected int mTextWidth;
+	protected int mTextHeight;
+	protected int mHeadSize;
+	protected int mBodySize;
+	protected int mRubiSize;
+	protected int mInfoSize;
+	protected int mPicSize;
+	protected int mSpaceW;
+	protected int mSpaceH;
+	protected int mMarginW;
+	protected int mMarginH;
 
-	protected static int mAscMode;	// 半角の表示方法
-	protected static String mFontFile;
+	protected int mAscMode;	// 半角の表示方法
+	protected String mFontFile;
 	// ここまで、テキストマネージャー用の変数
 
 	public AppCompatActivity getActivity() {
