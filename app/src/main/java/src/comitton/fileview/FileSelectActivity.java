@@ -2878,10 +2878,7 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 									String pass = mServer.getPass();
 									String uri = DEF.createUrl(mURI, user, pass).toLowerCase() + "/";
 									int urilen = uri.length();
-									if (key.length() < urilen) {
-										continue;
-									}
-									else if (!key.substring(0, urilen + 1).toLowerCase().equals(uri)) {
+									if (!key.regionMatches(true, 0, uri, 0, urilen)) {
 										// URI部分が一致する場合のみ削除する
 										continue;
 									}

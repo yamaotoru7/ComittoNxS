@@ -24,18 +24,18 @@ lint (`:app:lintDebug`) とユニットテスト (`:app:testDebugUnitTest`) の�
 
 | ID | 重要度 | 場所 | 内容 | 状態 | コメント |
 |---|---|---|---|---|---|
-| A-01 | 高 | `fileaccess/FileAccess.java:692` | `date()` の中身が `delete(...)` になっている。現在は未使用だが、呼んだ瞬間にファイルが消える。削除するか正しく実装する。 | 未対応 | |
+| A-01 | 高 | `fileaccess/FileAccess.java:692` | `date()` の中身が `delete(...)` になっている。現在は未使用だが、呼んだ瞬間にファイルが消える。削除するか正しく実装する。 | 対応済 | メソッドを削除 |
 | A-02 | 高 | `fileview/filelist/ServerSelect.java:386`, `common/DEF.java:2437-2460`, `DEF.java:2347-2361`, `config/ExportSettingPreference.java:177-206` | SMB パスワードが SharedPreferences に平文保存される。`createUrl` が `smb://user:pass@host/...` を作りしおり・既読位置のキーに使うため、設定エクスポートで本ごとにパスワードが平文ファイルへ書き出される。EncryptedSharedPreferences 等へ移行し、キーから認証情報を除き、`smb-pass*` をエクスポート対象外にする。 | 未対応 | |
 | A-03 | 高 | `ServerSelect.java:74,353,380`, `SmbFileAccess.java:255,277,344,631,720`, `SambaProxyFileCallback.java:29`, `WorkStream.java:33,43`, `EditServerDialog.java:93` | パスワードをログ文字列に含めている。現在はログレベル NONE で抑止されているだけ。ログから `pass` を除去する。 | 未対応 | |
 | A-04 | 高 | `fileaccess/SmbFileAccess.java:121-136` | `jcifs.smb.client.minVersion = SMB1`。署名設定もコメントアウト。既定を SMB202 にしレガシー NAS 向けはオプトインにする。`SingletonContext.init` は初回しか効かない点にも注意。 | 未対応 | |
-| A-05 | 高 | `imageview/ImageManager.java:2018, 2046` | `page < 0 && mFileList.length <= page` は成立し得ない。範囲外ページで ArrayIndexOutOfBounds。`\|\|` に修正し `mFileList == null` も扱う。 | 未対応 | |
-| A-06 | 高 | `jni/comitton/ImageJXL.cpp:155-158` | `if (buffer == nullptr) free(buffer)` と判定が逆で、デコード結果バッファ (width×height×3) が毎回リークする。 | 未対応 | |
-| A-07 | 高 | `jni/comitton/ImageAVIF.cpp:31-68, 137-139` | `memset(&rgb)` より前の `goto cleanup` で未初期化の `rgb` を `avifRGBImageFreePixels` に渡す。`decoder == nullptr` のパスで `avifDecoderDestroy(nullptr)` を呼ぶ。壊れた AVIF でクラッシュ。宣言時に初期化し null ガードを入れる。 | 未対応 | |
+| A-05 | 高 | `imageview/ImageManager.java:2018, 2046` | `page < 0 && mFileList.length <= page` は成立し得ない。範囲外ページで ArrayIndexOutOfBounds。`\|\|` に修正し `mFileList == null` も扱う。 | 対応済 | 条件を `||` に修正し null も考慮 |
+| A-06 | 高 | `jni/comitton/ImageJXL.cpp:155-158` | `if (buffer == nullptr) free(buffer)` と判定が逆で、デコード結果バッファ (width×height×3) が毎回リークする。 | 対応済 | null 判定を反転 |
+| A-07 | 高 | `jni/comitton/ImageAVIF.cpp:31-68, 137-139` | `memset(&rgb)` より前の `goto cleanup` で未初期化の `rgb` を `avifRGBImageFreePixels` に渡す。`decoder == nullptr` のパスで `avifDecoderDestroy(nullptr)` を呼ぶ。壊れた AVIF でクラッシュ。宣言時に初期化し null ガードを入れる。 | 対応済 | rgb を宣言時にゼロ初期化、decoder の null ガード追加 |
 | A-08 | 高 | `jni/comitton/ImageScale.cpp:618-627`, `Image.h:66` | `gSclLinesPtr` は MAX_LINES (6400) 固定だが `RefreshSclLinesPtr` は元画像の高さでループするため、縦長画像で余白カット・回転・ぼかしを使うとヒープ破壊。境界チェックか動的確保にする。 | 未対応 | |
 | A-09 | 高 | `textview/TextManager.java:1194-1207`, `:1280`, `:1335`, `:1722` | `loadExpandData` が null を返した後も `mInputBuff.length` を評価し NPE。`TextLoad.run()` に try/catch がなくプロセスごと落ちる。 | 未対応 | |
 | A-10 | 高 | `cropimageview/CropImageActivity.java:152-179, 222-227` | URI 起動時に `imageMgr` が null のまま呼び、bitmap null も未チェック。例外を RuntimeException で再スロー。アスペクト比入力欄の空文字で `Float.parseFloat` が例外。 | 未対応 | |
-| A-11 | 高 | `imageview/ImageManager.java:2236-2245` | `read()` が例外時に `Arrays.fill(buf, off, len - off, 0)` (第 3 引数は toIndex) でゼロ埋めし `len - off` を返す。壊れたデータが正常として描画される。`-1` を返すか IOException を投げる。 | 未対応 | |
-| A-12 | 高 | `fileview/FileSelectActivity.java:2879-2886` | しおり一括削除の `substring(0, urilen + 1)` が 1 文字長く一致しない。`key.length() == urilen` で例外。`regionMatches` に置き換える。 | 未対応 | |
+| A-11 | 高 | `imageview/ImageManager.java:2236-2245` | `read()` が例外時に `Arrays.fill(buf, off, len - off, 0)` (第 3 引数は toIndex) でゼロ埋めし `len - off` を返す。壊れたデータが正常として描画される。`-1` を返すか IOException を投げる。 | 対応済 | IOException を送出するように変更 |
+| A-12 | 高 | `fileview/FileSelectActivity.java:2879-2886` | しおり一括削除の `substring(0, urilen + 1)` が 1 文字長く一致しない。`key.length() == urilen` で例外。`regionMatches` に置き換える。 | 対応済 | regionMatches に置換 |
 | A-13 | 高 | `fileview/FileSelectActivity.java:396-405`, `AndroidManifest.xml` | ACTION_VIEW / SEND の `content://` を `getPath()` でローカルパス扱い。API 24 以降 `file://` は来ないため共有受け口が機能していない。scheme で分岐し SafFileAccess を使う。 | 未対応 | |
 | A-14 | 高 | `jni/comitton/callUnrar.cpp:162-165, 190-193` | 格納エントリで `OrigLen > CompLen` のヘッダーはヒープ越え読み。`rarDecomp` は常に 0 を返し unrar のエラーが Java に届かない。暗号化 RAR はごみ画素で「成功」する。 | 未対応 | |
 | A-15 | 高 | `jni/comitton/callUnrar.cpp:12-26, 241-252` | unrar の状態 (`FromBuff/ToBuff/DataIO/Unp`) がプロセスグローバルでロックなし。`rarClose` の `free` と別スレッドの `rarWrite` が競合すると use-after-free。 | 未対応 | |

@@ -689,10 +689,6 @@ public class FileAccess {
 		return result;
 	}
 
-	public boolean date() throws FileAccessException {
-		return delete(mActivity, mURI, mUser, mPass);
-	}
-
 	// タイムスタンプ
 	public static long date(@NonNull final Activity activity, @NonNull final String uri, @NonNull final String user, @NonNull final String pass) {
 		int logLevel = Logcat.LOG_LEVEL_WARN;

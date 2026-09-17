@@ -2015,7 +2015,7 @@ public class ImageManager extends InputStream implements Runnable {
 	// ビットマップ読み込み開始
 	public ImageData getImageData(int page) {
 		// パラメタチェック
-		if (mFileList != null && page < 0 && mFileList.length <= page) {
+		if (mFileList == null || page < 0 || mFileList.length <= page) {
 			return null;
 		}
 
@@ -2043,7 +2043,7 @@ public class ImageManager extends InputStream implements Runnable {
 	public ImageData loadBitmap(int page, boolean notice) throws IOException {
 		int logLevel = Logcat.LOG_LEVEL_WARN;
 		// パラメタチェック
-		if (mFileList != null && page < 0 && mFileList.length <= page) {
+		if (mFileList == null || page < 0 || mFileList.length <= page) {
 			return null;
 		}
 
@@ -2232,15 +2232,11 @@ public class ImageManager extends InputStream implements Runnable {
 				message.obj = e.getLocalizedMessage();
 				mHandler.sendMessage(message);
 			}
-			// 終了時は壊れたデータを返してやろう
-			try {
-				Arrays.fill(buf, off, len - off, (byte) 0);
+			// 壊れたデータを正常として返さず、呼び出し元に失敗を伝える
+			if (e instanceof IOException) {
+				throw (IOException) e;
 			}
-			catch (Exception ex) {
-				Logcat.e(logLevel, "エラーが発生しました.", e);
-			}
-			return len - off;
-			//throw new IOException(e.getLocalizedMessage());
+			throw new IOException(e.getLocalizedMessage(), e);
 		}
 
 		if (ret > 0) {

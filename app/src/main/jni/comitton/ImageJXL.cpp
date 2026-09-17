@@ -152,7 +152,7 @@ int LoadImageJxl(int index, int loadCommand, IMAGEDATA *pData, int page, int sca
 cleanup:
     // cleanup
     JxlDecoderReleaseInput(decoder.get());
-    if (buffer == (unsigned char *) nullptr)
+    if (buffer != (unsigned char *) nullptr)
     {
         free(buffer);
     }

@@ -18,9 +18,11 @@ int LoadImageAvif(int index, int loadCommand, IMAGEDATA *pData, int page, int sc
     uint32_t width;             // 画像の幅
     uint32_t height;            // 画像の高さ
 
-    avifDecoder *decoder;       // avifデコーダーへのポインタ
+    avifDecoder *decoder = nullptr; // avifデコーダーへのポインタ
     avifRGBImage rgb;           // avifデコードで作成したいRGBの形式を指定する変数
     avifResult result;          // avif関数のリターンコード
+    // cleanup で avifRGBImageFreePixels() に渡すため、goto より前にゼロ初期化しておく
+    memset(&rgb, 0, sizeof(rgb));
 #ifdef DEBUG
     LOGD("LoadImageAvif: Start. loadCommand=%d, page=%d, scale=%d", loadCommand, page, scale);
 #endif
@@ -136,7 +138,9 @@ int LoadImageAvif(int index, int loadCommand, IMAGEDATA *pData, int page, int sc
 
 cleanup:
     avifRGBImageFreePixels(&rgb); //  avifRGBImageAllocatePixels() で確保したメモリを開放する
-    avifDecoderDestroy(decoder);
+    if (decoder != nullptr) {
+        avifDecoderDestroy(decoder);
+    }
 #ifdef DEBUG
     LOGD("LoadImageAvif: End. return=%d", returnCode);
 #endif
@@ -201,7 +205,9 @@ int ImageGetSizeAvif(int index, int type, jint *width, jint *height)
     *height = decoder->image->height;
 
 cleanup:
-    avifDecoderDestroy(decoder);
+    if (decoder != nullptr) {
+        avifDecoderDestroy(decoder);
+    }
 #ifdef DEBUG
     LOGD("ImageGetSizeAvif: End. return=%d, width=%d, height=%d", returnCode, *width, *height);
 #endif
