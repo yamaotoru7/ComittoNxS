@@ -1,5 +1,6 @@
 package src.comitton.fileaccess;
 
+import android.net.Uri;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Build;
@@ -17,7 +18,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
-import java.net.URLEncoder;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -430,7 +431,8 @@ public class LocalFileAccess {
 		Logcat.d(logLevel, "result=" + result);
 		*/
 
-		result = base + "/document/" + id + "%3A" + URLEncoder.encode(target);
+		// URLEncoder は空白を + にするため、URI 用の Uri.encode を使う
+		result = base + "/document/" + id + "%3A" + Uri.encode(target);
 		Logcat.d(logLevel, "result=" + result);
 
 		try {
@@ -457,7 +459,10 @@ public class LocalFileAccess {
 						Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION |
 						Intent.FLAG_GRANT_PREFIX_URI_PERMISSION
 		);
-		intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, uri);
+		// EXTRA_INITIAL_URI は Uri 型で渡す (文字列だと無視される)
+		if (!uri.isEmpty()) {
+			intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, Uri.parse(uri));
+		}
 		activity.startActivityForResult(Intent.createChooser(intent, activity.getText(R.string.SafChooseTitle)), DEF.REQUEST_CODE_ACTION_OPEN_DOCUMENT_TREE);
 
 		Logcat.d(logLevel, "終了します.");

@@ -6,6 +6,7 @@ import android.content.DialogInterface.OnDismissListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.DocumentsContract;
 import android.util.Log;
@@ -240,7 +241,10 @@ public class EditServerDialog extends ImmersiveDialog implements OnClickListener
 						Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION |
 						Intent.FLAG_GRANT_PREFIX_URI_PERMISSION
 				);
-				intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, mProvider);
+				// EXTRA_INITIAL_URI は Uri 型で渡す (文字列だと無視される)
+				if (!mProvider.isEmpty()) {
+					intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, Uri.parse(mProvider));
+				}
 				mActivity.startActivityForResult(Intent.createChooser(intent, mActivity.getText(R.string.SafChooseTitle)), DEF.REQUEST_CODE_ACTION_OPEN_DOCUMENT_TREE);
 			}
 
@@ -250,7 +254,7 @@ public class EditServerDialog extends ImmersiveDialog implements OnClickListener
 				intent.addCategory(Intent.CATEGORY_OPENABLE);
 				intent.setType("*/*");
 				if (!mProvider.isEmpty()) {
-					intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, mProvider);
+					intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, Uri.parse(mProvider));
 				}
 				mActivity.startActivityForResult(intent, DEF.REQUEST_CODE_ACTION_OPEN_DOCUMENT);
 			}

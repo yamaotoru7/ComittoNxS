@@ -62,11 +62,19 @@ public final class StorageManagerCompat {
                         public void run() {
                             try (final ParcelFileDescriptor.AutoCloseOutputStream os =
                                          new ParcelFileDescriptor.AutoCloseOutputStream(pipe[1])) {
-                                int size = (int) callback.onGetSize();
-                                byte[] buf = new byte[size];
-
-                                callback.onRead(0, size, buf);
-                                os.write(buf);
+                                // ファイル全体を 1 つの配列に読むと大きなファイルで OOM になるので分割して流す
+                                long size = callback.onGetSize();
+                                byte[] buf = new byte[64 * 1024];
+                                long offset = 0;
+                                while (offset < size) {
+                                    int len = (int) Math.min(buf.length, size - offset);
+                                    int read = callback.onRead(offset, len, buf);
+                                    if (read <= 0) {
+                                        break;
+                                    }
+                                    os.write(buf, 0, read);
+                                    offset += read;
+                                }
                                 callback.onRelease();
                             } catch (IOException | ErrnoException e) {
                                 Logcat.e(logLevel, "Failed to read file.", e);

@@ -30,7 +30,7 @@ public class SambaProxyFileCallback extends StorageManagerCompat.ProxyFileDescri
         Logcat.d(logLevel, "uri=" + uri + ", user=" + user);
         mActivity = activity;
         try {
-            mSmbRandomAccessFile = SmbFileAccess.openRandomAccessFile(uri, user, pass, "rw");
+            mSmbRandomAccessFile = SmbFileAccess.openRandomAccessFile(uri, user, pass, "r");
         } catch (IOException e) {
             Logcat.e(logLevel, "Constructor Error.", e);
         }

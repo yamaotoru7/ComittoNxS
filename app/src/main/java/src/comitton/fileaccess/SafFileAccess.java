@@ -93,6 +93,7 @@ public class SafFileAccess {
 					Logcat.e(logLevel, context.getString(R.string.noResponseProvider) + ", base=" + base + ", target=" + target);
 					return result;
 				}
+				releaseClient(contentProviderClient);
 
 				Uri uri;
 				for (int i = 0; i < targetArray.length; ++i) {
@@ -109,6 +110,10 @@ public class SafFileAccess {
 						return "";
 					} else {
 						// 文字列が『..』以外なら子を探す
+						if (cursor != null) {
+							cursor.close();
+							cursor = null;
+						}
 						uri = Uri.parse(result);
 						String documentId = getDocumentId(context, uri);
 						Uri childTree = DocumentsContractCompat.buildChildDocumentsUriUsingTree(uri, documentId);
@@ -127,6 +132,10 @@ public class SafFileAccess {
 
 						Logcat.d(logLevel, "子要素を検索します. targetArray[" + i + "]=" + targetArray[i]);
 						boolean find = false;
+						if (cursor == null) {
+							Logcat.w(logLevel, "子要素を取得できません. name=" + targetArray[i]);
+							return "";
+						}
 						while (cursor.moveToNext()) {
 							docId = cursor.getString(0);
 							name = cursor.getString(1);
@@ -172,25 +181,35 @@ public class SafFileAccess {
 		return result;
 	}
 
+	// プロバイダの応答確認だけに使ったクライアントを解放する
+	@SuppressWarnings("deprecation")
+	private static void releaseClient(@NonNull ContentProviderClient client) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+			client.close();
+		}
+		else {
+			client.release();
+		}
+	}
+
 	public static ParcelFileDescriptor openParcelFileDescriptor(@NonNull final Context context, @NonNull final String uri) throws FileAccessException {
 		int logLevel = Logcat.LOG_LEVEL_WARN;
 		Logcat.d(logLevel, "開始します. uri=" + uri);
 
 		String rootUri = uri.replaceFirst("/*$", "");
 
-		ParcelFileDescriptor result = null;
+		ParcelFileDescriptor result;
 		try {
 			ContentResolver contentResolver = context.getContentResolver();
 			result = contentResolver.openFileDescriptor(Uri.parse(rootUri),"r");
-			if (result == null) {
-				Logcat.e(logLevel, "エラーが発生しました. ParcelFileDescriptor == null");
-				new FileAccessException(TAG + "SafRandomAccessFile: エラーが発生しました. ParcelFileDescriptor == null");
-			}
 		}
 		catch (Exception e) {
-			result = null;
 			Logcat.e(logLevel, "エラーが発生しました. uri=" + uri, e);
-			new FileAccessException(TAG + "SafRandomAccessFile: エラーが発生しました. " + e.getLocalizedMessage());
+			throw new FileAccessException(TAG + ": openParcelFileDescriptor: " + e.getLocalizedMessage());
+		}
+		if (result == null) {
+			Logcat.e(logLevel, "エラーが発生しました. ParcelFileDescriptor == null");
+			throw new FileAccessException(TAG + ": openParcelFileDescriptor: ParcelFileDescriptor == null");
 		}
 
 		Logcat.d(logLevel, "終了します.");
@@ -203,6 +222,11 @@ public class SafFileAccess {
 		Logcat.d(logLevel, "開始します. ");
 
 		String rootUri = uri.replaceFirst("/*$", "");
+
+		if (mode.indexOf('w') >= 0) {
+			// SafRandomAccessFile は読み込み専用
+			throw new FileAccessException(TAG + ": openRandomAccessFile: write mode is not supported. mode=" + mode);
+		}
 
 		SafRandomAccessFile result = null;
 		try {
@@ -339,6 +363,7 @@ public class SafFileAccess {
 			DEF.sendMessage(activity, R.string.noResponseProvider, Toast.LENGTH_LONG, handler);
 			return fileList;
 		}
+		releaseClient(contentProviderClient);
 
 		Cursor cursor = null;
 		try {
@@ -528,7 +553,7 @@ public class SafFileAccess {
 		}
 		else {
 			Logcat.e(logLevel, "ファイルが存在しません.");
-			result = true;
+			result = false;
 		}
 
 		Logcat.d(logLevel, "終了します. result=" + result);

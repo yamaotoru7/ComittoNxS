@@ -444,15 +444,29 @@ public class TextActivity extends AppCompatActivity implements OnTouchListener, 
 		Logcat.d(logLevel, "mServer=" + mServer + ", mURI=" + mURI + ", mPath=" + mPath + ", mUser=" + mUser
 				+ ", mFileName=" + mFileName + ", mTextName=" + mTextName);
 
+		if (mPath == null || mTextName == null) {
+			// 開く対象が指定されていなければ画面を閉じる
+			Logcat.e(logLevel, "表示するファイルが指定されていません.");
+			finish();
+			return;
+		}
+		if (mURI == null) {
+			mURI = "";
+		}
+		if (mFileName == null) {
+			mFileName = "";
+		}
+		if (mUser == null) {
+			mUser = "";
+		}
+		if (mPass == null) {
+			mPass = "";
+		}
+
 		if (mTextName.equals("META-INF/container.xml")) {
 			mFileType = FileData.FILETYPE_EPUB;
 		} else {
 			mFileType = FileData.FILETYPE_TXT;
-		}
-
-		if (mPath == null) {
-			// パスの設定がなければ終了
-			return;
 		}
 
 		// 最後に開いたファイル情報を保存
@@ -708,7 +722,7 @@ public class TextActivity extends AppCompatActivity implements OnTouchListener, 
 		}
 
 		// プログレスダイアログの設定
-		if (mInitFlg == 0) {
+		if (mInitFlg == 0 && mUriPath != null && !isFinishing()) {
 			mInitFlg = 1;
 			startDialogTimer(100);
 
@@ -2554,6 +2568,10 @@ public class TextActivity extends AppCompatActivity implements OnTouchListener, 
 
 	// テキストを再読み込み
 	private void reloadText() {
+		if (mReadRunning || mTextMgr == null) {
+			// 読み込み中 (または読み込みに失敗している) なら再読み込みしない
+			return;
+		}
 		SystemUiHelper.updateSystemBars(this, mImmEnable, mNotice);
 
 		// 現在ページ

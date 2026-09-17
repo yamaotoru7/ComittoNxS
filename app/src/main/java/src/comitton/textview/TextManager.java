@@ -6052,8 +6052,12 @@ public class TextManager {
 					Logcat.d(logLevel, "mFileType=FILETYPE_TXT, mTextPath=" + mTextPath + ",  filename=" + DEF.relativePath(mActivity, textpath, filename));
 					workStream = new WorkStream(mActivity, DEF.relativePath(mActivity, textpath, filename), mUser, mPass, mHandler);
 				}
-				BitmapFactory.decodeStream(workStream, null, option);
-				workStream.close();
+				try {
+					BitmapFactory.decodeStream(workStream, null, option);
+				} finally {
+					// 例外時も閉じる (SMB ではソケットが残る)
+					workStream.close();
+				}
 				pt.x = option.outWidth;
 				pt.y = option.outHeight;
 			}
@@ -6199,6 +6203,11 @@ public class TextManager {
 	}
 
 	public void searchText(String searchtext) {
+		if (searchtext == null || searchtext.isEmpty() || mTextPages == null || mTextBuff == null) {
+			// 検索対象がない (解放済みなど)
+			mSearchList = new MidashiData[0];
+			return;
+		}
 		// 検索文字列を小文字にする
 		searchtext = searchtext.toLowerCase(Locale.JAPANESE);
 		
@@ -6226,7 +6235,8 @@ public class TextManager {
 
 				int pos = sb.length() - searchtext.length();
 				for (int k = pos; k >= 0; k--) {
-					if (sb.substring(k).equals(searchtext)) {
+					// sb の k 以降はちょうど検索文字列の長さになっている. 部分文字列を作らずに比較する
+					if (regionEquals(sb, k, searchtext)) {
 						// ヒット
 						if (lastpage != i) {
 							MidashiData md = new MidashiData();
@@ -6246,6 +6256,19 @@ public class TextManager {
 		}
 		mSearchList = mdlist.toArray(new MidashiData[0]);
 		return;
+	}
+
+	private static boolean regionEquals(CharSequence sb, int start, String text) {
+		int len = text.length();
+		if (start < 0 || sb.length() - start != len) {
+			return false;
+		}
+		for (int i = 0; i < len; i++) {
+			if (sb.charAt(start + i) != text.charAt(i)) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	/**
