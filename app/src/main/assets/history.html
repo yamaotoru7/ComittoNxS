@@ -61,7 +61,18 @@
         <li>Access to shared online storage via external apps</li>
         Storage Access Framework (SAF), File Picker
     </ul>
-    <li>Supports Windows file sharing (SMB)</li>
+</ul>
+</p>
+
+<h3>Changes from ComittoNxX</h3>
+<p>
+<ul>
+    <li>Reworked settings: every item shows a description and its current value; the in-app help has been removed.</li>
+    <li>History list now shows one entry per ZIP file or folder.</li>
+    <li>Optimized image loading and the memory cache. Pages are downscaled automatically when the memory cache size is small.</li>
+    <li>Edge-to-edge display and predictive back gesture support.</li>
+    <li>Fixed downloads on Android 10, pinch/loupe position glitches, and infinite scroll.</li>
+    <li>Removed the microphone feature.</li>
 </ul>
 </p>
 
@@ -69,18 +80,9 @@
 <p>
 <ul>
     <li>If you are using a 32-bit application or a 32-bit OS, please reduce the memory usage.</li>
+    <li>When a page does not fit in the memory cache it is loaded downscaled (except AVIF/JXL). Increase the memory cache size to view pages at full resolution.</li>
     <li>If you use a domain in the SMB connection information, the initial connection may be slow.</li>
     <li>Analyzing the structure of RAR compressed files on online storage takes time. If you want to analyze file names when creating thumbnails, we recommend using ZIP compressed files.</li>
-</ul>
-</p>
-
-<h3>Known issues</h3>
-<p>
-<ul>
-    <li>The contents of the in-app help are out of date.</li>
-    <li>Unable to download files on Android 10.</li>
-    <li>When using the image viewer to enlarge an image by pinching in and out, the image display position becomes distorted.</li>
-    <li>When using the image viewer, if the magnification of the loupe display is set to X times the original image size, the image display position will be distorted.</li>
 </ul>
 </p>
 
