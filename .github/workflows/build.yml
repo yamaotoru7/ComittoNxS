@@ -1,0 +1,68 @@
+# ビルド・ユニットテスト・lint を実行する.
+# GitHub Actions と、.github/workflows を読む Gitea / Forgejo Actions の両方を想定している.
+name: Build
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install SDK packages
+        # CMake は README 記載のバージョン. NDK は AGP の既定バージョンが自動で入る
+        run: sdkmanager "platforms;android-35" "cmake;3.22.1"
+
+      - name: Install native build tools
+        # dav1d (meson/ninja/nasm/pkg-config) と unrar のパッチ適用 (patch) に使う
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends meson ninja-build nasm pkg-config patch
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Unit tests
+        run: ./gradlew --no-daemon :app:testDebugUnitTest
+
+      - name: Lint
+        # 既存の指摘は app/lint-baseline.xml で除外され、新しいエラーがあると失敗する
+        run: ./gradlew --no-daemon :app:lintDebug
+
+      - name: Assemble debug APK
+        run: ./gradlew --no-daemon :app:assembleDebug
+
+      - name: Upload reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reports
+          path: |
+            app/build/reports/
+            app/build/test-results/
+          if-no-files-found: ignore
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: apk-debug
+          path: app/build/outputs/apk/debug/*.apk

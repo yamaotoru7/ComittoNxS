@@ -88,7 +88,10 @@ android {
     }
 
     lint {
-        abortOnError = false
+        // 既存の指摘は lint-baseline.xml に記録し、新しく増えたエラーだけでビルドを失敗させる
+        // 既存の指摘を直したら ./gradlew :app:updateLintBaseline で更新する
+        baseline = file("lint-baseline.xml")
+        abortOnError = true
     }
 }
 
