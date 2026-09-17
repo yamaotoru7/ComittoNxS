@@ -797,7 +797,8 @@ int SetBuff(int index, int page, uint32_t width, uint32_t height, uint32_t strid
             buffindex = AllocBlock(index, page, BLOCKTYPE_ORG, 0);
             if (buffindex < 0) {
                 LOGE("SetBuff: Out of memory. ret=%d", buffindex);
-                // 領域不足
+                // 領域不足. 途中まで格納したブロックを残さない
+                ReleaseBuff(index, page, BLOCKTYPE_ORG, 0);
                 returnCode = buffindex;
                 break;
             }
