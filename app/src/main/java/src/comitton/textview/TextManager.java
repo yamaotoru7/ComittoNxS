@@ -3,7 +3,6 @@ package src.comitton.textview;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -1183,26 +1182,34 @@ public class TextManager {
 		}
 	}
 
-	public void LoadTextFile() {
-		LoadTextFile(mTextFile, true);
+	public boolean LoadTextFile() {
+		return LoadTextFile(mTextFile, true);
 	}
 
-	public void LoadTextFile(String filename) {
-		LoadTextFile(filename, true);
+	public boolean LoadTextFile(String filename) {
+		return LoadTextFile(filename, true);
 	}
 
-	public void LoadTextFile(String filename, boolean errlog) {
+	/**
+	 * 圧縮ファイル内のファイルを mInputBuff に読み込む.
+	 * @return 読み込めた場合 true. 失敗した場合 mInputBuff は null になる
+	 */
+	public boolean LoadTextFile(String filename, boolean errlog) {
 		int logLevel = Logcat.LOG_LEVEL_WARN;
 		Logcat.d(logLevel, "開始します.");
 		mInputBuff = mImageMgr.loadExpandData(filename);
-		if (mInputBuff == null && errlog) {
-			Logcat.e(logLevel, "Text file load error. filename=" + filename);
-			Message message = new Message();
-			message.what = MSG_ERROR;
-			message.obj = "Text file load error. filename=" + filename;
-			mHandler.sendMessage(message);
+		if (mInputBuff == null) {
+			if (errlog) {
+				Logcat.e(logLevel, "Text file load error. filename=" + filename);
+				Message message = new Message();
+				message.what = MSG_ERROR;
+				message.obj = "Text file load error. filename=" + filename;
+				mHandler.sendMessage(message);
+			}
+			return false;
 		}
-		Logcat.d(logLevel, MessageFormat.format("終了します.", new Object[]{mInputBuff.length}));
+		Logcat.d(logLevel, "終了します. length=" + mInputBuff.length);
+		return true;
 	}
 
 	ArrayList<String> mImageList = new ArrayList<String>();
@@ -1274,7 +1281,10 @@ public class TextManager {
 		String inputStr = "";
 		String outputStr = "";
 
-		LoadTextFile("META-INF/container.xml");
+		if (!LoadTextFile("META-INF/container.xml")) {
+			// container.xml がない. 既定のファイル名のまま扱う
+			return filename;
+		}
 
 		inputStr = DEF.toUTF8(mInputBuff, 0, mInputBuff.length);
 		inputStr = inputStr.replaceAll("\r\n", "\n");
@@ -1332,7 +1342,10 @@ public class TextManager {
 		String title = "";
 		ArrayList<EpubFile> manifest = new ArrayList<EpubFile>();
 
-		LoadTextFile(filename);
+		if (!LoadTextFile(filename)) {
+			// 書誌情報ファイルがない
+			return;
+		}
 		inputStr = DEF.toUTF8(mInputBuff, 0, mInputBuff.length);
 		inputStr = inputStr.replaceAll("\r\n", "\n");
 
@@ -1590,12 +1603,12 @@ public class TextManager {
 
 		String inputStr = "";
 
-		if (!mTocFile.isEmpty()) {
-			// ファイルを読み込んでmInputBuffに入れる
-			LoadTextFile(mTocFile);
+		if (mTocFile.isEmpty()) {
+			// 目次がない (mInputBuff には直前に読んだ別のファイルが残っているので解析しない)
+			return;
 		}
-
-		if (mInputBuff != null) {
+		// ファイルを読み込んでmInputBuffに入れる
+		if (LoadTextFile(mTocFile)) {
 			inputStr = DEF.toUTF8(mInputBuff, 0, mInputBuff.length);
 			inputStr = inputStr.replaceAll("\r\n", "\n");
 			// XML読み込み
@@ -1718,7 +1731,10 @@ public class TextManager {
 		String inputStr = "";
 
 		if (!filename.isEmpty()) {
-			LoadTextFile(filename);
+			if (!LoadTextFile(filename)) {
+				// 本文ファイルがない
+				return title;
+			}
 			inputStr = DEF.toUTF8(mInputBuff, 0, mInputBuff.length);
 			inputStr = inputStr.replaceAll("\r\n", "\n");
 			Logcat.d(logLevel,"inputStr=" + inputStr.substring(0, Math.min(1000, inputStr.length())));

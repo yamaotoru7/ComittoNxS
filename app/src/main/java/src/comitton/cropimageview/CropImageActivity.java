@@ -1,11 +1,12 @@
 package src.comitton.cropimageview;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -39,7 +40,7 @@ public class CropImageActivity extends AppCompatActivity implements Runnable, Te
     float mAspectRatio;
 
     private Thread mThread;
-    private Bitmap mBitmap;
+    private volatile Bitmap mBitmap;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -80,6 +81,10 @@ public class CropImageActivity extends AppCompatActivity implements Runnable, Te
         cropButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (mBitmap == null) {
+                    // まだ読み込み中
+                    return;
+                }
                 // フレーム内をクロップ
                 mCropImageView.Crop(mCropPath);
                 Intent intent = new Intent();
@@ -141,55 +146,73 @@ public class CropImageActivity extends AppCompatActivity implements Runnable, Te
     @Override
     public void run() {
         int logLevel = Logcat.LOG_LEVEL_WARN;
-        Message message = new Message();
-        message.what = DEF.HMSG_ERROR;
+        int result = DEF.HMSG_ERROR;
         ImageManager imageMgr = null;
-        if(mCropPath == null) {
-            imageMgr = new ImageManager(this, mPath, mFile, mUser, mPass, ImageManager.FILESORT_NAME_UP, handler,true, ImageManager.OPENMODE_THUMBSORT, 1);
-            imageMgr.LoadImageList(0, 0, 0);
-            mCropPath = imageMgr.decompFile(mPage, null);
-        }
-        if(mCropPath != null) {
-            try {
-                Logcat.d(logLevel, "イメージファイルを開きます. mURI=" + mURI);
-                Logcat.d(logLevel, "mCropPath=" + mCropPath);
-                mBitmap = imageMgr.GetBitmapFromPath(this, mCropPath, null);
-                if (mBitmap == null) {
+        try {
+            if (mCropPath == null) {
+                imageMgr = new ImageManager(this, mPath, mFile, mUser, mPass, ImageManager.FILESORT_NAME_UP, handler, true, ImageManager.OPENMODE_THUMBSORT, 1);
+                imageMgr.LoadImageList(0, 0, 0);
+                mCropPath = imageMgr.decompFile(mPage, null);
+            }
+            if (mCropPath != null) {
+                Logcat.d(logLevel, "イメージファイルを開きます. mURI=" + mURI + ", mCropPath=" + mCropPath);
+                Bitmap bitmap;
+                if (imageMgr != null) {
+                    bitmap = imageMgr.GetBitmapFromPath(this, mCropPath, null);
+                }
+                else {
+                    // ファイルパス指定で起動された場合は ImageManager を使わずに読み込む
+                    bitmap = BitmapFactory.decodeFile(mCropPath);
+                }
+                if (bitmap == null) {
                     Logcat.e(logLevel, "ビットマップ取得に失敗しました.");
                 }
                 else {
                     Logcat.d(logLevel, "ビットマップ取得に成功しました.");
-                    message.what = DEF.HMSG_LOAD_END;
-                }
-                if (mBitmap.getHeight() > 1000) {
-                    Logcat.e(logLevel, "ビットマップを縮小します.");
-                    float dsH = (float)1000 / (float)mBitmap.getHeight();
-                    mBitmap = Bitmap.createScaledBitmap(mBitmap, (int)(mBitmap.getWidth() * dsH), (int)(mBitmap.getHeight() * dsH), true);
-                }
-            } catch (Exception e) {
-                Logcat.e(logLevel, "エラーが発生しました." , e);
-                throw new RuntimeException(e);
-            } finally {
-                try {
-                    if (imageMgr != null) {
-                        imageMgr.close();
+                    if (bitmap.getHeight() > 1000) {
+                        Logcat.d(logLevel, "ビットマップを縮小します.");
+                        float dsH = (float) 1000 / (float) bitmap.getHeight();
+                        Bitmap scaled = Bitmap.createScaledBitmap(bitmap, (int) (bitmap.getWidth() * dsH), (int) (bitmap.getHeight() * dsH), true);
+                        if (scaled != bitmap) {
+                            bitmap.recycle();
+                        }
+                        bitmap = scaled;
                     }
-                } catch (Exception e) {
-                    // なにもしない
+                    mBitmap = bitmap;
+                    result = DEF.HMSG_LOAD_END;
                 }
+            }
+        } catch (Exception e) {
+            // ワーカースレッドで例外を投げるとプロセスが落ちるので、エラーとして画面を閉じる
+            Logcat.e(logLevel, "エラーが発生しました.", e);
+        } finally {
+            if (imageMgr != null) {
+                imageMgr.closeFiles();
             }
         }
         mProgress.dismiss();
-        handler.sendMessage(message);
+        handler.sendEmptyMessage(result);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        handler.removeCallbacksAndMessages(null);
+        if (mProgress != null && mProgress.isShowing()) {
+            mProgress.dismiss();
+        }
     }
 
     public void cropCallback(float aspectRatio){
         mEditAspectRatio.setText(String.format("%.3f", aspectRatio));
     }
 
-    private final Handler handler = new Handler() {
-        @SuppressLint("HandlerLeak")
+    private final Handler handler = new Handler(Looper.getMainLooper()) {
+        @Override
         public void handleMessage(Message message){
+            if (isFinishing() || isDestroyed()) {
+                return;
+            }
             switch (message.what){
                 case DEF.HMSG_LOADING: // ロード状況表示
                     mProgress.setMessage( String.valueOf(message.arg1 >> 24) + "%\n" + ((float) message.arg2 / 10) + "KB/S");
@@ -223,7 +246,12 @@ public class CropImageActivity extends AppCompatActivity implements Runnable, Te
 
     @Override
     public void afterTextChanged(Editable s) {
-        mAspectRatio = Float.parseFloat(s.toString());
+        try {
+            mAspectRatio = Float.parseFloat(s.toString());
+        } catch (NumberFormatException e) {
+            // 入力途中 (空文字や "." のみ) は無視する
+            return;
+        }
         if(mAspectRatio < 0.1f)
             mAspectRatio = 0.1f;
         mCropImageView.setAspectRatio(mAspectRatio);
