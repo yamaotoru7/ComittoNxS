@@ -379,6 +379,8 @@ public class TextActivity extends AppCompatActivity implements OnTouchListener, 
 		layout.addView(mTextView);
 		setContentView(layout);
 		SystemUiHelper.setupEdgeToEdge(this);
+		// システムバー表示中はその分だけ内側に配置し、上下のタップ領域がバーに隠れないようにする
+		SystemUiHelper.applyVisibleSystemBarInsets(layout);
 		SystemUiHelper.updateSystemBars(this, mImmEnable, mNotice);
 
 		getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {

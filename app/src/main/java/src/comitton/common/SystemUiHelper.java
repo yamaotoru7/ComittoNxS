@@ -57,6 +57,30 @@ public class SystemUiHelper {
     }
 
     /**
+     * ビュワー用: 表示中のシステムバー（ステータスバー・ナビゲーションバー）の分だけ
+     * パディングを適用する。バーを隠している間はパディング０になり全画面描画される。
+     * カットアウト領域は描画に使うためパディングしない。
+     */
+    public static void applyVisibleSystemBarInsets(View view) {
+        if (view == null) return;
+        ViewCompat.setOnApplyWindowInsetsListener(view, (v, insets) -> {
+            int[] types = {
+                WindowInsetsCompat.Type.statusBars(),
+                WindowInsetsCompat.Type.navigationBars(),
+                WindowInsetsCompat.Type.captionBar()
+            };
+            Insets bars = Insets.NONE;
+            for (int type : types) {
+                if (insets.isVisible(type)) {
+                    bars = Insets.max(bars, insets.getInsets(type));
+                }
+            }
+            v.setPadding(bars.left, bars.top, bars.right, bars.bottom);
+            return insets;
+        });
+    }
+
+    /**
      * ビュワー等のシステムバー（ナビゲーションバー・ステータスバー）の表示・非表示を制御
      *
      * @param activity 対象Activity
