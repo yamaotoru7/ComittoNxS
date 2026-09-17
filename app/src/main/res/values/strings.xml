@@ -8,8 +8,6 @@
     <string name="noticeText">history.html</string>
     <string name="aboutText">about.html</string>
     <string name="topMenu">Customized Menu</string>
-    <string name="tguide00">Screen direction</string>
-    <string name="tguide01">Cut Margin</string>
     <string name="tguide02">Facing Pages</string>
     <string name="tguide03">Display Size</string>
     <string name="selalgo00">Nearest Neighbor</string>
@@ -17,7 +15,6 @@
     <string name="selalgo02">Bi-Linear(2 Step)</string>
     <string name="selalgo03">Bi-Cubic</string>
     <string name="selalgo04">Bi-Cubic(2 Step)</string>
-    <string name="selalgo05">Lanczos3</string>
     <string name="selrota00">No rotation</string>
     <string name="selrota01">90 degrees</string>
     <string name="selrota02">180 degrees</string>
@@ -65,15 +62,11 @@
     <string name="filePrevLast">Prev File(Last Page)</string>
     <string name="fileNextMark">Next File(Marked Page)</string>
     <string name="filePrevMark">Prev File(Marked Page)</string>
-    <string name="loading">Loading</string>
     <string name="reading">File List Parsing</string>
     <string name="epubParsing">EPUB Parsing</string>
     <string name="htmlParsing">HTML Parsing</string>
     <string name="textParsing">Text Parsing</string>
     <string name="formatting">Formatting</string>
-    <string name="readxref">Loading XRef</string>
-    <string name="readpage">Loading Page Object</string>
-    <string name="download">Downloading File</string>
     <string name="imageParsing">Image Parsing</string>
     <string name="loaderr">Image Load Error.</string>
     <string name="localStrage">Local Storage</string>
@@ -90,19 +83,10 @@
     <string name="scrlWayMenuSub1">V->H</string>
     <string name="scrlWayMenuSub2">H->V</string>
     <string name="helpMenu">Operations</string>
-    <string name="sortMenu">Sort</string>
     <string name="setTopMenu">Top Menu Settings</string>
     <string name="setMenu">Settings</string>
-    <string name="dualMenu">Dual View</string>
-    <string name="halfMenu">Half View</string>
-    <string name="normMenu">Normal View</string>
-    <string name="addDirMenu">Regist Directory</string>
-    <string name="listModeMenu">Choose List Mode</string>
     <string name="shortCut">Create Shortcut</string>
-    <string name="selectSv">Select Server</string>
-    <string name="refresh">Refresh</string>
     <string name="delMenu">Delete Bookmark</string>
-    <string name="marker">Marker</string>
     <string name="addBookmarkMenu">Add Favorite</string>
     <string name="selBookmarkMenu">Select Favorite</string>
     <string name="selDirTreeMenu">Select Sub Directory</string>
@@ -113,11 +97,8 @@
     <string name="searchJumpTitle">Search Result</string>
     <string name="searchJumpNoText">There are no Search Text</string>
     <string name="searchJumpNotFound">There are no Search Result</string>
-    <string name="thumbSwt">Thumbnail View</string>
-    <string name="exitMenu">Exit</string>
     <string name="noticeMenu">Notice</string>
     <string name="aboutMenu">About</string>
-    <string name="licenseMenu">License</string>
     <string name="playMenu">Auto Play</string>
     <string name="thumbMenu">Delete Thumbnail Cache</string>
     <string name="shareMenu">Share</string>
@@ -126,11 +107,9 @@
     <string name="delshareMenu">Remove temp files for sharing</string>
     <string name="reverseMenu">Reverses order</string>
     <string name="rotateMenu">Screen direction</string>
-    <string name="pageselMenu">Select page</string>
     <string name="sharpenMenu">Sharpen image</string>
     <string name="invertMenu">Invert color</string>
     <string name="grayMenu">Gray scale</string>
-    <string name="coloringMenu">Auto Coloring</string>
     <string name="moireMenu">Moire mitigation</string>
     <string name="topsingleMenu">Single show the first page</string>
     <string name="brightMenu">Brightness(%)</string>
@@ -144,7 +123,6 @@
     <string name="algoriMenu">Interpolation</string>
     <string name="picSize">Illustrations Size</string>
     <string name="ascMode">Ascii View Mode</string>
-    <string name="sizeSection">Size settings</string>
     <string name="fontTop">Head Font(%)</string>
     <string name="fontBody">Body Font(%)</string>
     <string name="fontRubi">Rubi Font(%)</string>
@@ -153,7 +131,6 @@
     <string name="spaceH">Characters between(%)</string>
     <string name="marginW">Left/Right Margins(%)</string>
     <string name="marginH">Top/Bottom Margins(%)</string>
-    <string name="delTitle"></string>
     <string name="delMsg">Are you sure to delete?</string>
     <string name="delErrorMsg">The file could not be deleted.</string>
     <string name="renameErrorMsg">The file could not be renamed.</string>
@@ -170,7 +147,6 @@
     <string name="saTitle1">Select Server</string>
     <string name="saTitle2">Please set your server to long tap</string>
     <string name="compTitle">Expand File</string>
-    <string name="flTitle">File List</string>
     <string name="svTitle">Server Settings</string>
     <string name="svNameTitle">Display Name</string>
     <string name="svHostTitle">Host (Server/Shared Folder)</string>
@@ -185,29 +161,18 @@
     <string name="svProviderSelected">Selected</string>
     <string name="svNotFound">The specified server is not registered.</string>
     <string name="resetLocal">Resets the saved folder location.</string>
-    <string name="psAdd100">+100</string>
-    <string name="psAdd10">+10</string>
-    <string name="psAdd1">+1</string>
-    <string name="psSub100">-100</string>
-    <string name="psSub10">-10</string>
-    <string name="psSub1">-1</string>
-    <string name="psSet">Set</string>
     <string name="btnOK">OK</string>
     <string name="btnSearch">Search</string>
     <string name="btnApply">Apply</string>
     <string name="btnRevert">Revert</string>
+    <string name="btnCrop">Crop</string>
     <string name="btnCancel">Cancel</string>
-    <string name="opLabel">Please select a location pattern tap page turning.</string>
-    <string name="opReverse">Reversing the direction by tapping</string>
-    <string name="opCheck">Check</string>
     <string name="opPattern">Pattern</string>
     <string name="opRateStr">Rate of &lt; and &gt;</string>
     <string name="lastTitle">Last Page</string>
     <string name="topTitle">Top Page</string>
     <string name="backTitle">Close</string>
     <string name="cdBtnClose">Close Viewer</string>
-    <string name="cdBtnExit">Exit ComittoNxS</string>
-    <string name="cdBtnCancel">Cancel</string>
     <string name="cdBtnNext">Open next file\n(marked page)</string>
     <string name="cdBtnNextTop">Open next file\n(top page)</string>
     <string name="cdBtnPrev">Open prev file\n(marked page)</string>
@@ -226,7 +191,6 @@
     <string name="rsBtnYes">Yes</string>
     <string name="rsBtnNo">No</string>
     <string name="noticeTitle">Notes of ComittoNxS</string>
-    <string name="aboutDonate">Donate</string>
     <string name="aboutOK">OK</string>
     <string name="aboutSource">Source Download Page</string>
     <string name="addBmTitle">Add Favorite</string>
@@ -234,8 +198,6 @@
     <string name="addBmOK">OK</string>
     <string name="addBmCancel">Cancel</string>
     <string name="dlTitle">Download</string>
-    <string name="rmTitle">Remove</string>
-    <string name="exportLabel">File name</string>
     <string name="opeTitle">Operations</string>
     <string name="ope00">Set to Unread</string>
     <string name="ope01">Set to Read</string>
@@ -260,11 +222,7 @@
     <string name="siori02">In Current Folder</string>
     <string name="siori03_1">In Local Storage</string>
     <string name="siori03_2">In Current Server</string>
-    <string name="dirTitle">Directory Operations</string>
-    <string name="dir00">View Image in Directory</string>
-    <string name="dir01">Directory Delete</string>
     <string name="delBmMsg">Are you sure to delete?</string>
-    <string name="movePathErr">Could not move path</string>
     <string name="bm00">Open Folder</string>
     <string name="bm01">Edit Name</string>
     <string name="bm02">Delete Favorite</string>
@@ -273,7 +231,6 @@
     <string name="bmSort0">Path</string>
     <string name="bmSort1">Name</string>
     <string name="bmSort2">Date</string>
-    <string name="ChapterNotFound">There are no chapters.</string>
     <string name="drTitle">Directory List</string>
     <string name="hsTitle">History List</string>
     <string name="flSort1">Name(D)</string>
@@ -390,8 +347,6 @@
     <string name="effect01">Flip</string>
     <string name="effect02">Fade In</string>
     <string name="effect03">Scroll</string>
-    <string name="quality00">fast, low quality</string>
-    <string name="quality01">slow, high quality</string>
     <string name="rotabtn00">No Use</string>
     <string name="rotabtn01">Camera Focus</string>
     <string name="rotabtn02">Camera Shutter</string>
@@ -445,8 +400,6 @@
     <string name="maxthread06">6 threads</string>
     <string name="maxthread07">7 threads</string>
     <string name="maxthread08">8 threads</string>
-    <string name="Cancel">Cancel</string>
-    <string name="desc"></string>
     <string name="none">None</string>
     <string name="auto">Default</string>
     <string name="selectFile">Select File.</string>
@@ -455,15 +408,7 @@
     <string name="LoadConfig">Load setting from file.</string>
     <string name="FileNotExist">File not exist.</string>
 
-    <string name="fontdlMsg">You text file for display setting to download the font.\nRun Download If you have selected more than once downloaded, the existing file is overwritten.</string>
-    <string name="fontdlInfo">You need to agree "IPA Font License v1.0" If you want to use the IPA font.</string>
-    <string name="fontdlLic">IPA Font License v1.0</string>
-    <string name="fontdlMincho">Download IPA MINCHO</string>
-    <string name="fontdlGothic">Download IPA GOTHIC</string>
 
-    <string name="url_fontlicense">http://ipafont.ipa.go.jp/ipa_font_license_v1.html</string>
-    <string name="url_fontdownload1">http://drive.google.com/uc?export=view&amp;id=0Bzx6UxEo3Pg0MzdZMkN5ZHU0NU0</string>
-    <string name="url_fontdownload2">http://drive.google.com/uc?export=view&amp;id=0Bzx6UxEo3Pg0NFI1VFJpc0tvWlU</string>
 
     <string name="mkChk1">Filter</string>
     <string name="mkChk2">Apply to directory</string>
@@ -542,6 +487,7 @@
     <string name="CacheNotInitialized">The cache is uninitialized or has been released</string>
 
 
+    <string name="storageAccessDenied">Without storage access, local files cannot be listed. You can still open files through a SAF or file picker server.</string>
     <string name="rarEncrypted">Password protected RAR archives are not supported.</string>
     <string name="UnknownArchiveFormat">Unknown Archive Format.</string>
     <string name="ErrorNoPages">There are no pages to display.</string>

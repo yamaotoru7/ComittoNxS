@@ -31,7 +31,8 @@
 	        android:hint=""
 	        android:maxLength="4"
 	        android:scrollHorizontally="true"
-	        android:singleLine="true"
+	        android:inputType="text"
+	        android:maxLines="1"
 	        android:textSize="20sp"
 			android:imeOptions="actionSearch" />
 

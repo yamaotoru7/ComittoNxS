@@ -2,94 +2,6 @@
 <issues format="6" by="lint 9.1.0" type="baseline" client="gradle" dependencies="false" name="AGP (9.1.0)" variant="all" version="9.1.0">
 
     <issue
-        id="ScopedStorage"
-        message="The Google Play store has a policy that limits usage of MANAGE_EXTERNAL_STORAGE"
-        errorLine1="    &lt;uses-permission android:name=&quot;android.permission.MANAGE_EXTERNAL_STORAGE&quot; />"
-        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/AndroidManifest.xml"
-            line="169"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="GestureBackNavigation"
-        message="If intercepting back events, this should be handled through the registration of callbacks; see https://developer.android.com/guide/navigation/custom-back/predictive-back-gesture"
-        errorLine1="    case KeyEvent.KEYCODE_BACK:"
-        errorLine2="         ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/src/comitton/expandview/ExpandActivity.java"
-            line="342"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="GestureBackNavigation"
-        message="If intercepting back events, this should be handled through the registration of callbacks; see https://developer.android.com/guide/navigation/custom-back/predictive-back-gesture"
-        errorLine1="    case KeyEvent.KEYCODE_BACK:"
-        errorLine2="         ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/src/comitton/fileview/FileSelectActivity.java"
-            line="1287"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="GestureBackNavigation"
-        message="If intercepting back events, this should be handled through the registration of callbacks; see https://developer.android.com/guide/navigation/custom-back/predictive-back-gesture"
-        errorLine1="    case KeyEvent.KEYCODE_BACK:"
-        errorLine2="         ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/src/comitton/fileview/FileSelectActivity.java"
-            line="1326"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="GestureBackNavigation"
-        message="If intercepting back events, this should be handled through the registration of callbacks; see https://developer.android.com/guide/navigation/custom-back/predictive-back-gesture"
-        errorLine1="    case KeyEvent.KEYCODE_BACK: {"
-        errorLine2="         ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/src/comitton/imageview/ImageActivity.java"
-            line="968"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="GestureBackNavigation"
-        message="If intercepting back events, this should be handled through the registration of callbacks; see https://developer.android.com/guide/navigation/custom-back/predictive-back-gesture"
-        errorLine1="    case KeyEvent.KEYCODE_BACK:"
-        errorLine2="         ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/src/comitton/imageview/ImageActivity.java"
-            line="1023"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="GestureBackNavigation"
-        message="If intercepting back events, this should be handled through the registration of callbacks; see https://developer.android.com/guide/navigation/custom-back/predictive-back-gesture"
-        errorLine1="    case KeyEvent.KEYCODE_BACK:"
-        errorLine2="         ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/src/comitton/textview/TextActivity.java"
-            line="784"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="GestureBackNavigation"
-        message="If intercepting back events, this should be handled through the registration of callbacks; see https://developer.android.com/guide/navigation/custom-back/predictive-back-gesture"
-        errorLine1="    case KeyEvent.KEYCODE_BACK:"
-        errorLine2="         ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/src/comitton/textview/TextActivity.java"
-            line="839"
-            column="10"/>
-    </issue>
-
-    <issue
         id="CommitPrefEdits"
         message="`SharedPreferences.edit()` without a corresponding `commit()` or `apply()` call"
         errorLine1="  Editor ed = sharedPreferences.edit();"
@@ -371,7 +283,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/src/comitton/textview/TextActivity.java"
-            line="2219"
+            line="2217"
             column="25"/>
     </issue>
 
@@ -750,11 +662,11 @@
         errorLine2="~~~~~~~">
         <location
             file="src/main/java/src/comitton/textview/TextActivity.java"
-            line="2259"
+            line="2257"
             column="1"/>
         <location
             file="src/main/java/src/comitton/textview/TextActivity.java"
-            line="2258"
+            line="2256"
             column="1"
             message="Previous line indentation here"/>
     </issue>
@@ -766,11 +678,11 @@
         errorLine2="   ~~">
         <location
             file="src/main/java/src/comitton/textview/TextActivity.java"
-            line="2302"
+            line="2300"
             column="4"/>
         <location
             file="src/main/java/src/comitton/textview/TextActivity.java"
-            line="2301"
+            line="2299"
             column="4"
             message="Previous line indentation here"/>
     </issue>
@@ -830,7 +742,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
-            line="12"
+            line="11"
             column="9"/>
     </issue>
 
@@ -841,7 +753,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
-            line="21"
+            line="19"
             column="13"/>
     </issue>
 
@@ -852,7 +764,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
-            line="55"
+            line="53"
             column="13"/>
     </issue>
 
@@ -863,7 +775,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
-            line="63"
+            line="61"
             column="13"/>
     </issue>
 
@@ -874,7 +786,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
-            line="73"
+            line="72"
             column="13"/>
     </issue>
 
@@ -896,7 +808,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
-            line="85"
+            line="86"
             column="13"/>
     </issue>
 
@@ -907,7 +819,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
-            line="91"
+            line="93"
             column="13"/>
     </issue>
 
@@ -918,7 +830,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
-            line="97"
+            line="100"
             column="13"/>
     </issue>
 
@@ -929,7 +841,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
-            line="103"
+            line="107"
             column="13"/>
     </issue>
 
@@ -940,18 +852,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
-            line="109"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `resizeableActivity` is only used in API level 24 and higher (current min is 21)"
-        errorLine1="            android:resizeableActivity=&quot;true&quot; >"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/AndroidManifest.xml"
-            line="115"
+            line="114"
             column="13"/>
     </issue>
 
@@ -973,7 +874,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
-            line="127"
+            line="128"
             column="13"/>
     </issue>
 
@@ -984,7 +885,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
-            line="133"
+            line="135"
             column="13"/>
     </issue>
 
@@ -995,7 +896,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
-            line="139"
+            line="142"
             column="13"/>
     </issue>
 
@@ -1006,7 +907,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
-            line="145"
+            line="149"
             column="13"/>
     </issue>
 
@@ -1017,7 +918,18 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
-            line="151"
+            line="156"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `resizeableActivity` is only used in API level 24 and higher (current min is 21)"
+        errorLine1="            android:resizeableActivity=&quot;true&quot; >"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/AndroidManifest.xml"
+            line="163"
             column="13"/>
     </issue>
 
@@ -1039,7 +951,7 @@
         errorLine2="                                               ~~~~">
         <location
             file="src/main/java/src/comitton/expandview/ExpandActivity.java"
-            line="853"
+            line="846"
             column="48"/>
     </issue>
 
@@ -1112,11 +1024,11 @@
     <issue
         id="ManifestOrder"
         message="`&lt;uses-permission>` tag appears after `&lt;application>` tag"
-        errorLine1="    &lt;uses-permission android:name=&quot;android.permission.READ_EXTERNAL_STORAGE&quot; />"
+        errorLine1="    &lt;uses-permission android:name=&quot;android.permission.READ_EXTERNAL_STORAGE&quot; android:maxSdkVersion=&quot;32&quot; />"
         errorLine2="     ~~~~~~~~~~~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
-            line="167"
+            line="178"
             column="6"/>
     </issue>
 
@@ -1358,19 +1270,8 @@
         errorLine2="                                ~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="408"
+            line="363"
             column="33"/>
-    </issue>
-
-    <issue
-        id="Typos"
-        message="Did you mean &quot;NFI!&quot; instead of &quot;NFI1&quot;?"
-        errorLine1="    &lt;string name=&quot;url_fontdownload2&quot;>http://drive.google.com/uc?export=view&amp;amp;id=0Bzx6UxEo3Pg0NFI1VFJpc0tvWlU&lt;/string>"
-        errorLine2="                                                                                            ~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="466"
-            column="93"/>
     </issue>
 
     <issue
@@ -1380,7 +1281,7 @@
         errorLine2="                                                                                                                                           ~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="574"
+            line="520"
             column="140"/>
     </issue>
 
@@ -1391,11 +1292,11 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ja/strings.xml"
-            line="296"
+            line="253"
             column="5"/>
         <location
             file="src/main/res/values/strings.xml"
-            line="296"
+            line="253"
             column="5"
             message="Conflicting number of arguments (1) here"/>
     </issue>
@@ -1535,17 +1436,6 @@
     <issue
         id="InefficientWeight"
         message="Use a `layout_height` of `0dp` instead of `wrap_content` for better performance"
-        errorLine1="     android:layout_height=&quot;wrap_content&quot;"
-        errorLine2="     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/chapterpageselect.xml"
-            line="125"
-            column="6"/>
-    </issue>
-
-    <issue
-        id="InefficientWeight"
-        message="Use a `layout_height` of `0dp` instead of `wrap_content` for better performance"
         errorLine1="        android:layout_height=&quot;wrap_content&quot;"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -1596,1427 +1486,6 @@
             file="src/main/res/layout/textconfig_other.xml"
             line="11"
             column="3"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.add_directory_w` appears to be unused"
-        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot; android:height=&quot;24dp&quot; android:viewportHeight=&quot;32&quot; android:viewportWidth=&quot;32&quot; android:width=&quot;24dp&quot;>"
-        errorLine2="^">
-        <location
-            file="src/main/res/drawable/add_directory_w.xml"
-            line="1"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.back_arrow` appears to be unused"
-        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot; android:height=&quot;32dp&quot; android:viewportHeight=&quot;128&quot; android:viewportWidth=&quot;128&quot; android:width=&quot;32dp&quot;>"
-        errorLine2="^">
-        <location
-            file="src/main/res/drawable/back_arrow.xml"
-            line="1"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.broom` appears to be unused"
-        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot; android:height=&quot;24dp&quot; android:viewportHeight=&quot;32&quot; android:viewportWidth=&quot;32&quot; android:width=&quot;24dp&quot;>"
-        errorLine2="^">
-        <location
-            file="src/main/res/drawable/broom.xml"
-            line="1"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.browser_not_supported` appears to be unused"
-        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot; android:height=&quot;24dp&quot; android:tint=&quot;#000000&quot; android:viewportHeight=&quot;24&quot; android:viewportWidth=&quot;24&quot; android:width=&quot;24dp&quot;>"
-        errorLine2="^">
-        <location
-            file="src/main/res/drawable/browser_not_supported.xml"
-            line="1"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.layout.chapterpageselect` appears to be unused"
-        errorLine1="&lt;LinearLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
-        <location
-            file="src/main/res/layout/chapterpageselect.xml"
-            line="2"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.check` appears to be unused"
-        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot; android:height=&quot;24dp&quot; android:viewportHeight=&quot;32&quot; android:viewportWidth=&quot;32&quot; android:width=&quot;24dp&quot;>"
-        errorLine2="^">
-        <location
-            file="src/main/res/drawable/check.xml"
-            line="1"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.color.blue2` appears to be unused"
-        errorLine1="    &lt;color name=&quot;blue2&quot;>#0067C0&lt;/color>"
-        errorLine2="           ~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/colors.xml"
-            line="4"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.color.blue3` appears to be unused"
-        errorLine1="    &lt;color name=&quot;blue3&quot;>#465DAA&lt;/color>"
-        errorLine2="           ~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/colors.xml"
-            line="5"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.color.orange1` appears to be unused"
-        errorLine1="    &lt;color name=&quot;orange1&quot;>#99eca14f&lt;/color>"
-        errorLine2="           ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/colors.xml"
-            line="6"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.color.orange2` appears to be unused"
-        errorLine1="    &lt;color name=&quot;orange2&quot;>#66eca14f&lt;/color>"
-        errorLine2="           ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/colors.xml"
-            line="7"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.color.black3` appears to be unused"
-        errorLine1="    &lt;color name=&quot;black3&quot;>#80000000&lt;/color>"
-        errorLine2="           ~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/colors.xml"
-            line="12"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.color.lightgrey2` appears to be unused"
-        errorLine1="    &lt;color name=&quot;lightgrey2&quot;>#99dddddd&lt;/color>"
-        errorLine2="           ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/colors.xml"
-            line="14"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.color.grey2` appears to be unused"
-        errorLine1="    &lt;color name=&quot;grey2&quot;>#99bbbbbb&lt;/color>"
-        errorLine2="           ~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/colors.xml"
-            line="16"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.color.green1` appears to be unused"
-        errorLine1="    &lt;color name=&quot;green1&quot;>#00B16B&lt;/color>"
-        errorLine2="           ~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/colors.xml"
-            line="19"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.color.green3` appears to be unused"
-        errorLine1="    &lt;color name=&quot;green3&quot;>#9926896D&lt;/color>"
-        errorLine2="           ~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/colors.xml"
-            line="21"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.color.red2` appears to be unused"
-        errorLine1="    &lt;color name=&quot;red2&quot;>#E8204E&lt;/color>"
-        errorLine2="           ~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/colors.xml"
-            line="23"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.color.red3` appears to be unused"
-        errorLine1="    &lt;color name=&quot;red3&quot;>#DC143C&lt;/color>"
-        errorLine2="           ~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/colors.xml"
-            line="24"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.comittonxx_arm32` appears to be unused">
-        <location
-            file="src/main/res/drawable-hdpi/comittonxx_arm32.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.comittonxx_arm64` appears to be unused">
-        <location
-            file="src/main/res/drawable-hdpi/comittonxx_arm64.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.comittonxx_x64` appears to be unused">
-        <location
-            file="src/main/res/drawable-hdpi/comittonxx_x64.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.comittonxx_x86` appears to be unused">
-        <location
-            file="src/main/res/drawable-hdpi/comittonxx_x86.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.cross_mark` appears to be unused"
-        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot; android:height=&quot;32dp&quot; android:viewportHeight=&quot;64&quot; android:viewportWidth=&quot;64&quot; android:width=&quot;32dp&quot;>"
-        errorLine2="^">
-        <location
-            file="src/main/res/drawable/cross_mark.xml"
-            line="1"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.delete_history` appears to be unused"
-        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot; android:height=&quot;32dp&quot; android:viewportHeight=&quot;48&quot; android:viewportWidth=&quot;48&quot; android:width=&quot;32dp&quot;>"
-        errorLine2="^">
-        <location
-            file="src/main/res/drawable/delete_history.xml"
-            line="1"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.layout.dialoglistitem` appears to be unused"
-        errorLine1="&lt;CheckedTextView xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
-        <location
-            file="src/main/res/layout/dialoglistitem.xml"
-            line="2"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.directory_w` appears to be unused"
-        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot; android:height=&quot;24dp&quot; android:viewportHeight=&quot;32&quot; android:viewportWidth=&quot;32&quot; android:width=&quot;24dp&quot;>"
-        errorLine2="^">
-        <location
-            file="src/main/res/drawable/directory_w.xml"
-            line="1"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.down_arrow` appears to be unused"
-        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot; android:height=&quot;32dp&quot; android:viewportHeight=&quot;128&quot; android:viewportWidth=&quot;128&quot; android:width=&quot;32dp&quot;>"
-        errorLine2="^">
-        <location
-            file="src/main/res/drawable/down_arrow.xml"
-            line="1"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.edittext` appears to be unused"
-        errorLine1="&lt;layer-list xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;>"
-        errorLine2="^">
-        <location
-            file="src/main/res/drawable/edittext.xml"
-            line="2"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.expand_left_white` appears to be unused"
-        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot; android:height=&quot;24dp&quot; android:viewportHeight=&quot;24&quot; android:viewportWidth=&quot;24&quot; android:width=&quot;24dp&quot;>"
-        errorLine2="^">
-        <location
-            file="src/main/res/drawable/expand_left_white.xml"
-            line="1"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.expand_up_white` appears to be unused"
-        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot; android:height=&quot;24dp&quot; android:viewportHeight=&quot;24&quot; android:viewportWidth=&quot;24&quot; android:width=&quot;24dp&quot;>"
-        errorLine2="^">
-        <location
-            file="src/main/res/drawable/expand_up_white.xml"
-            line="1"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.forward_arrow` appears to be unused"
-        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot; android:height=&quot;32dp&quot; android:viewportHeight=&quot;128&quot; android:viewportWidth=&quot;128&quot; android:width=&quot;32dp&quot;>"
-        errorLine2="^">
-        <location
-            file="src/main/res/drawable/forward_arrow.xml"
-            line="1"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.help` appears to be unused"
-        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot; android:height=&quot;24dp&quot; android:viewportHeight=&quot;32&quot; android:viewportWidth=&quot;32&quot; android:width=&quot;24dp&quot;>"
-        errorLine2="^">
-        <location
-            file="src/main/res/drawable/help.xml"
-            line="1"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.html` appears to be unused"
-        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot; android:height=&quot;32dp&quot; android:viewportHeight=&quot;512&quot; android:viewportWidth=&quot;512&quot; android:width=&quot;32dp&quot;>"
-        errorLine2="^">
-        <location
-            file="src/main/res/drawable/html.xml"
-            line="1"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.ic_menu_archive` appears to be unused">
-        <location
-            file="src/main/res/drawable-nodpi/ic_menu_archive.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.ic_menu_dual` appears to be unused">
-        <location
-            file="src/main/res/drawable-nodpi/ic_menu_dual.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.ic_menu_emoticons` appears to be unused">
-        <location
-            file="src/main/res/drawable-nodpi/ic_menu_emoticons.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.ic_menu_half` appears to be unused">
-        <location
-            file="src/main/res/drawable-nodpi/ic_menu_half.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.ic_menu_norm1` appears to be unused">
-        <location
-            file="src/main/res/drawable-nodpi/ic_menu_norm1.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.ic_menu_norm2` appears to be unused">
-        <location
-            file="src/main/res/drawable-nodpi/ic_menu_norm2.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.ic_menu_refresh` appears to be unused">
-        <location
-            file="src/main/res/drawable-nodpi/ic_menu_refresh.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.ic_mic_mic` appears to be unused">
-        <location
-            file="src/main/res/drawable-nodpi/ic_mic_mic.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.ic_mic_sample` appears to be unused">
-        <location
-            file="src/main/res/drawable-nodpi/ic_mic_sample.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.ic_mic_ton` appears to be unused">
-        <location
-            file="src/main/res/drawable-nodpi/ic_mic_ton.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.ic_mic_too` appears to be unused">
-        <location
-            file="src/main/res/drawable-nodpi/ic_mic_too.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.ic_mic_yet` appears to be unused">
-        <location
-            file="src/main/res/drawable-nodpi/ic_mic_yet.png"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.image` appears to be unused"
-        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot; android:height=&quot;32dp&quot; android:viewportHeight=&quot;512&quot; android:viewportWidth=&quot;512&quot; android:width=&quot;32dp&quot;>"
-        errorLine2="^">
-        <location
-            file="src/main/res/drawable/image.xml"
-            line="1"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.image_not_supported` appears to be unused"
-        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot; android:height=&quot;24dp&quot; android:tint=&quot;#000000&quot; android:viewportHeight=&quot;24&quot; android:viewportWidth=&quot;24&quot; android:width=&quot;24dp&quot;>"
-        errorLine2="^">
-        <location
-            file="src/main/res/drawable/image_not_supported.xml"
-            line="1"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.license` appears to be unused"
-        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot; android:height=&quot;32dp&quot; android:viewportHeight=&quot;36&quot; android:viewportWidth=&quot;36&quot; android:width=&quot;32dp&quot;>"
-        errorLine2="^">
-        <location
-            file="src/main/res/drawable/license.xml"
-            line="1"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.light_mode` appears to be unused"
-        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot; android:height=&quot;24dp&quot; android:tint=&quot;#000000&quot; android:viewportHeight=&quot;24&quot; android:viewportWidth=&quot;24&quot; android:width=&quot;24dp&quot;>"
-        errorLine2="^">
-        <location
-            file="src/main/res/drawable/light_mode.xml"
-            line="1"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.array.thumsize_name_list` appears to be unused"
-        errorLine1="    &lt;string-array name=&quot;thumsize_name_list&quot;>"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/list_define.xml"
-            line="68"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.array.thumsize_value_list` appears to be unused"
-        errorLine1="    &lt;string-array name=&quot;thumsize_value_list&quot;>"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/list_define.xml"
-            line="77"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.array.quality_name_list` appears to be unused"
-        errorLine1="    &lt;string-array name=&quot;quality_name_list&quot;>"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/list_define.xml"
-            line="409"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.array.quality_value_list` appears to be unused"
-        errorLine1="    &lt;string-array name=&quot;quality_value_list&quot;>"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/list_define.xml"
-            line="413"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.array.bright_name_list` appears to be unused"
-        errorLine1="    &lt;string-array name=&quot;bright_name_list&quot;>"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/list_define.xml"
-            line="545"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.array.bright_value_list` appears to be unused"
-        errorLine1="    &lt;string-array name=&quot;bright_value_list&quot;>"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/list_define.xml"
-            line="552"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.array.gamma_name_list` appears to be unused"
-        errorLine1="    &lt;string-array name=&quot;gamma_name_list&quot;>"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/list_define.xml"
-            line="559"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.array.gamma_value_list` appears to be unused"
-        errorLine1="    &lt;string-array name=&quot;gamma_value_list&quot;>"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/list_define.xml"
-            line="566"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.list_directory` appears to be unused"
-        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot; android:height=&quot;24dp&quot; android:viewportHeight=&quot;48&quot; android:viewportWidth=&quot;48&quot; android:width=&quot;24dp&quot;>"
-        errorLine2="^">
-        <location
-            file="src/main/res/drawable/list_directory.xml"
-            line="1"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.navi_add` appears to be unused"
-        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot; android:height=&quot;24dp&quot; android:viewportHeight=&quot;512&quot; android:viewportWidth=&quot;512&quot; android:width=&quot;24dp&quot;>"
-        errorLine2="^">
-        <location
-            file="src/main/res/drawable/navi_add.xml"
-            line="1"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.navi_add_dir` appears to be unused"
-        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot; android:height=&quot;24dp&quot; android:viewportHeight=&quot;512&quot; android:viewportWidth=&quot;512&quot; android:width=&quot;24dp&quot;>"
-        errorLine2="^">
-        <location
-            file="src/main/res/drawable/navi_add_dir.xml"
-            line="1"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.navi_add_dir2` appears to be unused"
-        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot; android:height=&quot;24dp&quot; android:viewportHeight=&quot;512&quot; android:viewportWidth=&quot;512&quot; android:width=&quot;24dp&quot;>"
-        errorLine2="^">
-        <location
-            file="src/main/res/drawable/navi_add_dir2.xml"
-            line="1"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.navi_left` appears to be unused"
-        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot; android:height=&quot;24dp&quot; android:viewportHeight=&quot;32&quot; android:viewportWidth=&quot;32&quot; android:width=&quot;24dp&quot;>"
-        errorLine2="^">
-        <location
-            file="src/main/res/drawable/navi_left.xml"
-            line="1"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.navi_menu2` appears to be unused"
-        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot; android:height=&quot;24dp&quot; android:viewportHeight=&quot;512&quot; android:viewportWidth=&quot;512&quot; android:width=&quot;24dp&quot;>"
-        errorLine2="^">
-        <location
-            file="src/main/res/drawable/navi_menu2.xml"
-            line="1"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.navi_right` appears to be unused"
-        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot; android:height=&quot;24dp&quot; android:viewportHeight=&quot;32&quot; android:viewportWidth=&quot;32&quot; android:width=&quot;24dp&quot;>"
-        errorLine2="^">
-        <location
-            file="src/main/res/drawable/navi_right.xml"
-            line="1"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.layout.notice` appears to be unused"
-        errorLine1="&lt;LinearLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
-        <location
-            file="src/main/res/layout/notice.xml"
-            line="2"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.layout.notice_donate` appears to be unused"
-        errorLine1="&lt;LinearLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
-        <location
-            file="src/main/res/layout/notice_donate.xml"
-            line="2"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.open_book_arrow_left` appears to be unused"
-        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot; android:height=&quot;32dp&quot; android:viewportHeight=&quot;489.8&quot; android:viewportWidth=&quot;489.8&quot; android:width=&quot;32dp&quot;>"
-        errorLine2="^">
-        <location
-            file="src/main/res/drawable/open_book_arrow_left.xml"
-            line="1"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.open_book_arrow_right` appears to be unused"
-        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot; android:height=&quot;32dp&quot; android:viewportHeight=&quot;489.8&quot; android:viewportWidth=&quot;489.8&quot; android:width=&quot;32dp&quot;>"
-        errorLine2="^">
-        <location
-            file="src/main/res/drawable/open_book_arrow_right.xml"
-            line="1"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.layout.operation` appears to be unused"
-        errorLine1="&lt;LinearLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
-        <location
-            file="src/main/res/layout/operation.xml"
-            line="2"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.plus` appears to be unused"
-        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot; android:height=&quot;24dp&quot; android:viewportHeight=&quot;32&quot; android:viewportWidth=&quot;32&quot; android:width=&quot;24dp&quot;>"
-        errorLine2="^">
-        <location
-            file="src/main/res/drawable/plus.xml"
-            line="1"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.png` appears to be unused"
-        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot; android:height=&quot;32dp&quot; android:viewportHeight=&quot;512&quot; android:viewportWidth=&quot;512&quot; android:width=&quot;32dp&quot;>"
-        errorLine2="^">
-        <location
-            file="src/main/res/drawable/png.xml"
-            line="1"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.layout.removedialog` appears to be unused"
-        errorLine1="&lt;LinearLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
-        <location
-            file="src/main/res/layout/removedialog.xml"
-            line="2"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.tguide00` appears to be unused"
-        errorLine1="    &lt;string name=&quot;tguide00&quot;>Screen direction&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="11"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.tguide01` appears to be unused"
-        errorLine1="    &lt;string name=&quot;tguide01&quot;>Cut Margin&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="12"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.selalgo05` appears to be unused"
-        errorLine1="    &lt;string name=&quot;selalgo05&quot;>Lanczos3&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="20"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.loading` appears to be unused"
-        errorLine1="    &lt;string name=&quot;loading&quot;>Loading&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="68"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.readxref` appears to be unused"
-        errorLine1="    &lt;string name=&quot;readxref&quot;>Loading XRef&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="74"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.readpage` appears to be unused"
-        errorLine1="    &lt;string name=&quot;readpage&quot;>Loading Page Object&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="75"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.download` appears to be unused"
-        errorLine1="    &lt;string name=&quot;download&quot;>Downloading File&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="76"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.sortMenu` appears to be unused"
-        errorLine1="    &lt;string name=&quot;sortMenu&quot;>Sort&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="93"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.dualMenu` appears to be unused"
-        errorLine1="    &lt;string name=&quot;dualMenu&quot;>Dual View&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="96"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.halfMenu` appears to be unused"
-        errorLine1="    &lt;string name=&quot;halfMenu&quot;>Half View&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="97"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.normMenu` appears to be unused"
-        errorLine1="    &lt;string name=&quot;normMenu&quot;>Normal View&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="98"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.addDirMenu` appears to be unused"
-        errorLine1="    &lt;string name=&quot;addDirMenu&quot;>Regist Directory&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="99"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.listModeMenu` appears to be unused"
-        errorLine1="    &lt;string name=&quot;listModeMenu&quot;>Choose List Mode&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="100"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.selectSv` appears to be unused"
-        errorLine1="    &lt;string name=&quot;selectSv&quot;>Select Server&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="102"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.refresh` appears to be unused"
-        errorLine1="    &lt;string name=&quot;refresh&quot;>Refresh&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="103"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.marker` appears to be unused"
-        errorLine1="    &lt;string name=&quot;marker&quot;>Marker&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="105"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.thumbSwt` appears to be unused"
-        errorLine1="    &lt;string name=&quot;thumbSwt&quot;>Thumbnail View&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="116"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.exitMenu` appears to be unused"
-        errorLine1="    &lt;string name=&quot;exitMenu&quot;>Exit&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="117"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.licenseMenu` appears to be unused"
-        errorLine1="    &lt;string name=&quot;licenseMenu&quot;>License&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="120"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.pageselMenu` appears to be unused"
-        errorLine1="    &lt;string name=&quot;pageselMenu&quot;>Select page&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="129"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.coloringMenu` appears to be unused"
-        errorLine1="    &lt;string name=&quot;coloringMenu&quot;>Auto Coloring&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="133"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.sizeSection` appears to be unused"
-        errorLine1="    &lt;string name=&quot;sizeSection&quot;>Size settings&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="147"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.delTitle` appears to be unused"
-        errorLine1="    &lt;string name=&quot;delTitle&quot;>&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="156"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.flTitle` appears to be unused"
-        errorLine1="    &lt;string name=&quot;flTitle&quot;>File List&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="173"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.psAdd100` appears to be unused"
-        errorLine1="    &lt;string name=&quot;psAdd100&quot;>+100&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="188"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.psAdd10` appears to be unused"
-        errorLine1="    &lt;string name=&quot;psAdd10&quot;>+10&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="189"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.psAdd1` appears to be unused"
-        errorLine1="    &lt;string name=&quot;psAdd1&quot;>+1&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="190"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.psSub100` appears to be unused"
-        errorLine1="    &lt;string name=&quot;psSub100&quot;>-100&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="191"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.psSub10` appears to be unused"
-        errorLine1="    &lt;string name=&quot;psSub10&quot;>-10&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="192"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.psSub1` appears to be unused"
-        errorLine1="    &lt;string name=&quot;psSub1&quot;>-1&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="193"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.psSet` appears to be unused"
-        errorLine1="    &lt;string name=&quot;psSet&quot;>Set&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="194"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.opLabel` appears to be unused"
-        errorLine1="    &lt;string name=&quot;opLabel&quot;>Please select a location pattern tap page turning.&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="200"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.opReverse` appears to be unused"
-        errorLine1="    &lt;string name=&quot;opReverse&quot;>Reversing the direction by tapping&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="201"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.opCheck` appears to be unused"
-        errorLine1="    &lt;string name=&quot;opCheck&quot;>Check&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="202"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.cdBtnExit` appears to be unused"
-        errorLine1="    &lt;string name=&quot;cdBtnExit&quot;>Exit ComittoNxS&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="209"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.cdBtnCancel` appears to be unused"
-        errorLine1="    &lt;string name=&quot;cdBtnCancel&quot;>Cancel&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="210"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.aboutDonate` appears to be unused"
-        errorLine1="    &lt;string name=&quot;aboutDonate&quot;>Donate&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="229"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.rmTitle` appears to be unused"
-        errorLine1="    &lt;string name=&quot;rmTitle&quot;>Remove&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="237"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.exportLabel` appears to be unused"
-        errorLine1="    &lt;string name=&quot;exportLabel&quot;>File name&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="238"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.dirTitle` appears to be unused"
-        errorLine1="    &lt;string name=&quot;dirTitle&quot;>Directory Operations&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="263"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.dir00` appears to be unused"
-        errorLine1="    &lt;string name=&quot;dir00&quot;>View Image in Directory&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="264"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.dir01` appears to be unused"
-        errorLine1="    &lt;string name=&quot;dir01&quot;>Directory Delete&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="265"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.movePathErr` appears to be unused"
-        errorLine1="    &lt;string name=&quot;movePathErr&quot;>Could not move path&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="267"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.ChapterNotFound` appears to be unused"
-        errorLine1="    &lt;string name=&quot;ChapterNotFound&quot;>There are no chapters.&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="276"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.quality00` appears to be unused"
-        errorLine1="    &lt;string name=&quot;quality00&quot;>fast, low quality&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="393"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.quality01` appears to be unused"
-        errorLine1="    &lt;string name=&quot;quality01&quot;>slow, high quality&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="394"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.Cancel` appears to be unused"
-        errorLine1="    &lt;string name=&quot;Cancel&quot;>Cancel&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="448"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.desc` appears to be unused"
-        errorLine1="    &lt;string name=&quot;desc&quot;>&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="449"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.fontdlMsg` appears to be unused"
-        errorLine1="    &lt;string name=&quot;fontdlMsg&quot;>You text file for display setting to download the font.\nRun Download If you have selected more than once downloaded, the existing file is overwritten.&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="458"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.fontdlInfo` appears to be unused"
-        errorLine1="    &lt;string name=&quot;fontdlInfo&quot;>You need to agree &quot;IPA Font License v1.0&quot; If you want to use the IPA font.&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="459"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.fontdlLic` appears to be unused"
-        errorLine1="    &lt;string name=&quot;fontdlLic&quot;>IPA Font License v1.0&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="460"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.fontdlMincho` appears to be unused"
-        errorLine1="    &lt;string name=&quot;fontdlMincho&quot;>Download IPA MINCHO&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="461"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.fontdlGothic` appears to be unused"
-        errorLine1="    &lt;string name=&quot;fontdlGothic&quot;>Download IPA GOTHIC&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="462"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.url_fontlicense` appears to be unused"
-        errorLine1="    &lt;string name=&quot;url_fontlicense&quot;>http://ipafont.ipa.go.jp/ipa_font_license_v1.html&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="464"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.url_fontdownload1` appears to be unused"
-        errorLine1="    &lt;string name=&quot;url_fontdownload1&quot;>http://drive.google.com/uc?export=view&amp;amp;id=0Bzx6UxEo3Pg0MzdZMkN5ZHU0NU0&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="465"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.url_fontdownload2` appears to be unused"
-        errorLine1="    &lt;string name=&quot;url_fontdownload2&quot;>http://drive.google.com/uc?export=view&amp;amp;id=0Bzx6UxEo3Pg0NFI1VFJpc0tvWlU&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="466"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.style.MyCheckBoxTextColor` appears to be unused"
-        errorLine1="    &lt;style name=&quot;MyCheckBoxTextColor&quot;>"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/style.xml"
-            line="115"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.svg` appears to be unused"
-        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot; android:height=&quot;32dp&quot; android:viewportHeight=&quot;512&quot; android:viewportWidth=&quot;512&quot; android:width=&quot;32dp&quot;>"
-        errorLine2="^">
-        <location
-            file="src/main/res/drawable/svg.xml"
-            line="1"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.thumb_text` appears to be unused"
-        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot; android:height=&quot;24dp&quot; android:viewportHeight=&quot;64&quot; android:viewportWidth=&quot;64&quot; android:width=&quot;24dp&quot;>"
-        errorLine2="^">
-        <location
-            file="src/main/res/drawable/thumb_text.xml"
-            line="1"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.trash` appears to be unused"
-        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot; android:height=&quot;32dp&quot; android:viewportHeight=&quot;16&quot; android:viewportWidth=&quot;16&quot; android:width=&quot;32dp&quot;>"
-        errorLine2="^">
-        <location
-            file="src/main/res/drawable/trash.xml"
-            line="1"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.up_arrow` appears to be unused"
-        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot; android:height=&quot;32dp&quot; android:viewportHeight=&quot;128&quot; android:viewportWidth=&quot;128&quot; android:width=&quot;32dp&quot;>"
-        errorLine2="^">
-        <location
-            file="src/main/res/drawable/up_arrow.xml"
-            line="1"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.xlsx` appears to be unused"
-        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot; android:height=&quot;32dp&quot; android:viewportHeight=&quot;512&quot; android:viewportWidth=&quot;512&quot; android:width=&quot;32dp&quot;>"
-        errorLine2="^">
-        <location
-            file="src/main/res/drawable/xlsx.xml"
-            line="1"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.xml` appears to be unused"
-        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot; android:height=&quot;32dp&quot; android:viewportHeight=&quot;512&quot; android:viewportWidth=&quot;512&quot; android:width=&quot;32dp&quot;>"
-        errorLine2="^">
-        <location
-            file="src/main/res/drawable/xml.xml"
-            line="1"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.drawable.zip` appears to be unused"
-        errorLine1="&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot; android:height=&quot;32dp&quot; android:viewportHeight=&quot;512&quot; android:viewportWidth=&quot;512&quot; android:width=&quot;32dp&quot;>"
-        errorLine2="^">
-        <location
-            file="src/main/res/drawable/zip.xml"
-            line="1"
-            column="1"/>
     </issue>
 
     <issue
@@ -3114,7 +1583,7 @@
         errorLine2="              ~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ja/list_define.xml"
-            line="435"
+            line="409"
             column="15"/>
     </issue>
 
@@ -3125,7 +1594,7 @@
         errorLine2="                                ~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values-ja/strings.xml"
-            line="408"
+            line="363"
             column="33"/>
     </issue>
 
@@ -3136,50 +1605,8 @@
         errorLine2="                                ~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="408"
+            line="363"
             column="33"/>
-    </issue>
-
-    <issue
-        id="IconColors"
-        message="Action Bar icons should use a single gray color (`#333333` for light themes (with 60%/30% opacity for enabled/disabled), and `#FFFFFF` with opacity 80%/30% for dark themes">
-        <location
-            file="src/main/res/drawable-nodpi/ic_menu_archive.png"/>
-    </issue>
-
-    <issue
-        id="IconColors"
-        message="Action Bar icons should use a single gray color (`#333333` for light themes (with 60%/30% opacity for enabled/disabled), and `#FFFFFF` with opacity 80%/30% for dark themes">
-        <location
-            file="src/main/res/drawable-nodpi/ic_menu_dual.png"/>
-    </issue>
-
-    <issue
-        id="IconColors"
-        message="Action Bar icons should use a single gray color (`#333333` for light themes (with 60%/30% opacity for enabled/disabled), and `#FFFFFF` with opacity 80%/30% for dark themes">
-        <location
-            file="src/main/res/drawable-nodpi/ic_menu_emoticons.png"/>
-    </issue>
-
-    <issue
-        id="IconColors"
-        message="Action Bar icons should use a single gray color (`#333333` for light themes (with 60%/30% opacity for enabled/disabled), and `#FFFFFF` with opacity 80%/30% for dark themes">
-        <location
-            file="src/main/res/drawable-nodpi/ic_menu_half.png"/>
-    </issue>
-
-    <issue
-        id="IconColors"
-        message="Action Bar icons should use a single gray color (`#333333` for light themes (with 60%/30% opacity for enabled/disabled), and `#FFFFFF` with opacity 80%/30% for dark themes">
-        <location
-            file="src/main/res/drawable-nodpi/ic_menu_norm1.png"/>
-    </issue>
-
-    <issue
-        id="IconColors"
-        message="Action Bar icons should use a single gray color (`#333333` for light themes (with 60%/30% opacity for enabled/disabled), and `#FFFFFF` with opacity 80%/30% for dark themes">
-        <location
-            file="src/main/res/drawable-nodpi/ic_menu_norm2.png"/>
     </issue>
 
     <issue
@@ -3233,17 +1660,6 @@
 
     <issue
         id="ButtonOrder"
-        message="OK button should be on the right (was &quot;OK | Cancel&quot;, should be &quot;Cancel | OK&quot;)"
-        errorLine1="     &lt;Button"
-        errorLine2="      ~~~~~~">
-        <location
-            file="src/main/res/layout/chapterpageselect.xml"
-            line="107"
-            column="7"/>
-    </issue>
-
-    <issue
-        id="ButtonOrder"
         message="Cancel button should be on the left (was &quot;Crop | Cancel&quot;, should be &quot;Cancel | Crop&quot;)"
         errorLine1="            &lt;Button"
         errorLine2="             ~~~~~~">
@@ -3260,18 +1676,18 @@
         errorLine2="      ~~~~~~">
         <location
             file="src/main/res/layout/pageselect.xml"
-            line="53"
-            column="7"/>
-    </issue>
-
-    <issue
-        id="ButtonStyle"
-        message="Buttons in button bars should be borderless; use `style=&quot;?android:attr/buttonBarButtonStyle&quot;` (and `?android:attr/buttonBarStyle` on the parent)"
-        errorLine1="  &lt;Button"
-        errorLine2="   ~~~~~~">
-        <location
-            file="src/main/res/layout/addbookmarkdialog.xml"
             line="54"
+            column="7"/>
+    </issue>
+
+    <issue
+        id="ButtonStyle"
+        message="Buttons in button bars should be borderless; use `style=&quot;?android:attr/buttonBarButtonStyle&quot;` (and `?android:attr/buttonBarStyle` on the parent)"
+        errorLine1="  &lt;Button"
+        errorLine2="   ~~~~~~">
+        <location
+            file="src/main/res/layout/addbookmarkdialog.xml"
+            line="55"
             column="4"/>
     </issue>
 
@@ -3282,74 +1698,8 @@
         errorLine2="   ~~~~~~">
         <location
             file="src/main/res/layout/addbookmarkdialog.xml"
-            line="62"
+            line="63"
             column="4"/>
-    </issue>
-
-    <issue
-        id="ButtonStyle"
-        message="Buttons in button bars should be borderless; use `style=&quot;?android:attr/buttonBarButtonStyle&quot;` (and `?android:attr/buttonBarStyle` on the parent)"
-        errorLine1="        &lt;Button"
-        errorLine2="         ~~~~~~">
-        <location
-            file="src/main/res/layout/chapterpageselect.xml"
-            line="132"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="ButtonStyle"
-        message="Buttons in button bars should be borderless; use `style=&quot;?android:attr/buttonBarButtonStyle&quot;` (and `?android:attr/buttonBarStyle` on the parent)"
-        errorLine1="     &lt;Button"
-        errorLine2="      ~~~~~~">
-        <location
-            file="src/main/res/layout/chapterpageselect.xml"
-            line="139"
-            column="7"/>
-    </issue>
-
-    <issue
-        id="ButtonStyle"
-        message="Buttons in button bars should be borderless; use `style=&quot;?android:attr/buttonBarButtonStyle&quot;` (and `?android:attr/buttonBarStyle` on the parent)"
-        errorLine1="     &lt;Button"
-        errorLine2="      ~~~~~~">
-        <location
-            file="src/main/res/layout/chapterpageselect.xml"
-            line="146"
-            column="7"/>
-    </issue>
-
-    <issue
-        id="ButtonStyle"
-        message="Buttons in button bars should be borderless; use `style=&quot;?android:attr/buttonBarButtonStyle&quot;` (and `?android:attr/buttonBarStyle` on the parent)"
-        errorLine1="     &lt;Button"
-        errorLine2="      ~~~~~~">
-        <location
-            file="src/main/res/layout/chapterpageselect.xml"
-            line="153"
-            column="7"/>
-    </issue>
-
-    <issue
-        id="ButtonStyle"
-        message="Buttons in button bars should be borderless; use `style=&quot;?android:attr/buttonBarButtonStyle&quot;` (and `?android:attr/buttonBarStyle` on the parent)"
-        errorLine1="     &lt;Button"
-        errorLine2="      ~~~~~~">
-        <location
-            file="src/main/res/layout/chapterpageselect.xml"
-            line="160"
-            column="7"/>
-    </issue>
-
-    <issue
-        id="ButtonStyle"
-        message="Buttons in button bars should be borderless; use `style=&quot;?android:attr/buttonBarButtonStyle&quot;` (and `?android:attr/buttonBarStyle` on the parent)"
-        errorLine1="     &lt;Button"
-        errorLine2="      ~~~~~~">
-        <location
-            file="src/main/res/layout/chapterpageselect.xml"
-            line="167"
-            column="7"/>
     </issue>
 
     <issue
@@ -3403,7 +1753,7 @@
         errorLine2="         ~~~~~~">
         <location
             file="src/main/res/layout/editserverdialog.xml"
-            line="180"
+            line="183"
             column="10"/>
     </issue>
 
@@ -3414,7 +1764,7 @@
         errorLine2="         ~~~~~~">
         <location
             file="src/main/res/layout/editserverdialog.xml"
-            line="190"
+            line="193"
             column="10"/>
     </issue>
 
@@ -3476,28 +1826,6 @@
     <issue
         id="ButtonStyle"
         message="Buttons in button bars should be borderless; use `style=&quot;?android:attr/buttonBarButtonStyle&quot;` (and `?android:attr/buttonBarStyle` on the parent)"
-        errorLine1="  &lt;Button"
-        errorLine2="   ~~~~~~">
-        <location
-            file="src/main/res/layout/notice_donate.xml"
-            line="55"
-            column="4"/>
-    </issue>
-
-    <issue
-        id="ButtonStyle"
-        message="Buttons in button bars should be borderless; use `style=&quot;?android:attr/buttonBarButtonStyle&quot;` (and `?android:attr/buttonBarStyle` on the parent)"
-        errorLine1="  &lt;Button"
-        errorLine2="   ~~~~~~">
-        <location
-            file="src/main/res/layout/notice_donate.xml"
-            line="63"
-            column="4"/>
-    </issue>
-
-    <issue
-        id="ButtonStyle"
-        message="Buttons in button bars should be borderless; use `style=&quot;?android:attr/buttonBarButtonStyle&quot;` (and `?android:attr/buttonBarStyle` on the parent)"
         errorLine1="        &lt;Button"
         errorLine2="         ~~~~~~">
         <location
@@ -3515,83 +1843,6 @@
             file="src/main/res/layout/textinput.xml"
             line="74"
             column="10"/>
-    </issue>
-
-    <issue
-        id="TextFields"
-        message="This text field does not specify an `inputType`"
-        errorLine1=" &lt;EditText"
-        errorLine2="  ~~~~~~~~">
-        <location
-            file="src/main/res/layout/addbookmarkdialog.xml"
-            line="34"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="TextFields"
-        message="This text field does not specify an `inputType`"
-        errorLine1="  &lt;EditText"
-        errorLine2="   ~~~~~~~~">
-        <location
-            file="src/main/res/layout/chapterpageselect.xml"
-            line="25"
-            column="4"/>
-    </issue>
-
-    <issue
-        id="TextFields"
-        message="This text field does not specify an `inputType`"
-        errorLine1="  &lt;EditText"
-        errorLine2="   ~~~~~~~~">
-        <location
-            file="src/main/res/layout/chapterpageselect.xml"
-            line="79"
-            column="4"/>
-    </issue>
-
-    <issue
-        id="TextFields"
-        message="This text field does not specify an `inputType`"
-        errorLine1="        &lt;EditText"
-        errorLine2="         ~~~~~~~~">
-        <location
-            file="src/main/res/layout/editserverdialog.xml"
-            line="60"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="TextFields"
-        message="This text field does not specify an `inputType`"
-        errorLine1="        &lt;EditText"
-        errorLine2="         ~~~~~~~~">
-        <location
-            file="src/main/res/layout/editserverdialog.xml"
-            line="83"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="TextFields"
-        message="This text field does not specify an `inputType`"
-        errorLine1="        &lt;EditText"
-        errorLine2="         ~~~~~~~~">
-        <location
-            file="src/main/res/layout/editserverdialog.xml"
-            line="106"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="TextFields"
-        message="This text field does not specify an `inputType`"
-        errorLine1="     &lt;EditText"
-        errorLine2="      ~~~~~~~~">
-        <location
-            file="src/main/res/layout/pageselect.xml"
-            line="25"
-            column="7"/>
     </issue>
 
     <issue
@@ -3729,61 +1980,6 @@
     <issue
         id="SmallSp"
         message="Avoid using sizes smaller than `11sp`: `1sp`"
-        errorLine1="  android:layout_height=&quot;1sp&quot;"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/notice.xml"
-            line="23"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="SmallSp"
-        message="Avoid using sizes smaller than `11sp`: `1sp`"
-        errorLine1="  android:layout_height=&quot;1sp&quot;"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/notice_donate.xml"
-            line="21"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="SmallSp"
-        message="Avoid using sizes smaller than `11sp`: `1sp`"
-        errorLine1="  android:layout_height=&quot;1sp&quot;"
-        errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/notice_donate.xml"
-            line="44"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="SmallSp"
-        message="Avoid using sizes smaller than `11sp`: `1sp`"
-        errorLine1="   android:layout_height=&quot;1sp&quot;"
-        errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/removedialog.xml"
-            line="19"
-            column="4"/>
-    </issue>
-
-    <issue
-        id="SmallSp"
-        message="Avoid using sizes smaller than `11sp`: `1sp`"
-        errorLine1="   android:layout_height=&quot;1sp&quot;"
-        errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/removedialog.xml"
-            line="37"
-            column="4"/>
-    </issue>
-
-    <issue
-        id="SmallSp"
-        message="Avoid using sizes smaller than `11sp`: `1sp`"
         errorLine1="        android:layout_height=&quot;1sp&quot;"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -3801,28 +1997,6 @@
             file="src/main/res/layout/addbookmarkdialog.xml"
             line="34"
             column="3"/>
-    </issue>
-
-    <issue
-        id="Autofill"
-        message="Missing `autofillHints` attribute"
-        errorLine1="  &lt;EditText"
-        errorLine2="   ~~~~~~~~">
-        <location
-            file="src/main/res/layout/chapterpageselect.xml"
-            line="25"
-            column="4"/>
-    </issue>
-
-    <issue
-        id="Autofill"
-        message="Missing `autofillHints` attribute"
-        errorLine1="  &lt;EditText"
-        errorLine2="   ~~~~~~~~">
-        <location
-            file="src/main/res/layout/chapterpageselect.xml"
-            line="79"
-            column="4"/>
     </issue>
 
     <issue
@@ -3854,7 +2028,7 @@
         errorLine2="         ~~~~~~~~">
         <location
             file="src/main/res/layout/editserverdialog.xml"
-            line="83"
+            line="84"
             column="10"/>
     </issue>
 
@@ -3865,7 +2039,7 @@
         errorLine2="         ~~~~~~~~">
         <location
             file="src/main/res/layout/editserverdialog.xml"
-            line="106"
+            line="108"
             column="10"/>
     </issue>
 
@@ -4008,7 +2182,7 @@
         errorLine2="                ~~~~~~~">
         <location
             file="src/main/java/src/comitton/imageview/ImageActivity.java"
-            line="1824"
+            line="1822"
             column="17"/>
     </issue>
 
@@ -4118,7 +2292,7 @@
         errorLine2="                   ~~~~~~~">
         <location
             file="src/main/java/src/comitton/textview/TextActivity.java"
-            line="1105"
+            line="1103"
             column="20"/>
     </issue>
 
@@ -4301,61 +2475,6 @@
     <issue
         id="ContentDescription"
         message="Missing `contentDescription` attribute on image"
-        errorLine1=" &lt;ImageView"
-        errorLine2="  ~~~~~~~~~">
-        <location
-            file="src/main/res/layout/notice.xml"
-            line="21"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image"
-        errorLine1=" &lt;ImageView"
-        errorLine2="  ~~~~~~~~~">
-        <location
-            file="src/main/res/layout/notice_donate.xml"
-            line="19"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image"
-        errorLine1=" &lt;ImageView"
-        errorLine2="  ~~~~~~~~~">
-        <location
-            file="src/main/res/layout/notice_donate.xml"
-            line="42"
-            column="3"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image"
-        errorLine1="  &lt;ImageView"
-        errorLine2="   ~~~~~~~~~">
-        <location
-            file="src/main/res/layout/removedialog.xml"
-            line="17"
-            column="4"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image"
-        errorLine1="  &lt;ImageView"
-        errorLine2="   ~~~~~~~~~">
-        <location
-            file="src/main/res/layout/removedialog.xml"
-            line="35"
-            column="4"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image"
         errorLine1="    &lt;ImageView"
         errorLine2="     ~~~~~~~~~">
         <location
@@ -4373,28 +2492,6 @@
             file="src/main/res/layout/addbookmarkdialog.xml"
             line="41"
             column="3"/>
-    </issue>
-
-    <issue
-        id="LabelFor"
-        message="Empty `android:hint` attribute"
-        errorLine1="   android:hint=&quot;&quot;"
-        errorLine2="   ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/chapterpageselect.xml"
-            line="31"
-            column="4"/>
-    </issue>
-
-    <issue
-        id="LabelFor"
-        message="Empty `android:hint` attribute"
-        errorLine1="         android:hint=&quot;&quot;"
-        errorLine2="         ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/chapterpageselect.xml"
-            line="85"
-            column="10"/>
     </issue>
 
     <issue
@@ -4498,28 +2595,6 @@
 
     <issue
         id="HardcodedText"
-        message="Hardcoded string &quot;/&quot;, should use `@string` resource"
-        errorLine1="   android:text=&quot;/&quot;"
-        errorLine2="   ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/chapterpageselect.xml"
-            line="40"
-            column="4"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;/&quot;, should use `@string` resource"
-        errorLine1="   android:text=&quot;/&quot;"
-        errorLine2="   ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/chapterpageselect.xml"
-            line="94"
-            column="4"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
         message="Hardcoded string &quot;＜&quot;, should use `@string` resource"
         errorLine1="                android:text=&quot;＜&quot; />"
         errorLine2="                ~~~~~~~~~~~~~~~~">
@@ -4564,34 +2639,12 @@
 
     <issue
         id="HardcodedText"
-        message="Hardcoded string &quot;Crop&quot;, should use `@string` resource"
-        errorLine1="                android:text=&quot;Crop&quot; />"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/cropimage.xml"
-            line="87"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
-        message="Hardcoded string &quot;Cancel&quot;, should use `@string` resource"
-        errorLine1="                android:text=&quot;Cancel&quot; />"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/cropimage.xml"
-            line="94"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="HardcodedText"
         message="Hardcoded string &quot;/&quot;, should use `@string` resource"
         errorLine1="   android:text=&quot;/&quot;"
         errorLine2="   ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/layout/pageselect.xml"
-            line="43"
+            line="44"
             column="4"/>
     </issue>
 
@@ -4670,72 +2723,6 @@
             file="src/main/res/layout/addbookmarkdialog.xml"
             line="30"
             column="20"/>
-    </issue>
-
-    <issue
-        id="RtlHardcoded"
-        message="Use &quot;`end`&quot; instead of &quot;`right`&quot; to ensure correct behavior in right-to-left locales"
-        errorLine1="   android:gravity=&quot;right&quot;"
-        errorLine2="                    ~~~~~">
-        <location
-            file="src/main/res/layout/chapterpageselect.xml"
-            line="30"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="RtlHardcoded"
-        message="Use &quot;`end`&quot; instead of &quot;`right`&quot; to ensure correct behavior in right-to-left locales"
-        errorLine1="   android:gravity=&quot;right&quot;"
-        errorLine2="                    ~~~~~">
-        <location
-            file="src/main/res/layout/chapterpageselect.xml"
-            line="50"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="RtlHardcoded"
-        message="Consider replacing `android:layout_marginLeft` with `android:layout_marginStart=&quot;10sp&quot;` to better support right-to-left layouts"
-        errorLine1="   android:layout_marginLeft=&quot;10sp&quot;"
-        errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/chapterpageselect.xml"
-            line="57"
-            column="4"/>
-    </issue>
-
-    <issue
-        id="RtlHardcoded"
-        message="Use &quot;`end`&quot; instead of &quot;`right`&quot; to ensure correct behavior in right-to-left locales"
-        errorLine1="         android:gravity=&quot;right&quot;"
-        errorLine2="                          ~~~~~">
-        <location
-            file="src/main/res/layout/chapterpageselect.xml"
-            line="84"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="RtlHardcoded"
-        message="Use &quot;`end`&quot; instead of &quot;`right`&quot; to ensure correct behavior in right-to-left locales"
-        errorLine1="         android:gravity=&quot;right&quot;"
-        errorLine2="                          ~~~~~">
-        <location
-            file="src/main/res/layout/chapterpageselect.xml"
-            line="104"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="RtlHardcoded"
-        message="Consider replacing `android:layout_marginLeft` with `android:layout_marginStart=&quot;10sp&quot;` to better support right-to-left layouts"
-        errorLine1="            android:layout_marginLeft=&quot;10sp&quot;"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/chapterpageselect.xml"
-            line="111"
-            column="13"/>
     </issue>
 
     <issue
@@ -5071,39 +3058,6 @@
     <issue
         id="RtlHardcoded"
         message="Use &quot;`start`&quot; instead of &quot;`left`&quot; to ensure correct behavior in right-to-left locales"
-        errorLine1="   android:gravity=&quot;left&quot;"
-        errorLine2="                    ~~~~">
-        <location
-            file="src/main/res/layout/notice.xml"
-            line="38"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="RtlHardcoded"
-        message="Use &quot;`start`&quot; instead of &quot;`left`&quot; to ensure correct behavior in right-to-left locales"
-        errorLine1="   android:gravity=&quot;left&quot;"
-        errorLine2="                    ~~~~">
-        <location
-            file="src/main/res/layout/notice_donate.xml"
-            line="36"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="RtlHardcoded"
-        message="Use &quot;`start`&quot; instead of &quot;`left`&quot; to ensure correct behavior in right-to-left locales"
-        errorLine1="        android:gravity=&quot;left&quot;"
-        errorLine2="                         ~~~~">
-        <location
-            file="src/main/res/layout/operation.xml"
-            line="12"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="RtlHardcoded"
-        message="Use &quot;`start`&quot; instead of &quot;`left`&quot; to ensure correct behavior in right-to-left locales"
         errorLine1="   android:gravity=&quot;left|center&quot;"
         errorLine2="                    ~~~~~~~~~~~">
         <location
@@ -5229,7 +3183,7 @@
         errorLine2="                          ~~~~~">
         <location
             file="src/main/res/layout/pageselect.xml"
-            line="50"
+            line="51"
             column="27"/>
     </issue>
 
@@ -5240,19 +3194,8 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/layout/pageselect.xml"
-            line="57"
+            line="58"
             column="13"/>
-    </issue>
-
-    <issue
-        id="RtlHardcoded"
-        message="Use &quot;`start`&quot; instead of &quot;`left`&quot; to ensure correct behavior in right-to-left locales"
-        errorLine1="   android:gravity=&quot;left|center_vertical&quot;"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/layout/removedialog.xml"
-            line="30"
-            column="21"/>
     </issue>
 
     <issue

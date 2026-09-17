@@ -41,7 +41,8 @@
 		android:hint=""
 		android:maxLength="40"
 		android:scrollHorizontally="true"
-		android:singleLine="true" />
+		android:inputType="text"
+		android:maxLines="1" />
 
 	<LinearLayout
 		android:layout_width="match_parent"

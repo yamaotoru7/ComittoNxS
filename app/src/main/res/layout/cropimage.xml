@@ -84,14 +84,14 @@
                 android:layout_width="64dp"
                 android:layout_height="match_parent"
                 android:textSize="14sp"
-                android:text="Crop" />
+                android:text="@string/btnCrop" />
 
             <Button
                 android:id="@+id/btn_cancel"
                 android:layout_width="72dp"
                 android:layout_height="match_parent"
                 android:textSize="14sp"
-                android:text="Cancel" />
+                android:text="@string/btnCancel" />
         </LinearLayout>
 
     </LinearLayout>

@@ -68,7 +68,8 @@
             android:maxLength="40"
             android:required="true"
             android:scrollHorizontally="true"
-            android:singleLine="true" />
+            android:inputType="text"
+            android:maxLines="1" />
 
         <TextView
             android:id="@+id/text_host"
@@ -91,7 +92,8 @@
             android:maxLength="100"
             android:required="true"
             android:scrollHorizontally="true"
-            android:singleLine="true" />
+            android:inputType="text"
+            android:maxLines="1" />
 
         <TextView
             android:id="@+id/text_user"
@@ -113,7 +115,8 @@
             android:hint="@string/svUserHist"
             android:maxLength="100"
             android:scrollHorizontally="true"
-            android:singleLine="true" />
+            android:inputType="text"
+            android:maxLines="1" />
 
         <TextView
             android:id="@+id/text_pass"

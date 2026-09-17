@@ -781,7 +781,7 @@ public class TextActivity extends AppCompatActivity implements OnTouchListener, 
 					openMenu();
 					return true;
 				case KeyEvent.KEYCODE_DEL:
-				case KeyEvent.KEYCODE_BACK:
+					// 戻る操作は OnBackPressedDispatcher に任せる (予測型「戻る」に対応するため)
 					operationBack();
 					return true;
 				case KeyEvent.KEYCODE_VOLUME_DOWN:
@@ -836,8 +836,6 @@ public class TextActivity extends AppCompatActivity implements OnTouchListener, 
 		}
 		else if (event.getAction() == KeyEvent.ACTION_UP) {
 			switch (event.getKeyCode()) {
-				case KeyEvent.KEYCODE_BACK:
-					break;
 				case KeyEvent.KEYCODE_VOLUME_DOWN:
 				case KeyEvent.KEYCODE_VOLUME_UP:
 					// ボリュームモード

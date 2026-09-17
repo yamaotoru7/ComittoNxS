@@ -666,6 +666,35 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 				}
 			});
 
+	// ストレージへのアクセス許可の結果
+	private void onStorageAccessResult(boolean granted) {
+		if (granted) {
+			// 許可されたらファイル一覧を読み直す
+			if (mFileList != null) {
+				mFileList.FlushFileList();
+				loadListView(0);
+			}
+		}
+		else {
+			// 拒否されたら理由を伝える (以前は何も表示されず一覧が空になっていた)
+			Toast.makeText(this, R.string.storageAccessDenied, Toast.LENGTH_LONG).show();
+		}
+	}
+
+	@Override
+	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+		if (requestCode == REQUEST_CODE && grantResults.length > 0) {
+			boolean granted = true;
+			for (int result : grantResults) {
+				if (result != PackageManager.PERMISSION_GRANTED) {
+					granted = false;
+				}
+			}
+			onStorageAccessResult(granted);
+		}
+	}
+
 	// 画面遷移が戻ってきた時の通知
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
@@ -728,10 +757,7 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 			case DEF.APP_STORAGE_ACCESS_REQUEST_CODE:
 				// MANAGE_EXTERNAL_STORAGE権限取得 Android11以上
 				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-					if (Environment.isExternalStorageManager()) {
-						// Permission granted. Now resume your workflow.
-
-					}
+					onStorageAccessResult(Environment.isExternalStorageManager());
 				}
 				return;
 
@@ -1284,7 +1310,7 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 					mListScreenView.switchListType(false);
 					break;
 				case KeyEvent.KEYCODE_ESCAPE:
-				case KeyEvent.KEYCODE_BACK:
+					// 戻る操作は OnBackPressedDispatcher に任せる (予測型「戻る」に対応するため)
 					operationBack();
 					return true;
 				case KeyEvent.KEYCODE_CAMERA:
@@ -1323,8 +1349,6 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 		}
 		else if (event.getAction() == KeyEvent.ACTION_UP) {
 			switch (keycode) {
-				case KeyEvent.KEYCODE_BACK:
-					return true;
 				case KeyEvent.KEYCODE_ENTER:
 				case KeyEvent.KEYCODE_DPAD_CENTER:
 					if (mEnterDown) {

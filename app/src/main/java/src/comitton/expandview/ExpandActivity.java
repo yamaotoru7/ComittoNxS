@@ -217,6 +217,14 @@ public class ExpandActivity extends AppCompatActivity implements Handler.Callbac
 		src.comitton.common.SystemUiHelper.setupEdgeToEdge(this);
 		src.comitton.common.SystemUiHelper.applySystemWindowInsets(findViewById(android.R.id.content), true, true, true, true);
 
+		// 戻る操作は OnBackPressedDispatcher に任せる (予測型「戻る」に対応するため)
+		getOnBackPressedDispatcher().addCallback(this, new androidx.activity.OnBackPressedCallback(true) {
+			@Override
+			public void handleOnBackPressed() {
+				finishActivity();
+			}
+		});
+
 		mTitleView = (TitleView) this.findViewById(R.id.title);
 		Resources res = getResources();
 		mTitleView.setTextSize(mFontTitle, mTitColor, mTibColor);
@@ -334,21 +342,6 @@ public class ExpandActivity extends AppCompatActivity implements Handler.Callbac
 		}
 	}
 
-	@Override
-	public boolean dispatchKeyEvent(KeyEvent event) {
-		int keycode = event.getKeyCode();
-		if (event.getAction() == KeyEvent.ACTION_DOWN) {
-			switch (keycode) {
-				case KeyEvent.KEYCODE_BACK:
-					finishActivity();
-					break;
-				default:
-					break;
-			}
-		}
-		// 自動生成されたメソッド・スタブ
-		return super.dispatchKeyEvent(event);
-	}
 
 	// Activityの破棄
 	protected void onDestroy() {
