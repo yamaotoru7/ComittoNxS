@@ -10,8 +10,6 @@ import androidx.preference.PreferenceManager;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.ConcurrentModificationException;
-import java.util.concurrent.ExecutorService;
 
 import src.comitton.common.DEF;
 import src.comitton.common.Logcat;
@@ -34,14 +32,14 @@ public class FileStatusLoader extends ThumbnailLoader implements Runnable {
     private final boolean mEpubViewer;
     private final boolean mEpubOrder;
 
-    private ImageManager mImageMgr;
-    private TextManager mTextMgr;
+    private volatile ImageManager mImageMgr;
+    // 解析中のマネージャ (中断用). 解析スレッドだけが生成・解放する
+    private volatile TextManager mTextMgr;
     private final FileTypeSortComparator mComparator;
     private FileData mCurrentFile;
 
     private WaitFor mWaitFor;
-    private boolean mSkip;
-    private boolean mSorting;
+    private volatile boolean mSkip;
 
     public FileStatusLoader(AppCompatActivity activity, String uri, String path, String user, String pass, Handler handler, ArrayList<FileData> files, boolean hidden, boolean epubViewer) {
         super(activity, uri, path, handler, 0, files, 0, 0, 0, 0, 0);
@@ -50,7 +48,6 @@ public class FileStatusLoader extends ThumbnailLoader implements Runnable {
 
         mSp = PreferenceManager.getDefaultSharedPreferences(activity != null ? activity.getApplicationContext() : null);
         mSkip = false;
-        mSorting = false;
 
         mUser = user;
         mPass = pass;
@@ -87,65 +84,50 @@ public class FileStatusLoader extends ThumbnailLoader implements Runnable {
         super.breakThread();
     }
 
-    // ImageManager と TextManager を解放する
-    private void releaseManager() {
-        int logLevel = Logcat.LOG_LEVEL_WARN;
-        Logcat.d(logLevel, "開始します.");
-        // 意図的にExceptionを発生させるためスレッドセーフにしない
-        if (mImageMgr != null) {
-            try {
-                Logcat.v(logLevel, "ImageManager.close() cacheIndex=" + mImageMgr.getCacheIndex());
-                mImageMgr.close();
-            } catch (IOException e) {
-                Logcat.w(logLevel, "mImageMgr.close() cacheIndex=" + mImageMgr.getCacheIndex(), e);
-            }
-            mImageMgr = null;
-        }
-        if (mTextMgr != null) {
-            mTextMgr.release();
-            mTextMgr = null;
-        }
-    }
-
     protected void interruptThread() {
         int logLevel = Logcat.LOG_LEVEL_WARN;
         Logcat.d(logLevel,"開始します.");
         mSkip = true;
-        releaseManager();
+        // 解析中なら中断させる (以前は別スレッドから参照を消して例外で止めていた)
+        ImageManager imageMgr = mImageMgr;
+        if (imageMgr != null) {
+            imageMgr.setBreakTrigger();
+        }
+        TextManager textMgr = mTextMgr;
+        if (textMgr != null) {
+            textMgr.setBreakTrigger();
+        }
         if (mWaitFor != null) {
             mWaitFor.interrupt();
         }
     }
 
-    public void update(FileData file) {
-
-        if (!mFiles.contains(file)) {
-            mFiles.add(file);
-        }
-
-        // 中でループさせたいので非同期処理にする
-        ExecutorService executor = BackgroundExecutor.get();
-        executor.submit(new Runnable() {
-            @Override
-            public void run() {
-                synchronized (mFileListLock) {
-                    if (mFiles != null && !mFiles.isEmpty()) {
-                        while (true) {
-                            // ソートが成功するまでループする
-                            try {
-                                Collections.sort(mFiles, mComparator);
-                                break;
-                            } catch (ConcurrentModificationException e) {
-                                continue;
-                            }
-                        }
-                        if (mComparator.compare(mFiles.get(0), mCurrentFile) < 0) {
-                            interruptThread();
-                        }
-                    }
+    // 表示順に並べ替え、処理中のファイルより優先すべきものがあれば中断する
+    private void sortAndInterrupt() {
+        synchronized (mFileListLock) {
+            if (mFiles != null && !mFiles.isEmpty()) {
+                // mFiles の変更はすべて mFileListLock の中で行うので、ここで並べ替えても競合しない
+                Collections.sort(mFiles, mComparator);
+                if (mComparator.compare(mFiles.get(0), mCurrentFile) < 0) {
+                    interruptThread();
                 }
             }
-        });
+        }
+    }
+
+    public void update(FileData file) {
+        synchronized (mFileListLock) {
+            if (!mFiles.contains(file)) {
+                mFiles.add(file);
+            }
+        }
+        if (mWaitFor != null) {
+            // 待機中なら新しいファイルを処理させる
+            mWaitFor.interrupt();
+        }
+
+        // 並べ替えは非同期で行う
+        BackgroundExecutor.execute(this::sortAndInterrupt);
     }
 
     // 表示中の範囲を設定
@@ -159,33 +141,8 @@ public class FileStatusLoader extends ThumbnailLoader implements Runnable {
             mLastIndex = lastindex;
             mComparator.setDispRange(mFirstIndex, mLastIndex);
 
-            if (!mSorting) {
-                // 中でループさせたいので非同期処理にする
-                ExecutorService executor = BackgroundExecutor.get();
-                executor.submit(new Runnable() {
-                    @Override
-                    public void run() {
-                        synchronized (mFileListLock) {
-                            mSorting = true;
-                            if (mFiles != null && !mFiles.isEmpty()) {
-                                while (true) {
-                                    // ソートが成功するまでループする
-                                    try {
-                                        Collections.sort(mFiles, mComparator);
-                                        break;
-                                    } catch (ConcurrentModificationException e) {
-                                        continue;
-                                    }
-                                }
-                                if (mComparator.compare(mFiles.get(0), mCurrentFile) < 0) {
-                                    interruptThread();
-                                }
-                            }
-                            mSorting = false;
-                        }
-                    }
-                });
-            }
+            // 並べ替えは非同期で行う
+            BackgroundExecutor.execute(this::sortAndInterrupt);
         }
 
         Logcat.d(logLevel,"終了します.");
@@ -312,27 +269,46 @@ public class FileStatusLoader extends ThumbnailLoader implements Runnable {
                 date = fileData.getDate();
                 if (nowdate != date / 1000 || maxpage == DEF.PAGENUMBER_NONE) {
                     // タイムスタンプが変更されているか、maxpageが保存されていなければ
-                    mImageMgr = new ImageManager(activity, currentPath, cmpFile, mUser, mPass, 0, mHandler, mHidden, openmode, 1);
-                    if (openmode == ImageManager.OPENMODE_VIEW) {
-                        mImageMgr.setEpubOrder(mEpubOrder);
-                    }
-                    mImageMgr.LoadImageList(0, 0, 0);
-                    Logcat.v(logLevel, "new ImageManager() cacheIndex=" + mImageMgr.getCacheIndex());
+                    ImageManager imageMgr = new ImageManager(activity, currentPath, cmpFile, mUser, mPass, 0, mHandler, mHidden, openmode, 1);
+                    TextManager textMgr = null;
+                    mImageMgr = imageMgr;
+                    try {
+                        if (mSkip) {
+                            // 生成中に中断が要求された
+                            return false;
+                        }
+                        if (openmode == ImageManager.OPENMODE_VIEW) {
+                            imageMgr.setEpubOrder(mEpubOrder);
+                        }
+                        imageMgr.LoadImageList(0, 0, 0);
+                        Logcat.v(logLevel, "new ImageManager() cacheIndex=" + imageMgr.getCacheIndex());
+                        if (mSkip) {
+                            return false;
+                        }
 
-                    if (openmode == ImageManager.OPENMODE_TEXTVIEW) {
-                        mTextMgr = new TextManager(mImageMgr, textFile, mUser, mPass, mHandler, activity, fileData.getType());
-                        mTextMgr.formatTextFile(mTextWidth, mTextHeight, mHeadSize, mBodySize, mRubiSize, mSpaceW, mSpaceH, mMarginW, mMarginH, mPicSize, mFontFile, mAscMode);
-                        maxpage = mTextMgr.length();
-                    } else {
-                        maxpage = mImageMgr.length();
+                        if (openmode == ImageManager.OPENMODE_TEXTVIEW) {
+                            textMgr = new TextManager(imageMgr, textFile, mUser, mPass, mHandler, activity, fileData.getType());
+                            mTextMgr = textMgr;
+                            if (mSkip) {
+                                return false;
+                            }
+                            textMgr.formatTextFile(mTextWidth, mTextHeight, mHeadSize, mBodySize, mRubiSize, mSpaceW, mSpaceH, mMarginW, mMarginH, mPicSize, mFontFile, mAscMode);
+                            maxpage = textMgr.length();
+                        } else {
+                            maxpage = imageMgr.length();
+                        }
+                        if (mSkip) {
+                            // 中断されたので結果は途中までしかない
+                            return false;
+                        }
+                    } finally {
+                        mTextMgr = null;
+                        mImageMgr = null;
+                        if (textMgr != null) {
+                            textMgr.release();
+                        }
+                        imageMgr.closeFiles();
                     }
-
-                    if (mImageMgr == null || (openmode == ImageManager.OPENMODE_TEXTVIEW && mTextMgr == null)) {
-                        // 結果が壊れている可能性あり
-                        return false;
-                    }
-
-                    releaseManager();
 
                     ed.putInt(maxpageKey, maxpage);
                     ed.putInt(dateKey, (int) ((date / 1000)));
@@ -348,9 +324,6 @@ public class FileStatusLoader extends ThumbnailLoader implements Runnable {
         }
         catch (Exception e) {
             Logcat.w(logLevel, "処理が中断されました. ", e);
-        }
-        finally {
-            releaseManager();
         }
         return false;
     }

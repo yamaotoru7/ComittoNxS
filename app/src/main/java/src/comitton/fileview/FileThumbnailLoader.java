@@ -3,7 +3,6 @@ package src.comitton.fileview;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.ConcurrentModificationException;
 import java.util.concurrent.ExecutorService;
 
 import src.comitton.common.DEF;
@@ -125,8 +124,10 @@ public class FileThumbnailLoader extends ThumbnailLoader implements Runnable {
 
 		remove(file);
 
-		if (!mFiles.contains(file)) {
-			mFiles.add(file);
+		synchronized (mFileListLock) {
+			if (!mFiles.contains(file)) {
+				mFiles.add(file);
+			}
 		}
 
 		// 中でループさせたいので非同期処理にする
@@ -136,15 +137,8 @@ public class FileThumbnailLoader extends ThumbnailLoader implements Runnable {
 			public void run() {
 				synchronized (mFileListLock) {
 					if (mFiles != null && !mFiles.isEmpty()) {
-						while (true) {
-							// ソートが成功するまでループする
-							try {
-								Collections.sort(mFiles, mComparator);
-								break;
-							} catch (ConcurrentModificationException e) {
-								continue;
-							}
-						}
+						// 一覧の変更はすべて mFileListLock の中で行うので、並べ替えは競合しない
+						Collections.sort(mFiles, mComparator);
 						if (mComparator.compare(mFiles.get(0), mCurrentFile) < 0) {
 							interruptThread();
 						}
@@ -179,18 +173,11 @@ public class FileThumbnailLoader extends ThumbnailLoader implements Runnable {
 						synchronized (mFileListLock) {
 							mSorting = true;
 							if (mFiles != null && !mFiles.isEmpty()) {
-								while (true) {
-									// ソートが成功するまでループする
-									try {
-										Collections.sort(mFiles, mComparator);
-										if (logLevel <= Logcat.LOG_LEVEL_VERBOSE) {
-											for (int i = 0; i < mFiles.size(); ++i) {
-												Logcat.v(logLevel, "mFiles[" + i + "]=" + mFiles.get(i).getIndex() + " : " + mFiles.get(i).getName());
-											}
-										}
-										break;
-									} catch (ConcurrentModificationException e) {
-										continue;
+								// 一覧の変更はすべて mFileListLock の中で行うので、並べ替えは競合しない
+								Collections.sort(mFiles, mComparator);
+								if (logLevel <= Logcat.LOG_LEVEL_VERBOSE) {
+									for (int i = 0; i < mFiles.size(); ++i) {
+										Logcat.v(logLevel, "mFiles[" + i + "]=" + mFiles.get(i).getIndex() + " : " + mFiles.get(i).getName());
 									}
 								}
 								if (mComparator.compare(mFiles.get(0), mCurrentFile) < 0) {

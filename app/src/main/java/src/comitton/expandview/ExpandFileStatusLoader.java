@@ -9,8 +9,6 @@ import androidx.preference.PreferenceManager;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.ConcurrentModificationException;
-import java.util.concurrent.ExecutorService;
 
 import src.comitton.common.DEF;
 import src.comitton.common.Logcat;
@@ -33,12 +31,13 @@ public class ExpandFileStatusLoader extends ThumbnailLoader implements Runnable 
     private final boolean mHidden;
 
     private ImageManager mImageMgr;
-    private TextManager mTextMgr;
+    // 解析中の TextManager (中断用). 解析スレッドだけが生成・解放する
+    private volatile TextManager mTextMgr;
     private final FileRangeComparator mComparator;
     private FileData mCurrentFile;
 
     private WaitFor mWaitFor;
-    private boolean mSkip;
+    private volatile boolean mSkip;
 
     public ExpandFileStatusLoader(AppCompatActivity activity, ImageManager imgMgr, String uri, String path, String cmpFile, String user, String pass, Handler handler, ArrayList<FileData> files, boolean hidden) {
         super(activity, uri, path, handler, 0, files, 0, 0, 0, 0, 0);
@@ -84,54 +83,46 @@ public class ExpandFileStatusLoader extends ThumbnailLoader implements Runnable 
         super.breakThread();
     }
 
-    // TextManager を解放する
-    private void releaseManager() {
-        // 意図的にExceptionを発生させるためスレッドセーフにしない
-        if (mTextMgr != null) {
-            mTextMgr.release();
-            mTextMgr = null;
-        }
-    }
-
     protected void interruptThread() {
         int logLevel = Logcat.LOG_LEVEL_WARN;
         Logcat.d(logLevel,"開始します.");
         mSkip = true;
-        releaseManager();
+        // 解析中なら中断させる (以前は別スレッドから参照を消して例外で止めていた)
+        TextManager textMgr = mTextMgr;
+        if (textMgr != null) {
+            textMgr.setBreakTrigger();
+        }
         if (mWaitFor != null) {
             mWaitFor.interrupt();
         }
     }
 
-    public void update(FileData file) {
-
-        if (!mFiles.contains(file)) {
-            mFiles.add(file);
-        }
-
-        // 中でループさせたいので非同期処理にする
-        ExecutorService executor = BackgroundExecutor.get();
-        executor.submit(new Runnable() {
-            @Override
-            public void run() {
-                synchronized (mFileListLock) {
-                    if (mFiles != null && !mFiles.isEmpty()) {
-                        while (true) {
-                            // ソートが成功するまでループする
-                            try {
-                                Collections.sort(mFiles, mComparator);
-                                break;
-                            } catch (ConcurrentModificationException e) {
-                                continue;
-                            }
-                        }
-                        if (mComparator.compare(mFiles.get(0), mCurrentFile) < 0) {
-                            interruptThread();
-                        }
-                    }
+    // 表示順に並べ替え、処理中のファイルより優先すべきものがあれば中断する
+    private void sortAndInterrupt() {
+        synchronized (mFileListLock) {
+            if (mFiles != null && !mFiles.isEmpty()) {
+                // mFiles の変更はすべて mFileListLock の中で行うので、ここで並べ替えても競合しない
+                Collections.sort(mFiles, mComparator);
+                if (mComparator.compare(mFiles.get(0), mCurrentFile) < 0) {
+                    interruptThread();
                 }
             }
-        });
+        }
+    }
+
+    public void update(FileData file) {
+        synchronized (mFileListLock) {
+            if (!mFiles.contains(file)) {
+                mFiles.add(file);
+            }
+        }
+        if (mWaitFor != null) {
+            // 待機中なら新しいファイルを処理させる
+            mWaitFor.interrupt();
+        }
+
+        // 並べ替えは非同期で行う
+        BackgroundExecutor.execute(this::sortAndInterrupt);
     }
 
     // 表示中の範囲を設定
@@ -145,29 +136,8 @@ public class ExpandFileStatusLoader extends ThumbnailLoader implements Runnable 
             mLastIndex = lastindex;
             mComparator.setDispRange(mFirstIndex, mLastIndex);
 
-            // 中でループさせたいので非同期処理にする
-            ExecutorService executor = BackgroundExecutor.get();
-            executor.submit(new Runnable() {
-                @Override
-                public void run() {
-                    synchronized (mFileListLock) {
-                        if (mFiles != null && !mFiles.isEmpty()) {
-                            while(true) {
-                                // ソートが成功するまでループする
-                                try {
-                                    Collections.sort(mFiles, mComparator);
-                                    break;
-                                } catch (ConcurrentModificationException e) {
-                                    continue;
-                                }
-                            }
-                            if (mComparator.compare(mFiles.get(0), mCurrentFile) < 0) {
-                                interruptThread();
-                            }
-                        }
-                    }
-                }
-            });
+            // 並べ替えは非同期で行う
+            BackgroundExecutor.execute(this::sortAndInterrupt);
         }
 
         Logcat.d(logLevel,"終了します.");
@@ -272,16 +242,23 @@ public class ExpandFileStatusLoader extends ThumbnailLoader implements Runnable 
                 date = fileData.getDate();
                 if (nowdate != date / 1000 || maxpage == DEF.PAGENUMBER_NONE) {
                     // タイムスタンプが変更されているか、maxpageが保存されていなければ
-                    mTextMgr = new TextManager(mImageMgr, textFile, mUser, mPass, mHandler, activity, fileData.getType());
-                    mTextMgr.formatTextFile(mTextWidth, mTextHeight, mHeadSize, mBodySize, mRubiSize, mSpaceW, mSpaceH, mMarginW, mMarginH, mPicSize, mFontFile, mAscMode);
-                    maxpage = mTextMgr.length();
-
-                    if (mTextMgr == null) {
-                        // 結果が壊れている可能性あり
-                        return false;
+                    TextManager textMgr = new TextManager(mImageMgr, textFile, mUser, mPass, mHandler, activity, fileData.getType());
+                    mTextMgr = textMgr;
+                    if (mSkip) {
+                        // 生成中に中断が要求された
+                        textMgr.setBreakTrigger();
                     }
-
-                    releaseManager();
+                    try {
+                        textMgr.formatTextFile(mTextWidth, mTextHeight, mHeadSize, mBodySize, mRubiSize, mSpaceW, mSpaceH, mMarginW, mMarginH, mPicSize, mFontFile, mAscMode);
+                        if (mSkip) {
+                            // 中断されたので結果は途中までしかない
+                            return false;
+                        }
+                        maxpage = textMgr.length();
+                    } finally {
+                        mTextMgr = null;
+                        textMgr.release();
+                    }
 
                     ed.putInt(maxpageKey, maxpage);
                     ed.putInt(dateKey, (int) ((date / 1000)));
@@ -297,9 +274,6 @@ public class ExpandFileStatusLoader extends ThumbnailLoader implements Runnable 
         }
         catch (Exception e) {
             Logcat.w(logLevel, "処理が中断されました. ", e);
-        }
-        finally {
-            releaseManager();
         }
         return false;
     }

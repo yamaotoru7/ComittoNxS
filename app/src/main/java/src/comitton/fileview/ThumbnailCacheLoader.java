@@ -12,7 +12,6 @@ import androidx.preference.PreferenceManager;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.ConcurrentModificationException;
 import java.util.concurrent.ExecutorService;
 
 import src.comitton.common.DEF;
@@ -105,15 +104,8 @@ public class ThumbnailCacheLoader extends ThumbnailLoader implements Runnable {
                         synchronized (mFileListLock) {
                             mSorting = true;
                             if (mFiles != null && !mFiles.isEmpty()) {
-                                while (true) {
-                                    // ソートが成功するまでループする
-                                    try {
-                                        Collections.sort(mFiles, mComparator);
-                                        break;
-                                    } catch (ConcurrentModificationException e) {
-                                        continue;
-                                    }
-                                }
+                                // 一覧の変更はすべて mFileListLock の中で行うので、並べ替えは競合しない
+                                Collections.sort(mFiles, mComparator);
                                 if (CallImgLibrary.ThumbnailCheckAll(mID) != 0) {
                                     // メモリキャッシュに全部入り切れていない時は実行する
                                     interruptThread();
@@ -153,7 +145,7 @@ public class ThumbnailCacheLoader extends ThumbnailLoader implements Runnable {
                 if (CallImgLibrary.ThumbnailCheckAll(mID) == 0) {
                     // メモリキャッシュに全部入り切れたら
                     // ファイルキャッシュが更新されるまで待機する
-                    Logcat.v(logLevel,"while: for(" + i + "): 全てのサムネイルがメモリキャッシュに格納されています. index=" + mCurrentFile.getIndex() + ", mCurrentFile=" + mCurrentFile.getName());
+                    Logcat.v(logLevel,"while: for(" + i + "): 全てのサムネイルがメモリキャッシュに格納されています. mCurrentFile=" + (mCurrentFile != null ? mCurrentFile.getName() : "null"));
                     mSleep = true;
                     break;
                 }
