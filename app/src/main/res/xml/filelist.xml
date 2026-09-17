@@ -7,7 +7,7 @@
             android:entries="@array/file_rotaname_list"
             android:entryValues="@array/file_rotavalue_list"
             android:key="ListRota"
-            android:summary="Orientation of the file list screen. Rotate follows the device orientation"
+            android:summary="dummy"
             android:title="Screen Orientation" />
         <src.comitton.config.DescListPreference
             android:defaultValue="2"
@@ -15,7 +15,7 @@
             android:entries="@array/zipsort_name_list"
             android:entryValues="@array/zipsort_value_list"
             android:key="ListSort"
-            android:summary="Order of the file list. Separate lists folders first, Mixed interleaves them by name"
+            android:summary="dummy"
             android:title="Sort Type" />
         <src.comitton.config.DescListPreference
             android:defaultValue="2"
@@ -23,7 +23,7 @@
             android:entries="@array/backmode_name_list"
             android:entryValues="@array/backmode_value_list"
             android:key="BackMode"
-            android:summary="What the Back button does on the file list screen"
+            android:summary="dummy"
             android:title="Back Key Mode" />
         <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"
@@ -61,7 +61,7 @@
             android:entries="@array/max_lines_name_list"
             android:entryValues="@array/max_lines_value_list"
             android:key="MaxLinesFilename"
-            android:summary="Maximum number of lines for file names in tile view"
+            android:summary="dummy"
             android:title="Max lines of Tile View" />
         <src.comitton.config.DescListPreference
             android:defaultValue="1"
@@ -69,7 +69,7 @@
             android:entries="@array/filemenu_name_list"
             android:entryValues="@array/filemenu_value_list"
             android:key="FileDelMenu"
-            android:summary="When to show Delete in the long-press menu"
+            android:summary="When it appears in the long-press menu"
             android:title="Show Delete Menu" />
         <src.comitton.config.DescListPreference
             android:defaultValue="1"
@@ -77,7 +77,7 @@
             android:entries="@array/filemenu_name_list"
             android:entryValues="@array/filemenu_value_list"
             android:key="FileRenMenu"
-            android:summary="When to show Rename in the long-press menu"
+            android:summary="When it appears in the long-press menu"
             android:title="Show Rename Menu" />
         <src.comitton.config.seekbar.FontTitleSeekbar
             android:dialogMessage="Select font size of the title."
@@ -151,7 +151,7 @@
             android:entries="@array/thumcache_name_list"
             android:entryValues="@array/thumcache_value_list"
             android:key="ThumbCache"
-            android:summary="How many generated thumbnails to keep on the device"
+            android:summary="dummy"
             android:title="Thumbnail Cache" />
         <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="false"
@@ -164,7 +164,7 @@
             android:entries="@array/ThumbSortType_name_list"
             android:entryValues="@array/ThumbSortType_value_list"
             android:key="ThumbSortType"
-            android:summary="Which locations are scanned to pick the first file for the thumbnail. RAR archives on servers are slow to scan"
+            android:summary="RAR archives on servers are slow to scan"
             android:title="Servertype for create first name Thumbnail" />
         <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="false"
@@ -176,14 +176,14 @@
             android:layout_height="wrap_content"
             android:defaultValue="true"
             android:key="ThumbnailTap"
-            android:summary="Enable the long-press menu while thumbnails are shown"
+            android:summary="Long-press menu via thumbnail or file name"
             android:title="Thumbnail on Menu" />
         <src.comitton.config.seekbar.MenuLongTapSeekbar
             android:dialogMessage="Select the long press hold time."
             android:dialogTitle="Long press time"
             android:key="MenuLongTap"
             android:negativeButtonText="@null"
-            android:summary="Time until long press operations are accepted in the file list and recorder menu"
+            android:summary="dummy"
             android:title="Time to long tap" />
         <src.comitton.config.DescListPreference
             android:defaultValue="0"
@@ -191,7 +191,7 @@
             android:entries="@array/thumcrop_name_list"
             android:entryValues="@array/thumcrop_value_list"
             android:key="ThumbCrop"
-            android:summary="Which part of the image is used for the thumbnail"
+            android:summary="dummy"
             android:title="Thumbnail crop position" />
         <src.comitton.config.DescListPreference
             android:defaultValue="0"
@@ -199,7 +199,7 @@
             android:entries="@array/thummargin_name_list"
             android:entryValues="@array/thummargin_value_list"
             android:key="ThumbMargin"
-            android:summary="How aggressively blank margins are trimmed when creating thumbnails"
+            android:summary="dummy"
             android:title="Margin cut from thumbnails" />
     </PreferenceCategory>
 </PreferenceScreen>

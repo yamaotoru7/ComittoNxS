@@ -7,7 +7,7 @@
             android:entries="@array/file_rotaname_list"
             android:entryValues="@array/file_rotavalue_list"
             android:key="ListRota"
-            android:summary="ファイル選択画面の向き。回転ありは端末の向きに追従します"
+            android:summary="dummy"
             android:title="表示方向" />
         <src.comitton.config.DescListPreference
             android:defaultValue="2"
@@ -15,7 +15,7 @@
             android:entries="@array/zipsort_name_list"
             android:entryValues="@array/zipsort_value_list"
             android:key="ListSort"
-            android:summary="ファイル一覧の並び順。ディレクトリ分離はフォルダを先に、混在は名前順に混ぜて並べます"
+            android:summary="dummy"
             android:title="ソート表示" />
         <src.comitton.config.DescListPreference
             android:defaultValue="0"
@@ -23,7 +23,7 @@
             android:entries="@array/backmode_name_list"
             android:entryValues="@array/backmode_value_list"
             android:key="BackMode"
-            android:summary="ファイル選択画面で戻るボタンを押したときの動作"
+            android:summary="dummy"
             android:title="Backキーの動作" />
         <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="false"
@@ -62,7 +62,7 @@
             android:entries="@array/max_lines_name_list"
             android:entryValues="@array/max_lines_value_list"
             android:key="MaxLinesFilename"
-            android:summary="タイル表示でファイル名を何行まで表示するか"
+            android:summary="dummy"
             android:title="タイル表示のテキストの行数" />
         <src.comitton.config.DescListPreference
             android:defaultValue="2"
@@ -70,7 +70,7 @@
             android:entries="@array/filemenu_name_list"
             android:entryValues="@array/filemenu_value_list"
             android:key="FileDelMenu"
-            android:summary="長押しメニューに「削除」を出す条件"
+            android:summary="長押しメニューでの表示条件"
             android:title="削除メニューの表示" />
         <src.comitton.config.DescListPreference
             android:defaultValue="0"
@@ -78,7 +78,7 @@
             android:entries="@array/filemenu_name_list"
             android:entryValues="@array/filemenu_value_list"
             android:key="FileRenMenu"
-            android:summary="長押しメニューに「名前変更」を出す条件"
+            android:summary="長押しメニューでの表示条件"
             android:title="名前変更メニューの表示" />
         <src.comitton.config.seekbar.FontTitleSeekbar
             android:dialogMessage="タイトルのフォントサイズを選択"
@@ -152,7 +152,7 @@
             android:entries="@array/thumcache_name_list"
             android:entryValues="@array/thumcache_value_list"
             android:key="ThumbCache"
-            android:summary="作成したサムネイルを端末内に何件まで保持するか"
+            android:summary="dummy"
             android:title="サムネイルのキャッシュ" />
         <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="false"
@@ -165,7 +165,7 @@
             android:entries="@array/ThumbSortType_name_list"
             android:entryValues="@array/ThumbSortType_value_list"
             android:key="ThumbSortType"
-            android:summary="書庫の先頭ファイルをサムネイルにするためにファイル名一覧を解析する対象。サーバ上の RAR は解析に時間がかかります"
+            android:summary="サーバ上のRARは解析が遅い"
             android:title="先頭ファイル名のサムネイル作成条件(サーバ種別)" />
         <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="false"
@@ -192,7 +192,7 @@
             android:entries="@array/thumcrop_name_list"
             android:entryValues="@array/thumcrop_value_list"
             android:key="ThumbCrop"
-            android:summary="サムネイルにする画像のどの部分を切り出すか"
+            android:summary="dummy"
             android:title="サムネイルの切り取り位置" />
         <src.comitton.config.DescListPreference
             android:defaultValue="0"
@@ -200,7 +200,7 @@
             android:entries="@array/thummargin_name_list"
             android:entryValues="@array/thummargin_value_list"
             android:key="ThumbMargin"
-            android:summary="サムネイル作成時に画像周囲の余白を削る強さ"
+            android:summary="dummy"
             android:title="サムネイルの余白削除" />
     </PreferenceCategory>
 </PreferenceScreen>

@@ -6,7 +6,7 @@
             android:dialogTitle="Margin Size"
             android:key="Mergin"
             android:negativeButtonText="@null"
-            android:summary="dummy"
+            android:summary="Margin that marks the end of scrolling"
             android:title="Margin Size" />
         <src.comitton.config.seekbar.CenterSeekbar
             android:dialogMessage="Margin width in the middle of Dual View."
@@ -46,7 +46,7 @@
             android:dialogTitle="Image Scroll Speed"
             android:key="Scroll"
             android:negativeButtonText="@null"
-            android:summary="dummy"
+            android:summary="Multiplier applied to the drag distance"
             android:title="Scrolling Speed" />
         <src.comitton.config.seekbar.ClickAreaSeekbar
             android:dialogMessage="Set the scaling size for the operation area."
@@ -60,28 +60,28 @@
             android:dialogTitle="Page Change Sensitivity"
             android:key="PageRangeSp"
             android:negativeButtonText="@null"
-            android:summary="dummy"
+            android:summary="Drag distance needed to move one page"
             android:title="Page Selection Sensitivity" />
         <src.comitton.config.seekbar.TapRangeSeekbar
             android:dialogMessage="The sensitivity of the scroll by dragging the start."
             android:dialogTitle="Scroll Start Sensitivity"
             android:key="TapRangeSp"
             android:negativeButtonText="@null"
-            android:summary="dummy"
+            android:summary="Movement beyond this starts a scroll"
             android:title="Scroll Start Sensitivity" />
         <src.comitton.config.seekbar.VolScrlSeekbar
             android:dialogMessage="Scroll Speed of Tap or Vol-Button Operation."
             android:dialogTitle="Scroll Speed"
             android:key="VolScrlSp"
             android:negativeButtonText="@null"
-            android:summary="dummy"
+            android:summary="Applies to tap scrolling and volume keys"
             android:title="Scroll Speed" />
         <src.comitton.config.seekbar.MomentModeSeekbar
             android:dialogMessage="Immediately stop the smaller."
             android:dialogTitle="Slowdown Amount"
             android:key="MomentMode"
             android:negativeButtonText="@null"
-            android:summary="dummy"
+            android:summary="Smaller values stop sooner"
             android:title="Amount of Slowdown" />
         <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"

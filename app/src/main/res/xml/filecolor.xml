@@ -7,7 +7,7 @@
             android:entries="@array/preset_name_list"
             android:entryValues="@array/preset_value_list"
             android:key="Preset"
-            android:summary="Applies a whole color scheme. Changing any color individually switches to Custom"
+            android:summary="Changing any color switches to Custom"
             android:title="Select Preset Color" />
         <PreferenceScreen
             android:key="CustomUpdate"

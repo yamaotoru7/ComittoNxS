@@ -18,7 +18,7 @@
             android:entries="@array/rotatebtn_name_list"
             android:entryValues="@array/rotatebtn_value_list"
             android:key="RotateBtn"
-            android:summary="画面の向きを回転するのに使うハードウェアボタン。端末に無いボタンを選んでも動作しません"
+            android:summary="端末に無いボタンは無効"
             android:title="画面を回転するボタン" />
     </PreferenceCategory>
 
@@ -34,7 +34,7 @@
         android:entries="@array/charset_name_list"
         android:entryValues="@array/charset_value_list"
         android:key="Charset"
-        android:summary="ZIP/RAR 内のファイル名の文字コード。自動判別が有効なときはその結果を優先します"
+        android:summary="自動判別が有効ならそちらを優先"
         android:title="文字コード指定" />
     </PreferenceCategory>
 
@@ -81,53 +81,53 @@
             android:summary="優先ワードをソート順序が最小の文字として扱います。" />
         <src.comitton.config.DescEditTextPreference
             android:key="SortPriorityWord01"
-            android:summary="この語を含むファイルを並べ替えで先頭側に寄せます(例: cover)"
+            android:summary="dummy"
             android:title="優先ワード1"
             android:defaultValue="cover"
             android:dialogTitle="優先ワード1" />
         <src.comitton.config.DescEditTextPreference
             android:key="SortPriorityWord02"
-            android:summary="この語を含むファイルを並べ替えで先頭側に寄せます(例: cover)"
+            android:summary="dummy"
             android:title="優先ワード2"
             android:dialogTitle="優先ワード2" />
         <src.comitton.config.DescEditTextPreference
             android:key="SortPriorityWord03"
-            android:summary="この語を含むファイルを並べ替えで先頭側に寄せます(例: cover)"
+            android:summary="dummy"
             android:title="優先ワード3"
             android:dialogTitle="優先ワード3" />
         <src.comitton.config.DescEditTextPreference
             android:key="SortPriorityWord04"
-            android:summary="この語を含むファイルを並べ替えで先頭側に寄せます(例: cover)"
+            android:summary="dummy"
             android:title="優先ワード4"
             android:dialogTitle="優先ワード4" />
         <src.comitton.config.DescEditTextPreference
             android:key="SortPriorityWord05"
-            android:summary="この語を含むファイルを並べ替えで先頭側に寄せます(例: cover)"
+            android:summary="dummy"
             android:title="優先ワード5"
             android:dialogTitle="優先ワード5" />
         <src.comitton.config.DescEditTextPreference
             android:key="SortPriorityWord06"
-            android:summary="この語を含むファイルを並べ替えで先頭側に寄せます(例: cover)"
+            android:summary="dummy"
             android:title="優先ワード6"
             android:dialogTitle="優先ワード6" />
         <src.comitton.config.DescEditTextPreference
             android:key="SortPriorityWord07"
-            android:summary="この語を含むファイルを並べ替えで先頭側に寄せます(例: cover)"
+            android:summary="dummy"
             android:title="優先ワード7"
             android:dialogTitle="優先ワード7" />
         <src.comitton.config.DescEditTextPreference
             android:key="SortPriorityWord08"
-            android:summary="この語を含むファイルを並べ替えで先頭側に寄せます(例: cover)"
+            android:summary="dummy"
             android:title="優先ワード8"
             android:dialogTitle="優先ワード8" />
         <src.comitton.config.DescEditTextPreference
             android:key="SortPriorityWord09"
-            android:summary="この語を含むファイルを並べ替えで先頭側に寄せます(例: cover)"
+            android:summary="dummy"
             android:title="優先ワード9"
             android:dialogTitle="優先ワード9" />
         <src.comitton.config.DescEditTextPreference
             android:key="SortPriorityWord10"
-            android:summary="この語を含むファイルを並べ替えで先頭側に寄せます(例: cover)"
+            android:summary="dummy"
             android:title="優先ワード10"
             android:dialogTitle="優先ワード10" />
     </PreferenceCategory>

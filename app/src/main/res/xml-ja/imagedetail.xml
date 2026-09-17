@@ -6,7 +6,7 @@
             android:dialogTitle="画面縦横比率の調整"
             android:key="WAdjust"
             android:negativeButtonText="@null"
-            android:summary="dummy"
+            android:summary="横持ち時の縦に対する横の比率"
             android:title="画面縦横比率の調整" />
         <src.comitton.config.seekbar.WScalingSeekbar
             android:dialogMessage="イメージの幅を指定のサイズに拡大/縮小する"
@@ -42,7 +42,7 @@
             android:entries="@array/loupesize_name_list"
             android:entryValues="@array/loupesize_value_list"
             android:key="LoupeSize"
-            android:summary="長押しで表示するルーペの大きさ"
+            android:summary="dummy"
             android:title="ルーペサイズ" />
         <src.comitton.config.seekbar.ScrlRngWSeekbar
             android:dialogMessage="音量キー等でのスクロール量(幅)"
@@ -71,7 +71,7 @@
             android:entries="@array/maxthread_name_list"
             android:entryValues="@array/maxthread_value_list"
             android:key="MaxThread"
-            android:summary="拡大縮小などの画像処理に使うスレッド数。多いほど速くなりますが発熱と電池消費が増えます"
+            android:summary="多いほど速いが発熱と電池消費が増える"
             android:title="画像処理スレッド数" />
     </PreferenceCategory>
 </PreferenceScreen>

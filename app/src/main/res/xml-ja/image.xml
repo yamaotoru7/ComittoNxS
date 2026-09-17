@@ -7,7 +7,7 @@
             android:entries="@array/scale_name_list"
             android:entryValues="@array/scale_value_list"
             android:key="IniScale"
-            android:summary="ファイルを開いたときの画像サイズ。表示中に変えた倍率は一時的なものです"
+            android:summary="表示中に変えた倍率は保存されません"
             android:title="サイズ調整方法" />
         <src.comitton.config.DescListPreference
             android:defaultValue="1"
@@ -15,7 +15,7 @@
             android:entries="@array/initview_name_list"
             android:entryValues="@array/initview_value_list"
             android:key="InitView"
-            android:summary="縦長ページを 2 枚並べるか、横長ページを左右に分けて表示するか"
+            android:summary="縦長2枚を並べる / 横長を左右に分割"
             android:title="見開きモード" />
         <src.comitton.config.DescListPreference
             android:defaultValue="2"
@@ -23,7 +23,7 @@
             android:entries="@array/algomode_name_list"
             android:entryValues="@array/algomode_value_list"
             android:key="AlgoMode"
-            android:summary="拡大縮小の補間方法。最近傍が最速、双三次が最も滑らかです。二段階は縮小時の画質が上がります"
+            android:summary="最近傍=最速、双三次=最も滑らか、二段階=縮小画質向上"
             android:title="画像補間方式" />
         <src.comitton.config.DescListPreference
             android:defaultValue="0"
@@ -31,7 +31,7 @@
             android:entries="@array/mgncut_name_list"
             android:entryValues="@array/mgncut_value_list"
             android:key="MarginCut"
-            android:summary="画像周囲の余白を自動で切り落とす強さ。縦横比無視は最大限削りますが画像が伸びることがあります"
+            android:summary="縦横比無視は画像が伸びることがあります"
             android:title="余白の削除" />
         <src.comitton.config.DescListPreference
             android:defaultValue="0"
@@ -39,13 +39,13 @@
             android:entries="@array/mgncut_color_name_list"
             android:entryValues="@array/mgncut_color_value_list"
             android:key="MarginCutColor"
-            android:summary="余白として扱う色。色付きの余白も削る場合は「全ての色」を選びます"
+            android:summary="色付きの余白も削るなら「全ての色」"
             android:title="余白の削除対象の色" />
 <!--
         <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="false"
             android:key="Sharpen"
-            android:summary="縮小表示した画像の輪郭を強調します(処理は少し重くなります)"
+            android:summary="縮小時の輪郭を強調(やや重い)"
             android:title="画像のシャープ化" />
 -->
     </PreferenceCategory>
@@ -66,7 +66,7 @@
             android:entries="@array/rotate_name_list"
             android:entryValues="@array/rotate_value_list"
             android:key="ViewRota"
-            android:summary="イメージ表示画面の向き。縦固定(90°回転)はステータスバーを消せない端末向けです"
+            android:summary="90°回転はステータスバーを消せない端末向け"
             android:title="表示方向" />
         <src.comitton.config.DescListPreference
             android:defaultValue="1"
@@ -74,7 +74,7 @@
             android:entries="@array/filesort_name_list"
             android:entryValues="@array/filesort_value_list"
             android:key="FileSort"
-            android:summary="書庫やフォルダ内の画像を表示する順番"
+            android:summary="dummy"
             android:title="書庫内ファイルのソート" />
         <src.comitton.config.DescListPreference
             android:defaultValue="0"
@@ -82,7 +82,7 @@
             android:entries="@array/pageway_name_list"
             android:entryValues="@array/pageway_value_list"
             android:key="PageWay"
-            android:summary="右表紙(右から左)か左表紙(左から右)か。見開きの並びやページ選択の向きにも影響します"
+            android:summary="見開きの並びとページ選択の向きにも影響"
             android:title="ページをめくる方向" />
         <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="false"
@@ -100,7 +100,7 @@
             android:entries="@array/zoomsize_name_list"
             android:entryValues="@array/zoomsize_value_list"
             android:key="ZoomType"
-            android:summary="長押しで表示するルーペの拡大率。元画像基準と表示サイズ基準から選べます"
+            android:summary="dummy"
             android:title="ルーペ表示の拡大率" />
         <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"
@@ -118,7 +118,7 @@
             android:entries="@array/effect_name_list"
             android:entryValues="@array/effect_value_list"
             android:key="EffectList"
-            android:summary="ページを切り替えたときのアニメーション"
+            android:summary="dummy"
             android:title="ページめくりのエフェクト" />
         <src.comitton.config.DescListPreference
             android:defaultValue="0"
@@ -126,7 +126,7 @@
             android:entries="@array/viewpt_name_list"
             android:entryValues="@array/viewpt_value_list"
             android:key="ViewPt"
-            android:summary="ページを開いた直後に画面のどの角を表示するか。右表紙なら右上が標準です"
+            android:summary="右表紙なら右上が標準"
             android:title="画像の初期表示位置＊" />
         <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"
@@ -137,13 +137,13 @@
             android:dialogTitle="ページ番号表示"
             android:key="PageNumber"
             android:negativeButtonText="@null"
-            android:summary="ページ番号の表示位置・書式・色"
+            android:summary="位置・書式・色"
             android:title="ページ番号表示" />
         <src.comitton.config.TimeAndBatteryPreference
             android:dialogTitle="時刻と充電表示"
             android:key="TimeAndBattery"
             android:negativeButtonText="@null"
-            android:summary="時刻と電池残量の表示と書式"
+            android:summary="dummy"
             android:title="時刻と充電表示＊" />
     </PreferenceCategory>
     <PreferenceCategory android:title="操作関連の設定（＊はテキストと共通の設定）" >
@@ -158,7 +158,7 @@
             android:entries="@array/lastpage_name_list"
             android:entryValues="@array/lastpage_value_list"
             android:key="LastPage"
-            android:summary="最終ページで次へ(先頭ページで前へ)進もうとしたときの動作"
+            android:summary="dummy"
             android:title="最終/先頭ページでの動作＊" />
         <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"
@@ -171,7 +171,7 @@
             android:entries="@array/scroll_name_list"
             android:entryValues="@array/scroll_value_list"
             android:key="ScrlWay"
-            android:summary="音量ボタン等でスクロールするとき横と縦のどちらを先に動かすか。4 コマ漫画は縦→横が向きます"
+            android:summary="4コマ漫画は縦→横"
             android:title="音量ボタン等でのスクロール方向" />
         <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"
@@ -183,7 +183,7 @@
             android:dialogTitle="タップ位置のパターン"
             android:key="TapPattern"
             android:negativeButtonText="@null"
-            android:summary="画面のタップ位置ごとに割り当てる操作のパターン"
+            android:summary="dummy"
             android:title="タップ操作のパターン＊" />
         <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="false"
@@ -206,7 +206,7 @@
             android:entries="@array/volkey_name_list"
             android:entryValues="@array/volkey_value_list"
             android:key="VolKey"
-            android:summary="音量ボタンにページ送りを割り当てるか、その向き"
+            android:summary="dummy"
             android:title="音量ボタンでのページめくり＊" />
         <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="false"
@@ -249,7 +249,7 @@
             android:entries="@array/pagesel_name_list"
             android:entryValues="@array/pagesel_value_list"
             android:key="PageSelect"
-            android:summary="ページを選ぶ操作方法。画面下のスワイプ、スライダー、サムネイル一覧から選べます"
+            android:summary="dummy"
             android:title="ページ選択方法" />
         <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="false"

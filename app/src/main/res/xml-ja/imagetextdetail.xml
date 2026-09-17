@@ -6,7 +6,7 @@
             android:dialogTitle="余白サイズ"
             android:key="Mergin"
             android:negativeButtonText="@null"
-            android:summary="dummy"
+            android:summary="スクロール端を示す余白"
             android:title="周囲の余白サイズ" />
         <src.comitton.config.seekbar.CenterSeekbar
             android:dialogMessage="並べて表示で画像間の余白の幅を設定"
@@ -46,7 +46,7 @@
             android:dialogTitle="ドラッグによるスクロール量"
             android:key="Scroll"
             android:negativeButtonText="@null"
-            android:summary="dummy"
+            android:summary="ドラッグ距離に対する倍率"
             android:title="ドラッグによるスクロール量" />
         <src.comitton.config.seekbar.ClickAreaSeekbar
             android:dialogMessage="上下の操作エリアのサイズを指定"
@@ -60,28 +60,28 @@
             android:dialogTitle="ページ選択の感度"
             android:key="PageRangeSp"
             android:negativeButtonText="@null"
-            android:summary="dummy"
+            android:summary="1ページ送るのに必要なドラッグ量"
             android:title="ページ選択の感度" />
         <src.comitton.config.seekbar.TapRangeSeekbar
             android:dialogMessage="スクロールを開始するまでの移動量"
             android:dialogTitle="スクロール開始の感度"
             android:key="TapRangeSp"
             android:negativeButtonText="@null"
-            android:summary="dummy"
+            android:summary="この移動量を超えるとスクロール開始"
             android:title="スクロール開始の感度" />
         <src.comitton.config.seekbar.VolScrlSeekbar
             android:dialogMessage="タップでスクロールや音量キーでのスクロール速度"
             android:dialogTitle="スクロール速度"
             android:key="VolScrlSp"
             android:negativeButtonText="@null"
-            android:summary="dummy"
+            android:summary="タップスクロールと音量キーに適用"
             android:title="スクロール速度" />
         <src.comitton.config.seekbar.MomentModeSeekbar
             android:dialogMessage="小さいほどすぐ止まる"
             android:dialogTitle="減速スピード"
             android:key="MomentMode"
             android:negativeButtonText="@null"
-            android:summary="dummy"
+            android:summary="小さいほどすぐ止まる"
             android:title="減速スピード" />
         <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"

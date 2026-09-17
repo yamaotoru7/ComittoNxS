@@ -37,7 +37,7 @@
             android:entries="@array/history_name_list"
             android:entryValues="@array/history_value_list"
             android:key="RLSave3"
-            android:summary="履歴に残す件数。超えた分は古いものから消えます"
+            android:summary="dummy"
             android:title="履歴の保持件数" />
     </PreferenceCategory>
 </PreferenceScreen>

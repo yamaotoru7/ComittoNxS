@@ -23,13 +23,14 @@ public final class PreferenceSummary {
 		return text == null || text.length() == 0 || PLACEHOLDER.contentEquals(text);
 	}
 
-	/** XML のサマリを説明として採用し、無ければ fallback(ダイアログの説明文など)を使う */
-	public static CharSequence pickDescription(CharSequence xmlSummary, CharSequence fallback) {
+	/**
+	 * XML のサマリを説明として採用する。
+	 * 未指定や "dummy" なら説明なし(現在値のみ表示)。
+	 * ダイアログの説明文は項目名の言い換えであることが多いので流用しない。
+	 */
+	public static CharSequence pickDescription(CharSequence xmlSummary) {
 		if (!isPlaceholder(xmlSummary)) {
 			return xmlSummary;
-		}
-		if (!isPlaceholder(fallback)) {
-			return fallback;
 		}
 		return null;
 	}

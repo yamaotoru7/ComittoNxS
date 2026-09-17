@@ -32,9 +32,10 @@ public abstract class CustomDialogPreference extends Preference {
     }
 
     private void initDescription() {
-        mDescription = PreferenceSummary.pickDescription(super.getSummary(), mDialogMessage);
-        if (PreferenceSummary.isPlaceholder(super.getSummary()) && mDescription != null) {
-            super.setSummary(mDescription);
+        mDescription = PreferenceSummary.pickDescription(super.getSummary());
+        if (mDescription == null) {
+            // 説明なし: 現在値が設定されるまで "dummy" を見せない
+            super.setSummary(null);
         }
     }
 

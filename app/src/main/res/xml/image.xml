@@ -7,7 +7,7 @@
             android:entries="@array/scale_name_list"
             android:entryValues="@array/scale_value_list"
             android:key="IniScale"
-            android:summary="Image size when a file is opened. Zoom changes made while viewing are temporary"
+            android:summary="Zoom changes while viewing are not saved"
             android:title="Initial Scale Mode" />
         <src.comitton.config.DescListPreference
             android:defaultValue="1"
@@ -15,7 +15,7 @@
             android:entries="@array/initview_name_list"
             android:entryValues="@array/initview_value_list"
             android:key="InitView"
-            android:summary="Whether to show two portrait pages side by side, or split landscape pages in half"
+            android:summary="Pair portrait pages / split landscape pages"
             android:title="Initial View Mode" />
         <src.comitton.config.DescListPreference
             android:defaultValue="4"
@@ -23,7 +23,7 @@
             android:entries="@array/algomode_name_list"
             android:entryValues="@array/algomode_value_list"
             android:key="AlgoMode"
-            android:summary="Interpolation used when scaling. Nearest is fastest, bicubic is smoothest. Two-pass improves quality when shrinking"
+            android:summary="Nearest=fastest, bicubic=smoothest, two-pass=better downscaling"
             android:title="Image Interpolation" />
         <src.comitton.config.DescListPreference
             android:defaultValue="0"
@@ -31,7 +31,7 @@
             android:entries="@array/mgncut_name_list"
             android:entryValues="@array/mgncut_value_list"
             android:key="MarginCut"
-            android:summary="How aggressively blank margins are cropped. Ignore aspect ratio crops the most but may stretch the image"
+            android:summary="Ignore aspect ratio may stretch the image"
             android:title="Strength to remove the margin." />
         <src.comitton.config.DescListPreference
             android:defaultValue="0"
@@ -39,13 +39,13 @@
             android:entries="@array/mgncut_color_name_list"
             android:entryValues="@array/mgncut_color_value_list"
             android:key="MarginCutColor"
-            android:summary="Which colors count as margin. Choose All colors to crop colored margins too"
+            android:summary="Choose All colors to crop colored margins"
             android:title="Color to remove margin" />
 <!--
         <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="false"
             android:key="Sharpen"
-            android:summary="Sharpens edges of scaled images (slightly slower)"
+            android:summary="Sharpens edges when downscaled (slightly slower)"
             android:title="Sharpen image" />
 -->
     </PreferenceCategory>
@@ -66,7 +66,7 @@
             android:entries="@array/rotate_name_list"
             android:entryValues="@array/rotate_value_list"
             android:key="ViewRota"
-            android:summary="Orientation of the image viewer. Portrait (90°) is for devices that cannot hide the status bar"
+            android:summary="Portrait (90°) is for devices that cannot hide the status bar"
             android:title="Screen orientation" />
         <src.comitton.config.DescListPreference
             android:defaultValue="1"
@@ -74,7 +74,7 @@
             android:entries="@array/filesort_name_list"
             android:entryValues="@array/filesort_value_list"
             android:key="FileSort"
-            android:summary="Order in which images inside an archive or folder are shown"
+            android:summary="dummy"
             android:title="Show Image Order" />
         <src.comitton.config.DescListPreference
             android:defaultValue="0"
@@ -82,7 +82,7 @@
             android:entries="@array/pageway_name_list"
             android:entryValues="@array/pageway_value_list"
             android:key="PageWay"
-            android:summary="Right-to-left or left-to-right reading. Also affects the two-page layout and page selection direction"
+            android:summary="Also sets the two-page layout and page selection direction"
             android:title="Turning the Page Direction" />
         <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="false"
@@ -100,7 +100,7 @@
             android:entries="@array/zoomsize_name_list"
             android:entryValues="@array/zoomsize_value_list"
             android:key="ZoomType"
-            android:summary="Magnification of the loupe shown on long press, relative to the original or the displayed size"
+            android:summary="dummy"
             android:title="Magnification of the Loupe" />
         <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="false"
@@ -118,7 +118,7 @@
             android:entries="@array/effect_name_list"
             android:entryValues="@array/effect_value_list"
             android:key="EffectList"
-            android:summary="Animation played when the page changes"
+            android:summary="dummy"
             android:title="Page turning effect" />
         <src.comitton.config.DescListPreference
             android:defaultValue="0"
@@ -126,7 +126,7 @@
             android:entries="@array/viewpt_name_list"
             android:entryValues="@array/viewpt_value_list"
             android:key="ViewPt"
-            android:summary="Which corner is shown first when a page opens. Top-right is usual for right-to-left books"
+            android:summary="Top-right is usual for right-to-left books"
             android:title="First Image Position(*)" />
         <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"
@@ -137,13 +137,13 @@
             android:dialogTitle="Page Number"
             android:key="PageNumber"
             android:negativeButtonText="@null"
-            android:summary="Position, format and color of the page number overlay"
+            android:summary="Position, format and color"
             android:title="Page Number" />
         <src.comitton.config.TimeAndBatteryPreference
             android:dialogTitle="Time and Battery"
             android:key="TimeAndBattery"
             android:negativeButtonText="@null"
-            android:summary="Whether to show the clock and battery level, and their format"
+            android:summary="dummy"
             android:title="Time and Buttery(*)" />
     </PreferenceCategory>
     <PreferenceCategory android:title="Operation Settings" >
@@ -158,7 +158,7 @@
             android:entries="@array/lastpage_name_list"
             android:entryValues="@array/lastpage_value_list"
             android:key="LastPage"
-            android:summary="What happens when you go past the last page (or before the first)"
+            android:summary="dummy"
             android:title="Operation in last/top page(*)" />
         <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"
@@ -171,7 +171,7 @@
             android:entries="@array/scroll_name_list"
             android:entryValues="@array/scroll_value_list"
             android:key="ScrlWay"
-            android:summary="Which direction volume-button scrolling moves first. Use vertical first for 4-panel comics"
+            android:summary="Use vertical first for 4-panel comics"
             android:title="Volume button to scroll in the direction." />
         <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"
@@ -183,7 +183,7 @@
             android:dialogTitle="Pattern of tap position"
             android:key="TapPattern"
             android:negativeButtonText="@null"
-            android:summary="Which action each tap area of the screen performs"
+            android:summary="dummy"
             android:title="Pattern of tap position" />
         <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"
@@ -206,7 +206,7 @@
             android:entries="@array/volkey_name_list"
             android:entryValues="@array/volkey_value_list"
             android:key="VolKey"
-            android:summary="Whether volume buttons turn pages, and in which direction"
+            android:summary="dummy"
             android:title="Operation by Vol Key(*)" />
         <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"
@@ -249,7 +249,7 @@
             android:entries="@array/pagesel_name_list"
             android:entryValues="@array/pagesel_value_list"
             android:key="PageSelect"
-            android:summary="How pages are selected: swipe on the bottom area, a slider, or a thumbnail list"
+            android:summary="dummy"
             android:title="Page select operation(*)" />
         <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="false"

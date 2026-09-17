@@ -6,7 +6,7 @@
             android:dialogTitle="使用メモリサイズ"
             android:key="MemSize"
             android:negativeButtonText="@null"
-            android:summary="dummy"
+            android:summary="大きすぎるとメモリ不足で落ちます"
             android:title="使用メモリサイズ" />
         <src.comitton.config.seekbar.MemNextSeekbar
             android:dialogMessage="先読みでメモリにキャッシュする現在ページ以降のページ数"

@@ -14,9 +14,9 @@ public class DescEditTextPreference extends EditTextPreference {
 
 	public DescEditTextPreference(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		mDescription = PreferenceSummary.pickDescription(super.getSummary(), getDialogMessage());
-		if (PreferenceSummary.isPlaceholder(super.getSummary()) && mDescription != null) {
-			super.setSummary(mDescription);
+		mDescription = PreferenceSummary.pickDescription(super.getSummary());
+		if (mDescription == null) {
+			super.setSummary(null);
 		}
 	}
 

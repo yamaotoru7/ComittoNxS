@@ -7,7 +7,7 @@
             android:entries="@array/txscale_name_list"
             android:entryValues="@array/txscale_value_list"
             android:key="txIniScale"
-            android:summary="ファイルを開いたときの用紙の表示サイズ"
+            android:summary="dummy"
             android:title="サイズ調整方法" />
         <src.comitton.config.DescListPreference
             android:defaultValue="2"
@@ -15,7 +15,7 @@
             android:entries="@array/txinitview_name_list"
             android:entryValues="@array/txinitview_value_list"
             android:key="txInitView"
-            android:summary="2 ページを並べる、1 ページずつ、全ページを続けてスクロール表示のいずれか"
+            android:summary="連続表示は全ページを続けてスクロール"
             android:title="見開きモード" />
         <src.comitton.config.DescListPreference
             android:defaultValue="0"
@@ -23,7 +23,7 @@
             android:entries="@array/txpaper_name_list"
             android:entryValues="@array/txpaper_value_list"
             android:key="txPaperSize"
-            android:summary="テキストを配置する用紙の大きさ。画面サイズ(縦)は端末の画面に合わせます"
+            android:summary="画面サイズ(縦)は端末の画面に合わせる"
             android:title="用紙選択" />
     </PreferenceCategory>
     <PreferenceCategory android:title="表示関連の設定(＊はイメージと共通)" >
@@ -33,7 +33,7 @@
             android:entries="@array/txpic_name_list"
             android:entryValues="@array/txpic_value_list"
             android:key="txPicSize"
-            android:summary="挿絵を表示するときの大きさ"
+            android:summary="dummy"
             android:title="挿絵のサイズ" />
         <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"
@@ -51,7 +51,7 @@
             android:entries="@array/rotate_name_list"
             android:entryValues="@array/rotate_value_list"
             android:key="txViewRota"
-            android:summary="テキスト表示画面の向き"
+            android:summary="dummy"
             android:title="表示方向" />
         <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"
@@ -88,7 +88,7 @@
             android:entries="@array/viewpt_name_list"
             android:entryValues="@array/viewpt_value_list"
             android:key="ViewPt"
-            android:summary="ページを開いた直後に画面のどの角を表示するか。右表紙なら右上が標準です"
+            android:summary="右表紙なら右上が標準"
             android:title="画像の初期表示位置＊" />
         <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"
@@ -99,7 +99,7 @@
             android:dialogTitle="時刻と充電表示"
             android:key="TimeAndBattery"
             android:negativeButtonText="@null"
-            android:summary="時刻と電池残量の表示と書式"
+            android:summary="dummy"
             android:title="時刻と充電表示＊" />
     </PreferenceCategory>
     <PreferenceCategory android:title="操作関連の設定(＊はイメージと共通)" >
@@ -114,7 +114,7 @@
             android:entries="@array/lastpage_name_list"
             android:entryValues="@array/lastpage_value_list"
             android:key="LastPage"
-            android:summary="最終ページで次へ(先頭ページで前へ)進もうとしたときの動作"
+            android:summary="dummy"
             android:title="最終/先頭ページでの動作＊" />
         <src.comitton.config.OperationPreference
             android:dialogMessage="ページめくりするタップ位置を選択してください\n（&lt;:次ページ、&gt;:前ページ）"
@@ -144,7 +144,7 @@
             android:entries="@array/volkey_name_list"
             android:entryValues="@array/volkey_value_list"
             android:key="VolKey"
-            android:summary="音量ボタンにページ送りを割り当てるか、その向き"
+            android:summary="dummy"
             android:title="音量ボタンでのページめくり＊" />
         <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="false"
@@ -172,7 +172,7 @@
             android:entries="@array/txpagesel_name_list"
             android:entryValues="@array/txpagesel_value_list"
             android:key="txPageSelect"
-            android:summary="ページを選ぶ操作方法。画面下のスワイプかスライダー"
+            android:summary="dummy"
             android:title="ページ選択方法" />
         <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="false"
@@ -185,8 +185,8 @@
             android:defaultValue=""
             android:dialogTitle="フォント選択 ([sdcard]/comittona/font/から選択)"
             android:key="txFontName"
-            android:summary="本文の描画に使うフォント。[sdcard]/comittona/font/ に置いた ttf/otf ファイルから選べます"
-            android:title="フォント選択 ([sdcard]/comittona/font/から選択)" />
+            android:summary="[sdcard]/comittona/font/ の ttf/otf から選択"
+            android:title="フォント選択" />
         <src.comitton.config.seekbar.TextFontTopSeekbar
             android:dialogMessage="見出しのフォントサイズを選択"
             android:dialogTitle="見出しのフォントサイズ"

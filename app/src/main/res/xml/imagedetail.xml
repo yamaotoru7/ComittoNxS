@@ -6,7 +6,7 @@
             android:dialogTitle="Aspect Ratio"
             android:key="WAdjust"
             android:negativeButtonText="@null"
-            android:summary="dummy"
+            android:summary="Width to height ratio when held landscape"
             android:title="Aspect Ratie" />
         <src.comitton.config.seekbar.WScalingSeekbar
             android:dialogMessage="Adjust the width of the iamge."
@@ -42,7 +42,7 @@
             android:entries="@array/loupesize_name_list"
             android:entryValues="@array/loupesize_value_list"
             android:key="LoupeSize"
-            android:summary="Size of the loupe shown on long press"
+            android:summary="dummy"
             android:title="Size of Loupe view" />
         <src.comitton.config.seekbar.ScrlRngWSeekbar
             android:dialogMessage="Scroll Width of Vol-Button, etc."
@@ -71,7 +71,7 @@
             android:entries="@array/maxthread_name_list"
             android:entryValues="@array/maxthread_value_list"
             android:key="MaxThread"
-            android:summary="Threads used for image processing. More is faster but uses more power"
+            android:summary="More is faster but uses more power"
             android:title="Max number of processing threads" />
     </PreferenceCategory>
 </PreferenceScreen>

@@ -7,7 +7,7 @@
             android:entries="@array/txscale_name_list"
             android:entryValues="@array/txscale_value_list"
             android:key="txIniScale"
-            android:summary="Paper size when a file is opened"
+            android:summary="dummy"
             android:title="Initial Scale Mode" />
         <src.comitton.config.DescListPreference
             android:defaultValue="2"
@@ -15,7 +15,7 @@
             android:entries="@array/txinitview_name_list"
             android:entryValues="@array/txinitview_value_list"
             android:key="txInitView"
-            android:summary="Two pages side by side, one page at a time, or all pages in a continuous scroll"
+            android:summary="Continuous scrolls through all pages"
             android:title="Initial View Mode" />
         <src.comitton.config.DescListPreference
             android:defaultValue="0"
@@ -23,7 +23,7 @@
             android:entries="@array/txpaper_name_list"
             android:entryValues="@array/txpaper_value_list"
             android:key="txPaperSize"
-            android:summary="Size of the virtual paper the text is laid out on. Screen (portrait) follows the device screen"
+            android:summary="Screen (portrait) follows the device screen"
             android:title="Paper Size" />
     </PreferenceCategory>
     <PreferenceCategory android:title="Display Settings(* is common to the image setting)" >
@@ -33,7 +33,7 @@
             android:entries="@array/txpic_name_list"
             android:entryValues="@array/txpic_value_list"
             android:key="txPicSize"
-            android:summary="Size at which illustrations are shown"
+            android:summary="dummy"
             android:title="Illustrations Size" />
         <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"
@@ -51,7 +51,7 @@
             android:entries="@array/rotate_name_list"
             android:entryValues="@array/rotate_value_list"
             android:key="txViewRota"
-            android:summary="Orientation of the text viewer"
+            android:summary="dummy"
             android:title="Screen orientation" />
         <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"
@@ -88,7 +88,7 @@
             android:entries="@array/viewpt_name_list"
             android:entryValues="@array/viewpt_value_list"
             android:key="ViewPt"
-            android:summary="Which corner is shown first when a page opens. Top-right is usual for right-to-left books"
+            android:summary="Top-right is usual for right-to-left books"
             android:title="First Image Position(*)" />
         <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"
@@ -99,7 +99,7 @@
             android:dialogTitle="Time and Battery"
             android:key="TimeAndBattery"
             android:negativeButtonText="@null"
-            android:summary="Whether to show the clock and battery level, and their format"
+            android:summary="dummy"
             android:title="Time and Buttery(*)" />
     </PreferenceCategory>
     <PreferenceCategory android:title="Operation Settings(* is common to the image setting)" >
@@ -114,7 +114,7 @@
             android:entries="@array/lastpage_name_list"
             android:entryValues="@array/lastpage_value_list"
             android:key="LastPage"
-            android:summary="What happens when you go past the last page (or before the first)"
+            android:summary="dummy"
             android:title="Operation in last/top page(*)" />
         <src.comitton.config.OperationPreference
             android:dialogMessage="Please select the location tap page turning.\n(&lt;:Next Page, &gt;:Prev Page)"
@@ -144,7 +144,7 @@
             android:entries="@array/volkey_name_list"
             android:entryValues="@array/volkey_value_list"
             android:key="VolKey"
-            android:summary="Whether volume buttons turn pages, and in which direction"
+            android:summary="dummy"
             android:title="Operation by Vol Key(*)" />
         <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="false"
@@ -172,7 +172,7 @@
             android:entries="@array/txpagesel_name_list"
             android:entryValues="@array/txpagesel_value_list"
             android:key="txPageSelect"
-            android:summary="How pages are selected: swipe on the bottom area or a slider"
+            android:summary="dummy"
             android:title="Page select operation(*)" />
         <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="false"
@@ -185,8 +185,8 @@
             android:defaultValue=""
             android:dialogTitle="Select Font (Select from [sdcard]/comittona/font/)"
             android:key="txFontName"
-            android:summary="Font used for the text. Choose from ttf/otf files placed in [sdcard]/comittona/font/"
-            android:title="Select Font (Select from [sdcard]/comittona/font/)" />
+            android:summary="ttf/otf files in [sdcard]/comittona/font/"
+            android:title="Select Font" />
         <src.comitton.config.seekbar.TextFontTopSeekbar
             android:dialogMessage="Select font size of head."
             android:dialogTitle="Head Font Size"

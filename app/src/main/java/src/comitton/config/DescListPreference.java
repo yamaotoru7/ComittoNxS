@@ -14,9 +14,9 @@ public class DescListPreference extends ListPreference {
 
 	public DescListPreference(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		mDescription = PreferenceSummary.pickDescription(super.getSummary(), getDialogMessage());
-		if (PreferenceSummary.isPlaceholder(super.getSummary()) && mDescription != null) {
-			super.setSummary(mDescription);
+		mDescription = PreferenceSummary.pickDescription(super.getSummary());
+		if (mDescription == null) {
+			super.setSummary(null);
 		}
 	}
 

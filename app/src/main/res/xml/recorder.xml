@@ -37,7 +37,7 @@
             android:entries="@array/history_name_list"
             android:entryValues="@array/history_value_list"
             android:key="RLSave3"
-            android:summary="Number of history entries to keep. Older entries are removed beyond this"
+            android:summary="dummy"
             android:title="Number of saved history" />
     </PreferenceCategory>
 </PreferenceScreen>

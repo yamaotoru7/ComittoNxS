@@ -6,7 +6,7 @@
             android:dialogTitle="Memory Cache Size"
             android:key="MemSize"
             android:negativeButtonText="@null"
-            android:summary="dummy"
+            android:summary="Too large a value may crash the app"
             android:title="Memory Cache Size" />
         <src.comitton.config.seekbar.MemNextSeekbar
             android:dialogMessage="Number of pages to be cached on the following pages."

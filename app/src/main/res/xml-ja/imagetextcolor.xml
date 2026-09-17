@@ -72,7 +72,7 @@
             android:entries="@array/txgradation_name_list"
             android:entryValues="@array/txgradation_value_list"
             android:key="txGradation"
-            android:summary="テキスト表示の背景を「背景の色」と「背景の色(グラデーション用)」の 2 色でぼかす方向"
+            android:summary="「背景の色」と「背景の色(グラデーション用)」の2色でぼかす"
             android:title="グラデーション設定" />
         <src.comitton.config.color.ColorHitSetting
             android:dialogMessage="色を設定してください。"

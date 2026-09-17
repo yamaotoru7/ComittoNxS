@@ -7,7 +7,7 @@
             android:entries="@array/preset_name_list"
             android:entryValues="@array/preset_value_list"
             android:key="Preset"
-            android:summary="配色をまとめて切り替えます。個別に色を変えるとカスタムになります"
+            android:summary="個別に色を変えるとカスタム扱い"
             android:title="プリセット色の選択" />
         <PreferenceScreen
             android:key="CustomUpdate"

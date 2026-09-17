@@ -18,7 +18,7 @@
             android:entries="@array/rotatebtn_name_list"
             android:entryValues="@array/rotatebtn_value_list"
             android:key="RotateBtn"
-            android:summary="Hardware button used to rotate the screen. Has no effect if the device lacks that button"
+            android:summary="Buttons the device lacks have no effect"
             android:title="Button to rotate the screen" />
     </PreferenceCategory>
 
@@ -35,7 +35,7 @@
             android:entries="@array/charset_name_list"
             android:entryValues="@array/charset_value_list"
             android:key="Charset"
-            android:summary="Character set of file names inside ZIP/RAR archives. Auto detection takes precedence when enabled"
+            android:summary="Auto detection takes precedence when enabled"
             android:title="Specify the Charset" />
     </PreferenceCategory>
 
@@ -82,53 +82,53 @@
             android:summary="Treat the priority word as the lowest character in the sort order." />
         <src.comitton.config.DescEditTextPreference
             android:key="SortPriorityWord01"
-            android:summary="Files whose name contains this word sort first (e.g. cover)"
+            android:summary="dummy"
             android:title="priority word 1"
             android:defaultValue="cover"
             android:dialogTitle="priority word 1" />
         <src.comitton.config.DescEditTextPreference
             android:key="SortPriorityWord02"
-            android:summary="Files whose name contains this word sort first (e.g. cover)"
+            android:summary="dummy"
             android:title="priority word 2"
             android:dialogTitle="priority word 2" />
         <src.comitton.config.DescEditTextPreference
             android:key="SortPriorityWord03"
-            android:summary="Files whose name contains this word sort first (e.g. cover)"
+            android:summary="dummy"
             android:title="priority word 3"
             android:dialogTitle="priority word 3" />
         <src.comitton.config.DescEditTextPreference
             android:key="SortPriorityWord04"
-            android:summary="Files whose name contains this word sort first (e.g. cover)"
+            android:summary="dummy"
             android:title="priority word 4"
             android:dialogTitle="priority word 4" />
         <src.comitton.config.DescEditTextPreference
             android:key="SortPriorityWord05"
-            android:summary="Files whose name contains this word sort first (e.g. cover)"
+            android:summary="dummy"
             android:title="priority word 5"
             android:dialogTitle="priority word 5" />
         <src.comitton.config.DescEditTextPreference
             android:key="SortPriorityWord06"
-            android:summary="Files whose name contains this word sort first (e.g. cover)"
+            android:summary="dummy"
             android:title="priority word 6"
             android:dialogTitle="priority word 6" />
         <src.comitton.config.DescEditTextPreference
             android:key="SortPriorityWord07"
-            android:summary="Files whose name contains this word sort first (e.g. cover)"
+            android:summary="dummy"
             android:title="priority word 7"
             android:dialogTitle="priority word 7" />
         <src.comitton.config.DescEditTextPreference
             android:key="SortPriorityWord08"
-            android:summary="Files whose name contains this word sort first (e.g. cover)"
+            android:summary="dummy"
             android:title="priority word 8"
             android:dialogTitle="priority word 8" />
         <src.comitton.config.DescEditTextPreference
             android:key="SortPriorityWord09"
-            android:summary="Files whose name contains this word sort first (e.g. cover)"
+            android:summary="dummy"
             android:title="priority word 9"
             android:dialogTitle="priority word 9" />
         <src.comitton.config.DescEditTextPreference
             android:key="SortPriorityWord10"
-            android:summary="Files whose name contains this word sort first (e.g. cover)"
+            android:summary="dummy"
             android:title="priority word 10"
             android:dialogTitle="priority word 10" />
     </PreferenceCategory>
