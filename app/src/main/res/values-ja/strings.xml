@@ -117,7 +117,6 @@
     <string name="exitMenu">終了</string>
     <string name="noticeMenu">ComittoNxSについて</string>
     <string name="aboutMenu">バージョン情報</string>
-    <string name="downloadCountMenu">ダウンロード数</string>
     <string name="licenseMenu">ライセンス情報</string>
     <string name="playMenu">自動再生</string>
     <string name="thumbMenu">サムネイルキャッシュ削除</string>
@@ -542,10 +541,6 @@
     <string name="CacheIndexOutOfRange">キャッシュのインデックスが範囲外です</string>
     <string name="CacheNotInitialized">キャッシュは初期化されていないか解放済みです</string>
 
-    <string name="Connecting">接続中...</string>
-    <string name="GetError">取得に失敗しました.</string>
-    <string name="ParseError">解析に失敗しました.</string>
-    <string name="NoResult">結果がありません.</string>
 
     <string name="UnknownArchiveFormat">圧縮形式が不明です.</string>
     <string name="ErrorNoPages">表示するページがありません.</string>

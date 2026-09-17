@@ -1841,7 +1841,6 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 		// バージョン情報
 		menu.add(0, DEF.MENU_ABOUT, Menu.NONE, res.getString(R.string.aboutMenu)).setIcon(android.R.drawable.ic_menu_info_details);
 		// ダウンロード数
-		menu.add(0, DEF.MENU_DOWLOAD_COUNT, Menu.NONE, res.getString(R.string.downloadCountMenu)).setIcon(android.R.drawable.ic_menu_info_details);
 		// ライセンス情報
 		//menu.add(0, DEF.MENU_LICENSE, Menu.NONE, res.getString(R.string.licenseMenu)).setIcon(android.R.drawable.ic_menu_info_details);
 		// 終了
@@ -1932,10 +1931,6 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 			mInformation.checkRecentRelease(mHandler, true);
 			// AboutDialog dlg = new AboutDialog(this);
 			// dlg.show();
-		}
-		else if (id == DEF.MENU_DOWLOAD_COUNT) {
-			// ダウンロード数
-			mInformation.showDownloads(mHandler);
 		}
 		else if (id == DEF.MENU_LICENSE) {
 			// ライセンス情報
@@ -3594,11 +3589,6 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 			case DEF.HMSG_RECENT_RELEASE: {
 				// GitHubに新しいバージョンがリリースされていればダイアログを表示する
 				mInformation.showRecentRelease();
-				return true;
-			}
-			case DEF.HMSG_APP_DOWNLOADS: {
-				// アプリのダウンロード数が取得されていればダイアログを表示する
-				mInformation.setDownloadsMessage();
 				return true;
 			}
 			case DEF.HMSG_ERROR: {

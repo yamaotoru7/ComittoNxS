@@ -117,7 +117,6 @@
     <string name="exitMenu">Exit</string>
     <string name="noticeMenu">Notice</string>
     <string name="aboutMenu">About</string>
-    <string name="downloadCountMenu">Number of Downloads</string>
     <string name="licenseMenu">License</string>
     <string name="playMenu">Auto Play</string>
     <string name="thumbMenu">Delete Thumbnail Cache</string>
@@ -543,10 +542,6 @@
     <string name="CacheIndexOutOfRange">Cache index out of range</string>
     <string name="CacheNotInitialized">The cache is uninitialized or has been released</string>
 
-    <string name="Connecting">Connecting...</string>
-    <string name="GetError">Failed to get.</string>
-    <string name="ParseError">Parsing failed.</string>
-    <string name="NoResult">There are no results.</string>
 
     <string name="UnknownArchiveFormat">Unknown Archive Format.</string>
     <string name="ErrorNoPages">There are no pages to display.</string>

@@ -50,7 +50,6 @@ public class DEF {
 
 	public static final String DOWNLOAD_URL = "https://github.com/ComittoNxA/ComittoNxX";
 	public static final String API_RECENT_RELEASE = "https://api.github.com/repos/ComittoNxA/ComittoNxX/releases/latest";
-	public static final String APP_DOWNLOADS = "https://api.github.com/repos/ComittoNxA/ComittonxX/releases";
 	public static final int MESSAGE_FILE_DELETE = 1000;
 	public static final int MESSAGE_RECORD_DELETE = 1001;
 	public static final int MESSAGE_LASTPAGE = 1002;
@@ -99,7 +98,6 @@ public class DEF {
 	public static final int HMSG_WORKSTREAM = 20;
 	public static final int HMSG_SUB_MESSAGE = 21;
 	public static final int HMSG_ERROR_MALLOC = 22;
-	public static final int HMSG_APP_DOWNLOADS = 23;
 	public static final int HMSG_SET_LISTVIEW_INDEX = 24;
 	public static final int HMSG_FILE_STATUS = 25;
 
@@ -180,7 +178,6 @@ public class DEF {
 	public static final int MENU_BKLIGHT = Menu.FIRST + 50;
 	public static final int MENU_SEL_DIR_TREE = Menu.FIRST + 51;
 	public static final int MENU_EDIT_TOOLBAR = Menu.FIRST + 52;
-	public static final int MENU_DOWLOAD_COUNT = Menu.FIRST + 53;
 	public static final int MENU_BOOKMARK = Menu.FIRST + 1000;
 	public static final int MENU_CHAPTER = Menu.FIRST + 2000;
 	public static final int MENU_DIR_TREE = MENU_CHAPTER;
