@@ -2,6 +2,9 @@ package src.comitton.config;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.os.Bundle;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.view.View;
 
@@ -172,7 +175,88 @@ public abstract class CustomDialogPreference extends Preference {
         }
 
         mDialog = builder.create();
+        if (state != null) {
+            // 画面回転などで作り直したときは入力途中の状態を戻す
+            mDialog.onRestoreInstanceState(state);
+        }
         mDialog.show();
+    }
+
+    /**
+     * ダイアログを開いたまま画面が作り直される場合に、開いていたことと入力途中の状態を保存する.
+     * (id を持つビューの状態が対象)
+     */
+    @Override
+    protected Parcelable onSaveInstanceState() {
+        Parcelable superState = super.onSaveInstanceState();
+        if (mDialog == null || !mDialog.isShowing()) {
+            return superState;
+        }
+        SavedState state = new SavedState(superState);
+        state.dialogShowing = true;
+        state.dialogBundle = mDialog.onSaveInstanceState();
+        return state;
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Parcelable state) {
+        if (state == null || !state.getClass().equals(SavedState.class)) {
+            super.onRestoreInstanceState(state);
+            return;
+        }
+        SavedState savedState = (SavedState) state;
+        super.onRestoreInstanceState(savedState.getSuperState());
+        if (savedState.dialogShowing) {
+            showDialog(savedState.dialogBundle);
+        }
+    }
+
+    /**
+     * 設定画面が破棄されるときはダイアログを閉じる (閉じないとウィンドウがリークする).
+     */
+    @Override
+    public void onDetached() {
+        super.onDetached();
+        if (mDialog != null) {
+            if (mDialog.isShowing()) {
+                mDialog.dismiss();
+            }
+            mDialog = null;
+        }
+    }
+
+    private static class SavedState extends BaseSavedState {
+        boolean dialogShowing;
+        Bundle dialogBundle;
+
+        SavedState(Parcel source) {
+            super(source);
+            dialogShowing = source.readInt() == 1;
+            dialogBundle = source.readBundle(SavedState.class.getClassLoader());
+        }
+
+        SavedState(Parcelable superState) {
+            super(superState);
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            super.writeToParcel(dest, flags);
+            dest.writeInt(dialogShowing ? 1 : 0);
+            dest.writeBundle(dialogBundle);
+        }
+
+        public static final Parcelable.Creator<SavedState> CREATOR = new Parcelable.Creator<SavedState>() {
+            @Override
+            public SavedState createFromParcel(Parcel in) {
+                return new SavedState(in);
+            }
+
+            @Override
+            public SavedState[] newArray(int size) {
+                return new SavedState[size];
+            }
+        };
     }
 
     /**
