@@ -55,9 +55,17 @@ public class FileAccess {
 	private InputStream mInputStream;
 	private OutputStream mOutputStream;
 
-	private RandomAccessFile mRandomAccessFile;
-	private SmbRandomAccessFile mSmbRandomAccessFile;
-	private SafRandomAccessFile mSafRandomAccessFile;
+	private volatile RandomAccessFile mRandomAccessFile;
+	private volatile SmbRandomAccessFile mSmbRandomAccessFile;
+	private volatile SafRandomAccessFile mSafRandomAccessFile;
+	// close() 済み. 以降の読み書きは IOException にする
+	private volatile boolean mClosed = false;
+
+	private void ensureOpen() throws FileAccessException {
+		if (mClosed) {
+			throw new FileAccessException(TAG + ": already closed. uri=" + mURI);
+		}
+	}
 
 
 	public FileAccess (@NonNull final Activity activity, @NonNull final String uri, @NonNull final String user, @NonNull final String pass, @Nullable Handler handler) {
@@ -192,6 +200,7 @@ public class FileAccess {
 	public long length() throws FileAccessException {
 		int logLevel = Logcat.LOG_LEVEL_WARN;
 		Logcat.d(logLevel,"開始します. uri=" + mURI);
+		ensureOpen();
 
 		long length = 0;
 		switch (accessType(mURI)) {
@@ -306,6 +315,7 @@ public class FileAccess {
 	public void seek(@NonNull final long pos) throws IOException {
 		int logLevel = Logcat.LOG_LEVEL_WARN;
 		Logcat.d(logLevel, "開始します. uri=" + mURI + ", pos=" + pos);
+		ensureOpen();
 		switch (accessType(mURI)) {
 			case DEF.ACCESS_TYPE_LOCAL: {
 				mRandomAccessFile.seek(pos);
@@ -313,20 +323,25 @@ public class FileAccess {
 			}
 			case DEF.ACCESS_TYPE_SMB: {
 				// SMBなら
+				final SmbRandomAccessFile smbFile = mSmbRandomAccessFile;
+				if (smbFile == null) {
+					throw new FileAccessException(TAG + ": seek: SMB file is not open.");
+				}
 				if (!DEF.isUiThread()) {
 					// UIスレッドではない時はそのまま実行
 					Logcat.d(logLevel, "UIスレッドではありません.");
-					mSmbRandomAccessFile.seek(pos);
+					smbFile.seek(pos);
 				} else {
-					// UIスレッドの時は新しいスレッド内で実行
+					// UIスレッドの時は新しいスレッド内で実行し、終わるまで待つ
+					// (待たずに戻ると、続く read が古い位置から読んでしまう)
 					Logcat.d(logLevel, "UIスレッドです.");
-					ExecutorService executor = BackgroundExecutor.get();
-					executor.submit(new Runnable() {
-						@Override
-						public void run() {
-							mSmbRandomAccessFile.seek(pos);
-						}
-					});
+					Future<?> future = BackgroundExecutor.get().submit(() -> smbFile.seek(pos));
+					try {
+						future.get(BackgroundExecutor.UI_WAIT_TIMEOUT_SEC, TimeUnit.SECONDS);
+					} catch (Exception e) {
+						Logcat.e(logLevel, "seek error.", e);
+						throw new FileAccessException(TAG + ": seek: " + e.getLocalizedMessage());
+					}
 				}
 				break;
 			}
@@ -341,6 +356,7 @@ public class FileAccess {
 	public long getFilePointer() throws IOException {
 		int logLevel = Logcat.LOG_LEVEL_WARN;
 		Logcat.d(logLevel, "開始します.");
+		ensureOpen();
 		long result = 0l;
 		switch (accessType(mURI)) {
 			case DEF.ACCESS_TYPE_LOCAL: {
@@ -387,6 +403,7 @@ public class FileAccess {
 	public int read(@NonNull byte[] buf, int off, int size) throws IOException {
 		int logLevel = Logcat.LOG_LEVEL_WARN;
 		if (Logcat.isDebugEnabled(logLevel)) Logcat.d(logLevel, MessageFormat.format("開始します. pos={0}, off={1}, size={2}, pos+off+size={3}, length={4}", new Object[]{getFilePointer(), off, size, getFilePointer()+off+size, length()}));
+		ensureOpen();
 		int result = 0;
 		switch (accessType(mURI)) {
 			case DEF.ACCESS_TYPE_LOCAL: {
@@ -415,8 +432,9 @@ public class FileAccess {
 					try {
 						result = future.get(BackgroundExecutor.UI_WAIT_TIMEOUT_SEC, TimeUnit.SECONDS);
 					} catch (Exception e) {
+						// 0 を返すと呼び出し側が正常な空読みと区別できない
 						Logcat.e(logLevel, "read: File read error.", e);
-						result = 0;
+						throw new FileAccessException(TAG + ": read: " + e.getLocalizedMessage());
 					}
 				}
 				break;
@@ -433,6 +451,7 @@ public class FileAccess {
 	public void write(@NonNull final byte[] buf, final int off, final int size) throws IOException {
 		int logLevel = Logcat.LOG_LEVEL_WARN;
 		Logcat.d(logLevel, MessageFormat.format("開始します. off={0}, size={1}", new Object[]{off, size}));
+		ensureOpen();
 
 		switch (accessType(mURI)) {
 			case DEF.ACCESS_TYPE_LOCAL: {
@@ -462,7 +481,8 @@ public class FileAccess {
 					try {
 						future.get(BackgroundExecutor.UI_WAIT_TIMEOUT_SEC, TimeUnit.SECONDS);
 					} catch (Exception e) {
-						Logcat.e(logLevel, "File read error.", e);
+						Logcat.e(logLevel, "File write error.", e);
+						throw new FileAccessException(TAG + ": write: " + e.getLocalizedMessage());
 					}
 				}
 				break;
@@ -479,39 +499,39 @@ public class FileAccess {
 		int logLevel = Logcat.LOG_LEVEL_WARN;
 		Logcat.d(logLevel, "開始します.");
 
+		// 以降の読み書きは失敗させる. 参照はここで外し、ネットワーク越しの close だけ非同期で行う
+		// (以前は参照の破棄も非同期で、他スレッドの read と競合していた)
+		mClosed = true;
+		final RandomAccessFile localFile = mRandomAccessFile;
+		final SmbRandomAccessFile smbRandomFile = mSmbRandomAccessFile;
+		final SmbFile smbFile = mSmbFile;
+		final SafRandomAccessFile safFile = mSafRandomAccessFile;
+		mRandomAccessFile = null;
+		mLocalFile = null;
+		mSmbRandomAccessFile = null;
+		mSmbFile = null;
+		mSafRandomAccessFile = null;
+		mSafFile = null;
+
 		// たまにフリーズするので非同期処理にする
-		ExecutorService executor = BackgroundExecutor.get();
-		executor.submit(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					if (mRandomAccessFile != null) {
-						mRandomAccessFile.close();
-						mRandomAccessFile = null;
-					}
-					if (mLocalFile != null) {
-						mLocalFile = null;
-					}
-					if (mSmbRandomAccessFile != null) {
-						mSmbRandomAccessFile.close();
-						mSmbRandomAccessFile = null;
-					}
-					if (mSmbFile != null) {
-						mSmbFile.close();
-						mSmbFile = null;
-					}
-					if (mSafRandomAccessFile != null) {
-						mSafRandomAccessFile.close();
-						mSafRandomAccessFile = null;
-					}
-					if (mSafFile != null) {
-						mSafFile = null;
-					}
-					Logcat.d(logLevel, "非同期処理を終了します.");
-				} catch (Exception e) {
-					Logcat.e(logLevel, "", e);
+		BackgroundExecutor.execute(() -> {
+			try {
+				if (localFile != null) {
+					localFile.close();
 				}
-            }
+				if (smbRandomFile != null) {
+					smbRandomFile.close();
+				}
+				if (smbFile != null) {
+					smbFile.close();
+				}
+				if (safFile != null) {
+					safFile.close();
+				}
+				Logcat.d(logLevel, "非同期処理を終了します.");
+			} catch (Exception e) {
+				Logcat.e(logLevel, "", e);
+			}
 		});
 
 		Logcat.d(logLevel, "終了します.");

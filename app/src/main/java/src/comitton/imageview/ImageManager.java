@@ -1317,6 +1317,13 @@ public class ImageManager extends InputStream implements Runnable {
             mFileList[0].orglen = (int)fileAccess.length();
         } catch (FileAccessException e) {
 			Logcat.e(logLevel, "ファイルサイズの取得に失敗しました.", e);
+        } finally {
+			// サイズを取るためだけに開いたので閉じる
+			try {
+				fileAccess.close();
+			} catch (IOException e) {
+				Logcat.w(logLevel, "", e);
+			}
         }
 
 		mMaxOrgLength = mFileList[0].orglen;

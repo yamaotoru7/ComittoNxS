@@ -44,6 +44,15 @@ public class WorkStream extends InputStream {
 		Logcat.d(logLevel, "開始します. uri=" + mURI + ", user=" + mUser);
 		DEF.sendMessage(mHandler, DEF.HMSG_WORKSTREAM, 0, 0, "OPEN");
 
+		// 再オープン時は古いファイルを閉じる
+		if (mFileAccess != null) {
+			try {
+				mFileAccess.close();
+			} catch (IOException e) {
+				Logcat.w(logLevel, "", e);
+			}
+			mFileAccess = null;
+		}
 		try {
 			mFileAccess = new FileAccess(mActivity, mURI, mUser, mPass, null);
 			mFileAccess.openRandomAccessFile("r");
