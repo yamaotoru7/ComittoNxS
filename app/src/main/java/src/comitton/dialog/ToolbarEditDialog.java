@@ -412,14 +412,14 @@ public class ToolbarEditDialog extends ImmersiveDialog implements OnClickListene
 				layout.setBackgroundColor(0);
 
 				checkbox = new CheckBox(context);
-				checkbox.setId(0);
+				checkbox.setId(R.id.toolbar_edit_check);
 				LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
 				layoutParams.gravity= Gravity.LEFT | Gravity.CENTER_VERTICAL;
 				checkbox.setLayoutParams(layoutParams);
 				inLayout.addView(checkbox);
 
 				imageview = new ImageView(context);
-				imageview.setId(1);
+				imageview.setId(R.id.toolbar_edit_icon);
 				int sp = (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 32, context.getResources().getDisplayMetrics());
 				layoutParams = new LinearLayout.LayoutParams(sp, sp);
 				layoutParams.gravity=Gravity.CENTER;
@@ -429,7 +429,7 @@ public class ToolbarEditDialog extends ImmersiveDialog implements OnClickListene
 				inLayout.addView(imageview);
 
 				textview = new TextView(context);
-				textview.setId(2);
+				textview.setId(R.id.toolbar_edit_text);
 				layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
 				layoutParams.gravity= Gravity.LEFT | Gravity.CENTER_VERTICAL;
 				textview.setLayoutParams(layoutParams);
@@ -453,9 +453,9 @@ public class ToolbarEditDialog extends ImmersiveDialog implements OnClickListene
 			}
 			else {
 				Logcat.d(logLevel, "設定済みのビューを呼び出します. index=" + index);
-				checkbox = (CheckBox)view.findViewById(0);
-				imageview = (ImageView)view.findViewById(1);
-				textview = (TextView)view.findViewById(2);
+				checkbox = (CheckBox)view.findViewById(R.id.toolbar_edit_check);
+				imageview = (ImageView)view.findViewById(R.id.toolbar_edit_icon);
+				textview = (TextView)view.findViewById(R.id.toolbar_edit_text);
 			}
 
 			// 値の指定

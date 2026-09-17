@@ -152,3 +152,7 @@ signingConfigs/*
 
 .idea/deploymentTargetSelector.xml
 .vscode/
+.idea/kotlinc.xml
+
+# Serena (コード解析ツール) のローカルデータ
+.serena/

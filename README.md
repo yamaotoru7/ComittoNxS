@@ -33,14 +33,15 @@ ComittoNxS は [ComittoNxX](https://github.com/ComittoNxA/ComittoNxX) を元に�
 
 ## 注意事項
 
-- 32bit版アプリや32bitOSを使用している場合は使用メモリサイズを少なめにしてください.
+- 配布ビルドは 64bit (arm64-v8a) のみです. 32bit 端末で使う場合は `abiFilters` を変更してビルドしてください.
 - 使用メモリサイズが小さくページ1枚が収まらない場合は、自動的に縮小率を上げて読み込みます (AVIF/JXL を除く). 高解像度のページを等倍で見たい場合は使用メモリサイズを増やしてください.
 - SMBの接続情報にドメイン名を入力すると初回接続が遅くなる場合があります.  不要なドメイン名(WORKGROUP等)の使用は避けてください.
 - オンラインストレージ上のRAR圧縮形式ファイルの構造解析は時間がかかります.サムネイル作成時にファイル名を解析する場合にはZIP圧縮形式の使用を推奨します.
 
 ## 既知の不具合
 
-- アプリ内ヘルプの内容が古いです.
+- ソリッド圧縮された RAR は表示できません (エラーになります).
+- パスワード付きの RAR には対応していません.
 
 ## ComittoNxX からの変更点
 
@@ -52,6 +53,12 @@ ComittoNxS は [ComittoNxX](https://github.com/ComittoNxA/ComittoNxX) を元に�
 - サムネイル系ローダーのメモリリークを対策. ユニットテスト環境を導入.
 - 画像読み込みとネイティブキャッシュのメモリ配置を最適化 (詳細は [docs/image-pipeline-optimization.md](docs/image-pipeline-optimization.md)).
 - 設定ダイアログが白地に白文字で表示される問題を修正. ダイアログ背景を不透明化.
+- SMB のパスワードを Android Keystore の鍵で暗号化して保存. 設定のエクスポートにはパスワードを含めない.
+- SMB1 での接続を既定で無効化 (共通設定の「SMB1 での接続を許可する」で有効化できる).
+- 他のアプリから共有されたファイル (content://) を開けるように修正.
+- 上流 ComittoNxX を参照していた更新確認とダウンロード数表示を停止・削除.
+- RAR 展開を書庫ごとに独立させ、壊れたデータやパスワード付きの RAR をエラーとして表示.
+- 設定画面の文言を strings.xml に集約し、英語・日本語で既定値が食い違っていた問題を修正.
 
 #### ComittoNxX が [NxD](https://github.com/Kdroidwin/cnxd/tree/cnxd) に加えていた修正点
 
@@ -137,7 +144,7 @@ signingConfigs {
 ## ドキュメント
 
 - [docs/image-pipeline-optimization.md](docs/image-pipeline-optimization.md) : 画像読み込み・ネイティブキャッシュの構造と最適化内容
-- [ISSUES.md](ISSUES.md) : コードベース精査で抽出した課題の一覧 (対応済み)
+- [ISSUES.md](ISSUES.md) : コードベース精査で抽出した課題と対応状況の一覧
 
 ## ライセンス
 

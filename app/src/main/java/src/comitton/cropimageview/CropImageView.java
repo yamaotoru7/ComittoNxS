@@ -13,7 +13,7 @@ import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MotionEvent;
-import android.widget.ImageView;
+import androidx.appcompat.widget.AppCompatImageView;
 
 import java.io.FileOutputStream;
 
@@ -23,7 +23,7 @@ import static java.lang.Math.abs;
 
 import src.comitton.common.Logcat;
 
-public class CropImageView extends ImageView{
+public class CropImageView extends AppCompatImageView {
     private Paint mPaintGuide;
     private Paint mPaintMask;
     private int mImageWidth;

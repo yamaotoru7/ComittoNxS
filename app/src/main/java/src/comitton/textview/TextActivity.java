@@ -894,7 +894,8 @@ public class TextActivity extends AppCompatActivity implements OnTouchListener, 
 			return true;
 		}
 
-		if (mReadTimerMsg == msg) {
+		// Message はプールで再利用されるので、同一性ではなく種類で判定する
+		if (msg.what == EVENT_READTIMER) {
 			// プログレスダイアログを表示
 			synchronized (this) {
 				if (!isFinishing() && mReadDialog != null) {
@@ -2555,6 +2556,7 @@ public class TextActivity extends AppCompatActivity implements OnTouchListener, 
 
 	// 他アクティビティからの復帰通知
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
 		if (requestCode == DEF.REQUEST_SETTING) {
 			// 設定の読込
 			SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);

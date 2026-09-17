@@ -382,6 +382,7 @@ public class ExpandActivity extends AppCompatActivity implements Handler.Callbac
 
 	// 画面遷移が戻ってきた時の通知
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
 		int logLevel = Logcat.LOG_LEVEL_WARN;
 		Logcat.d(logLevel, "開始します. requestCode=" + requestCode + ", resultCode=" + resultCode);
 		if (requestCode == DEF.REQUEST_IMAGE) {

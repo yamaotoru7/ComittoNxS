@@ -24,6 +24,8 @@ import androidx.preference.PreferenceManager;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.widget.Toast;
+import android.content.ActivityNotFoundException;
 import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
@@ -119,6 +121,17 @@ public class Information implements DialogInterface.OnDismissListener {
 			// ならダイアログを表示する
 			mDialog = (Dialog) new RecentReleaseDialog(mActivity, R.style.MyDialog);
 			mDialog.show();
+		}
+	}
+
+	// ブラウザが無い端末でも落ちないように開く
+	private void openBrowser(Intent intent) {
+		try {
+			mActivity.startActivity(intent);
+		}
+		catch (ActivityNotFoundException e) {
+			Logcat.w(Logcat.LOG_LEVEL_WARN, "ブラウザを開けません.", e);
+			Toast.makeText(mActivity, String.valueOf(intent.getData()), Toast.LENGTH_LONG).show();
 		}
 	}
 
@@ -233,7 +246,7 @@ public class Information implements DialogInterface.OnDismissListener {
 				public boolean shouldOverrideUrlLoading(WebView view, String url) {
 					Logcat.d(logLevel, "url=" + url);
 					// ブラウザ起動
-					view.getContext().startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+					openBrowser(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
 					return true;
 				}
 			});
@@ -250,7 +263,7 @@ public class Information implements DialogInterface.OnDismissListener {
 							// ソースダウンロード
 							Uri uri = Uri.parse(DEF.DOWNLOAD_URL);
 							Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-							mActivity.startActivity(intent);
+							openBrowser(intent);
 						}
 					});
 			mIsOpened = true;
@@ -284,7 +297,7 @@ public class Information implements DialogInterface.OnDismissListener {
 							// 最新版ダウンロード
 							Uri uri = Uri.parse(mRecentHtml);
 							Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-							mActivity.startActivity(intent);
+							openBrowser(intent);
 						}
 					});
 			setButton(DialogInterface.BUTTON_NEGATIVE, res.getString(R.string.releaseNegative),

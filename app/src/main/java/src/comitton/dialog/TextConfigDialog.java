@@ -1,5 +1,6 @@
 package src.comitton.dialog;
 
+import androidx.annotation.NonNull;
 import java.util.EventListener;
 
 import src.comitton.common.DEF;
@@ -379,9 +380,9 @@ public class TextConfigDialog extends TabDialogFragment implements OnClickListen
 	}
 
 	@Override
-	public void onDismiss(DialogInterface dialog) {
+	public void onDismiss(@NonNull DialogInterface dialog) {
 		mListener.onClose();
-		super.dismiss();
+		super.onDismiss(dialog);
 	}
 
 	@Override

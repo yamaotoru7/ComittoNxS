@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ToolbarEditDialog でコードから作る行のビュー -->
+    <item name="toolbar_edit_check" type="id" />
+    <item name="toolbar_edit_icon" type="id" />
+    <item name="toolbar_edit_text" type="id" />
+</resources>

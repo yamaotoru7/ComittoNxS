@@ -1060,7 +1060,8 @@ public class ImageActivity extends AppCompatActivity implements OnTouchListener,
 			return true;
 		}
 
-		if (mReadTimerMsg == msg) {
+		// Message はプールで再利用されるので、同一性ではなく種類で判定する
+		if (msg.what == DEF.HMSG_EVENT_READTIMER) {
 			// プログレスダイアログを表示
 			synchronized (this) {
 				if (!isFinishing() && mReadDialog != null) {
@@ -3958,6 +3959,7 @@ public class ImageActivity extends AppCompatActivity implements OnTouchListener,
 
 	// 他アクティビティからの復帰通知
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
 		int logLevel = Logcat.LOG_LEVEL_WARN;
 		Logcat.d(logLevel, "開始します.");
 
@@ -4795,20 +4797,23 @@ public class ImageActivity extends AppCompatActivity implements OnTouchListener,
 		Logcat.d(logLevel, "mServer=" + mServer + ", mURI=" + mURI + ", mPath=" + mPath
 				+ ", mFileName=" + mFileName + ", mImageName=" + mImageName + ", mCurrentPage=" + mCurrentPage);
 		// 履歴追加
-		if (!mReadBreak && mImageMgr != null && mImageMgr.length() > 0) {
+		ImageManager imageMgr = mImageMgr;
+		if (!mReadBreak && imageMgr != null && imageMgr.length() > 0) {
+			// 読み込み中は mCurrentPage が一時的に範囲外になるので収める
+			int page = Math.max(0, Math.min(mCurrentPage, imageMgr.length() - 1));
 			if ((mFileName == null || mFileName.isEmpty()) && (mImageName != null && !mImageName.isEmpty())) {
 				Logcat.d(logLevel, "画像ファイル指定.");
 				// 画像ファイル直接指定
 				RecordList.add(RecordList.TYPE_HISTORY, RecordItem.TYPE_IMAGEDIRECT
 						, mServer, mPath, mFileName, new Date().getTime()
-						, mImageMgr.mFileList[mCurrentPage].name, mCurrentPage, null);
+						, imageMgr.mFileList[page].name, page, null);
 			}
 			else {
 				Logcat.d(logLevel, "ディレクトリまたは圧縮ファイル.");
 				// ディレクトリまたは圧縮ファイル
 				RecordList.add(RecordList.TYPE_HISTORY, RecordItem.TYPE_IMAGE
 						, mServer, mPath, mFileName, new Date().getTime()
-						, mImageMgr.mFileList[mCurrentPage].name, mCurrentPage, null);
+						, imageMgr.mFileList[page].name, page, null);
 			}
 		}
 	}
