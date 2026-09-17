@@ -22,6 +22,15 @@ import src.comitton.fileview.filelist.ServerSelect;
 public class FileOperationHelper {
 	private static final int LOG_LEVEL = Logcat.LOG_LEVEL_WARN;
 
+	// ファイル操作はバックグラウンドで実行するので、メッセージは UI スレッドで表示する
+	private static void showToast(Activity activity, CharSequence text) {
+		activity.runOnUiThread(() -> {
+			if (!activity.isFinishing() && !activity.isDestroyed()) {
+				Toast.makeText(activity, text, Toast.LENGTH_LONG).show();
+			}
+		});
+	}
+
 	/**
 	 * ファイルを削除し、関連する設定・サムネイルキャッシュをクリアする
 	 */
@@ -50,11 +59,11 @@ public class FileOperationHelper {
 				return true;
 			} else {
 				Logcat.e(LOG_LEVEL, activity.getResources().getString(R.string.delErrorMsg));
-				Toast.makeText(activity, activity.getText(R.string.delErrorMsg) + "\n" + uri, Toast.LENGTH_LONG).show();
+				showToast(activity, activity.getText(R.string.delErrorMsg) + "\n" + uri);
 				return false;
 			}
 		} catch (FileAccessException e) {
-			Toast.makeText(activity, e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+			showToast(activity, e.getLocalizedMessage());
 			return false;
 		}
 	}
@@ -126,11 +135,11 @@ public class FileOperationHelper {
 				return true;
 			} else {
 				Logcat.e(LOG_LEVEL, activity.getText(R.string.renameErrorMsg) + ": " + DEF.relativePath(activity, baseUri, path, fromfile));
-				Toast.makeText(activity, activity.getText(R.string.renameErrorMsg) + "\n" + DEF.relativePath(activity, baseUri, path, fromfile), Toast.LENGTH_LONG).show();
+				showToast(activity, activity.getText(R.string.renameErrorMsg) + "\n" + DEF.relativePath(activity, baseUri, path, fromfile));
 				return false;
 			}
 		} catch (FileAccessException e) {
-			Toast.makeText(activity, e.getClass().getSimpleName() + ": " + e.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+			showToast(activity, e.getClass().getSimpleName() + ": " + e.getLocalizedMessage());
 			return false;
 		}
 	}

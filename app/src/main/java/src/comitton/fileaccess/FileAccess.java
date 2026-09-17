@@ -335,6 +335,7 @@ public class FileAccess {
 					// UIスレッドの時は新しいスレッド内で実行し、終わるまで待つ
 					// (待たずに戻ると、続く read が古い位置から読んでしまう)
 					Logcat.d(logLevel, "UIスレッドです.");
+					DEF.warnUiThreadIo("FileAccess");
 					Future<?> future = BackgroundExecutor.get().submit(() -> smbFile.seek(pos));
 					try {
 						future.get(BackgroundExecutor.UI_WAIT_TIMEOUT_SEC, TimeUnit.SECONDS);
@@ -373,6 +374,7 @@ public class FileAccess {
 				} else {
 					// UIスレッドの時は新しいスレッド内で実行
 					Logcat.d(logLevel, "UIスレッドです.");
+					DEF.warnUiThreadIo("FileAccess");
 					ExecutorService executor = BackgroundExecutor.get();
 					Future<Long> future = executor.submit(new Callable<Long>() {
 
@@ -420,6 +422,7 @@ public class FileAccess {
 				} else {
 					// UIスレッドの時は新しいスレッド内で実行
 					Logcat.d(logLevel, "UIスレッドです.");
+					DEF.warnUiThreadIo("FileAccess");
 					ExecutorService executor = BackgroundExecutor.get();
 					Future<Integer> future = executor.submit(new Callable<Integer>() {
 
@@ -468,6 +471,7 @@ public class FileAccess {
 				} else {
 					// UIスレッドの時は新しいスレッド内で実行
 					Logcat.d(logLevel, "UIスレッドです.");
+					DEF.warnUiThreadIo("FileAccess");
 					ExecutorService executor = BackgroundExecutor.get();
 					Future<Boolean> future = executor.submit(new Callable<Boolean>() {
 
@@ -618,6 +622,7 @@ public class FileAccess {
 				} else {
 					// UIスレッドの時は新しいスレッド内で実行
 					Logcat.d(logLevel, "UIスレッドです.");
+					DEF.warnUiThreadIo("FileAccess");
 					ExecutorService executor = BackgroundExecutor.get();
 					Future<Boolean> future = executor.submit(new Callable<Boolean>() {
 
@@ -747,6 +752,7 @@ public class FileAccess {
 				} else {
 					// UIスレッドの時は新しいスレッド内で実行
 					Logcat.d(logLevel, "UIスレッドです.");
+					DEF.warnUiThreadIo("FileAccess");
 					ExecutorService executor = BackgroundExecutor.get();
 					Future<Long> future = executor.submit(new Callable<Long>() {
 
@@ -797,6 +803,7 @@ public class FileAccess {
 				} else {
 					// UIスレッドの時は新しいスレッド内で実行
 					Logcat.d(logLevel, "UIスレッドです.");
+					DEF.warnUiThreadIo("FileAccess");
 					ExecutorService executor = BackgroundExecutor.get();
 					Future<Boolean> future = executor.submit(new Callable<Boolean>() {
 

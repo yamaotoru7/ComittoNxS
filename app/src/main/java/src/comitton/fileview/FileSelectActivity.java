@@ -1406,14 +1406,24 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 				dialogBuilder.setMessage(R.string.delMsg);
 				dialogBuilder.setPositiveButton(R.string.btnOK, new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int whichButton) {
-						// ファイル削除
+						// ファイル削除 (SMB ではネットワークアクセスになるのでバックグラウンドで行う)
 						if (mFileData != null) {
-							boolean isDeleted = FileOperationHelper.deleteFile(mActivity, mServer, mURI, mPath, mFileData, mThumbSizeW, mThumbSizeH, mSharedPreferences);
-							if (isDeleted) {
-								int topindex = mListScreenView.mFileListArea.getTopIndex();
-								loadListView(topindex);
-							}
+							final FileData target = mFileData;
+							final ServerSelect server = mServer;
+							final String baseUri = mURI;
+							final String path = mPath;
+							final int thumbW = mThumbSizeW;
+							final int thumbH = mThumbSizeH;
 							mFileData = null;
+							BackgroundExecutor.execute(() -> {
+								boolean isDeleted = FileOperationHelper.deleteFile(mActivity, server, baseUri, path, target, thumbW, thumbH, mSharedPreferences);
+								runOnUiThread(() -> {
+									if (isDeleted && !isFinishing() && !isDestroyed()) {
+										int topindex = mListScreenView.mFileListArea.getTopIndex();
+										loadListView(topindex);
+									}
+								});
+							});
 						}
 						dialog.dismiss();
 					}
@@ -1609,11 +1619,24 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 					@Override
 					public void onSearch(String filename) {
 						if (mFileData != null) {
-							boolean ret = FileOperationHelper.renameFile(mActivity, mServer, mURI, mPath, mFileData, filename, mThumbSizeW, mThumbSizeH, mSharedPreferences);
-							if (ret) {
-								mFileData = null;
-								updateListView();
-							}
+							// リネーム (SMB ではネットワークアクセスになるのでバックグラウンドで行う)
+							final FileData target = mFileData;
+							final ServerSelect server = mServer;
+							final String baseUri = mURI;
+							final String path = mPath;
+							final int thumbW = mThumbSizeW;
+							final int thumbH = mThumbSizeH;
+							BackgroundExecutor.execute(() -> {
+								boolean ret = FileOperationHelper.renameFile(mActivity, server, baseUri, path, target, filename, thumbW, thumbH, mSharedPreferences);
+								runOnUiThread(() -> {
+									if (ret && !isFinishing() && !isDestroyed()) {
+										if (mFileData == target) {
+											mFileData = null;
+										}
+										updateListView();
+									}
+								});
+							});
 						}
 					}
 
@@ -4060,103 +4083,130 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 			RecordItem rd = mListScreenView.getRecordItem(listtype, listpos);
 
 			if (rd != null) {
-				// データを利用
-				int server = rd.getServer();
-				String file = rd.getFile();
-				String path = rd.getPath();
-				String infile = rd.getImage();
-				int type = rd.getType();
-				int page = rd.getPage();
-				Logcat.d(logLevel, "server=" + server + ", file=" + file + ", path=" + path + ", infile=" + infile + ", type=" + type + ", page=" + page);
-
-				mLoadListNextType = type;
-				mLoadListNextPage = page;
-
-				if (type == RecordItem.TYPE_COMPTEXT) {
-					Logcat.d(logLevel, "圧縮ファイル内のテキストファイル閲覧.");
-					if (!FileAccess.isDirectory(mActivity, path, mServer.getUser(server), mServer.getPass(server))) {
-						// path がディレクトリ以外の場合、親ディレクトリとファイル名に分割
-						Logcat.d(logLevel, "圧縮ファイルのパスがファイルです.");
-						mLoadListNextFile = FileAccess.filename(mActivity, path);
-						mLoadListNextPath = FileAccess.parent(mActivity, path);
-						mLoadListNextInFile = file;
-					}
-					else {
-						Logcat.d(logLevel, "圧縮ファイルのパスがディレクトリです.");
-						mLoadListNextPath = path;
-						mLoadListNextFile = file;
-						mLoadListNextInFile = infile;
-					}
-				}
-				else if (type == RecordItem.TYPE_IMAGE) {
-					Logcat.d(logLevel, "ディレクトリ内のイメージファイル閲覧.");
-					// ディレクトリか圧縮ファイルの画像オープン
-					mLoadListNextPath = path;
-					mLoadListNextFile = file;
-					mLoadListNextInFile = "";
-				}
-				else if (type == RecordItem.TYPE_TEXT || type == RecordItem.TYPE_IMAGEDIRECT) {
-					Logcat.d(logLevel, "テキストまたはイメージ直接指定.");
-					// 画像直接かテキストファイルファイルオープン
-					mLoadListNextPath = path;
-					mLoadListNextFile = file;
-					mLoadListNextInFile = infile;
+				if (rd.getType() == RecordItem.TYPE_COMPTEXT) {
+					// パスがディレクトリかの確認は SMB ではネットワークアクセスになるので、バックグラウンドで行う
+					final int server = rd.getServer();
+					final String path = rd.getPath();
+					final String user = mServer.getUser(server);
+					final String pass = mServer.getPass(server);
+					BackgroundExecutor.execute(() -> {
+						boolean isDir = FileAccess.isDirectory(mActivity, path, user, pass);
+						runOnUiThread(() -> {
+							if (!isFinishing() && !isDestroyed()) {
+								openRecordItem(listtype, rd, isDir);
+							}
+						});
+					});
 				}
 				else {
-					mLoadListNextPath = path;
+					openRecordItem(listtype, rd, false);
 				}
-
-				// サーバ選択とパス選択をファイル一覧に反映
-				if (!moveFileSelectFromServer(server, mLoadListNextPath)) {
-					// 履歴やブックマークが指すサーバの登録が無い(削除済みなど)
-					Logcat.w(logLevel, "サーバが未登録のため開けません. server=" + server);
-					Toast.makeText(this, getResources().getString(R.string.svNotFound), Toast.LENGTH_LONG).show();
-					mLoadListNextOpen = CloseDialog.CLICK_NONE;
-					return;
-				}
-
-				if (listtype == RecordList.TYPE_BOOKMARK) {
-					mLoadListNextOpen = CloseDialog.CLICK_BOOKMARK;
-				}
-				else if (listtype == RecordList.TYPE_HISTORY) {
-					mLoadListNextOpen = CloseDialog.CLICK_HISTORY;
-				}
-				else if (type == RecordItem.TYPE_NONE || type == RecordItem.TYPE_FOLDER) {
-					mLoadListNextOpen = CloseDialog.CLICK_NONE;
-				}
-
-				if (listtype == RecordList.TYPE_DIRECTORY){
-					Logcat.d(logLevel, "ディレクトリ一覧.");
-					switchFileList(); // ファイルリストをアクティブ化
-				}
-				else if (listtype == RecordList.TYPE_SERVER) {
-					Logcat.d(logLevel, "サーバ一覧.");
-					if (!rd.getServerName().isEmpty()) {
-						if (rd.getAccessType() == DEF.ACCESS_TYPE_PICKER) {
-							Logcat.d(logLevel, "ファイルピッカー.");
-							mLoadListNextOpen = CloseDialog.CLICK_NONE;
-							mSelectRecord = rd;
-							showAppDialog(DEF.MESSAGE_EDITSERVER);
-						}
-						else {
-							Logcat.d(logLevel, "ファイルピッカー以外.");
-							mLoadListNextOpen = CloseDialog.CLICK_CLOSE;
-							switchFileList(); // ファイルリストをアクティブ化
-						}
-					}
-				}
-				Logcat.d(logLevel, "onItemClick: " +
-						", mLoadListNextOpen=" + mLoadListNextOpen +
-						", mLoadListNextPath=" + mLoadListNextPath +
-						", mLoadListNextFile=" + mLoadListNextFile +
-						", mLoadListNextInFile=" + mLoadListNextInFile +
-						", mLoadListNextType=" + mLoadListNextType +
-						", mLoadListNextPage=" + mLoadListNextPage
-				);
-
 			}
 		}
 	}
+
+	/**
+	 * 履歴・しおり・サーバ一覧などのレコードを開く.
+	 * @param compPathIsDir 圧縮ファイル内テキストの履歴で、記録されたパスがディレクトリかどうか
+	 */
+	private void openRecordItem(int listtype, RecordItem rd, boolean compPathIsDir) {
+		int logLevel = Logcat.LOG_LEVEL_WARN;
+		// データを利用
+		int server = rd.getServer();
+		String file = rd.getFile();
+		String path = rd.getPath();
+		String infile = rd.getImage();
+		int type = rd.getType();
+		int page = rd.getPage();
+		Logcat.d(logLevel, "server=" + server + ", file=" + file + ", path=" + path + ", infile=" + infile + ", type=" + type + ", page=" + page);
+
+		mLoadListNextType = type;
+		mLoadListNextPage = page;
+
+		if (type == RecordItem.TYPE_COMPTEXT) {
+			Logcat.d(logLevel, "圧縮ファイル内のテキストファイル閲覧.");
+			if (!compPathIsDir) {
+				// path がディレクトリ以外の場合、親ディレクトリとファイル名に分割
+				Logcat.d(logLevel, "圧縮ファイルのパスがファイルです.");
+				mLoadListNextFile = FileAccess.filename(mActivity, path);
+				mLoadListNextPath = FileAccess.parent(mActivity, path);
+				mLoadListNextInFile = file;
+			}
+			else {
+				Logcat.d(logLevel, "圧縮ファイルのパスがディレクトリです.");
+				mLoadListNextPath = path;
+				mLoadListNextFile = file;
+				mLoadListNextInFile = infile;
+			}
+		}
+		else if (type == RecordItem.TYPE_IMAGE) {
+			Logcat.d(logLevel, "ディレクトリ内のイメージファイル閲覧.");
+			// ディレクトリか圧縮ファイルの画像オープン
+			mLoadListNextPath = path;
+			mLoadListNextFile = file;
+			mLoadListNextInFile = "";
+		}
+		else if (type == RecordItem.TYPE_TEXT || type == RecordItem.TYPE_IMAGEDIRECT) {
+			Logcat.d(logLevel, "テキストまたはイメージ直接指定.");
+			// 画像直接かテキストファイルファイルオープン
+			mLoadListNextPath = path;
+			mLoadListNextFile = file;
+			mLoadListNextInFile = infile;
+		}
+		else {
+			mLoadListNextPath = path;
+		}
+
+		// サーバ選択とパス選択をファイル一覧に反映
+		if (!moveFileSelectFromServer(server, mLoadListNextPath)) {
+			// 履歴やブックマークが指すサーバの登録が無い(削除済みなど)
+			Logcat.w(logLevel, "サーバが未登録のため開けません. server=" + server);
+			Toast.makeText(this, getResources().getString(R.string.svNotFound), Toast.LENGTH_LONG).show();
+			mLoadListNextOpen = CloseDialog.CLICK_NONE;
+			return;
+		}
+
+		if (listtype == RecordList.TYPE_BOOKMARK) {
+			mLoadListNextOpen = CloseDialog.CLICK_BOOKMARK;
+		}
+		else if (listtype == RecordList.TYPE_HISTORY) {
+			mLoadListNextOpen = CloseDialog.CLICK_HISTORY;
+		}
+		else if (type == RecordItem.TYPE_NONE || type == RecordItem.TYPE_FOLDER) {
+			mLoadListNextOpen = CloseDialog.CLICK_NONE;
+		}
+
+		if (listtype == RecordList.TYPE_DIRECTORY){
+			Logcat.d(logLevel, "ディレクトリ一覧.");
+			switchFileList(); // ファイルリストをアクティブ化
+		}
+		else if (listtype == RecordList.TYPE_SERVER) {
+			Logcat.d(logLevel, "サーバ一覧.");
+			if (!rd.getServerName().isEmpty()) {
+				if (rd.getAccessType() == DEF.ACCESS_TYPE_PICKER) {
+					Logcat.d(logLevel, "ファイルピッカー.");
+					mLoadListNextOpen = CloseDialog.CLICK_NONE;
+					mSelectRecord = rd;
+					showAppDialog(DEF.MESSAGE_EDITSERVER);
+				}
+				else {
+					Logcat.d(logLevel, "ファイルピッカー以外.");
+					mLoadListNextOpen = CloseDialog.CLICK_CLOSE;
+					switchFileList(); // ファイルリストをアクティブ化
+				}
+			}
+		}
+		Logcat.d(logLevel, "onItemClick: " +
+				", mLoadListNextOpen=" + mLoadListNextOpen +
+				", mLoadListNextPath=" + mLoadListNextPath +
+				", mLoadListNextFile=" + mLoadListNextFile +
+				", mLoadListNextInFile=" + mLoadListNextInFile +
+				", mLoadListNextType=" + mLoadListNextType +
+				", mLoadListNextPage=" + mLoadListNextPage
+		);
+
+	}
+
 
 	/**
 	 * 履歴系リストをファイル名でソート

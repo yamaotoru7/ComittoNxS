@@ -2442,6 +2442,16 @@ public class DEF {
 		return Thread.currentThread().equals(Looper.getMainLooper().getThread());
 	}
 
+	/**
+	 * UI スレッドからネットワーク I/O が呼ばれたことをデバッグビルドで警告する.
+	 * 呼び出し元をバックグラウンドに移すための手がかりとして、スタックトレースを出す.
+	 */
+	public static void warnUiThreadIo(String where) {
+		if (DEBUG) {
+			Log.w("UiThreadIo", where + " was called on the UI thread.", new Throwable("caller"));
+		}
+	}
+
 	// Url文字列作成
 	// しおり・既読位置などの SharedPreferences キーに使う. パスワードは含めない (旧バージョンは含めていた).
 	public static String createUrl(String url, String user, String pass) {
