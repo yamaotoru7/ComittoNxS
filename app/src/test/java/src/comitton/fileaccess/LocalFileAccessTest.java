@@ -33,6 +33,17 @@ public class LocalFileAccessTest {
 	}
 
 	@Test
+	public void testDeleteRecursively() throws Exception {
+		java.io.File root = java.nio.file.Files.createTempDirectory("cnxs").toFile();
+		java.io.File sub = new java.io.File(root, "sub");
+		assertTrue(sub.mkdir());
+		assertTrue(new java.io.File(sub, "a.txt").createNewFile());
+		assertTrue(new java.io.File(root, "b.txt").createNewFile());
+		assertTrue(LocalFileAccess.deleteRecursively(root));
+		assertFalse(root.exists());
+	}
+
+	@Test
 	public void testIsSafeName() {
 		assertTrue(FileAccess.isSafeName("book.zip"));
 		assertTrue(FileAccess.isSafeName("folder/"));

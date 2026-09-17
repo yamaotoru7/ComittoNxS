@@ -74,7 +74,7 @@
         errorLine2="                                  ~~~~~~~~~~~">
         <location
             file="src/main/java/src/comitton/common/DEF.java"
-            line="1396"
+            line="1401"
             column="35"/>
     </issue>
 
@@ -85,7 +85,7 @@
         errorLine2="                                      ~~~~~~~~~~~">
         <location
             file="src/main/java/src/comitton/common/DEF.java"
-            line="1408"
+            line="1413"
             column="39"/>
     </issue>
 
@@ -96,7 +96,7 @@
         errorLine2="                 ~~~~~~~~~~~">
         <location
             file="src/main/java/src/comitton/common/DEF.java"
-            line="1570"
+            line="1575"
             column="18"/>
     </issue>
 
@@ -107,7 +107,7 @@
         errorLine2="                 ~~~~~~~~~~~">
         <location
             file="src/main/java/src/comitton/common/DEF.java"
-            line="1571"
+            line="1576"
             column="18"/>
     </issue>
 
@@ -118,7 +118,7 @@
         errorLine2="                                ~~~~~~~~~~~">
         <location
             file="src/main/java/src/comitton/common/DEF.java"
-            line="1593"
+            line="1598"
             column="33"/>
     </issue>
 
@@ -327,7 +327,7 @@
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/src/comitton/fileaccess/LocalFileAccess.java"
-            line="464"
+            line="487"
             column="20"/>
     </issue>
 
@@ -502,11 +502,11 @@
         errorLine2="~~~~">
         <location
             file="src/main/java/src/comitton/imageview/ImageManager.java"
-            line="1347"
+            line="1348"
             column="1"/>
         <location
             file="src/main/java/src/comitton/imageview/ImageManager.java"
-            line="1345"
+            line="1346"
             column="1"
             message="Previous line indentation here"/>
     </issue>
@@ -534,11 +534,11 @@
         errorLine2="~~">
         <location
             file="src/main/java/src/comitton/fileaccess/LocalFileAccess.java"
-            line="120"
+            line="118"
             column="1"/>
         <location
             file="src/main/java/src/comitton/fileaccess/LocalFileAccess.java"
-            line="113"
+            line="111"
             column="1"
             message="Previous line indentation here"/>
     </issue>
@@ -694,11 +694,11 @@
         errorLine2="~~~~~~">
         <location
             file="src/main/java/src/comitton/textview/TextManager.java"
-            line="2881"
+            line="2878"
             column="1"/>
         <location
             file="src/main/java/src/comitton/textview/TextManager.java"
-            line="2880"
+            line="2877"
             column="1"
             message="Previous line indentation here"/>
     </issue>
@@ -710,11 +710,11 @@
         errorLine2="~~">
         <location
             file="src/main/java/src/comitton/textview/TextManager.java"
-            line="6187"
+            line="6184"
             column="1"/>
         <location
             file="src/main/java/src/comitton/textview/TextManager.java"
-            line="6186"
+            line="6183"
             column="1"
             message="Previous line indentation here"/>
     </issue>
@@ -951,7 +951,7 @@
         errorLine2="                                               ~~~~">
         <location
             file="src/main/java/src/comitton/expandview/ExpandActivity.java"
-            line="846"
+            line="823"
             column="48"/>
     </issue>
 
@@ -1061,29 +1061,29 @@
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="build.gradle"
-            line="135"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="GradleDependency"
-        message="A newer version of androidx.appcompat:appcompat than 1.7.0 is available: 1.8.0"
-        errorLine1="    implementation &apos;androidx.appcompat:appcompat:1.7.0&apos;"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="build.gradle"
             line="136"
             column="20"/>
     </issue>
 
     <issue
         id="GradleDependency"
-        message="A newer version of androidx.core:core than 1.15.0 is available: 1.19.0"
-        errorLine1="    implementation &apos;androidx.core:core:1.15.0&apos;"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="A newer version of androidx.appcompat:appcompat than 1.7.1 is available: 1.8.0"
+        errorLine1="    implementation &apos;androidx.appcompat:appcompat:1.7.1&apos;"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="build.gradle"
             line="137"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.core:core than 1.16.0 is available: 1.19.0"
+        errorLine1="    implementation &apos;androidx.core:core:1.16.0&apos;"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="build.gradle"
+            line="138"
             column="20"/>
     </issue>
 
@@ -1094,37 +1094,26 @@
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="build.gradle"
-            line="138"
+            line="139"
             column="20"/>
     </issue>
 
     <issue
         id="GradleDependency"
-        message="A newer version of androidx.fragment:fragment than 1.8.6 is available: 1.9.0"
-        errorLine1="    implementation &apos;androidx.fragment:fragment:1.8.6&apos;"
+        message="A newer version of androidx.fragment:fragment than 1.8.9 is available: 1.9.0"
+        errorLine1="    implementation &apos;androidx.fragment:fragment:1.8.9&apos;"
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="build.gradle"
-            line="140"
+            line="141"
             column="20"/>
     </issue>
 
     <issue
         id="GradleDependency"
-        message="A newer version of com.google.android.material:material than 1.12.0 is available: 1.14.0"
-        errorLine1="    implementation &apos;com.google.android.material:material:1.12.0&apos;"
+        message="A newer version of com.google.android.material:material than 1.13.0 is available: 1.14.0"
+        errorLine1="    implementation &apos;com.google.android.material:material:1.13.0&apos;"
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="build.gradle"
-            line="144"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="NewerVersionAvailable"
-        message="A newer version of commons-io:commons-io than 2.18.0 is available: 2.22.0"
-        errorLine1="    implementation &apos;commons-io:commons-io:2.18.0&apos;"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="build.gradle"
             line="145"
@@ -1133,23 +1122,12 @@
 
     <issue
         id="NewerVersionAvailable"
-        message="A newer version of org.codelibs:jcifs than 2.1.39 is available: 3.0.3"
-        errorLine1="    implementation &apos;org.codelibs:jcifs:2.1.39&apos;"
+        message="A newer version of org.codelibs:jcifs than 2.1.40 is available: 3.0.3"
+        errorLine1="    implementation &apos;org.codelibs:jcifs:2.1.40&apos;"
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="build.gradle"
             line="148"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="NewerVersionAvailable"
-        message="A newer version of com.github.albfernandez:juniversalchardet than 2.0.4 is available: 2.5.0"
-        errorLine1="    implementation &apos;com.github.albfernandez:juniversalchardet:2.0.4&apos;"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="build.gradle"
-            line="151"
             column="20"/>
     </issue>
 
@@ -1160,7 +1138,7 @@
         errorLine2="   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/src/comitton/common/DEF.java"
-            line="960"
+            line="965"
             column="4"/>
     </issue>
 
@@ -1385,7 +1363,7 @@
         errorLine2="      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/src/comitton/common/DEF.java"
-            line="2736"
+            line="2741"
             column="7"/>
     </issue>
 
@@ -2182,7 +2160,7 @@
         errorLine2="                ~~~~~~~">
         <location
             file="src/main/java/src/comitton/imageview/ImageActivity.java"
-            line="1822"
+            line="1836"
             column="17"/>
     </issue>
 

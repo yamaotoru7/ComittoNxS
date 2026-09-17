@@ -24,7 +24,6 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import jp.dip.muracoro.comittonx.R;
-import org.apache.commons.io.FileUtils;
 import src.comitton.common.DEF;
 import src.comitton.common.Logcat;
 import src.comitton.fileview.data.FileData;
@@ -306,11 +305,10 @@ public class LocalFileAccess {
 
 				// deleteメソッドを使用してファイルを削除する
 				if (file.isDirectory()) {
-					try {
-						FileUtils.deleteDirectory(file);
-						Logcat.d(logLevel, "FileUtils.deleteDirectory() 成功しました.");
-					} catch (IOException e) {
-						Logcat.e(logLevel, "FileUtils.deleteDirectory() 失敗しました.", e);
+					if (deleteRecursively(file)) {
+						Logcat.d(logLevel, "ディレクトリを削除しました.");
+					} else {
+						Logcat.e(logLevel, "ディレクトリを削除できませんでした.");
 					}
 
 				}
@@ -349,6 +347,32 @@ public class LocalFileAccess {
 	}
 
 	// ディレクトリ作成
+	// ディレクトリを中身ごと削除する (commons-io の deleteDirectory は java.nio.file を使うので Android 8 未満で動かない)
+	// シンボリックリンクはリンク先をたどらずにリンク自体を削除する
+	static boolean deleteRecursively(@NonNull final File file) {
+		boolean result = true;
+		if (file.isDirectory() && !isSymbolicLink(file)) {
+			File[] children = file.listFiles();
+			if (children != null) {
+				for (File child : children) {
+					result &= deleteRecursively(child);
+				}
+			}
+		}
+		return file.delete() && result;
+	}
+
+	private static boolean isSymbolicLink(@NonNull final File file) {
+		try {
+			File parent = file.getParentFile();
+			File canonicalParent = parent == null ? null : parent.getCanonicalFile();
+			File normalized = canonicalParent == null ? file : new File(canonicalParent, file.getName());
+			return !normalized.getCanonicalFile().equals(normalized.getAbsoluteFile());
+		} catch (IOException e) {
+			return false;
+		}
+	}
+
 	public static boolean mkdir(@NonNull final String uri, @NonNull final String item) {
 		int logLevel = Logcat.LOG_LEVEL_WARN;
 		Logcat.d(logLevel, "開始します. uri=" + uri + ", item=" + item);
