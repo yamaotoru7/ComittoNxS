@@ -319,29 +319,6 @@ public class ExpandActivity extends AppCompatActivity implements Handler.Callbac
 		}
 	}
 
-	private float mScreenWay = 0;
-
-	/**
-	 * 画面の設定が変更された時に発生します。
-	 *
-	 * @param newConfig
-	 *            新しい設定。
-	 */
-	@Override
-	public void onConfigurationChanged(Configuration newConfig) {
-		super.onConfigurationChanged(newConfig);
-		View mRootView = mActivity.getWindow().getDecorView().findViewById(android.R.id.content);
-		float w = mRootView.getWidth();
-		float h = mRootView.getHeight();
-		if (w == 0.0f || h == 0.0f) {
-			return;
-		}
-		float way = w / h;
-		if (mScreenWay == 0 || (mScreenWay < 1.0f && way > 1.0f) || (mScreenWay > 1.0f && way < 1.0f)) {
-			mScreenWay = way;
-		}
-	}
-
 
 	// Activityの破棄
 	protected void onDestroy() {

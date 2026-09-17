@@ -564,7 +564,7 @@ public class SafFileAccess {
 		int logLevel = Logcat.LOG_LEVEL_WARN;
 		Logcat.d(logLevel, "開始します. uri=" + uri);
 
-		// 先頭からパッケージ名までをheaderに格納
+		// content:// には一致しないので header は uri 全体になる (表示名の互換のためそのまま使う)
 		String header = uri.replaceFirst("^(smb://[^/]+).*/", "$1");
 		String rootUri = uri.replaceFirst("/*$", "");
 
@@ -578,7 +578,8 @@ public class SafFileAccess {
 				result = pathList.get(pathList.size() - 1);
             }
 			else {
-				Uri.decode(rootUri);
+				// パス情報を取れない古い端末では URI をデコードして表示名にする
+				result = Uri.decode(rootUri);
 			}
 		}
 		catch (Exception e) {

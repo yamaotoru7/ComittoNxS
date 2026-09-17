@@ -3052,16 +3052,4 @@ public class TextActivity extends AppCompatActivity implements OnTouchListener, 
 		}
 	}
 
-	//	// 長押しタイマーイベント検知処理
-//	private final Handler mWaitHandler = new Handler() {
-//		@Override
-//		public void handleMessage(Message msg) {
-//			if (mReadTimerMsg == msg) {
-//				// プログレスダイアログを表示
-//				if (mReadDialog != null) {
-//					mReadDialog.show();
-//				}
-//			}
-//		}
-//	};
 }

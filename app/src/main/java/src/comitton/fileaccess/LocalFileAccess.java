@@ -42,7 +42,6 @@ public class LocalFileAccess {
 	public static long length(@NonNull final String uri) {
 		int logLevel = Logcat.LOG_LEVEL_WARN;
 		Logcat.d(logLevel, "開始します. uri=" + uri);
-		new File(uri);
 		return new File(uri).length();
 	}
 

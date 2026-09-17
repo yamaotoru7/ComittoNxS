@@ -51,182 +51,62 @@ public class Logcat {
         verbose(LOG_LEVEL_NONE, true, msg, null, false);
     }
 
-    /**
-     * Logcat にログを出力する<br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_VERBOSE} から {@code LOG_LEVEL_ERROR} までの値のとき、
-     * {@code global_log_level} より重要度が高いログを出力する.<br><br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_NONE} のとき、
-     * 引数 {@code int logLevel} より重要度が高いログまたは 引数 {@code boolean enable} が {@code true} のときログを出力する.<br><br>
-     * タグには自動的にクラス名がセットされる<br>
-     * メッセージは自動的に「メソッド名: {@code msg} (ファイル名:行番号) エラーメッセージ」がセットされる<br>
-     * 引数 {@code boolean stackTrace} が {@code true} のときスタックトレースを出力する.
-     * @param msg ログメッセージ
-     */
+    /** 上記と同じ. 引数違いのオーバーロード */
     public static void v(@Nullable String msg, @Nullable Throwable tr) {
         verbose(LOG_LEVEL_NONE, true, msg, tr,false);
     }
 
-    /**
-     * Logcat にログを出力する<br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_VERBOSE} から {@code LOG_LEVEL_ERROR} までの値のとき、
-     * {@code global_log_level} より重要度が高いログを出力する.<br><br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_NONE} のとき、
-     * 引数 {@code int logLevel} より重要度が高いログまたは 引数 {@code boolean enable} が {@code true} のときログを出力する.<br><br>
-     * タグには自動的にクラス名がセットされる<br>
-     * メッセージは自動的に「メソッド名: {@code msg} (ファイル名:行番号) エラーメッセージ」がセットされる<br>
-     * 引数 {@code boolean stackTrace} が {@code true} のときスタックトレースを出力する.
-     * @param msg ログメッセージ
-     */
+    /** 上記と同じ. 引数違いのオーバーロード */
     public static void v(@Nullable String msg, boolean stackTrace) {
         verbose(LOG_LEVEL_NONE, true, msg, null, stackTrace);
     }
 
-    /**
-     * Logcat にログを出力する<br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_VERBOSE} から {@code LOG_LEVEL_ERROR} までの値のとき、
-     * {@code global_log_level} より重要度が高いログを出力する.<br><br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_NONE} のとき、
-     * 引数 {@code int logLevel} より重要度が高いログまたは 引数 {@code boolean enable} が {@code true} のときログを出力する.<br><br>
-     * タグには自動的にクラス名がセットされる<br>
-     * メッセージは自動的に「メソッド名: {@code msg} (ファイル名:行番号) エラーメッセージ」がセットされる<br>
-     * 引数 {@code boolean stackTrace} が {@code true} のときスタックトレースを出力する.
-     * @param msg ログメッセージ
-     */
+    /** 上記と同じ. 引数違いのオーバーロード */
     public static void v(@Nullable String msg, @Nullable Throwable tr, boolean stackTrace) {
         verbose(LOG_LEVEL_NONE, true, msg, tr, stackTrace);
     }
 
-    /**
-     * Logcat にログを出力する<br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_VERBOSE} から {@code LOG_LEVEL_ERROR} までの値のとき、
-     * {@code global_log_level} より重要度が高いログを出力する.<br><br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_NONE} のとき、
-     * 引数 {@code int logLevel} より重要度が高いログまたは 引数 {@code boolean enable} が {@code true} のときログを出力する.<br><br>
-     * タグには自動的にクラス名がセットされる<br>
-     * メッセージは自動的に「メソッド名: {@code msg} (ファイル名:行番号) エラーメッセージ」がセットされる<br>
-     * 引数 {@code boolean stackTrace} が {@code true} のときスタックトレースを出力する.
-     * @param msg ログメッセージ
-     */
+    /** 上記と同じ. 引数違いのオーバーロード */
     public static void v(boolean enable, @Nullable String msg) {
         verbose(LOG_LEVEL_NONE, enable, msg, null, false);
     }
 
-    /**
-     * Logcat にログを出力する<br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_VERBOSE} から {@code LOG_LEVEL_ERROR} までの値のとき、
-     * {@code global_log_level} より重要度が高いログを出力する.<br><br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_NONE} のとき、
-     * 引数 {@code int logLevel} より重要度が高いログまたは 引数 {@code boolean enable} が {@code true} のときログを出力する.<br><br>
-     * タグには自動的にクラス名がセットされる<br>
-     * メッセージは自動的に「メソッド名: {@code msg} (ファイル名:行番号) エラーメッセージ」がセットされる<br>
-     * 引数 {@code boolean stackTrace} が {@code true} のときスタックトレースを出力する.
-     * @param msg ログメッセージ
-     */
+    /** 上記と同じ. 引数違いのオーバーロード */
     public static void v(boolean enable, @Nullable String msg, @Nullable Throwable tr) {
         verbose(LOG_LEVEL_NONE, enable, msg, tr, false);
     }
 
-    /**
-     * Logcat にログを出力する<br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_VERBOSE} から {@code LOG_LEVEL_ERROR} までの値のとき、
-     * {@code global_log_level} より重要度が高いログを出力する.<br><br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_NONE} のとき、
-     * 引数 {@code int logLevel} より重要度が高いログまたは 引数 {@code boolean enable} が {@code true} のときログを出力する.<br><br>
-     * タグには自動的にクラス名がセットされる<br>
-     * メッセージは自動的に「メソッド名: {@code msg} (ファイル名:行番号) エラーメッセージ」がセットされる<br>
-     * 引数 {@code boolean stackTrace} が {@code true} のときスタックトレースを出力する.
-     * @param msg ログメッセージ
-     */
+    /** 上記と同じ. 引数違いのオーバーロード */
     public static void v(boolean enable, @Nullable String msg, boolean stackTrace) {
         verbose(LOG_LEVEL_NONE, enable, msg, null, stackTrace);
     }
 
-    /**
-     * Logcat にログを出力する<br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_VERBOSE} から {@code LOG_LEVEL_ERROR} までの値のとき、
-     * {@code global_log_level} より重要度が高いログを出力する.<br><br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_NONE} のとき、
-     * 引数 {@code int logLevel} より重要度が高いログまたは 引数 {@code boolean enable} が {@code true} のときログを出力する.<br><br>
-     * タグには自動的にクラス名がセットされる<br>
-     * メッセージは自動的に「メソッド名: {@code msg} (ファイル名:行番号) エラーメッセージ」がセットされる<br>
-     * 引数 {@code boolean stackTrace} が {@code true} のときスタックトレースを出力する.
-     * @param msg ログメッセージ
-     */
+    /** 上記と同じ. 引数違いのオーバーロード */
     public static void v(boolean enable, @Nullable String msg, @Nullable Throwable tr, boolean stackTrace) {
         verbose(LOG_LEVEL_NONE, enable, msg, tr, stackTrace);
     }
 
-    /**
-     * Logcat にログを出力する<br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_VERBOSE} から {@code LOG_LEVEL_ERROR} までの値のとき、
-     * {@code global_log_level} より重要度が高いログを出力する.<br><br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_NONE} のとき、
-     * 引数 {@code int logLevel} より重要度が高いログまたは 引数 {@code boolean enable} が {@code true} のときログを出力する.<br><br>
-     * タグには自動的にクラス名がセットされる<br>
-     * メッセージは自動的に「メソッド名: {@code msg} (ファイル名:行番号) エラーメッセージ」がセットされる<br>
-     * 引数 {@code boolean stackTrace} が {@code true} のときスタックトレースを出力する.
-     * @param msg ログメッセージ
-     */
+    /** 上記と同じ. 引数違いのオーバーロード */
     public static void v(int logLevel, @Nullable String msg) {
         verbose(logLevel, false, msg, null, false);
     }
 
-    /**
-     * Logcat にログを出力する<br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_VERBOSE} から {@code LOG_LEVEL_ERROR} までの値のとき、
-     * {@code global_log_level} より重要度が高いログを出力する.<br><br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_NONE} のとき、
-     * 引数 {@code int logLevel} より重要度が高いログまたは 引数 {@code boolean enable} が {@code true} のときログを出力する.<br><br>
-     * タグには自動的にクラス名がセットされる<br>
-     * メッセージは自動的に「メソッド名: {@code msg} (ファイル名:行番号) エラーメッセージ」がセットされる<br>
-     * 引数 {@code boolean stackTrace} が {@code true} のときスタックトレースを出力する.
-     * @param msg ログメッセージ
-     */
+    /** 上記と同じ. 引数違いのオーバーロード */
     public static void v(int logLevel, @Nullable String msg, @Nullable Throwable tr) {
         verbose(logLevel, false, msg, tr, false);
     }
 
-    /**
-     * Logcat にログを出力する<br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_VERBOSE} から {@code LOG_LEVEL_ERROR} までの値のとき、
-     * {@code global_log_level} より重要度が高いログを出力する.<br><br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_NONE} のとき、
-     * 引数 {@code int logLevel} より重要度が高いログまたは 引数 {@code boolean enable} が {@code true} のときログを出力する.<br><br>
-     * タグには自動的にクラス名がセットされる<br>
-     * メッセージは自動的に「メソッド名: {@code msg} (ファイル名:行番号) エラーメッセージ」がセットされる<br>
-     * 引数 {@code boolean stackTrace} が {@code true} のときスタックトレースを出力する.
-     * @param msg ログメッセージ
-     */
+    /** 上記と同じ. 引数違いのオーバーロード */
     public static void v(int logLevel, @Nullable String msg, boolean stackTrace) {
         verbose(logLevel, false, msg, null, stackTrace);
     }
 
-    /**
-     * Logcat にログを出力する<br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_VERBOSE} から {@code LOG_LEVEL_ERROR} までの値のとき、
-     * {@code global_log_level} より重要度が高いログを出力する.<br><br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_NONE} のとき、
-     * 引数 {@code int logLevel} より重要度が高いログまたは 引数 {@code boolean enable} が {@code true} のときログを出力する.<br><br>
-     * タグには自動的にクラス名がセットされる<br>
-     * メッセージは自動的に「メソッド名: {@code msg} (ファイル名:行番号) エラーメッセージ」がセットされる<br>
-     * 引数 {@code boolean stackTrace} が {@code true} のときスタックトレースを出力する.
-     * @param msg ログメッセージ
-     */
+    /** 上記と同じ. 引数違いのオーバーロード */
     public static void v(int logLevel, @Nullable String msg, @Nullable Throwable tr, boolean stackTrace) {
         verbose(logLevel, false, msg, tr, stackTrace);
     }
 
-    /**
-     * Logcat にログを出力する<br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_VERBOSE} から {@code LOG_LEVEL_ERROR} までの値のとき、
-     * {@code global_log_level} より重要度が高いログを出力する.<br><br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_NONE} のとき、
-     * 引数 {@code int logLevel} より重要度が高いログまたは 引数 {@code boolean enable} が {@code true} のときログを出力する.<br><br>
-     * タグには自動的にクラス名がセットされる<br>
-     * メッセージは自動的に「メソッド名: {@code msg} (ファイル名:行番号) エラーメッセージ」がセットされる<br>
-     * 引数 {@code boolean stackTrace} が {@code true} のときスタックトレースを出力する.
-     * @param msg ログメッセージ
-     */
+    /** 上記と同じ. 引数違いのオーバーロード */
     private static void verbose(int logLevel, boolean enable, @Nullable String msg, @Nullable Throwable tr, boolean stackTrace) {
         if (global_log_level <= LOG_LEVEL_VERBOSE || (global_log_level == LOG_LEVEL_NONE && (enable || logLevel <= LOG_LEVEL_VERBOSE))) {
             // enable の時だけログを出力する
@@ -260,197 +140,67 @@ public class Logcat {
         }
     }
 
-    /**
-     * Logcat にログを出力する<br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_VERBOSE} から {@code LOG_LEVEL_ERROR} までの値のとき、
-     * {@code global_log_level} より重要度が高いログを出力する.<br><br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_NONE} のとき、
-     * 引数 {@code int logLevel} より重要度が高いログまたは 引数 {@code boolean enable} が {@code true} のときログを出力する.<br><br>
-     * タグには自動的にクラス名がセットされる<br>
-     * メッセージは自動的に「メソッド名: {@code msg} (ファイル名:行番号) エラーメッセージ」がセットされる<br>
-     * 引数 {@code boolean stackTrace} が {@code true} のときスタックトレースを出力する.
-     * @param msg ログメッセージ
-     */
+    /** 上記と同じ. 引数違いのオーバーロード */
     public static void d(@Nullable String msg) {
         debug(LOG_LEVEL_NONE, true, msg, null, false);
     }
 
-    /**
-     * Logcat にログを出力する<br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_VERBOSE} から {@code LOG_LEVEL_ERROR} までの値のとき、
-     * {@code global_log_level} より重要度が高いログを出力する.<br><br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_NONE} のとき、
-     * 引数 {@code int logLevel} より重要度が高いログまたは 引数 {@code boolean enable} が {@code true} のときログを出力する.<br><br>
-     * タグには自動的にクラス名がセットされる<br>
-     * メッセージは自動的に「メソッド名: {@code msg} (ファイル名:行番号) エラーメッセージ」がセットされる<br>
-     * 引数 {@code boolean stackTrace} が {@code true} のときスタックトレースを出力する.
-     * @param msg ログメッセージ
-     */
+    /** 上記と同じ. 引数違いのオーバーロード */
     public static void d(@Nullable String msg, @Nullable Throwable tr) {
         debug(LOG_LEVEL_NONE, true, msg, tr,false);
     }
 
-    /**
-     * Logcat にログを出力する<br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_VERBOSE} から {@code LOG_LEVEL_ERROR} までの値のとき、
-     * {@code global_log_level} より重要度が高いログを出力する.<br><br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_NONE} のとき、
-     * 引数 {@code int logLevel} より重要度が高いログまたは 引数 {@code boolean enable} が {@code true} のときログを出力する.<br><br>
-     * タグには自動的にクラス名がセットされる<br>
-     * メッセージは自動的に「メソッド名: {@code msg} (ファイル名:行番号) エラーメッセージ」がセットされる<br>
-     * 引数 {@code boolean stackTrace} が {@code true} のときスタックトレースを出力する.
-     * @param msg ログメッセージ
-     */
+    /** 上記と同じ. 引数違いのオーバーロード */
     public static void d(@Nullable String msg, boolean stackTrace) {
         debug(LOG_LEVEL_NONE, true, msg, null, stackTrace);
     }
 
-    /**
-     * Logcat にログを出力する<br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_VERBOSE} から {@code LOG_LEVEL_ERROR} までの値のとき、
-     * {@code global_log_level} より重要度が高いログを出力する.<br><br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_NONE} のとき、
-     * 引数 {@code int logLevel} より重要度が高いログまたは 引数 {@code boolean enable} が {@code true} のときログを出力する.<br><br>
-     * タグには自動的にクラス名がセットされる<br>
-     * メッセージは自動的に「メソッド名: {@code msg} (ファイル名:行番号) エラーメッセージ」がセットされる<br>
-     * 引数 {@code boolean stackTrace} が {@code true} のときスタックトレースを出力する.
-     * @param msg ログメッセージ
-     */
+    /** 上記と同じ. 引数違いのオーバーロード */
     public static void d(@Nullable String msg, @Nullable Throwable tr, boolean stackTrace) {
         debug(LOG_LEVEL_NONE, true, msg, tr, stackTrace);
     }
 
-    /**
-     * Logcat にログを出力する<br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_VERBOSE} から {@code LOG_LEVEL_ERROR} までの値のとき、
-     * {@code global_log_level} より重要度が高いログを出力する.<br><br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_NONE} のとき、
-     * 引数 {@code int logLevel} より重要度が高いログまたは 引数 {@code boolean enable} が {@code true} のときログを出力する.<br><br>
-     * タグには自動的にクラス名がセットされる<br>
-     * メッセージは自動的に「メソッド名: {@code msg} (ファイル名:行番号) エラーメッセージ」がセットされる<br>
-     * 引数 {@code boolean stackTrace} が {@code true} のときスタックトレースを出力する.
-     * @param msg ログメッセージ
-     */
+    /** 上記と同じ. 引数違いのオーバーロード */
     public static void d(boolean enable, @Nullable String msg) {
         debug(LOG_LEVEL_NONE, enable, msg, null, false);
     }
 
-    /**
-     * Logcat にログを出力する<br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_VERBOSE} から {@code LOG_LEVEL_ERROR} までの値のとき、
-     * {@code global_log_level} より重要度が高いログを出力する.<br><br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_NONE} のとき、
-     * 引数 {@code int logLevel} より重要度が高いログまたは 引数 {@code boolean enable} が {@code true} のときログを出力する.<br><br>
-     * タグには自動的にクラス名がセットされる<br>
-     * メッセージは自動的に「メソッド名: {@code msg} (ファイル名:行番号) エラーメッセージ」がセットされる<br>
-     * 引数 {@code boolean stackTrace} が {@code true} のときスタックトレースを出力する.
-     * @param msg ログメッセージ
-     */
+    /** 上記と同じ. 引数違いのオーバーロード */
     public static void d(boolean enable, @Nullable String msg, @Nullable Throwable tr) {
         debug(LOG_LEVEL_NONE, enable, msg, tr, false);
     }
 
-    /**
-     * Logcat にログを出力する<br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_VERBOSE} から {@code LOG_LEVEL_ERROR} までの値のとき、
-     * {@code global_log_level} より重要度が高いログを出力する.<br><br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_NONE} のとき、
-     * 引数 {@code int logLevel} より重要度が高いログまたは 引数 {@code boolean enable} が {@code true} のときログを出力する.<br><br>
-     * タグには自動的にクラス名がセットされる<br>
-     * メッセージは自動的に「メソッド名: {@code msg} (ファイル名:行番号) エラーメッセージ」がセットされる<br>
-     * 引数 {@code boolean stackTrace} が {@code true} のときスタックトレースを出力する.
-     * @param msg ログメッセージ
-     */
+    /** 上記と同じ. 引数違いのオーバーロード */
     public static void d(boolean enable, @Nullable String msg, boolean stackTrace) {
         debug(LOG_LEVEL_NONE, enable, msg, null, stackTrace);
     }
 
-    /**
-     * Logcat にログを出力する<br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_VERBOSE} から {@code LOG_LEVEL_ERROR} までの値のとき、
-     * {@code global_log_level} より重要度が高いログを出力する.<br><br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_NONE} のとき、
-     * 引数 {@code int logLevel} より重要度が高いログまたは 引数 {@code boolean enable} が {@code true} のときログを出力する.<br><br>
-     * タグには自動的にクラス名がセットされる<br>
-     * メッセージは自動的に「メソッド名: {@code msg} (ファイル名:行番号) エラーメッセージ」がセットされる<br>
-     * 引数 {@code boolean stackTrace} が {@code true} のときスタックトレースを出力する.
-     * @param msg ログメッセージ
-     */
+    /** 上記と同じ. 引数違いのオーバーロード */
     public static void d(boolean enable, @Nullable String msg, @Nullable Throwable tr, boolean stackTrace) {
         debug(LOG_LEVEL_NONE, enable, msg, tr, stackTrace);
     }
 
-    /**
-     * Logcat にログを出力する<br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_VERBOSE} から {@code LOG_LEVEL_ERROR} までの値のとき、
-     * {@code global_log_level} より重要度が高いログを出力する.<br><br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_NONE} のとき、
-     * 引数 {@code int logLevel} より重要度が高いログまたは 引数 {@code boolean enable} が {@code true} のときログを出力する.<br><br>
-     * タグには自動的にクラス名がセットされる<br>
-     * メッセージは自動的に「メソッド名: {@code msg} (ファイル名:行番号) エラーメッセージ」がセットされる<br>
-     * 引数 {@code boolean stackTrace} が {@code true} のときスタックトレースを出力する.
-     * @param msg ログメッセージ
-     */
+    /** 上記と同じ. 引数違いのオーバーロード */
     public static void d(int logLevel, @Nullable String msg) {
         debug(logLevel, false, msg, null, false);
     }
 
-    /**
-     * Logcat にログを出力する<br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_VERBOSE} から {@code LOG_LEVEL_ERROR} までの値のとき、
-     * {@code global_log_level} より重要度が高いログを出力する.<br><br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_NONE} のとき、
-     * 引数 {@code int logLevel} より重要度が高いログまたは 引数 {@code boolean enable} が {@code true} のときログを出力する.<br><br>
-     * タグには自動的にクラス名がセットされる<br>
-     * メッセージは自動的に「メソッド名: {@code msg} (ファイル名:行番号) エラーメッセージ」がセットされる<br>
-     * 引数 {@code boolean stackTrace} が {@code true} のときスタックトレースを出力する.
-     * @param msg ログメッセージ
-     */
+    /** 上記と同じ. 引数違いのオーバーロード */
     public static void d(int logLevel, @Nullable String msg, @Nullable Throwable tr) {
         debug(logLevel, false, msg, tr, false);
     }
 
-    /**
-     * Logcat にログを出力する<br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_VERBOSE} から {@code LOG_LEVEL_ERROR} までの値のとき、
-     * {@code global_log_level} より重要度が高いログを出力する.<br><br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_NONE} のとき、
-     * 引数 {@code int logLevel} より重要度が高いログまたは 引数 {@code boolean enable} が {@code true} のときログを出力する.<br><br>
-     * タグには自動的にクラス名がセットされる<br>
-     * メッセージは自動的に「メソッド名: {@code msg} (ファイル名:行番号) エラーメッセージ」がセットされる<br>
-     * 引数 {@code boolean stackTrace} が {@code true} のときスタックトレースを出力する.
-     * @param msg ログメッセージ
-     */
+    /** 上記と同じ. 引数違いのオーバーロード */
     public static void d(int logLevel, @Nullable String msg, boolean stackTrace) {
         debug(logLevel, false, msg, null, stackTrace);
     }
 
-    /**
-     * Logcat にログを出力する<br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_VERBOSE} から {@code LOG_LEVEL_ERROR} までの値のとき、
-     * {@code global_log_level} より重要度が高いログを出力する.<br><br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_NONE} のとき、
-     * 引数 {@code int logLevel} より重要度が高いログまたは 引数 {@code boolean enable} が {@code true} のときログを出力する.<br><br>
-     * タグには自動的にクラス名がセットされる<br>
-     * メッセージは自動的に「メソッド名: {@code msg} (ファイル名:行番号) エラーメッセージ」がセットされる<br>
-     * 引数 {@code boolean stackTrace} が {@code true} のときスタックトレースを出力する.
-     * @param msg ログメッセージ
-     */
+    /** 上記と同じ. 引数違いのオーバーロード */
     public static void d(int logLevel, @Nullable String msg, @Nullable Throwable tr, boolean stackTrace) {
         debug(logLevel, false, msg, tr, stackTrace);
     }
 
-    /**
-     * Logcat にログを出力する<br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_VERBOSE} から {@code LOG_LEVEL_ERROR} までの値のとき、
-     * {@code global_log_level} より重要度が高いログを出力する.<br><br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_NONE} のとき、
-     * 引数 {@code int logLevel} より重要度が高いログまたは 引数 {@code boolean enable} が {@code true} のときログを出力する.<br><br>
-     * タグには自動的にクラス名がセットされる<br>
-     * メッセージは自動的に「メソッド名: {@code msg} (ファイル名:行番号) エラーメッセージ」がセットされる<br>
-     * 引数 {@code boolean stackTrace} が {@code true} のときスタックトレースを出力する.
-     * @param msg ログメッセージ
-     */
+    /** 上記と同じ. 引数違いのオーバーロード */
     private static void debug(int logLevel, boolean enable, @Nullable String msg, @Nullable Throwable tr, boolean stackTrace) {
         if (global_log_level <= LOG_LEVEL_DEBUG || (global_log_level == LOG_LEVEL_NONE && (enable || logLevel <= LOG_LEVEL_DEBUG))) {
             // enable の時だけログを出力する
@@ -484,197 +234,67 @@ public class Logcat {
         }
     }
 
-    /**
-     * Logcat にログを出力する<br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_VERBOSE} から {@code LOG_LEVEL_ERROR} までの値のとき、
-     * {@code global_log_level} より重要度が高いログを出力する.<br><br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_NONE} のとき、
-     * 引数 {@code int logLevel} より重要度が高いログまたは 引数 {@code boolean enable} が {@code true} のときログを出力する.<br><br>
-     * タグには自動的にクラス名がセットされる<br>
-     * メッセージは自動的に「メソッド名: {@code msg} (ファイル名:行番号) エラーメッセージ」がセットされる<br>
-     * 引数 {@code boolean stackTrace} が {@code true} のときスタックトレースを出力する.
-     * @param msg ログメッセージ
-     */
+    /** 上記と同じ. 引数違いのオーバーロード */
     public static void i(@Nullable String msg) {
         info(LOG_LEVEL_NONE, true, msg, null, false);
     }
 
-    /**
-     * Logcat にログを出力する<br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_VERBOSE} から {@code LOG_LEVEL_ERROR} までの値のとき、
-     * {@code global_log_level} より重要度が高いログを出力する.<br><br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_NONE} のとき、
-     * 引数 {@code int logLevel} より重要度が高いログまたは 引数 {@code boolean enable} が {@code true} のときログを出力する.<br><br>
-     * タグには自動的にクラス名がセットされる<br>
-     * メッセージは自動的に「メソッド名: {@code msg} (ファイル名:行番号) エラーメッセージ」がセットされる<br>
-     * 引数 {@code boolean stackTrace} が {@code true} のときスタックトレースを出力する.
-     * @param msg ログメッセージ
-     */
+    /** 上記と同じ. 引数違いのオーバーロード */
     public static void i(@Nullable String msg, @Nullable Throwable tr) {
         info(LOG_LEVEL_NONE, true, msg, tr,false);
     }
 
-    /**
-     * Logcat にログを出力する<br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_VERBOSE} から {@code LOG_LEVEL_ERROR} までの値のとき、
-     * {@code global_log_level} より重要度が高いログを出力する.<br><br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_NONE} のとき、
-     * 引数 {@code int logLevel} より重要度が高いログまたは 引数 {@code boolean enable} が {@code true} のときログを出力する.<br><br>
-     * タグには自動的にクラス名がセットされる<br>
-     * メッセージは自動的に「メソッド名: {@code msg} (ファイル名:行番号) エラーメッセージ」がセットされる<br>
-     * 引数 {@code boolean stackTrace} が {@code true} のときスタックトレースを出力する.
-     * @param msg ログメッセージ
-     */
+    /** 上記と同じ. 引数違いのオーバーロード */
     public static void i(@Nullable String msg, boolean stackTrace) {
         info(LOG_LEVEL_NONE, true, msg, null, stackTrace);
     }
 
-    /**
-     * Logcat にログを出力する<br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_VERBOSE} から {@code LOG_LEVEL_ERROR} までの値のとき、
-     * {@code global_log_level} より重要度が高いログを出力する.<br><br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_NONE} のとき、
-     * 引数 {@code int logLevel} より重要度が高いログまたは 引数 {@code boolean enable} が {@code true} のときログを出力する.<br><br>
-     * タグには自動的にクラス名がセットされる<br>
-     * メッセージは自動的に「メソッド名: {@code msg} (ファイル名:行番号) エラーメッセージ」がセットされる<br>
-     * 引数 {@code boolean stackTrace} が {@code true} のときスタックトレースを出力する.
-     * @param msg ログメッセージ
-     */
+    /** 上記と同じ. 引数違いのオーバーロード */
     public static void i(@Nullable String msg, @Nullable Throwable tr, boolean stackTrace) {
         info(LOG_LEVEL_NONE, true, msg, tr, stackTrace);
     }
 
-    /**
-     * Logcat にログを出力する<br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_VERBOSE} から {@code LOG_LEVEL_ERROR} までの値のとき、
-     * {@code global_log_level} より重要度が高いログを出力する.<br><br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_NONE} のとき、
-     * 引数 {@code int logLevel} より重要度が高いログまたは 引数 {@code boolean enable} が {@code true} のときログを出力する.<br><br>
-     * タグには自動的にクラス名がセットされる<br>
-     * メッセージは自動的に「メソッド名: {@code msg} (ファイル名:行番号) エラーメッセージ」がセットされる<br>
-     * 引数 {@code boolean stackTrace} が {@code true} のときスタックトレースを出力する.
-     * @param msg ログメッセージ
-     */
+    /** 上記と同じ. 引数違いのオーバーロード */
     public static void i(boolean enable, @Nullable String msg) {
         info(LOG_LEVEL_NONE, enable, msg, null, false);
     }
 
-    /**
-     * Logcat にログを出力する<br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_VERBOSE} から {@code LOG_LEVEL_ERROR} までの値のとき、
-     * {@code global_log_level} より重要度が高いログを出力する.<br><br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_NONE} のとき、
-     * 引数 {@code int logLevel} より重要度が高いログまたは 引数 {@code boolean enable} が {@code true} のときログを出力する.<br><br>
-     * タグには自動的にクラス名がセットされる<br>
-     * メッセージは自動的に「メソッド名: {@code msg} (ファイル名:行番号) エラーメッセージ」がセットされる<br>
-     * 引数 {@code boolean stackTrace} が {@code true} のときスタックトレースを出力する.
-     * @param msg ログメッセージ
-     */
+    /** 上記と同じ. 引数違いのオーバーロード */
     public static void i(boolean enable, @Nullable String msg, @Nullable Throwable tr) {
         info(LOG_LEVEL_NONE, enable, msg, tr, false);
     }
 
-    /**
-     * Logcat にログを出力する<br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_VERBOSE} から {@code LOG_LEVEL_ERROR} までの値のとき、
-     * {@code global_log_level} より重要度が高いログを出力する.<br><br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_NONE} のとき、
-     * 引数 {@code int logLevel} より重要度が高いログまたは 引数 {@code boolean enable} が {@code true} のときログを出力する.<br><br>
-     * タグには自動的にクラス名がセットされる<br>
-     * メッセージは自動的に「メソッド名: {@code msg} (ファイル名:行番号) エラーメッセージ」がセットされる<br>
-     * 引数 {@code boolean stackTrace} が {@code true} のときスタックトレースを出力する.
-     * @param msg ログメッセージ
-     */
+    /** 上記と同じ. 引数違いのオーバーロード */
     public static void i(boolean enable, @Nullable String msg, boolean stackTrace) {
         info(LOG_LEVEL_NONE, enable, msg, null, stackTrace);
     }
 
-    /**
-     * Logcat にログを出力する<br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_VERBOSE} から {@code LOG_LEVEL_ERROR} までの値のとき、
-     * {@code global_log_level} より重要度が高いログを出力する.<br><br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_NONE} のとき、
-     * 引数 {@code int logLevel} より重要度が高いログまたは 引数 {@code boolean enable} が {@code true} のときログを出力する.<br><br>
-     * タグには自動的にクラス名がセットされる<br>
-     * メッセージは自動的に「メソッド名: {@code msg} (ファイル名:行番号) エラーメッセージ」がセットされる<br>
-     * 引数 {@code boolean stackTrace} が {@code true} のときスタックトレースを出力する.
-     * @param msg ログメッセージ
-     */
+    /** 上記と同じ. 引数違いのオーバーロード */
     public static void i(boolean enable, @Nullable String msg, @Nullable Throwable tr, boolean stackTrace) {
         info(LOG_LEVEL_NONE, enable, msg, tr, stackTrace);
     }
 
-    /**
-     * Logcat にログを出力する<br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_VERBOSE} から {@code LOG_LEVEL_ERROR} までの値のとき、
-     * {@code global_log_level} より重要度が高いログを出力する.<br><br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_NONE} のとき、
-     * 引数 {@code int logLevel} より重要度が高いログまたは 引数 {@code boolean enable} が {@code true} のときログを出力する.<br><br>
-     * タグには自動的にクラス名がセットされる<br>
-     * メッセージは自動的に「メソッド名: {@code msg} (ファイル名:行番号) エラーメッセージ」がセットされる<br>
-     * 引数 {@code boolean stackTrace} が {@code true} のときスタックトレースを出力する.
-     * @param msg ログメッセージ
-     */
+    /** 上記と同じ. 引数違いのオーバーロード */
     public static void i(int logLevel, @Nullable String msg) {
         info(logLevel, false, msg, null, false);
     }
 
-    /**
-     * Logcat にログを出力する<br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_VERBOSE} から {@code LOG_LEVEL_ERROR} までの値のとき、
-     * {@code global_log_level} より重要度が高いログを出力する.<br><br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_NONE} のとき、
-     * 引数 {@code int logLevel} より重要度が高いログまたは 引数 {@code boolean enable} が {@code true} のときログを出力する.<br><br>
-     * タグには自動的にクラス名がセットされる<br>
-     * メッセージは自動的に「メソッド名: {@code msg} (ファイル名:行番号) エラーメッセージ」がセットされる<br>
-     * 引数 {@code boolean stackTrace} が {@code true} のときスタックトレースを出力する.
-     * @param msg ログメッセージ
-     */
+    /** 上記と同じ. 引数違いのオーバーロード */
     public static void i(int logLevel, @Nullable String msg, @Nullable Throwable tr) {
         info(logLevel, false, msg, tr, false);
     }
 
-    /**
-     * Logcat にログを出力する<br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_VERBOSE} から {@code LOG_LEVEL_ERROR} までの値のとき、
-     * {@code global_log_level} より重要度が高いログを出力する.<br><br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_NONE} のとき、
-     * 引数 {@code int logLevel} より重要度が高いログまたは 引数 {@code boolean enable} が {@code true} のときログを出力する.<br><br>
-     * タグには自動的にクラス名がセットされる<br>
-     * メッセージは自動的に「メソッド名: {@code msg} (ファイル名:行番号) エラーメッセージ」がセットされる<br>
-     * 引数 {@code boolean stackTrace} が {@code true} のときスタックトレースを出力する.
-     * @param msg ログメッセージ
-     */
+    /** 上記と同じ. 引数違いのオーバーロード */
     public static void i(int logLevel, @Nullable String msg, boolean stackTrace) {
         info(logLevel, false, msg, null, stackTrace);
     }
 
-    /**
-     * Logcat にログを出力する<br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_VERBOSE} から {@code LOG_LEVEL_ERROR} までの値のとき、
-     * {@code global_log_level} より重要度が高いログを出力する.<br><br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_NONE} のとき、
-     * 引数 {@code int logLevel} より重要度が高いログまたは 引数 {@code boolean enable} が {@code true} のときログを出力する.<br><br>
-     * タグには自動的にクラス名がセットされる<br>
-     * メッセージは自動的に「メソッド名: {@code msg} (ファイル名:行番号) エラーメッセージ」がセットされる<br>
-     * 引数 {@code boolean stackTrace} が {@code true} のときスタックトレースを出力する.
-     * @param msg ログメッセージ
-     */
+    /** 上記と同じ. 引数違いのオーバーロード */
     public static void i(int logLevel, @Nullable String msg, @Nullable Throwable tr, boolean stackTrace) {
         info(logLevel, false, msg, tr, stackTrace);
     }
 
-    /**
-     * Logcat にログを出力する<br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_VERBOSE} から {@code LOG_LEVEL_ERROR} までの値のとき、
-     * {@code global_log_level} より重要度が高いログを出力する.<br><br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_NONE} のとき、
-     * 引数 {@code int logLevel} より重要度が高いログまたは 引数 {@code boolean enable} が {@code true} のときログを出力する.<br><br>
-     * タグには自動的にクラス名がセットされる<br>
-     * メッセージは自動的に「メソッド名: {@code msg} (ファイル名:行番号) エラーメッセージ」がセットされる<br>
-     * 引数 {@code boolean stackTrace} が {@code true} のときスタックトレースを出力する.
-     * @param msg ログメッセージ
-     */
+    /** 上記と同じ. 引数違いのオーバーロード */
     private static void info(int logLevel, boolean enable, @Nullable String msg, @Nullable Throwable tr, boolean stackTrace) {
         if (global_log_level <= LOG_LEVEL_INFO || (global_log_level == LOG_LEVEL_NONE && (enable || logLevel <= LOG_LEVEL_INFO))) {
             // enable の時だけログを出力する
@@ -708,197 +328,67 @@ public class Logcat {
         }
     }
 
-    /**
-     * Logcat にログを出力する<br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_VERBOSE} から {@code LOG_LEVEL_ERROR} までの値のとき、
-     * {@code global_log_level} より重要度が高いログを出力する.<br><br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_NONE} のとき、
-     * 引数 {@code int logLevel} より重要度が高いログまたは 引数 {@code boolean enable} が {@code true} のときログを出力する.<br><br>
-     * タグには自動的にクラス名がセットされる<br>
-     * メッセージは自動的に「メソッド名: {@code msg} (ファイル名:行番号) エラーメッセージ」がセットされる<br>
-     * 引数 {@code boolean stackTrace} が {@code true} のときスタックトレースを出力する.
-     * @param msg ログメッセージ
-     */
+    /** 上記と同じ. 引数違いのオーバーロード */
     public static void w(@Nullable String msg) {
         warn(LOG_LEVEL_NONE, true, msg, null, false);
     }
 
-    /**
-     * Logcat にログを出力する<br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_VERBOSE} から {@code LOG_LEVEL_ERROR} までの値のとき、
-     * {@code global_log_level} より重要度が高いログを出力する.<br><br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_NONE} のとき、
-     * 引数 {@code int logLevel} より重要度が高いログまたは 引数 {@code boolean enable} が {@code true} のときログを出力する.<br><br>
-     * タグには自動的にクラス名がセットされる<br>
-     * メッセージは自動的に「メソッド名: {@code msg} (ファイル名:行番号) エラーメッセージ」がセットされる<br>
-     * 引数 {@code boolean stackTrace} が {@code true} のときスタックトレースを出力する.
-     * @param msg ログメッセージ
-     */
+    /** 上記と同じ. 引数違いのオーバーロード */
     public static void w(@Nullable String msg, @Nullable Throwable tr) {
         warn(LOG_LEVEL_NONE, true, msg, tr,false);
     }
 
-    /**
-     * Logcat にログを出力する<br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_VERBOSE} から {@code LOG_LEVEL_ERROR} までの値のとき、
-     * {@code global_log_level} より重要度が高いログを出力する.<br><br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_NONE} のとき、
-     * 引数 {@code int logLevel} より重要度が高いログまたは 引数 {@code boolean enable} が {@code true} のときログを出力する.<br><br>
-     * タグには自動的にクラス名がセットされる<br>
-     * メッセージは自動的に「メソッド名: {@code msg} (ファイル名:行番号) エラーメッセージ」がセットされる<br>
-     * 引数 {@code boolean stackTrace} が {@code true} のときスタックトレースを出力する.
-     * @param msg ログメッセージ
-     */
+    /** 上記と同じ. 引数違いのオーバーロード */
     public static void w(@Nullable String msg, boolean stackTrace) {
         warn(LOG_LEVEL_NONE, true, msg, null, stackTrace);
     }
 
-    /**
-     * Logcat にログを出力する<br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_VERBOSE} から {@code LOG_LEVEL_ERROR} までの値のとき、
-     * {@code global_log_level} より重要度が高いログを出力する.<br><br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_NONE} のとき、
-     * 引数 {@code int logLevel} より重要度が高いログまたは 引数 {@code boolean enable} が {@code true} のときログを出力する.<br><br>
-     * タグには自動的にクラス名がセットされる<br>
-     * メッセージは自動的に「メソッド名: {@code msg} (ファイル名:行番号) エラーメッセージ」がセットされる<br>
-     * 引数 {@code boolean stackTrace} が {@code true} のときスタックトレースを出力する.
-     * @param msg ログメッセージ
-     */
+    /** 上記と同じ. 引数違いのオーバーロード */
     public static void w(@Nullable String msg, @Nullable Throwable tr, boolean stackTrace) {
         warn(LOG_LEVEL_NONE, true, msg, tr, stackTrace);
     }
 
-    /**
-     * Logcat にログを出力する<br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_VERBOSE} から {@code LOG_LEVEL_ERROR} までの値のとき、
-     * {@code global_log_level} より重要度が高いログを出力する.<br><br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_NONE} のとき、
-     * 引数 {@code int logLevel} より重要度が高いログまたは 引数 {@code boolean enable} が {@code true} のときログを出力する.<br><br>
-     * タグには自動的にクラス名がセットされる<br>
-     * メッセージは自動的に「メソッド名: {@code msg} (ファイル名:行番号) エラーメッセージ」がセットされる<br>
-     * 引数 {@code boolean stackTrace} が {@code true} のときスタックトレースを出力する.
-     * @param msg ログメッセージ
-     */
+    /** 上記と同じ. 引数違いのオーバーロード */
     public static void w(boolean enable, @Nullable String msg) {
         warn(LOG_LEVEL_NONE, enable, msg, null, false);
     }
 
-    /**
-     * Logcat にログを出力する<br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_VERBOSE} から {@code LOG_LEVEL_ERROR} までの値のとき、
-     * {@code global_log_level} より重要度が高いログを出力する.<br><br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_NONE} のとき、
-     * 引数 {@code int logLevel} より重要度が高いログまたは 引数 {@code boolean enable} が {@code true} のときログを出力する.<br><br>
-     * タグには自動的にクラス名がセットされる<br>
-     * メッセージは自動的に「メソッド名: {@code msg} (ファイル名:行番号) エラーメッセージ」がセットされる<br>
-     * 引数 {@code boolean stackTrace} が {@code true} のときスタックトレースを出力する.
-     * @param msg ログメッセージ
-     */
+    /** 上記と同じ. 引数違いのオーバーロード */
     public static void w(boolean enable, @Nullable String msg, @Nullable Throwable tr) {
         warn(LOG_LEVEL_NONE, enable, msg, tr, false);
     }
 
-    /**
-     * Logcat にログを出力する<br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_VERBOSE} から {@code LOG_LEVEL_ERROR} までの値のとき、
-     * {@code global_log_level} より重要度が高いログを出力する.<br><br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_NONE} のとき、
-     * 引数 {@code int logLevel} より重要度が高いログまたは 引数 {@code boolean enable} が {@code true} のときログを出力する.<br><br>
-     * タグには自動的にクラス名がセットされる<br>
-     * メッセージは自動的に「メソッド名: {@code msg} (ファイル名:行番号) エラーメッセージ」がセットされる<br>
-     * 引数 {@code boolean stackTrace} が {@code true} のときスタックトレースを出力する.
-     * @param msg ログメッセージ
-     */
+    /** 上記と同じ. 引数違いのオーバーロード */
     public static void w(boolean enable, @Nullable String msg, boolean stackTrace) {
         warn(LOG_LEVEL_NONE, enable, msg, null, stackTrace);
     }
 
-    /**
-     * Logcat にログを出力する<br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_VERBOSE} から {@code LOG_LEVEL_ERROR} までの値のとき、
-     * {@code global_log_level} より重要度が高いログを出力する.<br><br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_NONE} のとき、
-     * 引数 {@code int logLevel} より重要度が高いログまたは 引数 {@code boolean enable} が {@code true} のときログを出力する.<br><br>
-     * タグには自動的にクラス名がセットされる<br>
-     * メッセージは自動的に「メソッド名: {@code msg} (ファイル名:行番号) エラーメッセージ」がセットされる<br>
-     * 引数 {@code boolean stackTrace} が {@code true} のときスタックトレースを出力する.
-     * @param msg ログメッセージ
-     */
+    /** 上記と同じ. 引数違いのオーバーロード */
     public static void w(boolean enable, @Nullable String msg, @Nullable Throwable tr, boolean stackTrace) {
         warn(LOG_LEVEL_NONE, enable, msg, tr, stackTrace);
     }
 
-    /**
-     * Logcat にログを出力する<br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_VERBOSE} から {@code LOG_LEVEL_ERROR} までの値のとき、
-     * {@code global_log_level} より重要度が高いログを出力する.<br><br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_NONE} のとき、
-     * 引数 {@code int logLevel} より重要度が高いログまたは 引数 {@code boolean enable} が {@code true} のときログを出力する.<br><br>
-     * タグには自動的にクラス名がセットされる<br>
-     * メッセージは自動的に「メソッド名: {@code msg} (ファイル名:行番号) エラーメッセージ」がセットされる<br>
-     * 引数 {@code boolean stackTrace} が {@code true} のときスタックトレースを出力する.
-     * @param msg ログメッセージ
-     */
+    /** 上記と同じ. 引数違いのオーバーロード */
     public static void w(int logLevel, @Nullable String msg) {
         warn(logLevel, false, msg, null, false);
     }
 
-    /**
-     * Logcat にログを出力する<br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_VERBOSE} から {@code LOG_LEVEL_ERROR} までの値のとき、
-     * {@code global_log_level} より重要度が高いログを出力する.<br><br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_NONE} のとき、
-     * 引数 {@code int logLevel} より重要度が高いログまたは 引数 {@code boolean enable} が {@code true} のときログを出力する.<br><br>
-     * タグには自動的にクラス名がセットされる<br>
-     * メッセージは自動的に「メソッド名: {@code msg} (ファイル名:行番号) エラーメッセージ」がセットされる<br>
-     * 引数 {@code boolean stackTrace} が {@code true} のときスタックトレースを出力する.
-     * @param msg ログメッセージ
-     */
+    /** 上記と同じ. 引数違いのオーバーロード */
     public static void w(int logLevel, @Nullable String msg, @Nullable Throwable tr) {
         warn(logLevel, false, msg, tr, false);
     }
 
-    /**
-     * Logcat にログを出力する<br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_VERBOSE} から {@code LOG_LEVEL_ERROR} までの値のとき、
-     * {@code global_log_level} より重要度が高いログを出力する.<br><br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_NONE} のとき、
-     * 引数 {@code int logLevel} より重要度が高いログまたは 引数 {@code boolean enable} が {@code true} のときログを出力する.<br><br>
-     * タグには自動的にクラス名がセットされる<br>
-     * メッセージは自動的に「メソッド名: {@code msg} (ファイル名:行番号) エラーメッセージ」がセットされる<br>
-     * 引数 {@code boolean stackTrace} が {@code true} のときスタックトレースを出力する.
-     * @param msg ログメッセージ
-     */
+    /** 上記と同じ. 引数違いのオーバーロード */
     public static void w(int logLevel, @Nullable String msg, boolean stackTrace) {
         warn(logLevel, false, msg, null, stackTrace);
     }
 
-    /**
-     * Logcat にログを出力する<br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_VERBOSE} から {@code LOG_LEVEL_ERROR} までの値のとき、
-     * {@code global_log_level} より重要度が高いログを出力する.<br><br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_NONE} のとき、
-     * 引数 {@code int logLevel} より重要度が高いログまたは 引数 {@code boolean enable} が {@code true} のときログを出力する.<br><br>
-     * タグには自動的にクラス名がセットされる<br>
-     * メッセージは自動的に「メソッド名: {@code msg} (ファイル名:行番号) エラーメッセージ」がセットされる<br>
-     * 引数 {@code boolean stackTrace} が {@code true} のときスタックトレースを出力する.
-     * @param msg ログメッセージ
-     */
+    /** 上記と同じ. 引数違いのオーバーロード */
     public static void w(int logLevel, @Nullable String msg, @Nullable Throwable tr, boolean stackTrace) {
         warn(logLevel, false, msg, tr, stackTrace);
     }
 
-    /**
-     * Logcat にログを出力する<br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_VERBOSE} から {@code LOG_LEVEL_ERROR} までの値のとき、
-     * {@code global_log_level} より重要度が高いログを出力する.<br><br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_NONE} のとき、
-     * 引数 {@code int logLevel} より重要度が高いログまたは 引数 {@code boolean enable} が {@code true} のときログを出力する.<br><br>
-     * タグには自動的にクラス名がセットされる<br>
-     * メッセージは自動的に「メソッド名: {@code msg} (ファイル名:行番号) エラーメッセージ」がセットされる<br>
-     * 引数 {@code boolean stackTrace} が {@code true} のときスタックトレースを出力する.
-     * @param msg ログメッセージ
-     */
+    /** 上記と同じ. 引数違いのオーバーロード */
     private static void warn(int logLevel, boolean enable, @Nullable String msg, @Nullable Throwable tr, boolean stackTrace) {
         if (global_log_level <= LOG_LEVEL_WARN || (global_log_level == LOG_LEVEL_NONE && (enable || logLevel <= LOG_LEVEL_WARN))) {
             // enable の時だけログを出力する
@@ -932,197 +422,67 @@ public class Logcat {
         }
     }
 
-    /**
-     * Logcat にログを出力する<br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_VERBOSE} から {@code LOG_LEVEL_ERROR} までの値のとき、
-     * {@code global_log_level} より重要度が高いログを出力する.<br><br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_NONE} のとき、
-     * 引数 {@code int logLevel} より重要度が高いログまたは 引数 {@code boolean enable} が {@code true} のときログを出力する.<br><br>
-     * タグには自動的にクラス名がセットされる<br>
-     * メッセージは自動的に「メソッド名: {@code msg} (ファイル名:行番号) エラーメッセージ」がセットされる<br>
-     * 引数 {@code boolean stackTrace} が {@code true} のときスタックトレースを出力する.
-     * @param msg ログメッセージ
-     */
+    /** 上記と同じ. 引数違いのオーバーロード */
     public static void e(@Nullable String msg) {
         error(LOG_LEVEL_NONE, true, msg, null, false);
     }
 
-    /**
-     * Logcat にログを出力する<br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_VERBOSE} から {@code LOG_LEVEL_ERROR} までの値のとき、
-     * {@code global_log_level} より重要度が高いログを出力する.<br><br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_NONE} のとき、
-     * 引数 {@code int logLevel} より重要度が高いログまたは 引数 {@code boolean enable} が {@code true} のときログを出力する.<br><br>
-     * タグには自動的にクラス名がセットされる<br>
-     * メッセージは自動的に「メソッド名: {@code msg} (ファイル名:行番号) エラーメッセージ」がセットされる<br>
-     * 引数 {@code boolean stackTrace} が {@code true} のときスタックトレースを出力する.
-     * @param msg ログメッセージ
-     */
+    /** 上記と同じ. 引数違いのオーバーロード */
     public static void e(@Nullable String msg, @Nullable Throwable tr) {
         error(LOG_LEVEL_NONE, true, msg, tr,false);
     }
 
-    /**
-     * Logcat にログを出力する<br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_VERBOSE} から {@code LOG_LEVEL_ERROR} までの値のとき、
-     * {@code global_log_level} より重要度が高いログを出力する.<br><br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_NONE} のとき、
-     * 引数 {@code int logLevel} より重要度が高いログまたは 引数 {@code boolean enable} が {@code true} のときログを出力する.<br><br>
-     * タグには自動的にクラス名がセットされる<br>
-     * メッセージは自動的に「メソッド名: {@code msg} (ファイル名:行番号) エラーメッセージ」がセットされる<br>
-     * 引数 {@code boolean stackTrace} が {@code true} のときスタックトレースを出力する.
-     * @param msg ログメッセージ
-     */
+    /** 上記と同じ. 引数違いのオーバーロード */
     public static void e(@Nullable String msg, boolean stackTrace) {
         error(LOG_LEVEL_NONE, true, msg, null, stackTrace);
     }
 
-    /**
-     * Logcat にログを出力する<br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_VERBOSE} から {@code LOG_LEVEL_ERROR} までの値のとき、
-     * {@code global_log_level} より重要度が高いログを出力する.<br><br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_NONE} のとき、
-     * 引数 {@code int logLevel} より重要度が高いログまたは 引数 {@code boolean enable} が {@code true} のときログを出力する.<br><br>
-     * タグには自動的にクラス名がセットされる<br>
-     * メッセージは自動的に「メソッド名: {@code msg} (ファイル名:行番号) エラーメッセージ」がセットされる<br>
-     * 引数 {@code boolean stackTrace} が {@code true} のときスタックトレースを出力する.
-     * @param msg ログメッセージ
-     */
+    /** 上記と同じ. 引数違いのオーバーロード */
     public static void e(@Nullable String msg, @Nullable Throwable tr, boolean stackTrace) {
         error(LOG_LEVEL_NONE, true, msg, tr, stackTrace);
     }
 
-    /**
-     * Logcat にログを出力する<br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_VERBOSE} から {@code LOG_LEVEL_ERROR} までの値のとき、
-     * {@code global_log_level} より重要度が高いログを出力する.<br><br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_NONE} のとき、
-     * 引数 {@code int logLevel} より重要度が高いログまたは 引数 {@code boolean enable} が {@code true} のときログを出力する.<br><br>
-     * タグには自動的にクラス名がセットされる<br>
-     * メッセージは自動的に「メソッド名: {@code msg} (ファイル名:行番号) エラーメッセージ」がセットされる<br>
-     * 引数 {@code boolean stackTrace} が {@code true} のときスタックトレースを出力する.
-     * @param msg ログメッセージ
-     */
+    /** 上記と同じ. 引数違いのオーバーロード */
     public static void e(boolean enable, @Nullable String msg) {
         error(LOG_LEVEL_NONE, enable, msg, null, false);
     }
 
-    /**
-     * Logcat にログを出力する<br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_VERBOSE} から {@code LOG_LEVEL_ERROR} までの値のとき、
-     * {@code global_log_level} より重要度が高いログを出力する.<br><br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_NONE} のとき、
-     * 引数 {@code int logLevel} より重要度が高いログまたは 引数 {@code boolean enable} が {@code true} のときログを出力する.<br><br>
-     * タグには自動的にクラス名がセットされる<br>
-     * メッセージは自動的に「メソッド名: {@code msg} (ファイル名:行番号) エラーメッセージ」がセットされる<br>
-     * 引数 {@code boolean stackTrace} が {@code true} のときスタックトレースを出力する.
-     * @param msg ログメッセージ
-     */
+    /** 上記と同じ. 引数違いのオーバーロード */
     public static void e(boolean enable, @Nullable String msg, @Nullable Throwable tr) {
         error(LOG_LEVEL_NONE, enable, msg, tr, false);
     }
 
-    /**
-     * Logcat にログを出力する<br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_VERBOSE} から {@code LOG_LEVEL_ERROR} までの値のとき、
-     * {@code global_log_level} より重要度が高いログを出力する.<br><br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_NONE} のとき、
-     * 引数 {@code int logLevel} より重要度が高いログまたは 引数 {@code boolean enable} が {@code true} のときログを出力する.<br><br>
-     * タグには自動的にクラス名がセットされる<br>
-     * メッセージは自動的に「メソッド名: {@code msg} (ファイル名:行番号) エラーメッセージ」がセットされる<br>
-     * 引数 {@code boolean stackTrace} が {@code true} のときスタックトレースを出力する.
-     * @param msg ログメッセージ
-     */
+    /** 上記と同じ. 引数違いのオーバーロード */
     public static void e(boolean enable, @Nullable String msg, boolean stackTrace) {
         error(LOG_LEVEL_NONE, enable, msg, null, stackTrace);
     }
 
-    /**
-     * Logcat にログを出力する<br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_VERBOSE} から {@code LOG_LEVEL_ERROR} までの値のとき、
-     * {@code global_log_level} より重要度が高いログを出力する.<br><br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_NONE} のとき、
-     * 引数 {@code int logLevel} より重要度が高いログまたは 引数 {@code boolean enable} が {@code true} のときログを出力する.<br><br>
-     * タグには自動的にクラス名がセットされる<br>
-     * メッセージは自動的に「メソッド名: {@code msg} (ファイル名:行番号) エラーメッセージ」がセットされる<br>
-     * 引数 {@code boolean stackTrace} が {@code true} のときスタックトレースを出力する.
-     * @param msg ログメッセージ
-     */
+    /** 上記と同じ. 引数違いのオーバーロード */
     public static void e(boolean enable, @Nullable String msg, @Nullable Throwable tr, boolean stackTrace) {
         error(LOG_LEVEL_NONE, enable, msg, tr, stackTrace);
     }
 
-    /**
-     * Logcat にログを出力する<br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_VERBOSE} から {@code LOG_LEVEL_ERROR} までの値のとき、
-     * {@code global_log_level} より重要度が高いログを出力する.<br><br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_NONE} のとき、
-     * 引数 {@code int logLevel} より重要度が高いログまたは 引数 {@code boolean enable} が {@code true} のときログを出力する.<br><br>
-     * タグには自動的にクラス名がセットされる<br>
-     * メッセージは自動的に「メソッド名: {@code msg} (ファイル名:行番号) エラーメッセージ」がセットされる<br>
-     * 引数 {@code boolean stackTrace} が {@code true} のときスタックトレースを出力する.
-     * @param msg ログメッセージ
-     */
+    /** 上記と同じ. 引数違いのオーバーロード */
     public static void e(int logLevel, @Nullable String msg) {
         error(logLevel, false, msg, null, false);
     }
 
-    /**
-     * Logcat にログを出力する<br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_VERBOSE} から {@code LOG_LEVEL_ERROR} までの値のとき、
-     * {@code global_log_level} より重要度が高いログを出力する.<br><br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_NONE} のとき、
-     * 引数 {@code int logLevel} より重要度が高いログまたは 引数 {@code boolean enable} が {@code true} のときログを出力する.<br><br>
-     * タグには自動的にクラス名がセットされる<br>
-     * メッセージは自動的に「メソッド名: {@code msg} (ファイル名:行番号) エラーメッセージ」がセットされる<br>
-     * 引数 {@code boolean stackTrace} が {@code true} のときスタックトレースを出力する.
-     * @param msg ログメッセージ
-     */
+    /** 上記と同じ. 引数違いのオーバーロード */
     public static void e(int logLevel, @Nullable String msg, @Nullable Throwable tr) {
         error(logLevel, false, msg, tr, false);
     }
 
-    /**
-     * Logcat にログを出力する<br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_VERBOSE} から {@code LOG_LEVEL_ERROR} までの値のとき、
-     * {@code global_log_level} より重要度が高いログを出力する.<br><br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_NONE} のとき、
-     * 引数 {@code int logLevel} より重要度が高いログまたは 引数 {@code boolean enable} が {@code true} のときログを出力する.<br><br>
-     * タグには自動的にクラス名がセットされる<br>
-     * メッセージは自動的に「メソッド名: {@code msg} (ファイル名:行番号) エラーメッセージ」がセットされる<br>
-     * 引数 {@code boolean stackTrace} が {@code true} のときスタックトレースを出力する.
-     * @param msg ログメッセージ
-     */
+    /** 上記と同じ. 引数違いのオーバーロード */
     public static void e(int logLevel, @Nullable String msg, boolean stackTrace) {
         error(logLevel, false, msg, null, stackTrace);
     }
 
-    /**
-     * Logcat にログを出力する<br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_VERBOSE} から {@code LOG_LEVEL_ERROR} までの値のとき、
-     * {@code global_log_level} より重要度が高いログを出力する.<br><br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_NONE} のとき、
-     * 引数 {@code int logLevel} より重要度が高いログまたは 引数 {@code boolean enable} が {@code true} のときログを出力する.<br><br>
-     * タグには自動的にクラス名がセットされる<br>
-     * メッセージは自動的に「メソッド名: {@code msg} (ファイル名:行番号) エラーメッセージ」がセットされる<br>
-     * 引数 {@code boolean stackTrace} が {@code true} のときスタックトレースを出力する.
-     * @param msg ログメッセージ
-     */
+    /** 上記と同じ. 引数違いのオーバーロード */
     public static void e(int logLevel, @Nullable String msg, @Nullable Throwable tr, boolean stackTrace) {
         error(logLevel, false, msg, tr, stackTrace);
     }
 
-    /**
-     * Logcat にログを出力する<br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_VERBOSE} から {@code LOG_LEVEL_ERROR} までの値のとき、
-     * {@code global_log_level} より重要度が高いログを出力する.<br><br>
-     * クラス変数 {@code int global_log_level} が {@code LOG_LEVEL_NONE} のとき、
-     * 引数 {@code int logLevel} より重要度が高いログまたは 引数 {@code boolean enable} が {@code true} のときログを出力する.<br><br>
-     * タグには自動的にクラス名がセットされる<br>
-     * メッセージは自動的に「メソッド名: {@code msg} (ファイル名:行番号) エラーメッセージ」がセットされる<br>
-     * 引数 {@code boolean stackTrace} が {@code true} のときスタックトレースを出力する.
-     * @param msg ログメッセージ
-     */
+    /** 上記と同じ. 引数違いのオーバーロード */
     private static void error(int logLevel, boolean enable, @Nullable String msg, @Nullable Throwable tr, boolean stackTrace) {
         if (global_log_level <= LOG_LEVEL_ERROR || (global_log_level == LOG_LEVEL_NONE && (enable || logLevel <= LOG_LEVEL_ERROR))) {
             // enable の時だけログを出力する

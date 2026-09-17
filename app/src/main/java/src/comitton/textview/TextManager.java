@@ -2115,12 +2115,9 @@ public class TextManager {
 		else if (mEpubMode == EPUB_MODE_ALL) {
 			// テキストビュワーなら最後まで実行
 			Logcat.d(logLevel, "テキストビュワー用の処理を行います.");
-			if (inputSB != null) {
-				outputStr += inputSB.toString();
-				inputSB = null;
-			} else {
-				outputStr += inputStr;
-			}
+			// inputSB はこのメソッドの先頭で必ず作られている
+			outputStr += inputSB.toString();
+			inputSB = null;
 
 			char[] intext;
 			if (!outputStr.isEmpty()) {
