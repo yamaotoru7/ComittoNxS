@@ -4,7 +4,8 @@ include("${CMAKE_CURRENT_LIST_DIR}/../cmake/ResolveMeson.cmake")
 FetchContent_Populate(
         dav1d
     GIT_REPOSITORY https://code.videolan.org/videolan/dav1d.git
-    GIT_TAG         1.5.1
+    # タグは付け替えられることがあるので、1.5.1 のコミットで固定する
+    GIT_TAG         42b2b24fb8819f1ed3643aa9cf2a62f03868e3aa # 1.5.1
     SOURCE_DIR "${FETCHCONTENT_BASE_DIR}/dav1d-src"
     BINARY_DIR "${FETCHCONTENT_BASE_DIR}/dav1d-subbuild"
     SUBBUILD_DIR "${FETCHCONTENT_BASE_DIR}/dav1d-build"
@@ -23,7 +24,7 @@ else()
 
     # NDKの実行ファイルパスを環境変数のパスに追加する
     set(NDK_BIN_PATH "${ANDROID_TOOLCHAIN_ROOT}/bin")
-    set(ENV{PATH} "${NDK_BIN_PATH}:;$ENV{PATH}")
+    set(ENV{PATH} "${NDK_BIN_PATH}:$ENV{PATH}")
 endif()
 
 # ビルドするアーキテクチャーの情報を変数に入れる
@@ -58,6 +59,11 @@ message(WARNING "Cmake: dav1d: BUILD_COMMAND_RESULT = ${BUILD_COMMAND_RESULT}")
 message(WARNING "Cmake: dav1d: BUILD_COMMAND_STDOUT = \n${BUILD_COMMAND_STDOUT}")
 message(WARNING "Cmake: dav1d: BUILD_COMMAND_STDERR = \n${BUILD_COMMAND_STDERR}")
 
+if(NOT BUILD_COMMAND_RESULT EQUAL 0)
+    # 失敗したまま進むと libavif のリンク時に分かりにくいエラーになるので、ここで止める
+    message(FATAL_ERROR "dav1d: meson setup failed (${BUILD_COMMAND_RESULT}). meson / ninja / nasm / pkg-config がインストールされているか確認してください.\n${BUILD_COMMAND_STDERR}")
+endif()
+
 EXECUTE_PROCESS(
         COMMAND ninja -C ../dav1d-build/build/${ANDROID_ABI}
         WORKING_DIRECTORY "${FETCHCONTENT_BASE_DIR}/dav1d-src"
@@ -72,3 +78,8 @@ EXECUTE_PROCESS(
 message(WARNING "Cmake: dav1d: BUILD_COMMAND_RESULT = ${BUILD_COMMAND_RESULT}")
 message(WARNING "Cmake: dav1d: BUILD_COMMAND_STDOUT = \n${BUILD_COMMAND_STDOUT}")
 message(WARNING "Cmake: dav1d: BUILD_COMMAND_STDERR = \n${BUILD_COMMAND_STDERR}")
+
+if(NOT BUILD_COMMAND_RESULT EQUAL 0)
+    # 失敗したまま進むと libavif のリンク時に分かりにくいエラーになるので、ここで止める
+    message(FATAL_ERROR "dav1d: ninja build failed (${BUILD_COMMAND_RESULT}). meson / ninja / nasm / pkg-config がインストールされているか確認してください.\n${BUILD_COMMAND_STDERR}")
+endif()

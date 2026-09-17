@@ -1,7 +1,8 @@
 FetchContent_Populate(
         libavif
         GIT_REPOSITORY https://github.com/AOMediaCodec/libavif
-        GIT_TAG         v1.1.1
+        # タグは付け替えられることがあるので、v1.1.1 のコミットで固定する
+        GIT_TAG         bb24db03cd99befe09c87b602e36f24d75a980d1 # v1.1.1
         SUBBUILD_DIR ${FETCHCONTENT_BASE_DIR}/libavif-subbuild
         SOURCE_DIR ${FETCHCONTENT_BASE_DIR}/libavif-src
         BINARY_DIR ${FETCHCONTENT_BASE_DIR}/libavif-build

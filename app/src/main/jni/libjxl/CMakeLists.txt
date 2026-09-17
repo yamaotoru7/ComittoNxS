@@ -1,6 +1,9 @@
 FetchContent_Declare(libjxl
         GIT_REPOSITORY https://github.com/libjxl/libjxl
-        GIT_TAG v0.11.1
+        # タグは付け替えられることがあるので、v0.11.1 のコミットで固定する
+        GIT_TAG 794a5dcf0d54f9f0b20d288a12e87afb91d20dfc # v0.11.1
+        # デコーダに必要なサブモジュールだけ取得する (testdata などは大きく、ビルドにも不要)
+        GIT_SUBMODULES third_party/brotli third_party/highway third_party/skcms
         BINARY_DIR build
         SUBBUILD_DIR subbuild
 )
@@ -24,7 +27,6 @@ option(JPEGXL_ENABLE_BENCHMARK "" OFF)
 option(JPEGXL_ENABLE_JPEGLI "" OFF)
 option(JPEGXL_ENABLE_JNI "" OFF)
 option(JPEGXL_ENABLE_DEVTOOLS "" OFF)
-option(JPEGXL_ENABLE_BENCHMARK "" OFF)
 
 FetchContent_GetProperties(libjxl)
 
@@ -42,8 +44,6 @@ target_link_libraries(comitton
         jxl_dec
         jxl_threads
         brotlidec
-        brotlienc
         brotlicommon
         hwy
-        -Wl,--allow-multiple-definition
 )
