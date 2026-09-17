@@ -176,27 +176,24 @@
         android:padding="4dip"
         android:orientation="horizontal" >
 
+        <!-- 画面幅に合わせて均等に並べる (固定幅だと狭い画面で枠からはみ出す) -->
         <Button
             android:id="@+id/btn_cancel"
-            android:layout_width="120sp"
+            android:layout_width="0dp"
+            android:layout_weight="1"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:maxLines="1"
             android:textSize="18sp"
             android:text="@string/btnCancel" />
 
         <Button
-            android:id="@+id/btn_clear"
-            android:layout_width="120sp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:textSize="18sp"
-            android:text="@string/btnClear" />
-
-        <Button
             android:id="@+id/btn_search"
-            android:layout_width="120sp"
+            android:layout_width="0dp"
+            android:layout_weight="1"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:maxLines="1"
             android:textSize="18sp"
             android:text="@string/btnOK" />
 

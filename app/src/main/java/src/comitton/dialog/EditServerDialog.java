@@ -58,7 +58,6 @@ public class EditServerDialog extends ImmersiveDialog implements OnClickListener
 	private EditText mEditPass;
 	private Button mBtnProvider;
 	private Button mBtnCancel;
-	private Button mBtnClear;
 	private Button mBtnOK;
 
 	private int mIndex;
@@ -122,7 +121,6 @@ public class EditServerDialog extends ImmersiveDialog implements OnClickListener
 		mEditPass = (EditText) this.findViewById(R.id.edit_pass);
 		mBtnProvider  = (Button) this.findViewById(R.id.button_provider);
 		mBtnCancel  = (Button) this.findViewById(R.id.btn_cancel);
-		mBtnClear  = (Button) this.findViewById(R.id.btn_clear);
 		mBtnOK  = (Button) this.findViewById(R.id.btn_search);
 
 		mBtnAccessType.setText(mServerTypeItems[mAccessType]);
@@ -141,7 +139,6 @@ public class EditServerDialog extends ImmersiveDialog implements OnClickListener
 		mBtnAccessType.setOnClickListener(this);
 		mBtnProvider.setOnClickListener(this);
 		mBtnCancel.setOnClickListener(this);
-		mBtnClear.setOnClickListener(this);
 		mBtnOK.setOnClickListener(this);
 	}
 
@@ -207,16 +204,6 @@ public class EditServerDialog extends ImmersiveDialog implements OnClickListener
 			Logcat.d(logLevel, "index=" + mIndex + ", accessType=" + mAccessType + ", name=" + name + ", host=" + host + ", user=" + user + ", provider=" + provider + ", dispName=" + dispName);
 			mListener.onSearch(mAccessType, name, host, user, pass, path, provider, dispName);
 			dismiss();
-		}
-		else if (v == mBtnClear) {
-			Logcat.d(logLevel, "v == mBtnClear");
-			// クリアクリック
-			mEditName.setText("");
-			mEditHost.setText("");
-			mEditUser.setText("");
-			mEditPass.setText("");
-			mProvider = "";
-			mBtnProvider.setText(R.string.svProviderUnselected);
 		}
 		else if (v == mBtnCancel) {
 			Logcat.d(logLevel, "v == mBtnCancel");
@@ -363,11 +350,10 @@ public class EditServerDialog extends ImmersiveDialog implements OnClickListener
 			mEditPass.setVisibility(View.GONE);
 			mBtnProvider.setVisibility(View.VISIBLE);
 		}
-		if (serverType == DEF.ACCESS_TYPE_PICKER){
-			mBtnClear.setVisibility(View.GONE);
-			mBtnCancel.setVisibility(View.GONE);
-			mBtnOK.setVisibility(View.GONE);
-		}
+		// ファイルピッカーは選んだ時点で確定するのでボタンを出さない. 他の種類に切り替えたら戻す
+		int buttonVisibility = (serverType == DEF.ACCESS_TYPE_PICKER) ? View.GONE : View.VISIBLE;
+		mBtnCancel.setVisibility(buttonVisibility);
+		mBtnOK.setVisibility(buttonVisibility);
 	}
 
 	@Override

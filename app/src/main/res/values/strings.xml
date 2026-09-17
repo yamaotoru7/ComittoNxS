@@ -196,7 +196,6 @@
     <string name="btnSearch">Search</string>
     <string name="btnApply">Apply</string>
     <string name="btnRevert">Revert</string>
-    <string name="btnClear">Clear</string>
     <string name="btnCancel">Cancel</string>
     <string name="opLabel">Please select a location pattern tap page turning.</string>
     <string name="opReverse">Reversing the direction by tapping</string>

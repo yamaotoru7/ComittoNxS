@@ -196,7 +196,6 @@
     <string name="btnSearch">検索</string>
     <string name="btnApply">適用</string>
     <string name="btnRevert">戻す</string>
-    <string name="btnClear">クリア</string>
     <string name="btnCancel">キャンセル</string>
     <string name="opLabel">タップのパターンを選択してください。\nメニューの「操作確認」で確認できます。</string>
     <string name="opReverse">反転する</string>
