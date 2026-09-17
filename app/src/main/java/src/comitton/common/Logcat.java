@@ -15,6 +15,14 @@ public class Logcat {
     public static int global_log_level = LOG_LEVEL_NONE;
 
     /**
+     * 指定したレベルの debug ログ (Logcat.d(logLevel, ...)) が出力されるか.
+     * 引数の組み立てに I/O や null になり得る参照を含むログは、これで囲んでから呼ぶ.
+     */
+    public static boolean isDebugEnabled(int logLevel) {
+        return global_log_level <= LOG_LEVEL_DEBUG || (global_log_level == LOG_LEVEL_NONE && logLevel <= LOG_LEVEL_DEBUG);
+    }
+
+    /**
      * {@code Exception} に入れる文字列を返す<br>
      * @param msg ログメッセージ
      * @return クラス名: メソッド名: {@code msg} (ファイル名:行番号) エラー名: エラーメッセージ

@@ -114,7 +114,7 @@ public class ExpandActivity extends AppCompatActivity implements Handler.Callbac
 	private ZipLoad mZipLoad;
 	private Thread mZipThread;
 
-	private boolean mTerminate;
+	private volatile boolean mTerminate;
 	// onDestroy 済み. ワーカースレッドから参照する
 	private volatile boolean mDestroyed = false;
 

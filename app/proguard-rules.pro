@@ -33,3 +33,11 @@
     public static *** d(...);
     public static *** i(...);
 }
+
+# アプリ独自のログ (src.comitton.common.Logcat) の verbose/debug/info もリリースビルドから取り除く.
+# 引数の文字列組み立ても一緒に消える (ただしメソッド呼び出しを含む引数は残るので isDebugEnabled で囲むこと).
+-assumenosideeffects class src.comitton.common.Logcat {
+    public static void v(...);
+    public static void d(...);
+    public static void i(...);
+}

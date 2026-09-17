@@ -56,7 +56,7 @@ public class ThumbnailView extends View implements Runnable, Callback {
 
 	private WaitFor mWaitFor;
 	private Object mLock;
-	private boolean mBreakThread;
+	private volatile boolean mBreakThread;
 
 	private ImageManager mImageMgr;
 	private Handler mHandler;
@@ -533,7 +533,7 @@ public class ThumbnailView extends View implements Runnable, Callback {
 								Logcat.d(logLevel, "page=" + page + " LoadThumbnailを実行します. width=" + thumDataW + ", height=" + thumDataH);
 								// 読み込み処理とは排他する
 								bm = mImageMgr.LoadThumbnail(page, thumDataW, thumDataH);
-								Logcat.d(logLevel, "page=" + page + " LoadThumbnailを実行しました. width=" + bm.getWidth() + ", height=" + bm.getHeight());
+								if (Logcat.isDebugEnabled(logLevel)) Logcat.d(logLevel, "page=" + page + " LoadThumbnailを実行しました. width=" + (bm != null ? bm.getWidth() : -1) + ", height=" + (bm != null ? bm.getHeight() : -1));
             				}
             			} catch (Exception ex) {
             				;
@@ -542,7 +542,7 @@ public class ThumbnailView extends View implements Runnable, Callback {
             			// ビットマップをサムネイルサイズぴったりにリサイズする
             			if (bm != null) {
             				bm = ImageAccess.resizeTumbnailBitmap(bm, thumDataW, thumDataH, ImageAccess.BMPCROP_FIT_SCREEN, ImageAccess.BMPMARGIN_NONE);
-							Logcat.d(logLevel, "page=" + page + " resizeTumbnailBitmapを実行しました. width=" + bm.getWidth() + ", height=" + bm.getHeight());
+							if (Logcat.isDebugEnabled(logLevel)) Logcat.d(logLevel, "page=" + page + " resizeTumbnailBitmapを実行しました. width=" + (bm != null ? bm.getWidth() : -1) + ", height=" + (bm != null ? bm.getHeight() : -1));
             			}
 
             			boolean save = false;
@@ -569,7 +569,7 @@ public class ThumbnailView extends View implements Runnable, Callback {
 							if (bm.getConfig() != Config.RGB_565) {
 								bm= bm.copy(Config.RGB_565, true);
 							}
-							Logcat.d(logLevel, "ThumbnailSaveを実行します. width=" + bm.getWidth() + ", height=" + bm.getHeight() + ", page=" + page);
+							if (Logcat.isDebugEnabled(logLevel)) Logcat.d(logLevel, "ThumbnailSaveを実行します. width=" + (bm != null ? bm.getWidth() : -1) + ", height=" + (bm != null ? bm.getHeight() : -1) + ", page=" + page);
 							if (CallImgLibrary.ThumbnailSave(mThumID, bm, page) < 0) {
 								Logcat.e(logLevel, "ThumbnailSaveの実行に失敗しました.");
 								bm = null;

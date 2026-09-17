@@ -68,6 +68,21 @@ public class FileAccess {
 		mHandler = handler;
 	}
 
+	/**
+	 * ディレクトリ内の 1 項目として安全な名前か (パス区切りや親ディレクトリ参照を含まない).
+	 * ディレクトリ名は末尾の '/' を 1 つだけ許す.
+	 */
+	public static boolean isSafeName(@Nullable final String name) {
+		if (name == null) {
+			return false;
+		}
+		String n = name.endsWith("/") ? name.substring(0, name.length() - 1) : name;
+		if (n.isEmpty() || n.equals(".") || n.equals("..")) {
+			return false;
+		}
+		return n.indexOf('/') < 0 && n.indexOf('\\') < 0 && n.indexOf('\0') < 0;
+	}
+
 	public static int accessType(@NonNull final String uri) {
 		if (uri.startsWith("/")) {
 			return DEF.ACCESS_TYPE_LOCAL;
@@ -371,7 +386,7 @@ public class FileAccess {
 
 	public int read(@NonNull byte[] buf, int off, int size) throws IOException {
 		int logLevel = Logcat.LOG_LEVEL_WARN;
-		Logcat.d(logLevel, MessageFormat.format("開始します. pos={0}, off={1}, size={2}, pos+off+size={3}, length={4}", new Object[]{getFilePointer(), off, size, getFilePointer()+off+size, length()}));
+		if (Logcat.isDebugEnabled(logLevel)) Logcat.d(logLevel, MessageFormat.format("開始します. pos={0}, off={1}, size={2}, pos+off+size={3}, length={4}", new Object[]{getFilePointer(), off, size, getFilePointer()+off+size, length()}));
 		int result = 0;
 		switch (accessType(mURI)) {
 			case DEF.ACCESS_TYPE_LOCAL: {
@@ -411,7 +426,7 @@ public class FileAccess {
 				break;
 			}
 		}
-		Logcat.d(logLevel, MessageFormat.format("終了します. ret={0}, off={1}, mPos={2}, length={3}", new Object[]{result, off, getFilePointer(), length()}));
+		if (Logcat.isDebugEnabled(logLevel)) Logcat.d(logLevel, MessageFormat.format("終了します. ret={0}, off={1}, mPos={2}, length={3}", new Object[]{result, off, getFilePointer(), length()}));
 		return result;
 	}
 
@@ -671,6 +686,9 @@ public class FileAccess {
 	public static boolean renameTo(@NonNull final Activity activity, @NonNull final String uri, @NonNull final String fromfile, @NonNull final String tofile, @NonNull final String user, @NonNull final String pass) throws FileAccessException {
 		int logLevel = Logcat.LOG_LEVEL_WARN;
 		Logcat.d(logLevel, "開始します. uri=" + uri + ", fromfile=" + fromfile + ", tofile=" + tofile);
+		if (!isSafeName(fromfile) || !isSafeName(tofile)) {
+			throw new FileAccessException(TAG + ": renameTo: Invalid file name.");
+		}
 		boolean result = false;
 		switch (accessType(uri)) {
 			case DEF.ACCESS_TYPE_LOCAL: {
@@ -794,6 +812,10 @@ public class FileAccess {
 	public static boolean mkdir(@NonNull final Context context, @NonNull final String uri, @NonNull final String item, @NonNull final String user, @NonNull final String pass) {
 		int logLevel = Logcat.LOG_LEVEL_WARN;
 		Logcat.d(logLevel, "開始します. uri=" + uri + ", item=" + item);
+		if (!isSafeName(item)) {
+			Logcat.e(logLevel, "不正な名前です. item=" + item);
+			return false;
+		}
 		boolean result = false;
 		switch (accessType(uri)) {
 			case DEF.ACCESS_TYPE_LOCAL: {
@@ -817,6 +839,10 @@ public class FileAccess {
 	public static boolean createFile(@NonNull final Activity activity, @NonNull final String uri, @NonNull final String item, @NonNull final String user, @NonNull final String pass) {
 		int logLevel = Logcat.LOG_LEVEL_WARN;
 		Logcat.d(logLevel, "開始します. uri=" + uri + ", item=" + item);
+		if (!isSafeName(item)) {
+			Logcat.e(logLevel, "不正な名前です. item=" + item);
+			return false;
+		}
 		boolean result = false;
 		switch (accessType(uri)) {
 			case DEF.ACCESS_TYPE_LOCAL: {

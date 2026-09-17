@@ -93,7 +93,7 @@ public class TextManager {
 
 	public static final float TITLE_SIZE = 1.5f;
 
-	private boolean mRunningFlag;
+	private volatile boolean mRunningFlag;
 
 	private Handler mHandler;
 

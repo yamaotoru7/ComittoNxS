@@ -194,7 +194,7 @@ public class ImageManager extends InputStream implements Runnable {
 	private int mReadSize;
 	private int mDataSize;
 	private boolean mCheWriteFlag;
-	private boolean mThreadLoading = true;
+	private volatile boolean mThreadLoading = true;
 
 	private Thread mThread;
 	private volatile boolean mRunningFlag = false;
@@ -202,8 +202,8 @@ public class ImageManager extends InputStream implements Runnable {
 	private volatile boolean mCloseFlag = false;
 	// close() の多重実行防止 (onDestroy と終了処理の両方から呼ばれる)
 	private final AtomicBoolean mCloseRequested = new AtomicBoolean(false);
-	private boolean mCacheBreak;
-	private boolean mCacheSleep;
+	private volatile boolean mCacheBreak;
+	private volatile boolean mCacheSleep;
 	private final Object mLock;
 
 	/** URIとパスとファイル名 */
@@ -2325,7 +2325,7 @@ public class ImageManager extends InputStream implements Runnable {
 		// ちょっとだけ更新頻度を増やしてみる
 		if (!mThreadLoading && nowTime - mStartTime > (mMsgCount + 1) * 500) {
 			mMsgCount++;
-			int prog = (int) ((long) mReadSize * 100 / mDataSize);
+			int prog = mDataSize > 0 ? (int) ((long) mReadSize * 100 / mDataSize) : 0;
 			int rate = (int) ((long) mReadSize * 10 / (nowTime - mStartTime));
 			sendHandler(DEF.HMSG_LOADING, prog << 24 | 0x0100 | mFromType, rate, null);
 		}
@@ -3905,8 +3905,7 @@ public class ImageManager extends InputStream implements Runnable {
 		}
 		Logcat.d(logLevel, "LoadThumbnailMain を開始します. page=" + page + ", sampleSize=" + sampleSize);
 		Bitmap bm = LoadThumbnailMain(page, sampleSize);
-		Logcat.d(logLevel, "LoadThumbnailMain を終了します. page=" + page + ", bm.getWidth()=" + bm.getWidth() + ", bm.getHeight()=" + bm.getHeight());
-
+		if (Logcat.isDebugEnabled(logLevel)) Logcat.d(logLevel, "LoadThumbnailMain を終了します. page=" + page + ", bm.getWidth()=" + (bm != null ? bm.getWidth() : -1) + ", bm.getHeight()=" + (bm != null ? bm.getHeight() : -1));
 		Logcat.d(logLevel, "終了します.");
 		return bm;
 	}
@@ -5069,7 +5068,7 @@ public class ImageManager extends InputStream implements Runnable {
 							long nowTime = System.currentTimeMillis();
 							if (nowTime - mStartTime > (mMsgCount + 1) * 200) {
 								mMsgCount++;
-								int prog = (int) ((long) readsum * 100 / mDataSize);
+								int prog = mDataSize > 0 ? (int) ((long) readsum * 100 / mDataSize) : 0;
 								int rate = (int) ((long) readsum * 10 / (nowTime - mStartTime));
 								sendHandler(DEF.HMSG_LOADING, prog << 24, rate, null);
 							}

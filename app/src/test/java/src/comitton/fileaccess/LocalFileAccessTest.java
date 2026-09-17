@@ -1,6 +1,8 @@
 package src.comitton.fileaccess;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -19,6 +21,25 @@ public class LocalFileAccessTest {
 	public void testParent() {
 		assertEquals("/storage/emulated/0/Books/", LocalFileAccess.parent("/storage/emulated/0/Books/novel.txt"));
 		assertEquals("/storage/emulated/0/", LocalFileAccess.parent("/storage/emulated/0/Books/"));
+	}
+
+	@Test
+	public void testIsSafeName() {
+		assertTrue(FileAccess.isSafeName("book.zip"));
+		assertTrue(FileAccess.isSafeName("folder/"));
+		assertTrue(FileAccess.isSafeName("..hidden"));
+		assertFalse(FileAccess.isSafeName(null));
+		assertFalse(FileAccess.isSafeName(""));
+		assertFalse(FileAccess.isSafeName("/"));
+		assertFalse(FileAccess.isSafeName("."));
+		assertFalse(FileAccess.isSafeName(".."));
+		assertFalse(FileAccess.isSafeName("../"));
+		assertFalse(FileAccess.isSafeName("../evil.zip"));
+		assertFalse(FileAccess.isSafeName("/abs.zip"));
+		assertFalse(FileAccess.isSafeName("a/b.zip"));
+		assertFalse(FileAccess.isSafeName("a\\b.zip"));
+		assertFalse(FileAccess.isSafeName("a\0b"));
+		assertFalse(FileAccess.isSafeName("folder//"));
 	}
 
 	@Test

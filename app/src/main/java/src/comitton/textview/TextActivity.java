@@ -276,13 +276,13 @@ public class TextActivity extends AppCompatActivity implements OnTouchListener, 
 
 	private Vibrator mVibrator;
 
-	private boolean mTerminate;
+	private volatile boolean mTerminate;
 	// onDestroy 済み. ワーカースレッドから参照する
 	private volatile boolean mDestroyed = false;
 	// テキストの読み込みに失敗した
 	private volatile boolean mLoadFailed = false;
 	private boolean mReadRunning;
-	private boolean mReadBreak;
+	private volatile boolean mReadBreak;
 	private boolean mHistorySaved;
 
 	private Information mInformation;

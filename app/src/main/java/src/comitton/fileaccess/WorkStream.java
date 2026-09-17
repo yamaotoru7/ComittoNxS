@@ -82,16 +82,18 @@ public class WorkStream extends InputStream {
 
 	@Override
 	public int read() throws IOException {
-		return 0;
+		byte[] one = new byte[1];
+		int ret = read(one, 0, 1);
+		return ret <= 0 ? -1 : (one[0] & 0xFF);
 	}
 
 	@Override
 	public int read(byte[] b, int off, int size) throws IOException {
 		int logLevel = Logcat.LOG_LEVEL_WARN;
-		Logcat.d(logLevel, MessageFormat.format("開始します. pos={0}, off={1}, size={2}, pos+off+size={3}, length={4}", new Object[]{mPos, off, size, mPos+off+size, length()}));
+		if (Logcat.isDebugEnabled(logLevel)) Logcat.d(logLevel, MessageFormat.format("開始します. pos={0}, off={1}, size={2}, pos+off+size={3}, length={4}", new Object[]{mPos, off, size, mPos+off+size, length()}));
 		DEF.sendMessage(mHandler, DEF.HMSG_WORKSTREAM, 0, 0, "READ");
 
-		mPos += off;
+		// off は呼び出し側バッファ内の位置なのでファイル位置には足さない
 		int ret = 0;
 		try {
 			ret = mFileAccess.read(b, off, size);
@@ -107,7 +109,7 @@ public class WorkStream extends InputStream {
 				mPos += ret;
 			}
 		}
-		Logcat.d(logLevel, MessageFormat.format("終了します. ret={0}, off={1}, mPos={2}, length={3}", new Object[]{ret, off, mPos, length()}));
+		if (Logcat.isDebugEnabled(logLevel)) Logcat.d(logLevel, MessageFormat.format("終了します. ret={0}, off={1}, mPos={2}, length={3}", new Object[]{ret, off, mPos, length()}));
 		DEF.sendMessage(mHandler, DEF.HMSG_WORKSTREAM, 0, 0, "");
 		return ret;
 	}

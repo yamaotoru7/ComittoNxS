@@ -128,9 +128,9 @@ public class MyTextView extends SurfaceView implements Handler.Callback, Surface
 	// バックグラウンド処理
 	private int mDrawPage;
 	private DrawThread mDrawThread;
-	private boolean mMessageBreak;
+	private volatile boolean mMessageBreak;
 	private Thread mUpdateThread;
-	private boolean mIsRunning;
+	private volatile boolean mIsRunning;
 
 	private Point[] mScrollPos;
 	private Point mScrollPoint;
@@ -174,7 +174,7 @@ public class MyTextView extends SurfaceView implements Handler.Callback, Surface
 //	private ViewTimerHanlder mViewTimerHanlder;
 	private Handler mHandler;
 	private Object mLock = new Object();
-	private boolean mDrawBreak;
+	private volatile boolean mDrawBreak;
 
 	Message mEventPageMsg;
 
@@ -2812,7 +2812,7 @@ public class MyTextView extends SurfaceView implements Handler.Callback, Surface
 	public class DrawThread implements Runnable {
 		private final int mPage;
 		private final int mMaxPage;
-		private boolean mThreadBreak;
+		private volatile boolean mThreadBreak;
 
 		// 排他用オブジェクト
 		private final Object mLock;

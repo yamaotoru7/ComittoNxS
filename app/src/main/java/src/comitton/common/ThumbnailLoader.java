@@ -40,7 +40,7 @@ public class ThumbnailLoader {
 	protected String mUriPath;
 	protected ArrayList<FileData> mFiles;
 	protected String mCachePath;
-	protected boolean mThreadBreak;
+	protected volatile boolean mThreadBreak;
 	protected final Object mFileListLock;
 
 	protected long mID;

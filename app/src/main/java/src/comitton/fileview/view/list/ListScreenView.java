@@ -76,7 +76,7 @@ public class ListScreenView extends SurfaceView implements SurfaceHolder.Callbac
 	private Handler mHandler;
 	private SurfaceHolder mHolder;
 	private Thread mUpdateThread;
-	private boolean mIsRunning;
+	private volatile boolean mIsRunning;
 	private ListSwitcher mListSwitcher;
 	private Rect mTargetRect;
 	private Rect mListRect;

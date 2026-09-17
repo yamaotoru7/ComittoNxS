@@ -58,8 +58,7 @@ public class SafRandomAccessFile {
 
     public int read(byte[] b, int off, int size) throws IOException {
         int logLevel = Logcat.LOG_LEVEL_WARN;
-        Logcat.d(logLevel, MessageFormat.format("開始します. pos={0}, off={1}, size={2}, pos+off+size={3}, length={4}", new Object[]{mPos, off, size, mPos+off+size, length()}));
-
+        if (Logcat.isDebugEnabled(logLevel)) Logcat.d(logLevel, MessageFormat.format("開始します. pos={0}, off={1}, size={2}, pos+off+size={3}, length={4}", new Object[]{mPos, off, size, mPos+off+size, length()}));
         if (!isInput) {
             Logcat.d(logLevel, "FileInputStreamを作成しなおします.");
             try {
@@ -72,12 +71,12 @@ public class SafRandomAccessFile {
         }
 
         try {
-            mPos += off;
+            // off は呼び出し側バッファ内の位置なのでファイル位置には足さない
             int ret = mFileInputStream.read(b, off, size);
             if (ret != -1) {
                 mPos += ret;
             }
-            Logcat.d(logLevel, MessageFormat.format("終了します. ret={0}, off={1}, mPos={2}, length={3}", new Object[]{ret, off, mPos, length()}));
+            if (Logcat.isDebugEnabled(logLevel)) Logcat.d(logLevel, MessageFormat.format("終了します. ret={0}, off={1}, mPos={2}, length={3}", new Object[]{ret, off, mPos, length()}));
             return ret;
         } catch (Exception e) {
             Logcat.e(logLevel, "エラーが発生しました.", e);
@@ -99,21 +98,21 @@ public class SafRandomAccessFile {
 
     public void seek(final long pos) throws IOException {
         int logLevel = Logcat.LOG_LEVEL_WARN;
-        Logcat.d(logLevel, MessageFormat.format("開始します. pos={0}, mPos={1}, length={2}", new Object[]{pos, mPos, length()}));
+        if (Logcat.isDebugEnabled(logLevel)) Logcat.d(logLevel, MessageFormat.format("開始します. pos={0}, mPos={1}, length={2}", new Object[]{pos, mPos, length()}));
         try {
-            Logcat.d(logLevel, MessageFormat.format("セットします. mPos={0}, length={1}", new Object[]{mPos, length()}));
+            if (Logcat.isDebugEnabled(logLevel)) Logcat.d(logLevel, MessageFormat.format("セットします. mPos={0}, length={1}", new Object[]{mPos, length()}));
             mPos = position((int)pos);
             mPos = position();
         } catch (Exception e) {
             throw new IOException(e);
         }
-        Logcat.d(logLevel, MessageFormat.format("終了します. pos={0}, mPos={1}, length={2}", new Object[]{pos, mPos, length()}));
+        if (Logcat.isDebugEnabled(logLevel)) Logcat.d(logLevel, MessageFormat.format("終了します. pos={0}, mPos={1}, length={2}", new Object[]{pos, mPos, length()}));
     }
 
     /** PFD のシーク位置を変更します。 */
     long position(final int pos) throws Exception {
         int logLevel = Logcat.LOG_LEVEL_WARN;
-        Logcat.d(logLevel, MessageFormat.format("開始します. pos={0}, mPos={1}, length={2}", new Object[]{pos, mPos, length()}));
+        if (Logcat.isDebugEnabled(logLevel)) Logcat.d(logLevel, MessageFormat.format("開始します. pos={0}, mPos={1}, length={2}", new Object[]{pos, mPos, length()}));
         long result = 0;
         try {
             while (result != pos) {
@@ -148,7 +147,7 @@ public class SafRandomAccessFile {
                 }
             }
         }
-        Logcat.d(logLevel, MessageFormat.format("終了します. pos={0}, mPos={1}, length={2}", new Object[]{pos, mPos, length()}));
+        if (Logcat.isDebugEnabled(logLevel)) Logcat.d(logLevel, MessageFormat.format("終了します. pos={0}, mPos={1}, length={2}", new Object[]{pos, mPos, length()}));
         return result;
     }
 

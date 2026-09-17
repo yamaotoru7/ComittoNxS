@@ -120,7 +120,7 @@ public class MyImageView extends SurfaceView implements SurfaceHolder.Callback, 
 	private int mCacheIndex;
 	private final SurfaceHolder mHolder;
 	private Thread mUpdateThread;
-	private boolean mIsRunning;
+	private volatile boolean mIsRunning;
 
 	// イメージ更新処理
 	private boolean mIsPageBack = false;
@@ -1176,7 +1176,12 @@ public class MyImageView extends SurfaceView implements SurfaceHolder.Callback, 
 		mTextView.setBackgroundColor(mTopColor);
 */
 //		if (mBackMode) {
-		for (int retry = 0 ; retry < 3 ; retry ++) {
+		// 描画スレッドが古いビットマップを使っている可能性があるので recycle せず参照だけ差し替える
+		boolean sameSize = mBackBitmap != null && mBackBitmap.getWidth() == w && mBackBitmap.getHeight() == h;
+		if (sameSize) {
+			new Canvas(mBackBitmap).drawColor(mMgnColor);
+		}
+		for (int retry = 0 ; retry < 3 && !sameSize ; retry ++) {
 			try {
 				mBackBitmap = Bitmap.createBitmap(w, h, Config.ARGB_8888);
 				Canvas canvas = new Canvas(mBackBitmap);
@@ -1200,9 +1205,12 @@ public class MyImageView extends SurfaceView implements SurfaceHolder.Callback, 
 			mDispHeight = w;
 		}
 
-		for (int retry = 0 ; retry < 3 ; retry ++) {
+		boolean sameCanvas = mCanvasBitmap != null && mCanvasBitmap.getWidth() == w && mCanvasBitmap.getHeight() == h;
+		for (int retry = 0 ; retry < 3 && !sameCanvas ; retry ++) {
 			try {
 				mCanvasBitmap = Bitmap.createBitmap(w, h, Config.ARGB_8888);
+				// 成功したら再試行しない (以前は毎回 3 枚作っていた)
+				break;
 			}
 			catch (OutOfMemoryError e) {
 				Logcat.i(logLevel, "", e);

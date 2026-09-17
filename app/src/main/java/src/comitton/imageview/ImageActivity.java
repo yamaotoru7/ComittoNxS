@@ -338,12 +338,12 @@ public class ImageActivity extends AppCompatActivity implements OnTouchListener,
 	// ファイルの更新日時. ネットワークアクセスを伴うため ZipLoad で取得する
 	private volatile long mTimestamp = 0L;
 
-	private ImageManager mImageMgr = null;
+	private volatile ImageManager mImageMgr = null;
 
 	// ページ表示のステータス情報
 	private int mRestoreMaxPage;
 	private int mRestorePage;
-	private int mCurrentPage;
+	private volatile int mCurrentPage;
 	private int mNextPage;
 	private boolean mPageSelecting = true;
 	private int mSelectPage = 0;
@@ -426,7 +426,7 @@ public class ImageActivity extends AppCompatActivity implements OnTouchListener,
 	private Handler mHandler;
 	private BmpLoad mBmpLoad;
 	private Thread mBmpThread;
-	private boolean mBitmapLoading = false;
+	private volatile boolean mBitmapLoading = false;
 	private boolean mLoadingNext = false;
 
 	private ZipLoad mZipLoad;
@@ -442,13 +442,13 @@ public class ImageActivity extends AppCompatActivity implements OnTouchListener,
 
 	private Vibrator mVibrator;
 
-	private boolean mTerminate = false;
+	private volatile boolean mTerminate = false;
 	// onDestroy 済み. ワーカースレッドから参照する
 	private volatile boolean mDestroyed = false;
 	// ファイルリストの読み込みに失敗した
 	private volatile boolean mLoadFailed = false;
-	private boolean mListLoading = false; //
-	private boolean mReadBreak;
+	private volatile boolean mListLoading = false; //
+	private volatile boolean mReadBreak;
 	private boolean mFinishActivity;
 
 	private Information mInformation;

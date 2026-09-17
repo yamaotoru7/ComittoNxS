@@ -32,7 +32,7 @@ public class TitleArea implements Handler.Callback {
 	private int mTextSize;
 	private String mTitle1;
 	private String mTitle2;
-	private boolean mIsRunning;
+	private volatile boolean mIsRunning;
 
 	// 描画情報
 	private float mTextWidth;

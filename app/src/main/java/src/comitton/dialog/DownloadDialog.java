@@ -44,7 +44,7 @@ public class DownloadDialog extends ImmersiveDialog implements Runnable, Handler
 	private String mItem;
 	private String mLocal;
 	private Thread mThread;
-	private boolean mBreak;
+	private volatile boolean mBreak;
 	private Handler mHandler;
 
 	private TextView mMsgText;

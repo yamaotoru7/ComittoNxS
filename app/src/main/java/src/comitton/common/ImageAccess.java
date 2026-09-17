@@ -591,7 +591,7 @@ public class ImageAccess {
 			bm = bm.copy(Config.RGB_565, true);
 			Logcat.d(logLevel, "RGB_565に変換しました.");
 		}
-		Logcat.d(logLevel, "終了します. width=" + bm.getWidth() + ", height=" + bm.getHeight());
+		if (Logcat.isDebugEnabled(logLevel)) Logcat.d(logLevel, "終了します. width=" + (bm != null ? bm.getWidth() : -1) + ", height=" + (bm != null ? bm.getHeight() : -1));
 		return bm;
 	}
 
@@ -677,7 +677,7 @@ public class ImageAccess {
 	// デバッグ用に画像をファイル出力する
 	public static int SaveFile (Bitmap bitmap) {
 		int logLevel = Logcat.LOG_LEVEL_WARN;
-		Logcat.d(logLevel, "開始します. bitmap=[" + bitmap.getWidth() + ", " + bitmap.getHeight() + "]");
+		if (Logcat.isDebugEnabled(logLevel)) Logcat.d(logLevel, "開始します. bitmap=[" + (bitmap != null ? bitmap.getWidth() : -1) + ", " + (bitmap != null ? bitmap.getHeight() : -1) + "]");
 		try {
 			// sdcardフォルダを指定
 			File root = Environment.getExternalStorageDirectory();

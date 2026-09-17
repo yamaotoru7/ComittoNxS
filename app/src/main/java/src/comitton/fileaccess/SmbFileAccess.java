@@ -154,7 +154,8 @@ public class SmbFileAccess {
 	}
 
 	// SMB認証
-	public static SmbFile smbFile(@NonNull final String uri, @NonNull final String user, @NonNull final String pass) {
+	@NonNull
+	public static SmbFile smbFile(@NonNull final String uri, @NonNull final String user, @NonNull final String pass) throws FileAccessException {
 		int logLevel = Logcat.LOG_LEVEL_WARN;
 
 		SmbFile sfile = null;
@@ -166,7 +167,7 @@ public class SmbFileAccess {
 			base = baseContext();
 		} catch (CIFSException e) {
 			Logcat.e(logLevel, "SMB の設定を初期化できません.", e);
-			return null;
+			throw new FileAccessException(e);
 		}
 
 		String[] userData = parseUser(user);
@@ -193,8 +194,9 @@ public class SmbFileAccess {
         try {
             sfile = new SmbFile(uri, context);
         } catch (MalformedURLException e) {
-			// 認証できない
+			// URL が不正
 			Logcat.e(logLevel, "", e);
+			throw new FileAccessException(TAG + ": smbFile: invalid URL. " + e.getLocalizedMessage());
         }
         return sfile;
 	}
@@ -422,11 +424,10 @@ public class SmbFileAccess {
 		// SMBの場合
 		if (!DEF.isUiThread()) {
 			// UIスレッドではない時はそのまま実行
-			SmbFile orgfile;
-			orgfile = SmbFileAccess.smbFile(uri, user, pass);
 			try {
+				SmbFile orgfile = SmbFileAccess.smbFile(uri, user, pass);
 				result = orgfile.isDirectory();
-			} catch (SmbException e) {
+			} catch (IOException e) {
 				result = false;
 			}
 		} else {
@@ -482,7 +483,12 @@ public class SmbFileAccess {
 			int length;
 
 			// ファイル一覧取得
-			smbFile = SmbFileAccess.smbFile(uri, user, pass);
+			try {
+				smbFile = SmbFileAccess.smbFile(uri, user, pass);
+			} catch (FileAccessException e) {
+				Logcat.e(logLevel, "SMB に接続できません. uri=" + uri, e);
+				return fileList;
+			}
 
 			try {
 				if (share.isEmpty()) {
@@ -752,7 +758,7 @@ public class SmbFileAccess {
 		try {
 			SmbFile smbFile = SmbFileAccess.smbFile(uri, user, pass);
 			return smbFile.lastModified();
-		} catch (SmbException e) {
+		} catch (IOException e) {
 			Logcat.e(logLevel, "", e);
 		}
 		return 0L;
@@ -815,7 +821,7 @@ public class SmbFileAccess {
 					smbFile.mkdir();
 					result = smbFile.exists();
 				}
-			} catch (SmbException e) {
+			} catch (IOException e) {
 				result = false;
 				Logcat.e(logLevel, "エラーが発生しました. uri=" + uri, e);
 			}
@@ -868,7 +874,7 @@ public class SmbFileAccess {
 					smbFile.createNewFile();
 					result = smbFile.exists();
 				}
-			} catch (SmbException e) {
+			} catch (IOException e) {
 				result = false;
 				Logcat.e(logLevel, "エラーが発生しました. uri=" + uri, e);
 			}
