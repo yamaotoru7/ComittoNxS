@@ -19,6 +19,8 @@ import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.os.BatteryManager;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 
 public class GuideView {
@@ -293,8 +295,10 @@ public class GuideView {
 		}
 
 		// 時刻＆バッテリー表示
-		setTimeString();
 		if (mTimeDisplay) {
+			// draw 中に invalidate すると描画スレッドが再描画を繰り返すため、ここでは文字列の更新だけ行う
+			updateTimeString();
+			scheduleTimeTick();
 			int psize = (cx + cy) / 80;
 			int psx, psy;
 			switch (mTimePos) {
@@ -1351,22 +1355,70 @@ public class GuideView {
 
 		// バッテリー残量(%)
 		mBatteryIntent = mContext.registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+		mBatteryReadTime = System.currentTimeMillis();
+		mTimeStr = null;
 	}
 
 	// 時刻＆バッテリー表示
 	public void setTimeString() {
+		if (updateTimeString()) {
+			invalidate();
+		}
+	}
+
+	// バッテリー情報の再取得間隔 (Binder 呼び出しを減らす)
+	private static final long BATTERY_REFRESH_MS = 60 * 1000L;
+	private long mBatteryReadTime = 0;
+	private final Handler mTimeHandler = new Handler(Looper.getMainLooper());
+	private boolean mTimeTickScheduled = false;
+	private final Runnable mTimeTick = new Runnable() {
+		@Override
+		public void run() {
+			mTimeTickScheduled = false;
+			if (mTimeDisplay) {
+				// 分が変わっていれば再描画する. 再描画時に次の tick が予約される
+				setTimeString();
+			}
+		}
+	};
+
+	// 次の分の境目で時刻表示を更新する. 描画されなくなれば予約も途切れる
+	private void scheduleTimeTick() {
+		mTimeHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				if (mTimeTickScheduled) {
+					return;
+				}
+				mTimeTickScheduled = true;
+				long now = System.currentTimeMillis();
+				long delay = 60 * 1000L - (now % (60 * 1000L)) + 50;
+				mTimeHandler.postDelayed(mTimeTick, delay);
+			}
+		});
+	}
+
+	/**
+	 * 時刻＆バッテリーの文字列を更新する.
+	 * @return 文字列が変化した場合 true
+	 */
+	private synchronized boolean updateTimeString() {
 //		boolean isCharging = false;
 		boolean usbCharge = false;
 		boolean acCharge = false;
 
 		// バッテリー残量(%)
-		mBatteryIntent = mContext.registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+		long now = System.currentTimeMillis();
+		if (mBatteryIntent == null || now - mBatteryReadTime >= BATTERY_REFRESH_MS) {
+			mBatteryIntent = mContext.registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+			mBatteryReadTime = now;
+		}
 
 		if (mBatteryIntent != null) {
 			// バッテリー残量(%)
 			int level = mBatteryIntent.getIntExtra("level", 0);
 			int scale = mBatteryIntent.getIntExtra("scale", 100);
-			mBattery = level * 100 / scale;
+			mBattery = scale > 0 ? level * 100 / scale : 0;
 
 //			// 充電中？ / 満充電？
 //			int status = mBatteryIntent.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
@@ -1378,24 +1430,26 @@ public class GuideView {
 			usbCharge = chargePlug == BatteryManager.BATTERY_PLUGGED_USB;
 			acCharge = chargePlug == BatteryManager.BATTERY_PLUGGED_AC;
 		}
-		
+
 		// 時刻
-		mTimeStr = mTimeFormat.format(new Date());
-		
+		String str = mTimeFormat.format(new Date(now));
+
 		if (mTimeFormatInt % 3 > 0) {
 			// バッテリー
-			mTimeStr += " [" + mBattery + "%]";
+			str += " [" + mBattery + "%]";
 		}
 
 		if (mTimeFormatInt % 3 > 1) {
 			if (usbCharge) {
-				mTimeStr += " [USB]";
+				str += " [USB]";
 			}
 			if (acCharge) {
-				mTimeStr += " [AC]";
+				str += " [AC]";
 			}
 		}
-		invalidate();
+		boolean changed = !str.equals(mTimeStr);
+		mTimeStr = str;
+		return changed;
 	}
 
 	private void invalidate() {

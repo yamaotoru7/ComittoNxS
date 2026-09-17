@@ -11,6 +11,7 @@ import java.io.RandomAccessFile;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -196,9 +197,11 @@ public class ImageManager extends InputStream implements Runnable {
 	private boolean mThreadLoading = true;
 
 	private Thread mThread;
-	private boolean mRunningFlag = false;
-	private boolean mTerminate = false;
-	private boolean mCloseFlag = false;
+	private volatile boolean mRunningFlag = false;
+	private volatile boolean mTerminate = false;
+	private volatile boolean mCloseFlag = false;
+	// close() の多重実行防止 (onDestroy と終了処理の両方から呼ばれる)
+	private final AtomicBoolean mCloseRequested = new AtomicBoolean(false);
 	private boolean mCacheBreak;
 	private boolean mCacheSleep;
 	private final Object mLock;
@@ -2258,6 +2261,12 @@ public class ImageManager extends InputStream implements Runnable {
 	public void close() throws IOException {
 		int logLevel = Logcat.LOG_LEVEL_WARN;
 		Logcat.d(logLevel, "開始します. mCloseFlag=" + mCloseFlag);
+		// 読み込みループを即座に止める
+		mRunningFlag = false;
+		if (!mCloseRequested.compareAndSet(false, true)) {
+			// 既に閉じている
+			return;
+		}
 
 		// たまに時間がかかるので非同期処理にする
 		// 意図的にExceptionを発生させるためスレッドセーフにしない
@@ -2322,6 +2331,8 @@ public class ImageManager extends InputStream implements Runnable {
 				}
 			}
 		});
+		// 投入済みのタスク完了後にスレッドを終了させる
+		executor.shutdown();
 
 		Logcat.d(logLevel, "終了します. mCloseFlag=" + mCloseFlag);
 	}

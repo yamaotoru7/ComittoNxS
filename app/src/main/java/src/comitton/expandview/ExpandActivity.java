@@ -115,6 +115,8 @@ public class ExpandActivity extends AppCompatActivity implements Handler.Callbac
 	private Thread mZipThread;
 
 	private boolean mTerminate;
+	// onDestroy 済み. ワーカースレッドから参照する
+	private volatile boolean mDestroyed = false;
 
 	private ArrayList<FileData> mFileList;
 	private int mSelectIndex;
@@ -286,14 +288,26 @@ public class ExpandActivity extends AppCompatActivity implements Handler.Callbac
 		}
 
 		public void run() {
-			// ファイルリストの読み込み
-			mImageMgr = new ImageManager(this.mActivity, DEF.relativePath(mActivity, mURI, mPath), mFileName, mUser, mPass, mFileSort, handler, mHidden, ImageManager.OPENMODE_LIST, 1);
-			mImageMgr.LoadImageList(0, 0, 0);
-
-			// 終了通知
-			Message message = new Message();
-			message.what = DEF.HMSG_READ_END;
-			handler.sendMessage(message);
+			int logLevel = Logcat.LOG_LEVEL_WARN;
+			try {
+				// ファイルリストの読み込み
+				mImageMgr = new ImageManager(this.mActivity, DEF.relativePath(mActivity, mURI, mPath), mFileName, mUser, mPass, mFileSort, handler, mHidden, ImageManager.OPENMODE_LIST, 1);
+				mImageMgr.LoadImageList(0, 0, 0);
+			} catch (Exception e) {
+				// 非チェック例外でも READ_END を送り、進捗ダイアログが残り続けないようにする
+				Logcat.e(logLevel, "ファイルリストの読み込みに失敗しました.", e);
+				handler.sendMessage(handler.obtainMessage(DEF.HMSG_ERROR, String.valueOf(e.getLocalizedMessage())));
+				mTerminate = true;
+			} finally {
+				ImageManager mgr = mImageMgr;
+				if (mDestroyed && mgr != null) {
+					// 読み込み中に Activity が破棄された
+					mgr.setBreakTrigger();
+					mgr.closeFiles();
+				}
+				// 終了通知
+				handler.sendEmptyMessage(DEF.HMSG_READ_END);
+			}
 		}
 	}
 
@@ -352,6 +366,16 @@ public class ExpandActivity extends AppCompatActivity implements Handler.Callbac
 			mFileStatusLoader = null;
 		}
 
+		mDestroyed = true;
+		// 破棄後に遅延メッセージが届かないようにする
+		if (mHandler != null) {
+			mHandler.removeCallbacksAndMessages(null);
+		}
+		// イメージ管理解放 (closeFiles は冪等)
+		if (mImageMgr != null) {
+			mImageMgr.setBreakTrigger();
+			mImageMgr.closeFiles();
+		}
 		mImageMgr = null;
 		return;
 	}
@@ -899,6 +923,10 @@ public class ExpandActivity extends AppCompatActivity implements Handler.Callbac
 	// スレッドからの通知取得
 	public boolean handleMessage(Message msg) {
 		int logLevel = Logcat.LOG_LEVEL_WARN;
+		if (mDestroyed) {
+			// 破棄済みの Activity には何もしない
+			return true;
+		}
 		switch (msg.what) {
 			case DEF.HMSG_PROGRESS:
 				// 読込中の表示

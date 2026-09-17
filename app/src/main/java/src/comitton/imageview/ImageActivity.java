@@ -442,6 +442,10 @@ public class ImageActivity extends AppCompatActivity implements OnTouchListener,
 	private Vibrator mVibrator;
 
 	private boolean mTerminate = false;
+	// onDestroy 済み. ワーカースレッドから参照する
+	private volatile boolean mDestroyed = false;
+	// ファイルリストの読み込みに失敗した
+	private volatile boolean mLoadFailed = false;
 	private boolean mListLoading = false; //
 	private boolean mReadBreak;
 	private boolean mFinishActivity;
@@ -701,6 +705,20 @@ public class ImageActivity extends AppCompatActivity implements OnTouchListener,
 		int logLevel = Logcat.LOG_LEVEL_WARN;
 		Logcat.i(logLevel, "開始します.");
 
+		mDestroyed = true;
+		// 破棄後に遅延メッセージ (オートプレイ, エフェクト, 長押し等) が届かないようにする
+		if (mHandler != null) {
+			mHandler.removeCallbacksAndMessages(null);
+		}
+		if (mImageView != null) {
+			mImageView.breakThread();
+		}
+		// 読み込み中に戻った場合でもネイティブキャッシュとファイルを解放する (closeFiles は冪等)
+		if (mImageMgr != null) {
+			mImageMgr.setBreakTrigger();
+			mImageMgr.closeFiles();
+		}
+
 		if (mSourceImage[0] != null) {
 			mSourceImage[0] = null;
 		}
@@ -779,6 +797,27 @@ public class ImageActivity extends AppCompatActivity implements OnTouchListener,
 		public void run() {
 			int logLevel = Logcat.LOG_LEVEL_WARN;
 			Logcat.d(logLevel, "開始します.");
+			try {
+				load();
+			} catch (Exception e) {
+				// 非チェック例外でも READ_END を送り、進捗ダイアログが残り続けないようにする
+				Logcat.e(logLevel, "ファイルリストの読み込みに失敗しました.", e);
+				mLoadFailed = true;
+				Message message = handler.obtainMessage(DEF.HMSG_ERROR, String.valueOf(e.getLocalizedMessage()));
+				handler.sendMessage(message);
+			} finally {
+				if (mDestroyed && mImageMgr != null) {
+					// 読み込み中に Activity が破棄された
+					mImageMgr.setBreakTrigger();
+					mImageMgr.closeFiles();
+				}
+				// 終了通知
+				handler.sendEmptyMessage(DEF.HMSG_READ_END);
+			}
+		}
+
+		private void load() {
+			int logLevel = Logcat.LOG_LEVEL_WARN;
 
 			// ファイルリストの読み込み
 			mImageMgr = new ImageManager(this.mActivity, mUriPath, mFileName, mUser, mPass, mFileSort, handler, mHidden, ImageManager.OPENMODE_VIEW, mMaxThread);
@@ -801,11 +840,6 @@ public class ImageActivity extends AppCompatActivity implements OnTouchListener,
 			if (mCurrentPage == DEF.PAGENUMBER_READ)	mCurrentPage = mRestoreMaxPage - 1;
 			if (mCurrentPage == DEF.PAGENUMBER_UNREAD)	mCurrentPage = 0;
 			Logcat.v(logLevel, "mCurrentPage=" + mCurrentPage + ", mRestoreMaxPage=" + mRestoreMaxPage);
-
-			// 終了通知
-			Message message = new Message();
-			message.what = DEF.HMSG_READ_END;
-			handler.sendMessage(message);
 		}
 	}
 
@@ -1005,6 +1039,11 @@ public class ImageActivity extends AppCompatActivity implements OnTouchListener,
 	public boolean handleMessage(Message msg) {
 		int logLevel = Logcat.LOG_LEVEL_WARN;
 		Logcat.d(logLevel, "開始します. msg.what=" + msg.what);
+
+		if (mDestroyed) {
+			// 破棄済みの Activity には何もしない
+			return true;
+		}
 
 		// 次のイベント時間
 		long now = SystemClock.uptimeMillis();
@@ -1324,8 +1363,9 @@ public class ImageActivity extends AppCompatActivity implements OnTouchListener,
 					mReadDialog = null;
 				}
 				mListLoading = false;
-				if (mTerminate) {
+				if (mTerminate || mLoadFailed || mImageMgr == null) {
 					finish();
+					return true;
 				}
 
 				// intentから取り出した画像ファイル名からページ番号を決定するとバグが発生するため反映しない

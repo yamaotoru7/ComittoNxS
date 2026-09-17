@@ -276,6 +276,10 @@ public class TextActivity extends AppCompatActivity implements OnTouchListener, 
 	private Vibrator mVibrator;
 
 	private boolean mTerminate;
+	// onDestroy 済み. ワーカースレッドから参照する
+	private volatile boolean mDestroyed = false;
+	// テキストの読み込みに失敗した
+	private volatile boolean mLoadFailed = false;
 	private boolean mReadRunning;
 	private boolean mReadBreak;
 	private boolean mHistorySaved;
@@ -563,6 +567,31 @@ public class TextActivity extends AppCompatActivity implements OnTouchListener, 
 		public void run() {
 			int logLevel = Logcat.LOG_LEVEL_WARN;
 			Logcat.d(logLevel, "開始します.");
+			try {
+				load();
+			} catch (Exception e) {
+				// 非チェック例外でプロセスを落とさず、エラーを表示して閉じる
+				Logcat.e(logLevel, "テキストの読み込みに失敗しました.", e);
+				mLoadFailed = true;
+				handler.sendMessage(handler.obtainMessage(DEF.HMSG_ERROR, String.valueOf(e.getLocalizedMessage())));
+			} finally {
+				if (mDestroyed) {
+					// 読み込み中に Activity が破棄された
+					if (mTextMgr != null) {
+						mTextMgr.setBreakTrigger();
+					}
+					if (mImageMgr != null) {
+						mImageMgr.setBreakTrigger();
+						mImageMgr.closeFiles();
+					}
+				}
+				// 終了通知
+				handler.sendEmptyMessage(DEF.HMSG_READ_END);
+			}
+		}
+
+		private void load() {
+			int logLevel = Logcat.LOG_LEVEL_WARN;
 			// ファイルリストの読み込み
 			Logcat.d(logLevel, "mUriPath=" + mUriPath + ", mFileName=" + mFileName + ", mTextName=" + mTextName);
 			mImageMgr = new ImageManager(this.mActivity, mUriPath, mFileName, mUser, mPass, ImageManager.FILESORT_NAME_UP, handler, true, ImageManager.OPENMODE_TEXTVIEW, 1);
@@ -599,17 +628,27 @@ public class TextActivity extends AppCompatActivity implements OnTouchListener, 
 			 */
 
 			mTextView.setPath(DEF.relativePath(mActivity, mUriFilePath, mTextName), mImageMgr, mUser, mPass);
-
-			// 終了通知
-			Message message = new Message();
-			message.what = DEF.HMSG_READ_END;
-			handler.sendMessage(message);
 		}
 	}
 
 	// 終了処理
 	protected void onDestroy() {
 		super.onDestroy();
+
+		mDestroyed = true;
+		// 破棄後に遅延メッセージが届かないようにする
+		if (mHandler != null) {
+			mHandler.removeCallbacksAndMessages(null);
+		}
+		// 解析中なら中断させる
+		if (mTextMgr != null) {
+			mTextMgr.setBreakTrigger();
+		}
+		// 読み込み中に戻った場合でもファイルを閉じる (closeFiles は冪等)
+		if (mImageMgr != null) {
+			mImageMgr.setBreakTrigger();
+			mImageMgr.closeFiles();
+		}
 
 		if (mTextView != null) {
 			mTextView.setTextBuffer(null, null, null);
@@ -827,6 +866,11 @@ public class TextActivity extends AppCompatActivity implements OnTouchListener, 
     public boolean handleMessage(Message msg) {
 		int logLevel = Logcat.LOG_LEVEL_WARN;
 
+		if (mDestroyed) {
+			// 破棄済みの Activity には何もしない
+			return true;
+		}
+
 		if (DEF.ToastMessage(mActivity, msg)) {
 			// HMSG_TOASTならトーストを表示して終了
 			return true;
@@ -954,8 +998,9 @@ public class TextActivity extends AppCompatActivity implements OnTouchListener, 
     				}
 				}
 				mReadRunning = false;
-				if (mTerminate) {
+				if (mTerminate || mLoadFailed || mTextMgr == null) {
 					finish();
+					return true;
 				}
 
 				Logcat.d(logLevel, "MSG_READ_END: mCurrentPage=" + mCurrentPage + ", mRestoreMaxPage=" + mRestoreMaxPage + ", mCurrentPageRate=" + mCurrentPageRate);
