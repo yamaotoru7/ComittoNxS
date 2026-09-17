@@ -9,13 +9,14 @@ import androidx.annotation.NonNull;
 import java.io.IOException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import jcifs.smb.SmbException;
 import jcifs.smb.SmbRandomAccessFile;
 import src.comitton.common.DEF;
 import src.comitton.common.Logcat;
+import src.comitton.common.BackgroundExecutor;
 
 @TargetApi(26)
 public class SambaProxyFileCallback extends StorageManagerCompat.ProxyFileDescriptorCallbackCompat {
@@ -56,7 +57,7 @@ public class SambaProxyFileCallback extends StorageManagerCompat.ProxyFileDescri
                 return mSmbRandomAccessFile.read(data, 0, size);
             } else {
                 // UIスレッドの時は新しいスレッド内で実行
-                ExecutorService executor = Executors.newSingleThreadExecutor();
+                ExecutorService executor = BackgroundExecutor.get();
                 Future<Integer> future = executor.submit(new Callable<Integer>() {
 
                     @Override
@@ -67,7 +68,7 @@ public class SambaProxyFileCallback extends StorageManagerCompat.ProxyFileDescri
                 });
 
                 try {
-                    return future.get();
+                    return future.get(BackgroundExecutor.UI_WAIT_TIMEOUT_SEC, TimeUnit.SECONDS);
                 } catch (Exception e) {
                     Logcat.e(logLevel, "File read error. ", e);
                     return 0;
@@ -89,7 +90,7 @@ public class SambaProxyFileCallback extends StorageManagerCompat.ProxyFileDescri
                 mSmbRandomAccessFile.write(data, 0, size);
             } else {
                 // UIスレッドの時は新しいスレッド内で実行
-                ExecutorService executor = Executors.newSingleThreadExecutor();
+                ExecutorService executor = BackgroundExecutor.get();
                 Future<Integer> future = executor.submit(new Callable<Integer>() {
 
                     @Override
@@ -101,7 +102,7 @@ public class SambaProxyFileCallback extends StorageManagerCompat.ProxyFileDescri
                 });
 
                 try {
-                    return future.get();
+                    return future.get(BackgroundExecutor.UI_WAIT_TIMEOUT_SEC, TimeUnit.SECONDS);
                 } catch (Exception e) {
                     Logcat.e(logLevel, "File read error. ", e);
                     return 0;
@@ -122,7 +123,7 @@ public class SambaProxyFileCallback extends StorageManagerCompat.ProxyFileDescri
     public void onRelease() {
         int logLevel = Logcat.LOG_LEVEL_WARN;
         // 非同期処理にする
-        ExecutorService executor = Executors.newSingleThreadExecutor();
+        ExecutorService executor = BackgroundExecutor.get();
         executor.submit(new Runnable() {
             @Override
             public void run() {

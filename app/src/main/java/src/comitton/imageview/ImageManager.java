@@ -17,7 +17,6 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.zip.ZipInputStream;
 
 import android.app.Activity;
@@ -47,6 +46,7 @@ import src.comitton.jni.CallJniLibrary;
 import src.comitton.fileview.data.FileListItem;
 import src.comitton.fileaccess.RarInputStream;
 import src.comitton.textview.TextManager;
+import src.comitton.common.BackgroundExecutor;
 
 import android.annotation.SuppressLint;
 import android.widget.Toast;
@@ -2270,7 +2270,7 @@ public class ImageManager extends InputStream implements Runnable {
 
 		// たまに時間がかかるので非同期処理にする
 		// 意図的にExceptionを発生させるためスレッドセーフにしない
-		ExecutorService executor = Executors.newSingleThreadExecutor();
+		ExecutorService executor = BackgroundExecutor.get();
 		executor.submit(new Runnable() {
 			@Override
 			public void run() {
@@ -2331,8 +2331,6 @@ public class ImageManager extends InputStream implements Runnable {
 				}
 			}
 		});
-		// 投入済みのタスク完了後にスレッドを終了させる
-		executor.shutdown();
 
 		Logcat.d(logLevel, "終了します. mCloseFlag=" + mCloseFlag);
 	}

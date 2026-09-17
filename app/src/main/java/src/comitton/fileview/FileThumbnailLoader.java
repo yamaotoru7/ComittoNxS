@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.ConcurrentModificationException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import src.comitton.common.DEF;
 import src.comitton.common.Logcat;
@@ -16,6 +15,7 @@ import src.comitton.fileview.data.FileData;
 import src.comitton.imageview.ImageManager;
 import src.comitton.jni.CallImgLibrary;
 import src.comitton.common.ThumbnailLoader;
+import src.comitton.common.BackgroundExecutor;
 
 
 import android.annotation.SuppressLint;
@@ -130,7 +130,7 @@ public class FileThumbnailLoader extends ThumbnailLoader implements Runnable {
 		}
 
 		// 中でループさせたいので非同期処理にする
-		ExecutorService executor = Executors.newSingleThreadExecutor();
+		ExecutorService executor = BackgroundExecutor.get();
 		executor.submit(new Runnable() {
 			@Override
 			public void run() {
@@ -172,7 +172,7 @@ public class FileThumbnailLoader extends ThumbnailLoader implements Runnable {
 
 			if (!mSorting) {
 				// 中でループさせたいので非同期処理にする
-				ExecutorService executor = Executors.newSingleThreadExecutor();
+				ExecutorService executor = BackgroundExecutor.get();
 				executor.submit(new Runnable() {
 					@Override
 					public void run() {

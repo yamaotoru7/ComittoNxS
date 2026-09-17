@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 import jp.dip.muracoro.comittonx.BuildConfig;
@@ -47,6 +48,7 @@ import src.comitton.dialog.ListDialog.ListSelectListener;
 import src.comitton.dialog.TextInputDialog;
 import src.comitton.fileaccess.FileAccessException;
 import src.comitton.fileaccess.SmbFileAccess;
+import src.comitton.common.BackgroundExecutor;
 import src.comitton.fileview.filelist.FileSelectList;
 import src.comitton.fileview.filelist.RecordList;
 import src.comitton.fileview.filelist.ServerSelect;
@@ -2850,6 +2852,92 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 	}
 
 	/**
+	 * しおり削除の対象キーを集める.
+	 * @param item 0: すべて, 1: ファイルがないしおり (ネットワークにアクセスするので UI スレッドで呼ばない), 3: ローカル/このサーバ上のしおり
+	 */
+	private List<String> collectShioriKeys(int item) {
+		List<String> result = new ArrayList<>();
+		Map<String, ?> keys = mSharedPreferences.getAll();
+		if (keys == null) {
+			return result;
+		}
+		for (String key : keys.keySet()) {
+			if (item == 3) {
+				String user = mServer.getUser();
+				String pass = mServer.getPass();
+				String uri = DEF.createUrl(mURI, user, pass).toLowerCase() + "/";
+				int urilen = uri.length();
+				if (!key.regionMatches(true, 0, uri, 0, urilen)) {
+					// URI部分が一致する場合のみ削除する
+					continue;
+				}
+			}
+			else {
+				int len = key.length();
+				if ((len >= 1 && key.substring(0, 1).equals("/"))) {
+					// ローカルのしおり削除
+					if (item == 1 && new File(key).exists()) {
+						// 存在するので削除しない
+						continue;
+					}
+				}
+				else if (mServer.getSelect() != DEF.INDEX_LOCAL) {
+					// サーバのしおり削除
+					if (item == 1) {
+						String[] target = resolveSmbShioriKey(key);
+						if (target == null) {
+							// 登録済みサーバのしおりでなければ判断できないので削除しない
+							continue;
+						}
+						try {
+							if (FileAccess.exists(mActivity, target[0], target[1], target[2])) {
+								// 存在するので削除しない
+								continue;
+							}
+						}
+						catch (Exception e) {
+							// 参照不可の場合は削除しない
+							continue;
+						}
+					}
+				}
+				else {
+					continue;
+				}
+			}
+			result.add(key);
+		}
+		return result;
+	}
+
+	/**
+	 * {@code smb://user@host/...} 形式のしおりキーから、アクセス用の URI (ユーザ情報なし) と
+	 * 登録済みサーバの認証情報を求める.
+	 * @return [0]=uri, [1]=user, [2]=pass. 対応するサーバがない場合は null
+	 */
+	private String[] resolveSmbShioriKey(String key) {
+		if (!key.startsWith("smb://")) {
+			return null;
+		}
+		int suffix = key.indexOf('#');
+		String url = suffix >= 0 ? key.substring(0, suffix) : key;
+		for (int i = 0; i < DEF.MAX_SERVER; i++) {
+			String host = mServer.getHost(i);
+			if (host == null || host.isEmpty()) {
+				continue;
+			}
+			String user = mServer.getUser(i);
+			String pass = mServer.getPass(i);
+			String prefix = DEF.createUrl("smb://" + host + "/", user, pass);
+			if (url.regionMatches(true, 0, prefix, 0, prefix.length())) {
+				String plain = "smb://" + host + "/" + url.substring(prefix.length());
+				return new String[]{plain, user, pass};
+			}
+		}
+		return null;
+	}
+
+	/**
 	 * しおり削除のメニューを表示
 	 */
 	private void showShioriDialog() {
@@ -2873,54 +2961,29 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 				Editor ed = mSharedPreferences.edit();
 				switch (item) {
 					case 0:
-					case 1:
 					case 3:
-						Map<String, ?> keys = mSharedPreferences.getAll();
-						if (keys != null) {
-							for (String key : keys.keySet()) {
-							    //Logcat.i(logLevel,key);
-								if (item == 3) {
-									String user = mServer.getUser();
-									String pass = mServer.getPass();
-									String uri = DEF.createUrl(mURI, user, pass).toLowerCase() + "/";
-									int urilen = uri.length();
-									if (!key.regionMatches(true, 0, uri, 0, urilen)) {
-										// URI部分が一致する場合のみ削除する
-										continue;
-									}
-								}
-								else {
-									int len = key.length();
-									if ((len >= 1 && key.substring(0, 1).equals("/"))) {
-										// ローカルのしおり削除
-										if (item == 1 && new File(key).exists()) {
-											// 存在するので削除しない
-											continue;
-										}
-									}
-									else if (mServer.getSelect() != DEF.INDEX_LOCAL) {
-										// サーバのしおり削除
-										if (item == 1) {
-											try {
-												if (FileAccess.exists(mActivity, key, "", "")) {
-													// 存在するので削除しない
-													continue;
-												}
-											}
-											catch (Exception e) {
-												// 参照不可の場合は削除しない
-												continue;
-											}
-										}
-									}
-									else {
-										continue;
-									}
-								}
-								ed.remove(key);
-							}
+						for (String key : collectShioriKeys(item)) {
+							ed.remove(key);
 						}
 						break;
+					case 1: {
+						// ファイルの存在確認でネットワークにアクセスするためバックグラウンドで実行する
+						BackgroundExecutor.execute(() -> {
+							List<String> removeKeys = collectShioriKeys(item);
+							runOnUiThread(() -> {
+								if (isFinishing() || isDestroyed()) {
+									return;
+								}
+								Editor editor = mSharedPreferences.edit();
+								for (String key : removeKeys) {
+									editor.remove(key);
+								}
+								editor.apply();
+								updateListView();
+							});
+						});
+						return;
+					}
 					case 2:
 						String user = mServer.getUser();
 						String pass = mServer.getPass();

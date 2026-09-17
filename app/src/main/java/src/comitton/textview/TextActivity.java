@@ -217,7 +217,8 @@ public class TextActivity extends AppCompatActivity implements OnTouchListener, 
 	private String mTextName;
 	private int mFileType;
 	/** ファイルのタイムスタンプ */
-	private long mTimestamp = 0L;
+	// ファイルの更新日時. ネットワークアクセスを伴うため TextLoad で取得する
+	private volatile long mTimestamp = 0L;
 
 
 	private ImageManager mImageMgr;
@@ -467,7 +468,6 @@ public class TextActivity extends AppCompatActivity implements OnTouchListener, 
 			mUriFilePath = DEF.relativePath(mActivity, mUriPath, mFileName);
 			mUriTextPath = DEF.relativePath(mActivity, mUriPath, mFileName) + mTextName;
 		}
-		mTimestamp = FileAccess.date(mActivity, mUriFilePath, mUser, mPass);
 		// 続きから開く設定を記録
 		saveLastFile();
 
@@ -592,6 +592,8 @@ public class TextActivity extends AppCompatActivity implements OnTouchListener, 
 
 		private void load() {
 			int logLevel = Logcat.LOG_LEVEL_WARN;
+			// 更新日時 (SMB ではネットワークアクセスになるため UI スレッドで取得しない)
+			mTimestamp = FileAccess.date(mActivity, mUriFilePath, mUser, mPass);
 			// ファイルリストの読み込み
 			Logcat.d(logLevel, "mUriPath=" + mUriPath + ", mFileName=" + mFileName + ", mTextName=" + mTextName);
 			mImageMgr = new ImageManager(this.mActivity, mUriPath, mFileName, mUser, mPass, ImageManager.FILESORT_NAME_UP, handler, true, ImageManager.OPENMODE_TEXTVIEW, 1);

@@ -27,8 +27,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import jcifs.smb.SmbException;
 import jcifs.smb.SmbFile;
@@ -37,6 +37,7 @@ import jcifs.smb.SmbRandomAccessFile;
 import src.comitton.common.DEF;
 import src.comitton.common.Logcat;
 import src.comitton.fileview.data.FileData;
+import src.comitton.common.BackgroundExecutor;
 
 public class FileAccess {
 	private static final String TAG = "FileAccess";
@@ -304,7 +305,7 @@ public class FileAccess {
 				} else {
 					// UIスレッドの時は新しいスレッド内で実行
 					Logcat.d(logLevel, "UIスレッドです.");
-					ExecutorService executor = Executors.newSingleThreadExecutor();
+					ExecutorService executor = BackgroundExecutor.get();
 					executor.submit(new Runnable() {
 						@Override
 						public void run() {
@@ -341,7 +342,7 @@ public class FileAccess {
 				} else {
 					// UIスレッドの時は新しいスレッド内で実行
 					Logcat.d(logLevel, "UIスレッドです.");
-					ExecutorService executor = Executors.newSingleThreadExecutor();
+					ExecutorService executor = BackgroundExecutor.get();
 					Future<Long> future = executor.submit(new Callable<Long>() {
 
 						@Override
@@ -351,7 +352,7 @@ public class FileAccess {
 					});
 
 					try {
-						result = future.get();
+						result = future.get(BackgroundExecutor.UI_WAIT_TIMEOUT_SEC, TimeUnit.SECONDS);
 					} catch (Exception e) {
 						Logcat.e(logLevel, "File read error.", e);
 						result = 0l;
@@ -387,7 +388,7 @@ public class FileAccess {
 				} else {
 					// UIスレッドの時は新しいスレッド内で実行
 					Logcat.d(logLevel, "UIスレッドです.");
-					ExecutorService executor = Executors.newSingleThreadExecutor();
+					ExecutorService executor = BackgroundExecutor.get();
 					Future<Integer> future = executor.submit(new Callable<Integer>() {
 
 						@Override
@@ -397,7 +398,7 @@ public class FileAccess {
 					});
 
 					try {
-						result = future.get();
+						result = future.get(BackgroundExecutor.UI_WAIT_TIMEOUT_SEC, TimeUnit.SECONDS);
 					} catch (Exception e) {
 						Logcat.e(logLevel, "read: File read error.", e);
 						result = 0;
@@ -433,7 +434,7 @@ public class FileAccess {
 				} else {
 					// UIスレッドの時は新しいスレッド内で実行
 					Logcat.d(logLevel, "UIスレッドです.");
-					ExecutorService executor = Executors.newSingleThreadExecutor();
+					ExecutorService executor = BackgroundExecutor.get();
 					Future<Boolean> future = executor.submit(new Callable<Boolean>() {
 
 						@Override
@@ -444,7 +445,7 @@ public class FileAccess {
 					});
 
 					try {
-						future.get();
+						future.get(BackgroundExecutor.UI_WAIT_TIMEOUT_SEC, TimeUnit.SECONDS);
 					} catch (Exception e) {
 						Logcat.e(logLevel, "File read error.", e);
 					}
@@ -464,7 +465,7 @@ public class FileAccess {
 		Logcat.d(logLevel, "開始します.");
 
 		// たまにフリーズするので非同期処理にする
-		ExecutorService executor = Executors.newSingleThreadExecutor();
+		ExecutorService executor = BackgroundExecutor.get();
 		executor.submit(new Runnable() {
 			@Override
 			public void run() {
@@ -582,7 +583,7 @@ public class FileAccess {
 				} else {
 					// UIスレッドの時は新しいスレッド内で実行
 					Logcat.d(logLevel, "UIスレッドです.");
-					ExecutorService executor = Executors.newSingleThreadExecutor();
+					ExecutorService executor = BackgroundExecutor.get();
 					Future<Boolean> future = executor.submit(new Callable<Boolean>() {
 
 						@Override
@@ -592,7 +593,7 @@ public class FileAccess {
 					});
 
 					try {
-						result = future.get();
+						result = future.get(BackgroundExecutor.UI_WAIT_TIMEOUT_SEC, TimeUnit.SECONDS);
 					} catch (Exception e) {
 						Logcat.e(logLevel, "File read error.", e);
 						result = false;
@@ -708,7 +709,7 @@ public class FileAccess {
 				} else {
 					// UIスレッドの時は新しいスレッド内で実行
 					Logcat.d(logLevel, "UIスレッドです.");
-					ExecutorService executor = Executors.newSingleThreadExecutor();
+					ExecutorService executor = BackgroundExecutor.get();
 					Future<Long> future = executor.submit(new Callable<Long>() {
 
 						@Override
@@ -718,7 +719,7 @@ public class FileAccess {
 					});
 
 					try {
-						result = future.get();
+						result = future.get(BackgroundExecutor.UI_WAIT_TIMEOUT_SEC, TimeUnit.SECONDS);
 					} catch (Exception e) {
 						Logcat.e(logLevel, "File read error.", e);
 						result = 0L;
@@ -758,7 +759,7 @@ public class FileAccess {
 				} else {
 					// UIスレッドの時は新しいスレッド内で実行
 					Logcat.d(logLevel, "UIスレッドです.");
-					ExecutorService executor = Executors.newSingleThreadExecutor();
+					ExecutorService executor = BackgroundExecutor.get();
 					Future<Boolean> future = executor.submit(new Callable<Boolean>() {
 
 						@Override
@@ -768,7 +769,7 @@ public class FileAccess {
 					});
 
 					try {
-						result = future.get();
+						result = future.get(BackgroundExecutor.UI_WAIT_TIMEOUT_SEC, TimeUnit.SECONDS);
 					} catch (Exception e) {
 						Logcat.e(logLevel, "File read error.", e);
 						result = false;

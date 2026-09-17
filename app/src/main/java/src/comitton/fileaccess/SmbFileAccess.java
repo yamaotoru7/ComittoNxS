@@ -18,8 +18,8 @@ import java.util.Collections;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import jcifs.CIFSContext;
 import jcifs.CIFSException;
@@ -35,6 +35,7 @@ import jp.dip.muracoro.comittonx.R;
 import src.comitton.common.DEF;
 import src.comitton.common.Logcat;
 import src.comitton.fileview.data.FileData;
+import src.comitton.common.BackgroundExecutor;
 
 public class SmbFileAccess {
 	private static final String TAG = "SmbFileAccess";
@@ -316,7 +317,7 @@ public class SmbFileAccess {
             }
         } else {
 			// UIスレッドの時は新しいスレッド内で実行
-			ExecutorService executor = Executors.newSingleThreadExecutor();
+			ExecutorService executor = BackgroundExecutor.get();
 			Future<SmbRandomAccessFile> future = executor.submit(new Callable<SmbRandomAccessFile>() {
 
 				@Override
@@ -327,7 +328,7 @@ public class SmbFileAccess {
 			});
 
 			try {
-				stream = future.get();
+				stream = future.get(BackgroundExecutor.UI_WAIT_TIMEOUT_SEC, TimeUnit.SECONDS);
 			} catch (Exception e) {
 				Logcat.e(logLevel, "Can not get SmbRandomAccessFile.", e);
 				throw new FileAccessException(TAG + ": smbAccessFile: Can not get SmbRandomAccessFile.");
@@ -385,7 +386,7 @@ public class SmbFileAccess {
 
 		} else {
 			// UIスレッドの時は新しいスレッド内で実行
-			ExecutorService executor = Executors.newSingleThreadExecutor();
+			ExecutorService executor = BackgroundExecutor.get();
 			Future<Boolean> future = executor.submit(new Callable<Boolean>() {
 
 				@Override
@@ -403,7 +404,7 @@ public class SmbFileAccess {
 			});
 
 			try {
-				result = future.get();
+				result = future.get(BackgroundExecutor.UI_WAIT_TIMEOUT_SEC, TimeUnit.SECONDS);
 			} catch (Exception e) {
 				Logcat.e(logLevel, "", e);
 				throw new FileAccessException(TAG + ": exists: " + e.getLocalizedMessage());
@@ -430,7 +431,7 @@ public class SmbFileAccess {
 			}
 		} else {
 			// UIスレッドの時は新しいスレッド内で実行
-			ExecutorService executor = Executors.newSingleThreadExecutor();
+			ExecutorService executor = BackgroundExecutor.get();
 			Future<Boolean> future = executor.submit(new Callable<Boolean>() {
 
 				@Override
@@ -448,7 +449,7 @@ public class SmbFileAccess {
 			});
 
 			try {
-				result = future.get();
+				result = future.get(BackgroundExecutor.UI_WAIT_TIMEOUT_SEC, TimeUnit.SECONDS);
 			} catch (Exception e) {
 				Logcat.e(logLevel, "File not found.", e);
 			}
@@ -552,7 +553,7 @@ public class SmbFileAccess {
 		}
 		else {
 			// UIスレッドの時は新しいスレッド内で実行
-			ExecutorService executor = Executors.newSingleThreadExecutor();
+			ExecutorService executor = BackgroundExecutor.get();
 			Future<ArrayList<FileData>> future = executor.submit(new Callable<ArrayList<FileData>>() {
 
 				@Override
@@ -638,7 +639,7 @@ public class SmbFileAccess {
 				}
 			});
 			try {
-				fileList = future.get();
+				fileList = future.get(BackgroundExecutor.UI_WAIT_TIMEOUT_SEC, TimeUnit.SECONDS);
 			} catch (Exception e) {
 				Logcat.e(logLevel, "エラーが発生しました. uri=" + uri, e);
 				DEF.sendMessage(activity.getString(R.string.SmbAccessError) + ":\n" + e.getLocalizedMessage(), Toast.LENGTH_LONG, handler);
@@ -694,7 +695,7 @@ public class SmbFileAccess {
 		}
 		else {
 			// UIスレッドの時は新しいスレッド内で実行
-			ExecutorService executor = Executors.newSingleThreadExecutor();
+			ExecutorService executor = BackgroundExecutor.get();
 			Future<Boolean> future = executor.submit(new Callable<Boolean>() {
 
 				@Override
@@ -736,7 +737,7 @@ public class SmbFileAccess {
 				}
 			});
 			try {
-				return future.get();
+				return future.get(BackgroundExecutor.UI_WAIT_TIMEOUT_SEC, TimeUnit.SECONDS);
 			} catch (Exception e) {
 				throw new FileAccessException(TAG + ": renameTo: " + e.getLocalizedMessage());
 			}
@@ -774,7 +775,7 @@ public class SmbFileAccess {
 			}
 		} else {
 			// UIスレッドの時は新しいスレッド内で実行
-			ExecutorService executor = Executors.newSingleThreadExecutor();
+			ExecutorService executor = BackgroundExecutor.get();
 			Future<Boolean> future = executor.submit(new Callable<Boolean>() {
 
 				@Override
@@ -790,7 +791,7 @@ public class SmbFileAccess {
 				}
 			});
 			try {
-				return future.get();
+				return future.get(BackgroundExecutor.UI_WAIT_TIMEOUT_SEC, TimeUnit.SECONDS);
 			} catch (Exception e) {
 				throw new FileAccessException(TAG + ": delete: " + e.getLocalizedMessage());
 			}
@@ -820,7 +821,7 @@ public class SmbFileAccess {
 			}
 		} else {
 			// UIスレッドの時は新しいスレッド内で実行
-			ExecutorService executor = Executors.newSingleThreadExecutor();
+			ExecutorService executor = BackgroundExecutor.get();
 			Future<Boolean> future = executor.submit(new Callable<Boolean>() {
 
 				@Override
@@ -841,7 +842,7 @@ public class SmbFileAccess {
 				}
 			});
 			try {
-				result = future.get();
+				result = future.get(BackgroundExecutor.UI_WAIT_TIMEOUT_SEC, TimeUnit.SECONDS);
 			} catch (Exception e) {
 				result = false;
 				Logcat.e(logLevel, "エラーが発生しました. uri=" + uri, e);
@@ -873,7 +874,7 @@ public class SmbFileAccess {
 			}
 		} else {
 			// UIスレッドの時は新しいスレッド内で実行
-			ExecutorService executor = Executors.newSingleThreadExecutor();
+			ExecutorService executor = BackgroundExecutor.get();
 			Future<Boolean> future = executor.submit(new Callable<Boolean>() {
 
 				@Override
@@ -894,7 +895,7 @@ public class SmbFileAccess {
 				}
 			});
 			try {
-				result = future.get();
+				result = future.get(BackgroundExecutor.UI_WAIT_TIMEOUT_SEC, TimeUnit.SECONDS);
 			} catch (Exception e) {
 				result = false;
 				Logcat.e(logLevel, "エラーが発生しました. uri=" + uri, e);

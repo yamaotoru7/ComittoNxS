@@ -335,7 +335,8 @@ public class ImageActivity extends AppCompatActivity implements OnTouchListener,
 	/** URIとパスと圧縮ファイル */
 	private String mFilePath = "";
 	/** ファイルのタイムスタンプ */
-	private long mTimestamp = 0L;
+	// ファイルの更新日時. ネットワークアクセスを伴うため ZipLoad で取得する
+	private volatile long mTimestamp = 0L;
 
 	private ImageManager mImageMgr = null;
 
@@ -624,7 +625,6 @@ public class ImageActivity extends AppCompatActivity implements OnTouchListener,
 		else {
 			mFilePath = mUriPath;
 		}
-		mTimestamp = FileAccess.date(mActivity, mFilePath, mUser, mPass);
 		Logcat.d(logLevel, "mUriPath=" + mUriPath + ", mFilePath=" + mFilePath);
 
 		saveLastFile();
@@ -818,6 +818,9 @@ public class ImageActivity extends AppCompatActivity implements OnTouchListener,
 
 		private void load() {
 			int logLevel = Logcat.LOG_LEVEL_WARN;
+
+			// 更新日時 (SMB ではネットワークアクセスになるため UI スレッドで取得しない)
+			mTimestamp = FileAccess.date(mActivity, mFilePath, mUser, mPass);
 
 			// ファイルリストの読み込み
 			mImageMgr = new ImageManager(this.mActivity, mUriPath, mFileName, mUser, mPass, mFileSort, handler, mHidden, ImageManager.OPENMODE_VIEW, mMaxThread);
