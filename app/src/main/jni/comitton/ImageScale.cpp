@@ -16,6 +16,7 @@
 extern IMAGEDATA	*gImageData[];
 extern LONG			**gLinesPtr[];
 extern LONG			**gSclLinesPtr[];
+extern int			gSclMaxLine[];
 
 extern BUFFMNG		*gBuffMng[];
 extern long			gBuffNum[];
@@ -615,6 +616,24 @@ int RefreshSclLinesPtr(int index, int Page, int Half, int Count, int Height, int
 #ifdef DEBUG
 	LOGD("RefreshSclLinePtr : 開始します. index=%d, page=%d, half=%d, Count=%d, h=%d, l=%d", index, Page, Half, Count, Height, LineSize);
 #endif
+	if (Height < 0) {
+		LOGE("RefreshSclLinePtr : invalid height=%d", Height);
+		return ERROR_CODE_MALLOC_FAILURE;
+	}
+	if (gSclLinesPtr[index] == nullptr) {
+		LOGE("RefreshSclLinePtr : gSclLinesPtr is null. index=%d", index);
+		return ERROR_CODE_MALLOC_FAILURE;
+	}
+	if (Height > gSclMaxLine[index]) {
+		// 縦長の画像では固定長 (MAX_LINES) を超えるので、高さに合わせて広げる
+		LONG **newPtr = (LONG **) realloc(gSclLinesPtr[index], sizeof(LONG *) * Height);
+		if (newPtr == nullptr) {
+			LOGE("RefreshSclLinePtr : realloc error. height=%d", Height);
+			return ERROR_CODE_MALLOC_FAILURE;
+		}
+		gSclLinesPtr[index] = newPtr;
+		gSclMaxLine[index] = Height;
+	}
 	for (int yy = 0 ; yy < Height ; yy ++) {
 		ret = NextSclBuff(index, Page, Half, Count, &buffindex, &buffpos, LineSize);
 //		LOGD("RefreshSclLinePtr : buffindex=%d, buffpos=%d, LineSize=%d", buffindex, buffpos, LineSize);

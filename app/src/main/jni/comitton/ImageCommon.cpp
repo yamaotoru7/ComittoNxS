@@ -53,6 +53,8 @@ int			*gSclIntParam2[MAX_BUFFER_INDEX] = {nullptr};
 int			*gSclIntParam3[MAX_BUFFER_INDEX] = {nullptr};
 int			gMaxColumn[MAX_BUFFER_INDEX] = {0};
 int			gMaxLine[MAX_BUFFER_INDEX] = {0};
+// gSclLinesPtr[index] に確保済みの行数
+int			gSclMaxLine[MAX_BUFFER_INDEX] = {0};
 
 int DrawBitmap(int index, int page, int half, int x, int y, void *canvas, int width, int height, int stride, IMAGEDATA *pData)
 {
@@ -395,12 +397,14 @@ int MemAlloc(int index, int buffsize)
         gSclBuffNum[index] = 0;
 
         // 保存先ラインポインタ確保
+        // MAX_LINES を超える高さの画像では RefreshSclLinesPtr() で拡張する
         gSclLinesPtr[index] = (LONG **) malloc(sizeof(LONG *) * MAX_LINES);
         if (gSclLinesPtr[index] == nullptr) {
             LOGE("MemAlloc: malloc error.(SclLineBuffPtr)");
             ret = ERROR_CODE_MALLOC_FAILURE;
             goto ERROREND;
         }
+        gSclMaxLine[index] = MAX_LINES;
 
         return ret;
     }
@@ -470,6 +474,7 @@ void MemFree(int index)
             free(gSclLinesPtr[index]);
             gSclLinesPtr[index] = nullptr;
         }
+        gSclMaxLine[index] = 0;
 
         ScaleMemLineFree(index);
         ScaleMemColumnFree(index);
