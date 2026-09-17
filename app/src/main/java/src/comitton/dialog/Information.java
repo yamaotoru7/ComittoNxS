@@ -126,6 +126,11 @@ public class Information implements DialogInterface.OnDismissListener {
 		int logLevel = Logcat.LOG_LEVEL_WARN;
 		Logcat.d(logLevel, "開始します.");
 
+		if (!DEF.RELEASE_CHECK_ENABLED) {
+			// 更新確認は停止中
+			return;
+		}
+
 		// 新しいリリースのチェック
 		mTurnOff = !manually;
 		boolean flag = false;

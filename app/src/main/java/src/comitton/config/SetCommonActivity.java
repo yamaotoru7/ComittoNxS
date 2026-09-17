@@ -60,6 +60,11 @@ public class SetCommonActivity extends BasePreferenceActivity {
 			setPreferencesFromResource(R.xml.common, rootKey);
 
 			mRotateBtn  = findPreference(DEF.KEY_ROTATEBTN);
+			// 更新確認を停止している間は設定項目も出さない
+			Preference checkRelease = findPreference(DEF.KEY_CHECK_RELEASE);
+			if (checkRelease != null) {
+				checkRelease.setVisible(DEF.RELEASE_CHECK_ENABLED);
+			}
 			mCharset    = findPreference(DEF.KEY_CHARSET);
 
 			mPriorityWord01 = findPreference(DEF.KEY_SORT_PRIORITY_WORD_01);

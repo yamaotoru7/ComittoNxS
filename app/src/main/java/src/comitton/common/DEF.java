@@ -48,6 +48,9 @@ public class DEF {
 
 	public static final Semaphore sSemaphoe = new Semaphore(1);
 
+	// 更新確認 (新しいリリースの通知) を行うか.
+	// API_RECENT_RELEASE が上流 ComittoNxX を指しており、このアプリとはバージョン体系が違うため一旦止めている
+	public static final boolean RELEASE_CHECK_ENABLED = false;
 	public static final String DOWNLOAD_URL = "https://github.com/ComittoNxA/ComittoNxX";
 	public static final String API_RECENT_RELEASE = "https://api.github.com/repos/ComittoNxA/ComittoNxX/releases/latest";
 	public static final int MESSAGE_FILE_DELETE = 1000;
