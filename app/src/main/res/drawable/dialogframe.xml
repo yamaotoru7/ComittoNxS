@@ -2,5 +2,6 @@
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
     <stroke android:width="5px" android:color="#808080" />
     <corners android:radius="8dp" />
-    <solid android:color="#cc000000"/>
+    <!-- 不透明にして背後の画面が透けないようにする(画面背景の黒と区別できるよう少し明るめ) -->
+    <solid android:color="#ff1e1e1e"/>
 </shape>

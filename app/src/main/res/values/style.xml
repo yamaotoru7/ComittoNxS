@@ -24,6 +24,10 @@
         <item name="colorPrimaryDark">@android:color/white</item> <!-- 半透明にするとAndroid7以下で起動できない-->
         <item name="colorAccent">@color/white1</item>
 
+        <!-- ListPreference / EditTextPreference など AndroidX 標準ダイアログのテーマ(Lightのままだと白地に白文字になる) -->
+        <item name="alertDialogTheme">@style/MyDialog</item>
+        <item name="android:alertDialogTheme">@style/MyDialog</item>
+
         <item name="colorError">@color/red1</item>
         <item name="colorButtonNormal">@color/lightgrey1</item>
         <item name="colorSwitchThumbNormal">@color/green2</item>
@@ -55,6 +59,8 @@
         <item name="android:textColor">@color/white1</item>
         <item name="android:textColorPrimary">@color/white1</item>
         <item name="android:textColorAlertDialogListItem">@color/blue1</item>
+        <!-- AppCompat の AlertDialog(単一/複数選択リスト)はこちらの属性を参照する -->
+        <item name="textColorAlertDialogListItem">@color/white1</item>
 
         <!-- EditTextのスタイル -->
         <item name="editTextStyle">@style/MyEditText</item>
