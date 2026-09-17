@@ -219,6 +219,11 @@ public class ImageManager extends InputStream implements Runnable {
 
 	private PdfRenderer mPdfRenderer = null;
 	private RarInputStream mRarStream = null;
+	// RAR 展開用のネイティブハンドル (cmpClose で解放)
+	private volatile long mRarHandle = 0;
+	// 一覧作成中に見つけたパスワード付きエントリ数と、ヘッダ自体が暗号化されているか
+	private int mRarEncryptedCount = 0;
+	private boolean mRarHeadersEncrypted = false;
 
 	private final int mMaxThreadNum;
 	private final String mRarCharset;
@@ -536,6 +541,12 @@ public class ImageManager extends InputStream implements Runnable {
 								use = false;
 							}
 
+							if (use && fl.encrypted) {
+								// パスワード付きエントリは展開できないので一覧に入れない
+								use = false;
+								mRarEncryptedCount++;
+							}
+
 							if (use) {
 								// リストへ登録
 								list.add(fl);
@@ -626,10 +637,20 @@ public class ImageManager extends InputStream implements Runnable {
 
 		sort(list);
 		mFileList = list.toArray(new FileListItem[0]);
+		if (mFileType == FILETYPE_RAR && list.isEmpty() && (mRarHeadersEncrypted || mRarEncryptedCount > 0)) {
+			// パスワード付き RAR は展開できない
+			throw new IOException(mActivity.getString(R.string.rarEncrypted) + "\n" + mFileName);
+		}
 		// RARであればメモリ確保
 		if (mFileType == FILETYPE_RAR) {
-			int ret = CallJniLibrary.rarAlloc(maxcmplen, maxorglen);
-			if (ret != 0) {
+			if (mRarHandle == 0) {
+				mRarHandle = CallJniLibrary.rarOpen();
+			}
+			if (mRarHandle == 0) {
+				throw new IOException("Memory Alloc Error.");
+			}
+			int ret = CallJniLibrary.rarAlloc(mRarHandle, maxcmplen, maxorglen);
+			if (ret != CallJniLibrary.RAR_OK) {
 				throw new IOException("Memory Alloc Error.");
 			}
 		}
@@ -944,6 +965,12 @@ public class ImageManager extends InputStream implements Runnable {
 			pos += vint.count;
 		}
 
+		if( htype == 4 ){
+			// アーカイブ暗号化ヘッダ: 以降のヘッダは暗号化されていて読めない
+			mRarHeadersEncrypted = true;
+			throw new IOException("RAR5 headers are encrypted.");
+		}
+
 		// ファイルヘッダー以外はスキップ
 		if( htype != 2 ){
 //			Logcat.d( logLevel, "RAR5 not FileHeader." );
@@ -1021,6 +1048,47 @@ public class ImageManager extends InputStream implements Runnable {
 			}
 		}
 
+		// 暗号化レコード (extra area の type 0x01) があればパスワード付き
+		boolean encrypted = false;
+		if( hextra > 0 ){
+			int extraPos = headpos + hsize - hextra;
+			int extraEnd = headpos + hsize;
+			if( extraPos >= pos + fnlen && extraEnd <= readsize ){
+				while( extraPos < extraEnd ){
+					VintData recSize = readVint( buf, extraPos );
+					int recStart = extraPos + recSize.count;
+					if( recSize.vint <= 0 || recStart + recSize.vint > extraEnd ){
+						break;
+					}
+					VintData recType = readVint( buf, recStart );
+					if( recType.vint == 0x01 ){
+						encrypted = true;
+						break;
+					}
+					extraPos = recStart + recSize.vint;
+				}
+			}
+		}
+
+		// 圧縮アルゴリズム: 0=RAR5, 1=RAR7 (RAR5 互換フラグがあれば RAR5)
+		int algo = cinfo & 0x3f;
+		byte unpVer;
+		long winSize;
+		if( algo == 0 ){
+			unpVer = 50;
+			winSize = 0x20000L << ((cinfo >>> 10) & 0x0f);
+		}
+		else if( algo == 1 ){
+			unpVer = (cinfo & 0x00100000) != 0 ? (byte) 50 : (byte) 70;
+			winSize = 0x20000L << ((cinfo >>> 10) & 0x1f);
+			winSize += winSize / 32 * ((cinfo >>> 15) & 0x1f);
+		}
+		else {
+			// 未対応のアルゴリズム. 展開時にエラーになる
+			unpVer = 0;
+			winSize = 0;
+		}
+
 		FileListItem file = new FileListItem();
 		file.name = name;
 		file.cmppos = cmppos;
@@ -1028,7 +1096,9 @@ public class ImageManager extends InputStream implements Runnable {
 		file.cmplen = hdata + hsize + headpos;//lenCmp + hsize;
 		file.orglen = lenOrg;
 		file.header = hsize + headpos;
-		file.version = 50;
+		file.version = unpVer;
+		file.winsize = winSize;
+		file.encrypted = encrypted;
 		file.nocomp = (cinfo & 0x0380) == 0;	// 無圧縮か
 //		file.bmpsize = 0;
 		file.dtime = d.getTime();
@@ -1092,8 +1162,11 @@ public class ImageManager extends InputStream implements Runnable {
 			}
 			else {
 				// RAR_HTYPE_MAIN
-				// 特にチェックなし
-
+				if (htype == RAR_HTYPE_MAIN && (hflags & 0x0080) != 0) {
+					// MHD_PASSWORD: 以降のヘッダは暗号化されていて読めない
+					mRarHeadersEncrypted = true;
+					throw new IOException("RAR headers are encrypted.");
+				}
 			}
 			skip = true;
 		}
@@ -1168,6 +1241,9 @@ public class ImageManager extends InputStream implements Runnable {
 		imgfile.header = hsize;
 		imgfile.version = rarVer;
 		imgfile.nocomp = method == RAR_METHOD_STORING;
+		// LHD_WINDOWMASK から辞書サイズ, LHD_PASSWORD からパスワードの有無
+		imgfile.winsize = 0x10000L << ((hflags & 0x00e0) >> 5);
+		imgfile.encrypted = (hflags & 0x0004) != 0;
 //		imgfile.bmpsize = 0;
 		imgfile.dtime = d.getTime();
 		return imgfile;
@@ -2619,7 +2695,11 @@ public class ImageManager extends InputStream implements Runnable {
 		}
 		if (mFileType == FILETYPE_RAR) {
 			// RARの領域解放
-			CallJniLibrary.rarClose();
+			long handle = mRarHandle;
+			mRarHandle = 0;
+			if (handle != 0) {
+				CallJniLibrary.rarClose(handle);
+			}
 		}
 	}
 
@@ -3170,7 +3250,7 @@ public class ImageManager extends InputStream implements Runnable {
 			// メモリキャッシュ読込時のみRAR展開する
 			// ファイルキャッシュを作成するときはRAR展開不要
 			if (mRarStream == null || mRarStream.getLoadPage() != page) {
-				mRarStream = new RarInputStream(new BufferedInputStream(this, BIS_BUFFSIZE), page, mFileList[page]);
+				mRarStream = new RarInputStream(mRarHandle, new BufferedInputStream(this, BIS_BUFFSIZE), page, mFileList[page]);
 			}
 			else {
 				mRarStream.initSeek();
@@ -3651,7 +3731,7 @@ public class ImageManager extends InputStream implements Runnable {
 				// メモリキャッシュ読込時のみRAR展開する
 				// ファイルキャッシュを作成するときはRAR展開不要
 				Logcat.d(logLevel, "mFileType == FILETYPE_RAR");
-				mRarStream = new RarInputStream(new BufferedInputStream(this, BIS_BUFFSIZE), page, mFileList[page]);
+				mRarStream = new RarInputStream(mRarHandle, new BufferedInputStream(this, BIS_BUFFSIZE), page, mFileList[page]);
 				mRarStream.read(result, 0, result.length);
 			}
 			else {
@@ -3755,7 +3835,7 @@ public class ImageManager extends InputStream implements Runnable {
 				// メモリキャッシュ読込時のみRAR展開する
 				// ファイルキャッシュを作成するときはRAR展開不要
 				if (mRarStream == null || mRarStream.getLoadPage() != page) {
-					mRarStream = new RarInputStream(new BufferedInputStream(this, BIS_BUFFSIZE), page, mFileList[page]);
+					mRarStream = new RarInputStream(mRarHandle, new BufferedInputStream(this, BIS_BUFFSIZE), page, mFileList[page]);
 				}
 				else {
 					mRarStream.initSeek();
@@ -3896,7 +3976,7 @@ public class ImageManager extends InputStream implements Runnable {
 				// メモリキャッシュ読込時のみRAR展開する
 				// ファイルキャッシュを作成するときはRAR展開不要
 				if (mRarStream == null || mRarStream.getLoadPage() != page) {
-					mRarStream = new RarInputStream(new BufferedInputStream(this, BIS_BUFFSIZE), page, mFileList[page]);
+					mRarStream = new RarInputStream(mRarHandle, new BufferedInputStream(this, BIS_BUFFSIZE), page, mFileList[page]);
 				}
 				else {
 					mRarStream.initSeek();
@@ -4997,7 +5077,7 @@ public class ImageManager extends InputStream implements Runnable {
 					} else if (mFileType == FILETYPE_RAR) {
 						// メモリキャッシュ読込時のみRAR展開する
 						// ファイルキャッシュを作成するときはRAR展開不要
-						mRarStream = new RarInputStream(new BufferedInputStream(this, BIS_BUFFSIZE), page, mFileList[page], mHandler);
+						mRarStream = new RarInputStream(mRarHandle, new BufferedInputStream(this, BIS_BUFFSIZE), page, mFileList[page], mHandler);
 						while (mRunningFlag) {
 							if (mCloseFlag) {
 								break;

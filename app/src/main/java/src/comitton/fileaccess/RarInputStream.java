@@ -4,298 +4,111 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import src.comitton.common.DEF;
-import src.comitton.fileview.data.FileData;
 import src.comitton.fileview.data.FileListItem;
 import src.comitton.jni.CallJniLibrary;
 
-import android.app.Activity;
 import android.os.Handler;
 import android.os.Message;
 
+/**
+ * RAR の 1 エントリを展開して読み出すストリーム.
+ * <p>
+ * 展開用のハンドル (CallJniLibrary.rarOpen) は呼び出し側が所有する. このクラスの close() では解放しない.
+ */
 public class RarInputStream extends InputStream {
-	public static final int OFFSET_RAR_HCRC = 0;
-	public static final int OFFSET_RAR_HTYPE = 2;
-	public static final int OFFSET_RAR_HFLAGS = 3;
-	public static final int OFFSET_RAR_HSIZE = 5;
-	public static final int OFFSET_RAR_ASIZE = 7;
 
-	// Marker Block
-	// Archive Header
-	public static final int OFFSET_RAR_RESV1 = 7; // 2bytes
-	public static final int OFFSET_RAR_RESV2 = 9; // 4bytes
+	private final long mHandle;
+	private final int mPage;
 
-	// FileHeader
-	public static final int OFFSET_RAR_PKSIZE = 7; // 4bytes
-	public static final int OFFSET_RAR_UNSIZE = 11; // 4bytes
-	public static final int OFFSET_RAR_HOSTOS = 15; // 1byte
-	public static final int OFFSET_RAR_FCRC = 16; // 4bytes
-	public static final int OFFSET_RAR_FTIME = 20; // 4bytes
-	public static final int OFFSET_RAR_UNPVER = 24; // 1byte
-	public static final int OFFSET_RAR_METHOD = 25; // 1byte
-	public static final int OFFSET_RAR_FNSIZE = 26; // 2bytes
-	public static final int OFFSET_RAR_ATTRIB = 28; // 4bytes
-	public static final int OFFSET_RAR_FNAME = 32; // OFFSET_RAR_FNSIZE
-//
-	public static final int RAR_HTYPE_MARK = 0x72;
-	public static final int RAR_HTYPE_MAIN = 0x73;
-	public static final int RAR_HTYPE_FILE = 0x74;
-
-	public static final byte RAR_METHOD_STORING = 0x30;
-
-	Activity mActivity;
-	Handler mHandler;
-	InputStream	mInputStream;
-	int mPage;
-
-	public RarInputStream(Activity activity, InputStream is, String charset) throws IOException {
-		// TODO: RAR5対応されていない
-		mActivity = activity;
-		mInputStream = is;
-
-		byte[] buff = new byte[1024 * 8];
-		int retsize;
-		int readsize;
-		int ret;
-		int datasize, orglen;
-		byte rarver;
-		byte method;
-
-		int header = OFFSET_RAR_HSIZE + 2;
-		int hcrc;
-		int htype;
-		int hflags;
-		int hsize;
-		int asize;
-
-		int maxcmplen = 0;
-		int maxorglen = 0;
-
-		int count = 0;
-
-		while (true) {
-			// ヘッダ読込
-			retsize = is.read(buff, 0, header);
-
-			hcrc = getShort(buff, OFFSET_RAR_HCRC);
-			htype = buff[OFFSET_RAR_HTYPE];
-			hflags = getShort(buff, OFFSET_RAR_HFLAGS);
-			hsize = getShort(buff, OFFSET_RAR_HSIZE);
-			asize = 0;
-
-			if (hsize > header) {
-				if (hsize <= buff.length) {
-					retsize = is.read(buff, header, hsize - header);
-					if (retsize < hsize - header) {
-						// ヘッダがおかしい
-						throw new IOException("This RAR File Format is not supported.");
-					}
-				}
-				else {
-					// ヘッダがおかしい
-					throw new IOException("This RAR File is broken.");
-				}
-			}
-
-			boolean skip = false;
-
-			if (htype != RAR_HTYPE_FILE) {
-				if (htype == RAR_HTYPE_MARK) {
-					if (hcrc != 0x6152 || hflags != 0x1a21 || hsize != 0x0007) {
-						// ヘッダがおかしい
-						throw new IOException("This RAR File Format is not supported.");
-					}
-				}
-				else {
-					// RAR_HTYPE_MAIN
-					// 特にチェックなし
-
-				}
-				skip = true;
-			}
-			else {
-				if ((hflags & 0x0100) != 0) {
-					// 巨大ファイルの時は見ない
-					skip = true;
-				}
-			}
-
-			if (skip) {
-				// ヘッダの残りを読込
-				asize = (hflags & 0x8000) == 0 ? 0 : getInt(buff, OFFSET_RAR_ASIZE);
-				if (asize > 0) {
-					if (hsize + asize <= buff.length) {
-						// 追加ヘッダが有りかつバッファに入りきる
-						retsize = is.read(buff, hsize, asize);
-						if (retsize < asize) {
-							// ヘッダがおかしい
-							throw new IOException("This RAR File Format is not supported.");
-						}
-					}
-					else {
-						// ヘッダがおかしい
-						throw new IOException("This RAR File is broken.");
-					}
-				}
-			}
-			else {
-				// ファイル情報取得
-				datasize = getInt(buff, OFFSET_RAR_PKSIZE);
-				orglen = getInt(buff, OFFSET_RAR_UNSIZE);
-				rarver = buff[OFFSET_RAR_UNPVER];
-				method = buff[OFFSET_RAR_METHOD];
-
-				// ファイル名取得
-				int lenFName = getShort(buff, OFFSET_RAR_FNSIZE);
-				int posFName = OFFSET_RAR_FNAME;
-				String name = "";
-
-				if (hsize + asize >= lenFName + posFName) {
-					// ファイル名までのデータがあり
-					try {
-						for (int i = 0; i < lenFName; i++) {
-							if (buff[posFName + i] == 0) {
-								lenFName = i;
-								break;
-							}
-						}
-						name = new String(buff, posFName, lenFName, charset);
-					}
-					catch (Exception e) {
-						name = "";
-					}
-				}
-				int len = name.length();
-				skip = true;
-				if (FileData.isImage(mActivity, name)) {
-					skip = false;
-				}
-
-				if (skip) {
-					while (datasize > 0) {
-						readsize = buff.length;
-						if (readsize > datasize) {
-							readsize = datasize;
-						}
-						retsize = is.read(buff, 0, readsize);
-						if (retsize <= 0) {
-							break;
-						}
-						datasize -= retsize;
-					}
-					count ++;
-					if (count > 10) {
-						break;
-					}
-					continue;
-				}
-
-
-				if (maxcmplen < datasize || maxorglen < orglen) {
-					maxcmplen = datasize;
-					maxorglen = orglen;
-					ret = CallJniLibrary.rarAlloc(maxcmplen, maxorglen);
-					if (ret != 0) {
-						throw new IOException("RAR malloc error.");
-					}
-				}
-				ret = CallJniLibrary.rarInit(datasize, orglen, rarver, method == RAR_METHOD_STORING);
-				if (ret != 0) {
-					throw new IOException("Illegal function call.");
-				}
-
-				while (datasize > 0) {
-					readsize = buff.length;
-					if (readsize > datasize) {
-						readsize = datasize;
-					}
-					retsize = is.read(buff, 0, readsize);
-					if (retsize <= 0) {
-						break;
-					}
-					datasize -= retsize;
-					CallJniLibrary.rarWrite(buff, 0, retsize);
-				}
-				// 変換
-				CallJniLibrary.rarDecomp();
-				break;
-			}
-		}
+	public RarInputStream(long handle, InputStream is, int page, FileListItem fi) throws IOException {
+		this(handle, is, page, fi, null);
 	}
 
-	// 4バイト数値取得
-	public int getInt(byte[] b, int pos) {
-		int val;
-		val = ((int) b[pos] & 0x000000FF) | (((int) b[pos + 1] << 8) & 0x0000FF00) | (((int) b[pos + 2] << 16) & 0x00FF0000) | (((int) b[pos + 3] << 24) & 0xFF000000);
-
-		return val;
-	}
-
-	// 2バイト数値取得
-	public short getShort(byte[] b, int pos) {
-		int val;
-		val = ((int) b[pos] & 0x000000FF) | (((int) b[pos + 1] << 8) & 0x0000FF00);
-
-		return (short) val;
-	}
-
-	public RarInputStream(InputStream is, int page, FileListItem fi) throws IOException {
-		this(is, page, fi, null);
-	}
-
-	public RarInputStream(InputStream is, int page, FileListItem fi, Handler handler) throws IOException {
-		mInputStream = is;
-		mHandler = handler;
+	/**
+	 * @param is エントリのヘッダ位置から読み出せる入力
+	 */
+	public RarInputStream(long handle, InputStream is, int page, FileListItem fi, Handler handler) throws IOException {
+		mHandle = handle;
 		mPage = page;
-		int cmplen = fi.cmplen;
-		int orglen = fi.orglen;
+		if (handle == 0) {
+			throw new IOException("RAR handle is not open.");
+		}
+		if (fi.encrypted) {
+			throw new IOException("Password protected RAR entries are not supported.");
+		}
+
 		int header = fi.header;
-		byte rarver = fi.version;
-		boolean nocomp = fi.nocomp;
+		int datasize = fi.cmplen - header;
+
+		int ret = CallJniLibrary.rarInit(handle, datasize, fi.orglen, fi.version, fi.winsize, fi.nocomp);
+		if (ret != CallJniLibrary.RAR_OK) {
+			throw new IOException("RAR init error. code=" + ret);
+		}
 
 		byte[] buff = new byte[1024 * 100];
-		int	retsize;
-		int readsize;
-		int datasize = cmplen - header;
-		int ret;
+		// ヘッダを読み飛ばす
+		skipFully(is, buff, header);
 
-		ret = CallJniLibrary.rarInit(cmplen - header, orglen, rarver, nocomp);
-		if (ret != 0) {
-			throw new IOException("Illegal function call.");
-		}
-
-		retsize = is.read(buff, 0, header);
 		int remain = datasize;
-
 		int msgCount = 0;
 		long startTime = System.currentTimeMillis();
 		while (remain > 0) {
-			readsize = buff.length;
-			if (readsize > remain) {
-				readsize = remain;
-			}
-			retsize = is.read(buff, 0, readsize);
+			int readsize = Math.min(buff.length, remain);
+			int retsize = is.read(buff, 0, readsize);
 			if (retsize <= 0) {
+				// 途中で切れている. rarDecomp で検出される
 				break;
 			}
 			remain -= retsize;
-			CallJniLibrary.rarWrite(buff, 0, retsize);
-			if(mHandler != null) {
+			int written = CallJniLibrary.rarWrite(handle, buff, 0, retsize);
+			if (written < 0) {
+				throw new IOException("RAR write error. code=" + written);
+			}
+			if (handler != null) {
 				long nowTime = System.currentTimeMillis();
-				if (nowTime - startTime > (msgCount + 1) * 200) {
+				if (nowTime - startTime > (msgCount + 1) * 200L) {
 					msgCount++;
-					int prog = (int) ((long) (datasize - remain) * 100 / datasize);
-					int rate = (int) ((long) (datasize - remain) * 10 / (nowTime - startTime));
+					int prog = (int) ((long) (datasize - remain) * 100 / Math.max(datasize, 1));
+					int rate = (int) ((long) (datasize - remain) * 10 / Math.max(nowTime - startTime, 1));
 					Message message = new Message();
 					message.what = DEF.HMSG_LOADING;
 					message.arg1 = prog << 24;
 					message.arg2 = rate;
 					message.obj = null;
-					mHandler.sendMessage(message);
+					handler.sendMessage(message);
 				}
 			}
 		}
+
 		// 変換
-		CallJniLibrary.rarDecomp();
+		ret = CallJniLibrary.rarDecomp(handle);
+		if (ret != CallJniLibrary.RAR_OK) {
+			throw new IOException(decompErrorMessage(ret, fi));
+		}
+	}
+
+	private static void skipFully(InputStream is, byte[] buff, int size) throws IOException {
+		int remain = size;
+		while (remain > 0) {
+			int retsize = is.read(buff, 0, Math.min(buff.length, remain));
+			if (retsize <= 0) {
+				throw new IOException("RAR header is truncated.");
+			}
+			remain -= retsize;
+		}
+	}
+
+	private static String decompErrorMessage(int code, FileListItem fi) {
+		switch (code) {
+			case CallJniLibrary.RAR_ERROR_TRUNCATED:
+				return "RAR data is truncated. name=" + fi.name;
+			case CallJniLibrary.RAR_ERROR_INCOMPLETE:
+				return "RAR data is broken or uses an unsupported format (solid archive etc.). name=" + fi.name;
+			case CallJniLibrary.RAR_ERROR_MALLOC:
+				return "Not enough memory to unpack RAR. name=" + fi.name;
+			default:
+				return "RAR unpack error. code=" + code + ", name=" + fi.name;
+		}
 	}
 
 	// 読み込み済みのページを返す
@@ -305,25 +118,33 @@ public class RarInputStream extends InputStream {
 
 	// 現在の展開ファイルをもう一度最初から返す
 	public void initSeek() {
-		CallJniLibrary.rarInitSeek();
+		CallJniLibrary.rarInitSeek(mHandle);
 	}
 
 	@Override
 	public int read() throws IOException {
-		// TODO 自動生成されたメソッド・スタブ
-		return 0;
+		byte[] one = new byte[1];
+		int ret = read(one, 0, 1);
+		return ret <= 0 ? -1 : (one[0] & 0xFF);
 	}
 
 	@Override
 	public int read(byte[] buf, int off, int len) throws IOException {
-		int ret = CallJniLibrary.rarRead(buf, off, len);
+		if (len == 0) {
+			return 0;
+		}
+		int ret = CallJniLibrary.rarRead(mHandle, buf, off, len);
+		if (ret < 0) {
+			throw new IOException("RAR read error. code=" + ret);
+		}
 		if (ret == 0) {
 			ret = -1;
 		}
 		return ret;
 	}
 
+	@Override
 	public void close() {
-		CallJniLibrary.rarClose();
+		// ハンドルは所有者 (ImageManager) が解放する
 	}
 }

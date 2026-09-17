@@ -37,8 +37,8 @@ lint (`:app:lintDebug`) とユニットテスト (`:app:testDebugUnitTest`) の�
 | A-11 | 高 | `imageview/ImageManager.java:2236-2245` | `read()` が例外時に `Arrays.fill(buf, off, len - off, 0)` (第 3 引数は toIndex) でゼロ埋めし `len - off` を返す。壊れたデータが正常として描画される。`-1` を返すか IOException を投げる。 | 対応済 | IOException を送出するように変更 |
 | A-12 | 高 | `fileview/FileSelectActivity.java:2879-2886` | しおり一括削除の `substring(0, urilen + 1)` が 1 文字長く一致しない。`key.length() == urilen` で例外。`regionMatches` に置き換える。 | 対応済 | regionMatches に置換 |
 | A-13 | 高 | `fileview/FileSelectActivity.java:396-405`, `AndroidManifest.xml` | ACTION_VIEW / SEND の `content://` を `getPath()` でローカルパス扱い。API 24 以降 `file://` は来ないため共有受け口が機能していない。scheme で分岐し SafFileAccess を使う。 | 対応済 | content:// はファイルピッカーと同じく SAF 経由で開き、file:// は従来どおりローカルパスとして開く。ファイル一覧の準備後に開くよう遅らせ、開いた後は一覧の表示位置を戻す。共有元が許可していれば権限を永続化する。実機 (Android 16) で MediaStore の content URI を渡し、zip の中身が表示されることを確認済み。 |
-| A-14 | 高 | `jni/comitton/callUnrar.cpp:162-165, 190-193` | 格納エントリで `OrigLen > CompLen` のヘッダーはヒープ越え読み。`rarDecomp` は常に 0 を返し unrar のエラーが Java に届かない。暗号化 RAR はごみ画素で「成功」する。 | 未対応 | |
-| A-15 | 高 | `jni/comitton/callUnrar.cpp:12-26, 241-252` | unrar の状態 (`FromBuff/ToBuff/DataIO/Unp`) がプロセスグローバルでロックなし。`rarClose` の `free` と別スレッドの `rarWrite` が競合すると use-after-free。 | 未対応 | |
+| A-14 | 高 | `jni/comitton/callUnrar.cpp:162-165, 190-193` | 格納エントリで `OrigLen > CompLen` のヘッダーはヒープ越え読み。`rarDecomp` は常に 0 を返し unrar のエラーが Java に届かない。暗号化 RAR はごみ画素で「成功」する。 | 対応済 | rarDecomp が失敗を返すようにした (入力の途中切れ、展開量の不足、unrar の例外、無圧縮エントリのサイズ矛盾)。Java 側は例外にして表示する。RAR4 / RAR5 のヘッダから暗号化を判定し、パスワード付きエントリは一覧から除外、すべて暗号化なら「パスワード付きの RAR には対応していません」を表示する。辞書サイズと RAR7 の判定をヘッダから取り、エントリごとに展開器を初期化する。実機で無圧縮の RAR4 / RAR5、パスワード付き (ファイル単位 2 種とヘッダ暗号化)、途中で切れた RAR を確認済み。圧縮データの展開は検証用の RAR を作れないため未確認。ソリッド RAR は従来どおり非対応で、今は壊れた画像ではなくエラーになる。 |
+| A-15 | 高 | `jni/comitton/callUnrar.cpp:12-26, 241-252` | unrar の状態 (`FromBuff/ToBuff/DataIO/Unp`) がプロセスグローバルでロックなし。`rarClose` の `free` と別スレッドの `rarWrite` が競合すると use-after-free。 | 対応済 | 展開状態をハンドルごとに持たせ、ImageManager がハンドルを所有する。各 JNI 呼び出しはハンドルのロックを取り、解放は処理中の呼び出しを待ってから行う。ハンドルは番号で管理し、解放済みなら何もせずエラーを返す。同じ ImageManager 内の複数スレッドから同時に別エントリを展開した場合の順序は従来どおり呼び出し側のロックに依存する。 |
 
 ## B. 優先度中: リーク・パフォーマンス・設計
 

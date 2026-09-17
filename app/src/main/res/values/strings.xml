@@ -543,6 +543,7 @@
     <string name="CacheNotInitialized">The cache is uninitialized or has been released</string>
 
 
+    <string name="rarEncrypted">Password protected RAR archives are not supported.</string>
     <string name="UnknownArchiveFormat">Unknown Archive Format.</string>
     <string name="ErrorNoPages">There are no pages to display.</string>
 

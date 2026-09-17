@@ -22,5 +22,7 @@ public class FileListItem {
 	public boolean error;
 	public byte version;	// バージョン(rarのみ使用)
 	public boolean nocomp;	// 無圧縮フラグ(rarのみ使用)
+	public long winsize;	// 辞書サイズ (rarのみ使用. 0 なら既定値)
+	public boolean encrypted;	// パスワード付き (rarのみ使用)
 	public boolean sizefixed; // ZIPのcmplenを修正済みかどうか
 };

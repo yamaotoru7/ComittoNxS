@@ -542,6 +542,7 @@
     <string name="CacheNotInitialized">キャッシュは初期化されていないか解放済みです</string>
 
 
+    <string name="rarEncrypted">パスワード付きの RAR には対応していません.</string>
     <string name="UnknownArchiveFormat">圧縮形式が不明です.</string>
     <string name="ErrorNoPages">表示するページがありません.</string>
 
