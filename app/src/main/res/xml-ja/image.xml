@@ -1,133 +1,134 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
     <PreferenceCategory android:title="起動時状態の設定" >
-        <ListPreference
+        <src.comitton.config.DescListPreference
             android:defaultValue="2"
             android:dialogTitle="サイズ調整方法"
             android:entries="@array/scale_name_list"
             android:entryValues="@array/scale_value_list"
             android:key="IniScale"
-            android:summary="dummy"
+            android:summary="ファイルを開いたときの画像サイズ。表示中に変えた倍率は一時的なものです"
             android:title="サイズ調整方法" />
-        <ListPreference
+        <src.comitton.config.DescListPreference
             android:defaultValue="1"
             android:dialogTitle="見開きモード"
             android:entries="@array/initview_name_list"
             android:entryValues="@array/initview_value_list"
             android:key="InitView"
-            android:summary="dummy"
+            android:summary="縦長ページを 2 枚並べるか、横長ページを左右に分けて表示するか"
             android:title="見開きモード" />
-        <ListPreference
+        <src.comitton.config.DescListPreference
             android:defaultValue="2"
             android:dialogTitle="画像補間方式"
             android:entries="@array/algomode_name_list"
             android:entryValues="@array/algomode_value_list"
             android:key="AlgoMode"
-            android:summary="dummy"
+            android:summary="拡大縮小の補間方法。最近傍が最速、双三次が最も滑らかです。二段階は縮小時の画質が上がります"
             android:title="画像補間方式" />
-        <ListPreference
+        <src.comitton.config.DescListPreference
             android:defaultValue="0"
             android:dialogTitle="余白の削除"
             android:entries="@array/mgncut_name_list"
             android:entryValues="@array/mgncut_value_list"
             android:key="MarginCut"
-            android:summary="dummy"
+            android:summary="画像周囲の余白を自動で切り落とす強さ。縦横比無視は最大限削りますが画像が伸びることがあります"
             android:title="余白の削除" />
-        <ListPreference
+        <src.comitton.config.DescListPreference
             android:defaultValue="0"
             android:dialogTitle="余白の削除対象の色"
             android:entries="@array/mgncut_color_name_list"
             android:entryValues="@array/mgncut_color_value_list"
             android:key="MarginCutColor"
-            android:summary="dummy"
+            android:summary="余白として扱う色。色付きの余白も削る場合は「全ての色」を選びます"
             android:title="余白の削除対象の色" />
 <!--
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="false"
             android:key="Sharpen"
+            android:summary="縮小表示した画像の輪郭を強調します(処理は少し重くなります)"
             android:title="画像のシャープ化" />
 -->
     </PreferenceCategory>
     <PreferenceCategory android:title="表示関連の設定（＊はテキストと共通の設定）" >
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"
             android:key="Notice"
             android:summary="イメージ表示画面を一旦閉じたあと有効"
             android:title="通知領域を非表示にする" />
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="false"
             android:key="NoSleep"
             android:summary="イメージ表示画面を一旦閉じたあと有効"
             android:title="スリープさせない" />
-        <ListPreference
+        <src.comitton.config.DescListPreference
             android:defaultValue="0"
             android:dialogTitle="表示方向"
             android:entries="@array/rotate_name_list"
             android:entryValues="@array/rotate_value_list"
             android:key="ViewRota"
-            android:summary="dummy"
+            android:summary="イメージ表示画面の向き。縦固定(90°回転)はステータスバーを消せない端末向けです"
             android:title="表示方向" />
-        <ListPreference
+        <src.comitton.config.DescListPreference
             android:defaultValue="1"
             android:dialogTitle="書庫内ファイルのソート"
             android:entries="@array/filesort_name_list"
             android:entryValues="@array/filesort_value_list"
             android:key="FileSort"
-            android:summary="dummy"
+            android:summary="書庫やフォルダ内の画像を表示する順番"
             android:title="書庫内ファイルのソート" />
-        <ListPreference
+        <src.comitton.config.DescListPreference
             android:defaultValue="0"
             android:dialogTitle="ページをめくる方向"
             android:entries="@array/pageway_name_list"
             android:entryValues="@array/pageway_value_list"
             android:key="PageWay"
-            android:summary="dummy"
+            android:summary="右表紙(右から左)か左表紙(左から右)か。見開きの並びやページ選択の向きにも影響します"
             android:title="ページをめくる方向" />
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="false"
             android:key="NoExpand"
             android:summary="元の画像サイズ以上に拡大しない"
             android:title="拡大しない" />
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"
             android:key="FitDual"
             android:summary="並べて表示のとき高さが小さい画像を大きい方に合わせて拡大します"
             android:title="並べて表示で高さを揃える" />
-        <ListPreference
+        <src.comitton.config.DescListPreference
             android:defaultValue="4"
             android:dialogTitle="ルーペ表示の拡大率"
             android:entries="@array/zoomsize_name_list"
             android:entryValues="@array/zoomsize_value_list"
             android:key="ZoomType"
-            android:summary="dummy"
+            android:summary="長押しで表示するルーペの拡大率。元画像基準と表示サイズ基準から選べます"
             android:title="ルーペ表示の拡大率" />
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"
             android:key="CMargin"
             android:summary="並べて表示のとき画像の間に余白を空ける"
             android:title="中央に余白を表示" />
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="false"
             android:key="CShadow"
             android:summary="並べて表示のとき画像の中央に影を描画する"
             android:title="中央に影を描画" />
-        <ListPreference
+        <src.comitton.config.DescListPreference
             android:defaultValue="1"
             android:dialogTitle="ページめくりのエフェクト"
             android:entries="@array/effect_name_list"
             android:entryValues="@array/effect_value_list"
             android:key="EffectList"
-            android:summary="dummy"
+            android:summary="ページを切り替えたときのアニメーション"
             android:title="ページめくりのエフェクト" />
-        <ListPreference
+        <src.comitton.config.DescListPreference
             android:defaultValue="0"
             android:dialogTitle="画像の初期表示位置"
             android:entries="@array/viewpt_name_list"
             android:entryValues="@array/viewpt_value_list"
             android:key="ViewPt"
-            android:summary="dummy"
+            android:summary="ページを開いた直後に画面のどの角を表示するか。右表紙なら右上が標準です"
             android:title="画像の初期表示位置＊" />
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"
             android:key="PrevRev"
             android:summary="前ページに戻る時、横方向の表示位置を初期表示位置の反対にします"
@@ -136,43 +137,43 @@
             android:dialogTitle="ページ番号表示"
             android:key="PageNumber"
             android:negativeButtonText="@null"
-            android:summary="dummy"
+            android:summary="ページ番号の表示位置・書式・色"
             android:title="ページ番号表示" />
         <src.comitton.config.TimeAndBatteryPreference
             android:dialogTitle="時刻と充電表示"
             android:key="TimeAndBattery"
             android:negativeButtonText="@null"
-            android:summary="dummy"
+            android:summary="時刻と電池残量の表示と書式"
             android:title="時刻と充電表示＊" />
     </PreferenceCategory>
     <PreferenceCategory android:title="操作関連の設定（＊はテキストと共通の設定）" >
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"
             android:key="ConfirmBack"
             android:summary="戻るボタンで画面を閉じるときに確認メッセージを表示する"
             android:title="戻るボタンで確認表示＊" />
-        <ListPreference
+        <src.comitton.config.DescListPreference
             android:defaultValue="1"
             android:dialogTitle="最終/先頭ページでの動作"
             android:entries="@array/lastpage_name_list"
             android:entryValues="@array/lastpage_value_list"
             android:key="LastPage"
-            android:summary="dummy"
+            android:summary="最終ページで次へ(先頭ページで前へ)進もうとしたときの動作"
             android:title="最終/先頭ページでの動作＊" />
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"
             android:key="SavePage"
             android:summary="終了操作をせずにアプリが停止した場合も読んだ位置が記録される"
             android:title="ページ移動時にしおり保存" />
-        <ListPreference
+        <src.comitton.config.DescListPreference
             android:defaultValue="0"
             android:dialogTitle="スクロール方向"
             android:entries="@array/scroll_name_list"
             android:entryValues="@array/scroll_value_list"
             android:key="ScrlWay"
-            android:summary="dummy"
+            android:summary="音量ボタン等でスクロールするとき横と縦のどちらを先に動かすか。4 コマ漫画は縦→横が向きます"
             android:title="音量ボタン等でのスクロール方向" />
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"
             android:key="DelShare"
             android:summary="イメージ表示画面終了時に共有で使用した一時ファイルを削除する"
@@ -182,9 +183,9 @@
             android:dialogTitle="タップ位置のパターン"
             android:key="TapPattern"
             android:negativeButtonText="@null"
-            android:summary="dummy"
+            android:summary="画面のタップ位置ごとに割り当てる操作のパターン"
             android:title="タップ操作のパターン＊" />
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="false"
             android:key="ChgPage"
             android:summary="チェックにより画面左:次ページ/画面右:前ページの移動になります"
@@ -194,63 +195,63 @@
             android:key="OldPageSel"
             android:summary="チェックにより画面下部をドラッグする方式のページ選択になります"
             android:title="旧タイプのページ選択＊" /-->
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="false"
             android:key="VibFlag"
             android:summary="イメージの操作・選択により振動させる"
             android:title="振動を有効にする＊" />
-        <ListPreference
+        <src.comitton.config.DescListPreference
             android:defaultValue="1"
             android:dialogTitle="音量ボタンでのページめくり"
             android:entries="@array/volkey_name_list"
             android:entryValues="@array/volkey_value_list"
             android:key="VolKey"
-            android:summary="dummy"
+            android:summary="音量ボタンにページ送りを割り当てるか、その向き"
             android:title="音量ボタンでのページめくり＊" />
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="false"
             android:key="TapScrl"
             android:summary="タップでスクロールも行う"
             android:title="タップでのスクロール＊" />
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"
             android:key="FlickPage"
             android:summary="フリックでページめくりする"
             android:title="フリックでページめくり＊" />
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"
             android:key="FlickEdge"
             android:summary="ページ端からフリックを開始したしたときのみページめくりする"
             android:title="ページ端からフリック＊" />
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="false"
             android:key="ChgFlick"
             android:summary="チェックにより表紙方向へのフリックが前ページの移動になります"
             android:title="フリック操作の入替え＊" />
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="false"
             android:key="ScrollNext"
             android:summary="スクロール操作で前後のページへ移動を可能とする"
             android:title="スクロールで前後のページへ移動" />
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="false"
             android:key="ViewNextPage"
             android:summary="スクロール操作で前後のページへ移動が有効の時、スクロール量が0でも左右に表示領域が余っているときに次のページを表示する"
             android:title="次のページを表示" />
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"
             android:key="NextPageFilter"
             android:summary="次のページを表示する時、グラデーションを表示する"
             android:title="グラデーションを表示" />
-        <ListPreference
+        <src.comitton.config.DescListPreference
             android:defaultValue="2"
             android:dialogTitle="ページ選択方法"
             android:entries="@array/pagesel_name_list"
             android:entryValues="@array/pagesel_value_list"
             android:key="PageSelect"
-            android:summary="dummy"
+            android:summary="ページを選ぶ操作方法。画面下のスワイプ、スライダー、サムネイル一覧から選べます"
             android:title="ページ選択方法" />
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="false"
             android:key="ChgPageKey"
             android:summary="チェックにより表紙方向キー(右表紙なら右キー)が前ページの移動になります"

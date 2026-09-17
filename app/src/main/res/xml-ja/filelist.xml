@@ -1,84 +1,84 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
     <PreferenceCategory android:title="ファイル選択画面設定" >
-        <ListPreference
+        <src.comitton.config.DescListPreference
             android:defaultValue="0"
             android:dialogTitle="表示方向"
             android:entries="@array/file_rotaname_list"
             android:entryValues="@array/file_rotavalue_list"
             android:key="ListRota"
-            android:summary="dummy"
+            android:summary="ファイル選択画面の向き。回転ありは端末の向きに追従します"
             android:title="表示方向" />
-        <ListPreference
+        <src.comitton.config.DescListPreference
             android:defaultValue="2"
             android:dialogTitle="ソート表示"
             android:entries="@array/zipsort_name_list"
             android:entryValues="@array/zipsort_value_list"
             android:key="ListSort"
-            android:summary="dummy"
+            android:summary="ファイル一覧の並び順。ディレクトリ分離はフォルダを先に、混在は名前順に混ぜて並べます"
             android:title="ソート表示" />
-        <ListPreference
+        <src.comitton.config.DescListPreference
             android:defaultValue="0"
             android:dialogTitle="Backキーの動作"
             android:entries="@array/backmode_name_list"
             android:entryValues="@array/backmode_value_list"
             android:key="BackMode"
-            android:summary="dummy"
+            android:summary="ファイル選択画面で戻るボタンを押したときの動作"
             android:title="Backキーの動作" />
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="false"
             android:key="ResumeOpen"
             android:summary="起動時に前回表示したファイルをオープンする"
             android:title="前回のファイルをオープン" />
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="false"
             android:key="TapExpand"
             android:summary="zip/rar/pdfのタップでファイル内容を展開表示する"
             android:title="タップでファイル展開表示" />
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="false"
             android:key="epubViewer"
             android:summary="EPUBファイルをテキスト表示画面の代わりにイメージ表示画面で開く"
             android:title="EPUBファイルをイメージ表示画面で開く" />
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:layout_height="wrap_content"
             android:defaultValue="true"
             android:key="ParentMove"
             android:summary="ファイルリストに親ディレクトリへの移動項目(上矢印)を表示する"
             android:title="親ディレクトリ表示" />
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"
             android:key="Extension"
             android:summary="ファイル名の拡張子を表示する"
             android:title="拡張子の表示" />
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="false"
             android:key="SplitFilename"
             android:summary="タイル表示でファイル名を[]()で分割して表示する"
             android:title="ファイル名の分割" />
-        <ListPreference
+        <src.comitton.config.DescListPreference
             android:defaultValue="2"
             android:dialogTitle="タイル表示のテキストの行数"
             android:entries="@array/max_lines_name_list"
             android:entryValues="@array/max_lines_value_list"
             android:key="MaxLinesFilename"
-            android:summary="dummy"
+            android:summary="タイル表示でファイル名を何行まで表示するか"
             android:title="タイル表示のテキストの行数" />
-        <ListPreference
+        <src.comitton.config.DescListPreference
             android:defaultValue="2"
             android:dialogTitle="削除メニューの表示"
             android:entries="@array/filemenu_name_list"
             android:entryValues="@array/filemenu_value_list"
             android:key="FileDelMenu"
-            android:summary="dummy"
+            android:summary="長押しメニューに「削除」を出す条件"
             android:title="削除メニューの表示" />
-        <ListPreference
+        <src.comitton.config.DescListPreference
             android:defaultValue="0"
             android:dialogTitle="名前変更メニューの表示"
             android:entries="@array/filemenu_name_list"
             android:entryValues="@array/filemenu_value_list"
             android:key="FileRenMenu"
-            android:summary="dummy"
+            android:summary="長押しメニューに「名前変更」を出す条件"
             android:title="名前変更メニューの表示" />
         <src.comitton.config.seekbar.FontTitleSeekbar
             android:dialogMessage="タイトルのフォントサイズを選択"
@@ -115,12 +115,12 @@
             android:negativeButtonText="@null"
             android:summary="dummy"
             android:title="項目の余白サイズ" />
-<!--         <CheckBoxPreference -->
+<!--         <src.comitton.config.DescCheckBoxPreference -->
 <!--             android:defaultValue="true" -->
 <!--             android:key="ShowToolbar" -->
 <!--             android:summary="一覧上部のツールバーを表示する" -->
 <!--             android:title="ツールバーの表示" /> -->
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"
             android:key="ToolbarName"
             android:summary="ツールバーのアイコン名を表示する"
@@ -146,33 +146,33 @@
             android:negativeButtonText="@null"
             android:summary="dummy"
             android:title="リスト表示のサムネイルサイズ" />
-        <ListPreference
+        <src.comitton.config.DescListPreference
             android:defaultValue="3"
             android:dialogTitle="サムネイルのキャッシュ"
             android:entries="@array/thumcache_name_list"
             android:entryValues="@array/thumcache_value_list"
             android:key="ThumbCache"
-            android:summary="dummy"
+            android:summary="作成したサムネイルを端末内に何件まで保持するか"
             android:title="サムネイルのキャッシュ" />
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="false"
             android:key="ThumbSort"
             android:summary="圧縮ファイル中の全ファイル名を解析して先頭ファイルを求める(RARファイルはかなり遅くなります)"
             android:title="先頭ファイル名のサムネイル作成" />
-        <ListPreference
+        <src.comitton.config.DescListPreference
             android:defaultValue="2"
             android:dialogTitle="先頭ファイル名のサムネイル作成条件(サーバ種別)"
             android:entries="@array/ThumbSortType_name_list"
             android:entryValues="@array/ThumbSortType_value_list"
             android:key="ThumbSortType"
-            android:summary="dummy"
+            android:summary="書庫の先頭ファイルをサムネイルにするためにファイル名一覧を解析する対象。サーバ上の RAR は解析に時間がかかります"
             android:title="先頭ファイル名のサムネイル作成条件(サーバ種別)" />
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="false"
             android:key="ClearTop"
             android:summary="ショートカット起動時に既存のタスクを終了する\n(新しく作成するショートカットに属性を追加します)"
             android:title="ショートカットで既存タスク終了" />
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:defaultValue="true"
@@ -186,21 +186,21 @@
             android:negativeButtonText="@null"
             android:summary="dummy"
             android:title="長押し系操作の時間" />
-        <ListPreference
+        <src.comitton.config.DescListPreference
             android:defaultValue="0"
             android:dialogTitle="サムネイルの切り取り位置"
             android:entries="@array/thumcrop_name_list"
             android:entryValues="@array/thumcrop_value_list"
             android:key="ThumbCrop"
-            android:summary="dummy"
+            android:summary="サムネイルにする画像のどの部分を切り出すか"
             android:title="サムネイルの切り取り位置" />
-        <ListPreference
+        <src.comitton.config.DescListPreference
             android:defaultValue="0"
             android:dialogTitle="サムネイルの余白削除"
             android:entries="@array/thummargin_name_list"
             android:entryValues="@array/thummargin_value_list"
             android:key="ThumbMargin"
-            android:summary="dummy"
+            android:summary="サムネイル作成時に画像周囲の余白を削る強さ"
             android:title="サムネイルの余白削除" />
     </PreferenceCategory>
 </PreferenceScreen>

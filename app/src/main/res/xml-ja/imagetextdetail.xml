@@ -22,12 +22,12 @@
             android:negativeButtonText="@null"
             android:summary="dummy"
             android:title="中央の影の幅 (並べて表示中)" />
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="false"
             android:key="ImmEnable"
             android:summary="KitKat以降の端末でナビゲーションバーを隠します"
             android:title="IMMERSIVEモードを有効にする" />
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="false"
             android:key="OldMenu"
             android:summary="シングルアクションでコマンドを選択するメニュー"
@@ -83,12 +83,12 @@
             android:negativeButtonText="@null"
             android:summary="dummy"
             android:title="減速スピード" />
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"
             android:key="BottomFile"
             android:summary="画面下部の操作で前後のファイルへの移動を可能とする"
             android:title="下部操作での前後ファイル移動" />
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"
             android:key="PinchEnable"
             android:summary="ピンチイン/アウト操作で表示サイズを変更します"

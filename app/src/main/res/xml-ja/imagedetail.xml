@@ -22,7 +22,7 @@
             android:negativeButtonText="@null"
             android:summary="dummy"
             android:title="イメージの拡大縮小" />
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"
             android:key="AccessLamp"
             android:summary="画像読み込みの状態を画面左上に表示する"
@@ -36,13 +36,13 @@
             android:negativeButtonText="@null"
             android:summary="dummy"
             android:title="ルーペ表示までの長押し時間" />
-        <ListPreference
+        <src.comitton.config.DescListPreference
             android:defaultValue="0"
             android:dialogTitle="ルーペ表示領域のサイズ"
             android:entries="@array/loupesize_name_list"
             android:entryValues="@array/loupesize_value_list"
             android:key="LoupeSize"
-            android:summary="dummy"
+            android:summary="長押しで表示するルーペの大きさ"
             android:title="ルーペサイズ" />
         <src.comitton.config.seekbar.ScrlRngWSeekbar
             android:dialogMessage="音量キー等でのスクロール量(幅)"
@@ -65,13 +65,13 @@
             android:negativeButtonText="@null"
             android:summary="dummy"
             android:title="自動再生速度" />
-        <ListPreference
+        <src.comitton.config.DescListPreference
             android:defaultValue="2"
             android:dialogTitle="画像処理スレッド数"
             android:entries="@array/maxthread_name_list"
             android:entryValues="@array/maxthread_value_list"
             android:key="MaxThread"
-            android:summary="dummy"
+            android:summary="拡大縮小などの画像処理に使うスレッド数。多いほど速くなりますが発熱と電池消費が増えます"
             android:title="画像処理スレッド数" />
     </PreferenceCategory>
 </PreferenceScreen>

@@ -16,14 +16,34 @@ public abstract class CustomDialogPreference extends Preference {
     protected int mDialogLayoutResId;
     protected AlertDialog mDialog;
 
+    /** 一覧に常時表示する説明文(XML の summary、無ければ dialogMessage) */
+    protected CharSequence mDescription;
+
     public CustomDialogPreference(Context context, AttributeSet attrs) {
         super(context, attrs);
         initAttrs(context, attrs);
+        initDescription();
     }
 
     public CustomDialogPreference(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         initAttrs(context, attrs);
+        initDescription();
+    }
+
+    private void initDescription() {
+        mDescription = PreferenceSummary.pickDescription(super.getSummary(), mDialogMessage);
+        if (PreferenceSummary.isPlaceholder(super.getSummary()) && mDescription != null) {
+            super.setSummary(mDescription);
+        }
+    }
+
+    /**
+     * 現在値を渡すと「説明 + 現在値」の形で表示する。
+     */
+    @Override
+    public void setSummary(CharSequence summary) {
+        super.setSummary(PreferenceSummary.compose(getContext(), mDescription, summary));
     }
 
     /**

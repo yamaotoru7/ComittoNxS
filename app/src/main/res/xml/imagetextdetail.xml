@@ -22,12 +22,12 @@
             android:negativeButtonText="@null"
             android:summary="dummy"
             android:title="Shadow Width" />
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="false"
             android:key="ImmEnable"
             android:summary="Hide the navigation bar at the terminal of KitKat later."
             android:title="Enable Immersive Mode" />
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="false"
             android:key="OldMenu"
             android:summary="Menu to select the command in a single action."
@@ -83,12 +83,12 @@
             android:negativeButtonText="@null"
             android:summary="dummy"
             android:title="Amount of Slowdown" />
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"
             android:key="BottomFile"
             android:summary="Enable to change file by screen bottom Operation."
             android:title="Enable File Change" />
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"
             android:key="PinchEnable"
             android:summary="Enable the change of display size by pinch operation."

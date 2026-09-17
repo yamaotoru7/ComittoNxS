@@ -66,13 +66,13 @@
             android:negativeButtonText="@null"
             android:summary="dummy"
             android:title="背景の色(グラデーション用)" />
-        <ListPreference
+        <src.comitton.config.DescListPreference
             android:defaultValue="1"
             android:dialogTitle="グラデーション設定"
             android:entries="@array/txgradation_name_list"
             android:entryValues="@array/txgradation_value_list"
             android:key="txGradation"
-            android:summary="dummy"
+            android:summary="テキスト表示の背景を「背景の色」と「背景の色(グラデーション用)」の 2 色でぼかす方向"
             android:title="グラデーション設定" />
         <src.comitton.config.color.ColorHitSetting
             android:dialogMessage="色を設定してください。"

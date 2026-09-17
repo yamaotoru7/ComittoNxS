@@ -66,13 +66,13 @@
             android:negativeButtonText="@null"
             android:summary="dummy"
             android:title="Background Color for Gradation" />
-        <ListPreference
+        <src.comitton.config.DescListPreference
             android:defaultValue="1"
             android:dialogTitle="Gradation Settings"
             android:entries="@array/txgradation_name_list"
             android:entryValues="@array/txgradation_value_list"
             android:key="txGradation"
-            android:summary="dummy"
+            android:summary="Direction of the background gradient between the two background colors in text view"
             android:title="Gradation Settings" />
         <src.comitton.config.color.ColorHitSetting
             android:dialogMessage="Please Select Color."

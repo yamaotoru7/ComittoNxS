@@ -22,7 +22,7 @@
             android:negativeButtonText="@null"
             android:summary="dummy"
             android:title="Image scaling" />
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"
             android:key="AccessLamp"
             android:summary="To view the status of reading in the upper left corner"
@@ -36,13 +36,13 @@
             android:negativeButtonText="@null"
             android:summary="dummy"
             android:title="Time to Loupe view (long tap)" />
-        <ListPreference
+        <src.comitton.config.DescListPreference
             android:defaultValue="0"
             android:dialogTitle="Max number of processing threads"
             android:entries="@array/loupesize_name_list"
             android:entryValues="@array/loupesize_value_list"
             android:key="LoupeSize"
-            android:summary="dummy"
+            android:summary="Size of the loupe shown on long press"
             android:title="Size of Loupe view" />
         <src.comitton.config.seekbar.ScrlRngWSeekbar
             android:dialogMessage="Scroll Width of Vol-Button, etc."
@@ -65,13 +65,13 @@
             android:negativeButtonText="@null"
             android:summary="dummy"
             android:title="Auto Play Interval" />
-        <ListPreference
+        <src.comitton.config.DescListPreference
             android:defaultValue="2"
             android:dialogTitle="Max number of processing threads"
             android:entries="@array/maxthread_name_list"
             android:entryValues="@array/maxthread_value_list"
             android:key="MaxThread"
-            android:summary="dummy"
+            android:summary="Threads used for image processing. More is faster but uses more power"
             android:title="Max number of processing threads" />
     </PreferenceCategory>
 </PreferenceScreen>

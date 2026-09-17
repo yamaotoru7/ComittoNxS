@@ -1,133 +1,134 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
     <PreferenceCategory android:title="Initial Settings" >
-        <ListPreference
+        <src.comitton.config.DescListPreference
             android:defaultValue="5"
             android:dialogTitle="Initial Scale Mode"
             android:entries="@array/scale_name_list"
             android:entryValues="@array/scale_value_list"
             android:key="IniScale"
-            android:summary="dummy"
+            android:summary="Image size when a file is opened. Zoom changes made while viewing are temporary"
             android:title="Initial Scale Mode" />
-        <ListPreference
+        <src.comitton.config.DescListPreference
             android:defaultValue="1"
             android:dialogTitle="Initial View Mode"
             android:entries="@array/initview_name_list"
             android:entryValues="@array/initview_value_list"
             android:key="InitView"
-            android:summary="dummy"
+            android:summary="Whether to show two portrait pages side by side, or split landscape pages in half"
             android:title="Initial View Mode" />
-        <ListPreference
+        <src.comitton.config.DescListPreference
             android:defaultValue="4"
             android:dialogTitle="Image Interpolation"
             android:entries="@array/algomode_name_list"
             android:entryValues="@array/algomode_value_list"
             android:key="AlgoMode"
-            android:summary="dummy"
+            android:summary="Interpolation used when scaling. Nearest is fastest, bicubic is smoothest. Two-pass improves quality when shrinking"
             android:title="Image Interpolation" />
-        <ListPreference
+        <src.comitton.config.DescListPreference
             android:defaultValue="0"
             android:dialogTitle="Remove the margin"
             android:entries="@array/mgncut_name_list"
             android:entryValues="@array/mgncut_value_list"
             android:key="MarginCut"
-            android:summary="dummy"
+            android:summary="How aggressively blank margins are cropped. Ignore aspect ratio crops the most but may stretch the image"
             android:title="Strength to remove the margin." />
-        <ListPreference
+        <src.comitton.config.DescListPreference
             android:defaultValue="0"
             android:dialogTitle="Color to remove margin"
             android:entries="@array/mgncut_color_name_list"
             android:entryValues="@array/mgncut_color_value_list"
             android:key="MarginCutColor"
-            android:summary="dummy"
+            android:summary="Which colors count as margin. Choose All colors to crop colored margins too"
             android:title="Color to remove margin" />
 <!--
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="false"
             android:key="Sharpen"
+            android:summary="Sharpens edges of scaled images (slightly slower)"
             android:title="Sharpen image" />
 -->
     </PreferenceCategory>
     <PreferenceCategory android:title="Display Settings" >
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"
             android:key="Notice"
             android:summary="Required Restart"
             android:title="Hide the Notification Area" />
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="false"
             android:key="NoSleep"
             android:summary="Required Restart"
             android:title="Not To Sleep" />
-        <ListPreference
+        <src.comitton.config.DescListPreference
             android:defaultValue="0"
             android:dialogTitle="Screen Orientation"
             android:entries="@array/rotate_name_list"
             android:entryValues="@array/rotate_value_list"
             android:key="ViewRota"
-            android:summary="dummy"
+            android:summary="Orientation of the image viewer. Portrait (90°) is for devices that cannot hide the status bar"
             android:title="Screen orientation" />
-        <ListPreference
+        <src.comitton.config.DescListPreference
             android:defaultValue="1"
             android:dialogTitle="Show Image Order"
             android:entries="@array/filesort_name_list"
             android:entryValues="@array/filesort_value_list"
             android:key="FileSort"
-            android:summary="dummy"
+            android:summary="Order in which images inside an archive or folder are shown"
             android:title="Show Image Order" />
-        <ListPreference
+        <src.comitton.config.DescListPreference
             android:defaultValue="0"
             android:dialogTitle="Turning the Page Direction"
             android:entries="@array/pageway_name_list"
             android:entryValues="@array/pageway_value_list"
             android:key="PageWay"
-            android:summary="dummy"
+            android:summary="Right-to-left or left-to-right reading. Also affects the two-page layout and page selection direction"
             android:title="Turning the Page Direction" />
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="false"
             android:key="NoExpand"
             android:summary="Not expand beyond original size"
             android:title="Not Expand" />
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"
             android:key="FitDual"
             android:summary="Adjust the height of the dual view"
             android:title="Adjust Height" />
-        <ListPreference
+        <src.comitton.config.DescListPreference
             android:defaultValue="4"
             android:dialogTitle="Magnification of the Loupe"
             android:entries="@array/zoomsize_name_list"
             android:entryValues="@array/zoomsize_value_list"
             android:key="ZoomType"
-            android:summary="dummy"
+            android:summary="Magnification of the loupe shown on long press, relative to the original or the displayed size"
             android:title="Magnification of the Loupe" />
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="false"
             android:key="CMargin"
             android:summary="Insert Margin in the middle of Dual View"
             android:title="Center Margin" />
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="false"
             android:key="CShadow"
             android:summary="Draw a shadow in the middle of Dual View"
             android:title="Draw Shadow" />
-        <ListPreference
+        <src.comitton.config.DescListPreference
             android:defaultValue="1"
             android:dialogTitle="Page turning effect"
             android:entries="@array/effect_name_list"
             android:entryValues="@array/effect_value_list"
             android:key="EffectList"
-            android:summary="dummy"
+            android:summary="Animation played when the page changes"
             android:title="Page turning effect" />
-        <ListPreference
+        <src.comitton.config.DescListPreference
             android:defaultValue="0"
             android:dialogTitle="First Image Position"
             android:entries="@array/viewpt_name_list"
             android:entryValues="@array/viewpt_value_list"
             android:key="ViewPt"
-            android:summary="dummy"
+            android:summary="Which corner is shown first when a page opens. Top-right is usual for right-to-left books"
             android:title="First Image Position(*)" />
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"
             android:key="PrevRev"
             android:summary="To return to the previous page is opposed to the horizontal display position"
@@ -136,43 +137,43 @@
             android:dialogTitle="Page Number"
             android:key="PageNumber"
             android:negativeButtonText="@null"
-            android:summary="dummy"
+            android:summary="Position, format and color of the page number overlay"
             android:title="Page Number" />
         <src.comitton.config.TimeAndBatteryPreference
             android:dialogTitle="Time and Battery"
             android:key="TimeAndBattery"
             android:negativeButtonText="@null"
-            android:summary="dummy"
+            android:summary="Whether to show the clock and battery level, and their format"
             android:title="Time and Buttery(*)" />
     </PreferenceCategory>
     <PreferenceCategory android:title="Operation Settings" >
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="false"
             android:key="ConfirmBack"
             android:summary="Display a confirmation message when you exit via the back button."
             android:title="Confirmation on exit(*)" />
-        <ListPreference
+        <src.comitton.config.DescListPreference
             android:defaultValue="2"
             android:dialogTitle="Operation in last/top page"
             android:entries="@array/lastpage_name_list"
             android:entryValues="@array/lastpage_value_list"
             android:key="LastPage"
-            android:summary="dummy"
+            android:summary="What happens when you go past the last page (or before the first)"
             android:title="Operation in last/top page(*)" />
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"
             android:key="SavePage"
             android:summary="Record the reading position even if the app has stopped."
             android:title="Save each at page move" />
-        <ListPreference
+        <src.comitton.config.DescListPreference
             android:defaultValue="0"
             android:dialogTitle="Direction of the scroll"
             android:entries="@array/scroll_name_list"
             android:entryValues="@array/scroll_value_list"
             android:key="ScrlWay"
-            android:summary="dummy"
+            android:summary="Which direction volume-button scrolling moves first. Use vertical first for 4-panel comics"
             android:title="Volume button to scroll in the direction." />
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"
             android:key="DelShare"
             android:summary="Delete the temporary files for sharing at the end of the Image Viewer."
@@ -182,9 +183,9 @@
             android:dialogTitle="Pattern of tap position"
             android:key="TapPattern"
             android:negativeButtonText="@null"
-            android:summary="dummy"
+            android:summary="Which action each tap area of the screen performs"
             android:title="Pattern of tap position" />
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"
             android:key="ChgPage"
             android:summary="When checked, the right of the screen will move to the previous page."
@@ -194,63 +195,63 @@
             android:key="OldPageSel"
             android:summary="When checked, the page selection method will be to drag the bottom of the screen."
             android:title="Old type selection page(*)" /-->
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="false"
             android:key="VibFlag"
             android:summary="Vibrate according to the operation"
             android:title="Vibrate by operation(*)" />
-        <ListPreference
+        <src.comitton.config.DescListPreference
             android:defaultValue="1"
             android:dialogTitle="Operation by Vol Key"
             android:entries="@array/volkey_name_list"
             android:entryValues="@array/volkey_value_list"
             android:key="VolKey"
-            android:summary="dummy"
+            android:summary="Whether volume buttons turn pages, and in which direction"
             android:title="Operation by Vol Key(*)" />
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"
             android:key="TapScrl"
             android:summary="Also perform scroll by tapping."
             android:title="Scrolling with the tap(*)" />
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"
             android:key="FlickPage"
             android:summary="move to next / prev page by flicking."
             android:title="Move page with the flick(*)" />
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="false"
             android:key="FlickEdge"
             android:summary="To page turning only when you flick from the edge of the page."
             android:title="Flick from the edge(*)" />
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="false"
             android:key="ChgFlick"
             android:summary="When checked, the flick in the direction of the front cover will move to the previous page."
             android:title="Swap the flick operation(*)" />
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="false"
             android:key="ScrollNext"
             android:summary="Allows you to move to the previous or next page by scrolling"
             android:title="Scroll to the next page" />
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="false"
             android:key="ViewNextPage"
             android:summary="When scrolling to the next page is enabled, the next page will be displayed the next page when there is free display area to the side even if the scroll amount is 0."
             android:title="Display next pages" />
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"
             android:key="NextPageFilter"
             android:summary="Show gradation when displaying the next page"
             android:title="Show gradation" />
-        <ListPreference
+        <src.comitton.config.DescListPreference
             android:defaultValue="2"
             android:dialogTitle="Page select operation"
             android:entries="@array/pagesel_name_list"
             android:entryValues="@array/pagesel_value_list"
             android:key="PageSelect"
-            android:summary="dummy"
+            android:summary="How pages are selected: swipe on the bottom area, a slider, or a thumbnail list"
             android:title="Page select operation(*)" />
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="false"
             android:key="ChgPageKey"
             android:summary="When checked, Key to cover direction(if left cover then left key) will move to the previous page."

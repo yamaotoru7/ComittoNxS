@@ -1,69 +1,69 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
     <PreferenceCategory android:title="Initial Settings" >
-        <ListPreference
+        <src.comitton.config.DescListPreference
             android:defaultValue="2"
             android:dialogTitle="Initial Scale Mode"
             android:entries="@array/txscale_name_list"
             android:entryValues="@array/txscale_value_list"
             android:key="txIniScale"
-            android:summary="dummy"
+            android:summary="Paper size when a file is opened"
             android:title="Initial Scale Mode" />
-        <ListPreference
+        <src.comitton.config.DescListPreference
             android:defaultValue="2"
             android:dialogTitle="Initial View Mode"
             android:entries="@array/txinitview_name_list"
             android:entryValues="@array/txinitview_value_list"
             android:key="txInitView"
-            android:summary="dummy"
+            android:summary="Two pages side by side, one page at a time, or all pages in a continuous scroll"
             android:title="Initial View Mode" />
-        <ListPreference
+        <src.comitton.config.DescListPreference
             android:defaultValue="0"
             android:dialogTitle="Paper Size"
             android:entries="@array/txpaper_name_list"
             android:entryValues="@array/txpaper_value_list"
             android:key="txPaperSize"
-            android:summary="dummy"
+            android:summary="Size of the virtual paper the text is laid out on. Screen (portrait) follows the device screen"
             android:title="Paper Size" />
     </PreferenceCategory>
     <PreferenceCategory android:title="Display Settings(* is common to the image setting)" >
-        <ListPreference
+        <src.comitton.config.DescListPreference
             android:defaultValue="0"
             android:dialogTitle="Illustrations Size"
             android:entries="@array/txpic_name_list"
             android:entryValues="@array/txpic_value_list"
             android:key="txPicSize"
-            android:summary="dummy"
+            android:summary="Size at which illustrations are shown"
             android:title="Illustrations Size" />
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"
             android:key="txNotice"
             android:summary="Required Restart"
             android:title="Hide the Notification Area" />
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="false"
             android:key="txNoSleep"
             android:summary="Required Restart"
             android:title="Not To Sleep" />
-        <ListPreference
+        <src.comitton.config.DescListPreference
             android:defaultValue="0"
             android:dialogTitle="Screen Orientation"
             android:entries="@array/rotate_name_list"
             android:entryValues="@array/rotate_value_list"
             android:key="txViewRota"
-            android:summary="dummy"
+            android:summary="Orientation of the text viewer"
             android:title="Screen orientation" />
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"
             android:key="txCMargin"
             android:summary="Insert Margin in the middle of Dual View"
             android:title="Center Margin" />
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="false"
             android:key="txCShadow"
             android:summary="Draw a shadow in the middle of Dual View"
             android:title="Draw Shadow" />
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"
             android:key="txEffect"
             android:summary="When you scroll through page turns"
@@ -82,15 +82,15 @@
             android:negativeButtonText="@null"
             android:summary="dummy"
             android:title="Scroll Range (Height)" />
-        <ListPreference
+        <src.comitton.config.DescListPreference
             android:defaultValue="0"
             android:dialogTitle="First Image Position"
             android:entries="@array/viewpt_name_list"
             android:entryValues="@array/viewpt_value_list"
             android:key="ViewPt"
-            android:summary="dummy"
+            android:summary="Which corner is shown first when a page opens. Top-right is usual for right-to-left books"
             android:title="First Image Position(*)" />
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"
             android:key="PrevRev"
             android:summary="To return to the previous page is opposed to the horizontal display position"
@@ -99,22 +99,22 @@
             android:dialogTitle="Time and Battery"
             android:key="TimeAndBattery"
             android:negativeButtonText="@null"
-            android:summary="dummy"
+            android:summary="Whether to show the clock and battery level, and their format"
             android:title="Time and Buttery(*)" />
     </PreferenceCategory>
     <PreferenceCategory android:title="Operation Settings(* is common to the image setting)" >
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"
             android:key="ConfirmBack"
             android:summary="Display a confirmation message when you exit via the back button."
             android:title="Confirmation on exit(*)" />
-        <ListPreference
+        <src.comitton.config.DescListPreference
             android:defaultValue="1"
             android:dialogTitle="Operation in last/top page"
             android:entries="@array/lastpage_name_list"
             android:entryValues="@array/lastpage_value_list"
             android:key="LastPage"
-            android:summary="dummy"
+            android:summary="What happens when you go past the last page (or before the first)"
             android:title="Operation in last/top page(*)" />
         <src.comitton.config.OperationPreference
             android:dialogMessage="Please select the location tap page turning.\n(&lt;:Next Page, &gt;:Prev Page)"
@@ -123,7 +123,7 @@
             android:negativeButtonText="@null"
             android:summary="dummy"
             android:title="Pattern of tap position(*)" />
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="false"
             android:key="ChgPage"
             android:summary="When checked, the right of the screen will move to the previous page."
@@ -133,59 +133,59 @@
             android:key="OldPageSel"
             android:summary="When checked, the page selection method will be to drag the bottom of the screen."
             android:title="Old type selection page(*)" /-->
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="false"
             android:key="VibFlag"
             android:summary="Vibrate according to the operation"
             android:title="Vibrate by operation(*)" />
-        <ListPreference
+        <src.comitton.config.DescListPreference
             android:defaultValue="1"
             android:dialogTitle="Operation by Vol Key"
             android:entries="@array/volkey_name_list"
             android:entryValues="@array/volkey_value_list"
             android:key="VolKey"
-            android:summary="dummy"
+            android:summary="Whether volume buttons turn pages, and in which direction"
             android:title="Operation by Vol Key(*)" />
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="false"
             android:key="TapScrl"
             android:summary="Also perform scroll by tapping."
             android:title="Scrolling with the tap(*)" />
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"
             android:key="FlickPage"
             android:summary="move to next / prev page by flicking."
             android:title="move page with the flick(*)" />
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"
             android:key="FlickEdge"
             android:summary="To page turning only when you flick from the edge of the page."
             android:title="Flick from the edge(*)" />
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="false"
             android:key="ChgFlick"
             android:summary="When checked, the flick in the direction of the front cover will move to the previous page."
             android:title="Swap the flick operation(*)" />
-        <ListPreference
+        <src.comitton.config.DescListPreference
             android:defaultValue="1"
             android:dialogTitle="Page select operation"
             android:entries="@array/txpagesel_name_list"
             android:entryValues="@array/txpagesel_value_list"
             android:key="txPageSelect"
-            android:summary="dummy"
+            android:summary="How pages are selected: swipe on the bottom area or a slider"
             android:title="Page select operation(*)" />
-        <CheckBoxPreference
+        <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="false"
             android:key="ChgPageKey"
             android:summary="When checked, right key will move to the previous page."
             android:title="Swap the LR key operation(*)" />
     </PreferenceCategory>
     <PreferenceCategory android:title="Font Settings" >
-        <ListPreference
+        <src.comitton.config.DescListPreference
             android:defaultValue=""
             android:dialogTitle="Select Font (Select from [sdcard]/comittona/font/)"
             android:key="txFontName"
-            android:summary="dummy"
+            android:summary="Font used for the text. Choose from ttf/otf files placed in [sdcard]/comittona/font/"
             android:title="Select Font (Select from [sdcard]/comittona/font/)" />
         <src.comitton.config.seekbar.TextFontTopSeekbar
             android:dialogMessage="Select font size of head."

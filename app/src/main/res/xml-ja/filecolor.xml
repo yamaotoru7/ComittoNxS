@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
     <PreferenceCategory android:title="プリセット色" >
-        <ListPreference
+        <src.comitton.config.DescListPreference
             android:defaultValue="1"
             android:dialogTitle="プリセットの選択"
             android:entries="@array/preset_name_list"
             android:entryValues="@array/preset_value_list"
             android:key="Preset"
-            android:summary="dummy"
+            android:summary="配色をまとめて切り替えます。個別に色を変えるとカスタムになります"
             android:title="プリセット色の選択" />
         <PreferenceScreen
             android:key="CustomUpdate"
