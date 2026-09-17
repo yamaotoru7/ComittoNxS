@@ -755,29 +755,34 @@ public class DEF {
 	public static final int ALIGN_BOTTOM = 2;
 
 
-	public static final int[] ColorList = {Color.rgb(0, 0, 0) // 0
-			, Color.rgb(255, 255, 255) // 1
-			, Color.rgb(0, 0, 255) // 2
-			, Color.rgb(255, 0, 0) // 3
-			, Color.rgb(255, 0, 255) // 4
-			, Color.rgb(0, 255, 0) // 5
-			, Color.rgb(255, 255, 0) // 6
-			, Color.rgb(0, 255, 255) // 7
-			, Color.rgb(129, 129, 129) // 8
-			, Color.rgb(128, 128, 255) // 9
-			, Color.rgb(255, 128, 128) // 10
-			, Color.rgb(255, 128, 255) // 11
-			, Color.rgb(128, 255, 128) // 12
-			, Color.rgb(255, 255, 128) // 13
-			, Color.rgb(128, 255, 255) // 14
-			, Color.rgb(193, 193, 193) // 15
-			, Color.rgb(0, 0, 97) // 16
-			, Color.rgb(97, 0, 0) // 17
-			, Color.rgb(97, 0, 97) // 18
-			, Color.rgb(0, 97, 0) // 19
-			, Color.rgb(97, 97, 0) // 20
-			, Color.rgb(0, 97, 97) // 21
-			, Color.rgb(97, 97, 97)}; // 22
+	// android.graphics.Color.rgb と同じ値. 静的初期化で Android API を呼ばない (ユニットテストで DEF を読めるように)
+	private static int opaqueRgb(int red, int green, int blue) {
+		return 0xFF000000 | (red << 16) | (green << 8) | blue;
+	}
+
+	public static final int[] ColorList = {opaqueRgb(0, 0, 0) // 0
+			, opaqueRgb(255, 255, 255) // 1
+			, opaqueRgb(0, 0, 255) // 2
+			, opaqueRgb(255, 0, 0) // 3
+			, opaqueRgb(255, 0, 255) // 4
+			, opaqueRgb(0, 255, 0) // 5
+			, opaqueRgb(255, 255, 0) // 6
+			, opaqueRgb(0, 255, 255) // 7
+			, opaqueRgb(129, 129, 129) // 8
+			, opaqueRgb(128, 128, 255) // 9
+			, opaqueRgb(255, 128, 128) // 10
+			, opaqueRgb(255, 128, 255) // 11
+			, opaqueRgb(128, 255, 128) // 12
+			, opaqueRgb(255, 255, 128) // 13
+			, opaqueRgb(128, 255, 255) // 14
+			, opaqueRgb(193, 193, 193) // 15
+			, opaqueRgb(0, 0, 97) // 16
+			, opaqueRgb(97, 0, 0) // 17
+			, opaqueRgb(97, 0, 97) // 18
+			, opaqueRgb(0, 97, 0) // 19
+			, opaqueRgb(97, 97, 0) // 20
+			, opaqueRgb(0, 97, 97) // 21
+			, opaqueRgb(97, 97, 97)}; // 22
 	public static final int[] GuideList = {0x80000000 // 0 : 黒
 			, 0x80000070 // 1 : 青
 			, 0x80700000 // 2 : 赤

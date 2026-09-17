@@ -9,6 +9,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,7 +41,8 @@ import src.comitton.common.BackgroundExecutor;
 public class SmbFileAccess {
 	private static final String TAG = "SmbFileAccess";
 
-	private static String[] parseUri(@NonNull final String uri) {
+	@VisibleForTesting
+	static String[] parseUri(@NonNull final String uri) {
 		int logLevel = Logcat.LOG_LEVEL_WARN;
 		Logcat.d(logLevel, "開始します. uri=" + uri);
 
@@ -82,7 +84,8 @@ public class SmbFileAccess {
 		return urlData;
 	}
 
-	private static String[] parseUser(@NonNull final String user) {
+	@VisibleForTesting
+	static String[] parseUser(@NonNull final String user) {
 		int logLevel = Logcat.LOG_LEVEL_WARN;
 		Logcat.d(logLevel, "開始します. user=" + user);
 

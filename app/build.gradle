@@ -107,7 +107,8 @@ android {
     }
 
     testOptions {
-        unitTests.returnDefaultValues = true
+        // Android API の呼び出しを黙って既定値にすると誤りに気づけないので、呼ばれたら失敗させる
+        unitTests.returnDefaultValues = false
     }
 
     lint {

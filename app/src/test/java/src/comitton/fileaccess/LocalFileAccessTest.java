@@ -24,6 +24,15 @@ public class LocalFileAccessTest {
 	}
 
 	@Test
+	public void testRelativePath() {
+		assertEquals("/a/b/d.zip", LocalFileAccess.relativePath("/a/b/c.zip", "d.zip"));
+		assertEquals("/a/b/x/y", LocalFileAccess.relativePath("/a/b/", "x//y"));
+		assertEquals("/a/c/", LocalFileAccess.relativePath("/a/b/", "../c/"));
+		assertEquals("/a/", LocalFileAccess.relativePath("/a/b/", ".."));
+		assertEquals("/abs/file.zip", LocalFileAccess.relativePath("/a/b/", "/abs/file.zip"));
+	}
+
+	@Test
 	public void testIsSafeName() {
 		assertTrue(FileAccess.isSafeName("book.zip"));
 		assertTrue(FileAccess.isSafeName("folder/"));

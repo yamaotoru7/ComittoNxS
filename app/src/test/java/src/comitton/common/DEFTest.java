@@ -63,6 +63,16 @@ public class DEFTest {
 	}
 
 	@Test
+	public void testColorList() {
+		// android.graphics.Color.rgb と同じ ARGB 値になっていること
+		assertEquals(0xFF000000, DEF.ColorList[0]);
+		assertEquals(0xFFFFFFFF, DEF.ColorList[1]);
+		assertEquals(0xFF0000FF, DEF.ColorList[2]);
+		assertEquals(0xFFFF0000, DEF.ColorList[3]);
+		assertEquals(0xFF818181, DEF.ColorList[8]);
+	}
+
+	@Test
 	public void testRemoveUTF8BOM() {
 		assertEquals("Hello World", DEF.removeUTF8BOM("\uFEFFHello World"));
 		assertEquals("Hello World", DEF.removeUTF8BOM("Hello World"));
