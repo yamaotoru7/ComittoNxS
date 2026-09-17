@@ -3930,28 +3930,33 @@ public class ImageManager extends InputStream implements Runnable {
 			if (mFileType == FileData.FILETYPE_PDF) {
 				Logcat.v(logLevel, "PDFファイルを開きます. filename=" + mFileList[page].name);
 				//ページ番号を指定してPdfRenderer.Pageインスタンスを取得する。
+				int Outwidth;
+				int Outheight;
+				//ページ番号を指定してPdfRenderer.Pageインスタンスを取得する。
 				PdfRenderer.Page pdfPage = mPdfRenderer.openPage(page);
-				int Outwidth = pdfPage.getWidth() / sampleSize;
-				int Outheight = pdfPage.getHeight()/ sampleSize;
+				try {
+					Outwidth = Math.max(1, pdfPage.getWidth() / sampleSize);
+					Outheight = Math.max(1, pdfPage.getHeight() / sampleSize);
 
-				//PdfRenderer.Pageの情報を使って空の描画用Bitmapインスタンスを作成する。
-				bm = Bitmap.createBitmap(pdfPage.getWidth() , pdfPage.getHeight() , Config.ARGB_8888);
-				// PDFをレンダリングする前にBitmapを白く塗る。
-				Canvas canvas = new Canvas(bm);
-				canvas.drawColor(Color.WHITE);
-				canvas.drawBitmap(bm, 0, 0, null);
-				//空のBitmapにPDFの内容を描画する。
-				pdfPage.render(bm , null,null , PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
-				//PdfRenderer.Pageを閉じる、この処理を忘れると次回読み込む時に例外が発生する。
-				pdfPage.close();
-				if (bm == null) {
-					Logcat.e(logLevel, "PDFファイルのレンダリングに失敗しました. filename=" + mFileList[page].name);
-					return null;
+					//PdfRenderer.Pageの情報を使って空の描画用Bitmapインスタンスを作成する。
+					bm = Bitmap.createBitmap(pdfPage.getWidth() , pdfPage.getHeight() , Config.ARGB_8888);
+					// PDFをレンダリングする前にBitmapを白く塗る。
+					bm.eraseColor(Color.WHITE);
+					//空のBitmapにPDFの内容を描画する。
+					pdfPage.render(bm , null,null , PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
+				} finally {
+					//PdfRenderer.Pageを閉じる、この処理を忘れると次回読み込む時に例外が発生する。
+					pdfPage.close();
 				}
-				else {
+				{
 					Logcat.v(logLevel, "PDFファイルのレンダリングに成功しました.");
 					Logcat.v(logLevel, "ビットマップのサイズを変更します. width=" + Outwidth + ", height=" + Outheight);
-					bm = Bitmap.createScaledBitmap(bm, Outwidth, Outheight, true);
+					Bitmap rendered = bm;
+					bm = Bitmap.createScaledBitmap(rendered, Outwidth, Outheight, true);
+					if (bm != rendered) {
+						// ページ全体の大きなビットマップはもう使わない
+						rendered.recycle();
+					}
 					if (bm == null) {
 						Logcat.e(logLevel, "ビットマップのサイズの変更に失敗しました. filename=" + mFileList[page].name);
 						return null;
@@ -4029,7 +4034,11 @@ public class ImageManager extends InputStream implements Runnable {
 		}
 
 		if (bm != null && bm.getConfig() != Config.RGB_565) {
-			bm = bm.copy(Config.RGB_565, true);
+			Bitmap source = bm;
+			bm = source.copy(Config.RGB_565, true);
+			if (bm != source) {
+				source.recycle();
+			}
 		}
 
 		if (bm == null) {
@@ -5019,6 +5028,7 @@ public class ImageManager extends InputStream implements Runnable {
 				}
 				byte[] buff = new byte[BIS_BUFFSIZE];
 
+				boolean written = false;
 				try {
 					mCheWriteFlag = false;
 					setLoadBitmapStart(page, false);
@@ -5027,26 +5037,23 @@ public class ImageManager extends InputStream implements Runnable {
 						Logcat.d(logLevel, "PDFファイルを開きます.");
 						//ページ番号を指定してPdfRenderer.Pageインスタンスを取得する。
 						PdfRenderer.Page pdfPage = mPdfRenderer.openPage(page);
-						//PdfRenderer.Pageの情報を使って空の描画用Bitmapインスタンスを作成する。
-						Bitmap bm = Bitmap.createBitmap(pdfPage.getWidth() , pdfPage.getHeight() , Config.ARGB_8888);
-						// PDFをレンダリングする前にBitmapを白く塗る。
-						Canvas canvas = new Canvas(bm);
-						canvas.drawColor(Color.WHITE);
-						canvas.drawBitmap(bm, 0, 0, null);
-						//空のBitmapにPDFの内容を描画する。
-						pdfPage.render(bm , null,null , PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
-						//PdfRenderer.Pageを閉じる、この処理を忘れると次回読み込む時に例外が発生する。
-						pdfPage.close();
-						if (bm == null) {
-							Logcat.e(logLevel, "PDFファイルのレンダリングに失敗しました.");
-							return null;
+						Bitmap bm;
+						try {
+							//PdfRenderer.Pageの情報を使って空の描画用Bitmapインスタンスを作成する。
+							bm = Bitmap.createBitmap(pdfPage.getWidth() , pdfPage.getHeight() , Config.ARGB_8888);
+							// PDFをレンダリングする前にBitmapを白く塗る。
+							bm.eraseColor(Color.WHITE);
+							//空のBitmapにPDFの内容を描画する。
+							pdfPage.render(bm , null,null , PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
+						} finally {
+							//PdfRenderer.Pageを閉じる、この処理を忘れると次回読み込む時に例外が発生する。
+							pdfPage.close();
 						}
-						else {
-							Logcat.d(logLevel, "PDFファイルのレンダリングに成功しました.");
-							Logcat.d(logLevel, "JPG形式で保存します.");
-							// jpegで保存
-							bm.compress(Bitmap.CompressFormat.JPEG, 100, os);
-						}
+						Logcat.d(logLevel, "PDFファイルのレンダリングに成功しました.");
+						Logcat.d(logLevel, "JPG形式で保存します.");
+						// jpegで保存
+						bm.compress(Bitmap.CompressFormat.JPEG, 100, os);
+						bm.recycle();
 					}
 					else if (mFileType == FILETYPE_ZIP) {
 						// メモリキャッシュ読込時のみZIP展開する
@@ -5100,11 +5107,23 @@ public class ImageManager extends InputStream implements Runnable {
 						}
 					}
 					os.flush();
-					os.close();
+					written = true;
 					resultPath = file;
 				} catch (IOException e) {
 					Logcat.e(logLevel, "", e);
 					resultPath = null;
+				} finally {
+					// 例外時もファイルを閉じる
+					try {
+						os.close();
+					} catch (IOException e) {
+						Logcat.e(logLevel, "", e);
+						resultPath = null;
+					}
+					if (!written) {
+						// 書きかけのファイルは残さない
+						new File(file).delete();
+					}
 				}
 
 				try {

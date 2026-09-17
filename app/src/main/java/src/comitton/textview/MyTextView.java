@@ -185,6 +185,10 @@ public class MyTextView extends SurfaceView implements Handler.Callback, Surface
 	//private String mPicturePath = "";
 	private WorkStream mWorkStream;
 	private SparseArray<BitmapDrawable> mPicMap1;
+	// 見開きで横長の挿絵を半分だけ描くときに使う (描画ごとに Bitmap を作らないため)
+	private final Rect mPicHalfSrc = new Rect();
+	private final Rect mPicHalfDst = new Rect();
+	private final Paint mPicPaint = new Paint(Paint.FILTER_BITMAP_FLAG | Paint.DITHER_FLAG);
 	private SparseArray<BitmapDrawable> mPicMap2;
 	private int mPicMapPage = -1;
 	private ImageManager mImageMgr;
@@ -706,21 +710,22 @@ public class MyTextView extends SurfaceView implements Handler.Callback, Surface
 							// 見開き対応モードで、画像が横長のとき
 							// 1ページに画像の半分だけ表示する
 							// 表示座標がマイナスのときは2画面目の画像を表示する
+							boolean drawHalf = false;
 							switch (mPicScale) {
 								case TextManager.BMPSCALE_DUAL_SCREEN:
 								case TextManager.BMPSCALE_DUAL_SCREEN_NO_MARGIN:
 									if (picdata.mWidth > picdata.mHeight) {
-										Bitmap bm;
+										// 元画像の半分の領域をそのまま描く
+										Bitmap source = bmdraw.getBitmap();
+										int halfWidth = source.getWidth() / 2;
 										if (tdd.mTextX >= 0) {
 											drawX = (int)(x + mDrawWidth - ((float) tdd.mTextX + picdata.mWidth / 2) * mDrawScale);
-											bm = Bitmap.createBitmap(bmdraw.getBitmap(), bmdraw.getBitmap().getWidth() / 2, 0, bmdraw.getBitmap().getWidth() / 2, bmdraw.getBitmap().getHeight(), null, true);
-											bmdraw = new BitmapDrawable(bm);
-											bmdraw.setBounds(0, 0, bm.getWidth(), bm.getHeight());
+											mPicHalfSrc.set(halfWidth, 0, halfWidth * 2, source.getHeight());
 										} else {
-											bm = Bitmap.createBitmap(bmdraw.getBitmap(), 0, 0, bmdraw.getBitmap().getWidth() / 2, bmdraw.getBitmap().getHeight(), null, true);
-											bmdraw = new BitmapDrawable(bm);
-											bmdraw.setBounds(0, 0, bm.getWidth(), bm.getHeight());
+											mPicHalfSrc.set(0, 0, halfWidth, source.getHeight());
 										}
+										mPicHalfDst.set(0, 0, halfWidth, source.getHeight());
+										drawHalf = true;
 									}
 									break;
 							}
@@ -734,7 +739,11 @@ public class MyTextView extends SurfaceView implements Handler.Callback, Surface
 							canvas.translate(drawX, drawY);
 							canvas.concat(matrix);
 						    //canvasに描画
-							bmdraw.draw(canvas);
+							if (drawHalf) {
+								canvas.drawBitmap(bmdraw.getBitmap(), mPicHalfSrc, mPicHalfDst, mPicPaint);
+							} else {
+								bmdraw.draw(canvas);
+							}
 						    canvas.restore();
 						}
 						else {
@@ -1055,7 +1064,10 @@ public class MyTextView extends SurfaceView implements Handler.Callback, Surface
 						catch (OutOfMemoryError ignored) {
 							;
 						}
-						mWorkStream.close();
+						finally {
+							// 例外時も閉じる
+							mWorkStream.close();
+						}
 					}
 				}
 				else {
@@ -1066,7 +1078,10 @@ public class MyTextView extends SurfaceView implements Handler.Callback, Surface
 					catch (OutOfMemoryError ignored) {
 						;
 					}
-					mWorkStream.close();
+					finally {
+						// 例外時も閉じる
+						mWorkStream.close();
+					}
 				}
 			}
 			catch (IOException e) {
@@ -1585,7 +1600,9 @@ public class MyTextView extends SurfaceView implements Handler.Callback, Surface
 	 */
 	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
 		int logLevel = Logcat.LOG_LEVEL_WARN;
-		for (int retry = 0 ; retry < 3 ; retry ++) {
+		// 描画スレッドが古いビットマップを使っている可能性があるので recycle せず参照だけ差し替える
+		boolean sameBack = mBackBitmap != null && mBackBitmap.getWidth() == w && mBackBitmap.getHeight() == h;
+		for (int retry = 0 ; retry < 3 && !sameBack ; retry ++) {
 			try {
 				mBackBitmap = Bitmap.createBitmap(w, h, Config.RGB_565);
 				break;
@@ -2370,7 +2387,8 @@ public class MyTextView extends SurfaceView implements Handler.Callback, Surface
 		// 縮尺後のサイズ
 		mDrawScale = (float) mDrawHeight / (float) mTextHeight;
 		if (mDrawScale <= 1.10) {
-			for (int retry = 0 ; retry < 3 ; retry ++) {
+			boolean sameDraw = mDrawBitmap != null && mDrawBitmap.getWidth() == mDrawWidth && mDrawBitmap.getHeight() == mDrawHeight;
+			for (int retry = 0 ; retry < 3 && !sameDraw ; retry ++) {
 				try {
 					mDrawBitmap = Bitmap.createBitmap(mDrawWidth, mDrawHeight, Config.RGB_565);
 					break;
