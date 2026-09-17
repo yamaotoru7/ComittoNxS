@@ -46,6 +46,7 @@ import src.comitton.dialog.BookmarkDialog.BookmarkListenerInterface;
 import src.comitton.dialog.ListDialog.ListSelectListener;
 import src.comitton.dialog.TextInputDialog;
 import src.comitton.fileaccess.FileAccessException;
+import src.comitton.fileaccess.SmbFileAccess;
 import src.comitton.fileview.filelist.FileSelectList;
 import src.comitton.fileview.filelist.RecordList;
 import src.comitton.fileview.filelist.ServerSelect;
@@ -351,6 +352,9 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 
 		mListScreenView.mSelectorArea.setConfig(mSelectorShow, mToolbarSize, mToolbarLabel, mListType, mTldColor, mTlbColor);
 		mListScreenView.mSelectorArea.setSelect(0);
+
+		// 旧バージョンがしおりキーに含めていたパスワードを取り除く (一回限り)
+		DEF.migrateSmbBookmarkKeys(mSharedPreferences);
 
 		// 回転時など保存しておいた情報
 		mServer = new ServerSelect(mSharedPreferences, this);
@@ -1359,6 +1363,8 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 	// Activityの復帰
 	protected void onResume() {
 		super.onResume();
+		// 設定画面から戻った場合に SMB の接続設定を反映する
+		SmbFileAccess.setAllowSmb1(SetCommonActivity.getSmbAllowV1(mSharedPreferences));
 		loadThumbnail(false);
 	}
 

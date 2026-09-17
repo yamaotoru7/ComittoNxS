@@ -23,7 +23,8 @@ import java.util.concurrent.Future;
 
 import jcifs.CIFSContext;
 import jcifs.CIFSException;
-import jcifs.context.SingletonContext;
+import jcifs.config.PropertyConfiguration;
+import jcifs.context.BaseContext;
 import jcifs.smb.NtlmPasswordAuthenticator;
 import jcifs.smb.SmbException;
 import jcifs.smb.SmbFile;
@@ -106,19 +107,28 @@ public class SmbFileAccess {
 		return userData;
 	}
 
-	// SMB認証
-	public static SmbFile smbFile(@NonNull final String uri, @NonNull final String user, @NonNull final String pass) {
-		int logLevel = Logcat.LOG_LEVEL_WARN;
+	// SMB1 (CIFS) を許可するか. 設定画面から SetCommonActivity.loadSettings() 経由で反映される.
+	private static volatile boolean sAllowSmb1 = false;
+	// 全接続で共有する基底コンテキスト. 呼び出しごとに BaseContext を作るとコネクションが枯渇するため 1 つを使い回す.
+	private static CIFSContext sBaseContext = null;
+	private static boolean sBaseContextAllowSmb1 = false;
 
-		SmbFile sfile = null;
-		NtlmPasswordAuthenticator smbAuth;
-		CIFSContext context;
+	public static void setAllowSmb1(boolean allow) {
+		sAllowSmb1 = allow;
+	}
+
+	private static synchronized CIFSContext baseContext() throws CIFSException {
+		boolean allowSmb1 = sAllowSmb1;
+		if (sBaseContext != null && sBaseContextAllowSmb1 == allowSmb1) {
+			return sBaseContext;
+		}
 
 		// SMBの基本設定
 		Properties prop = new Properties();
 
 		// SMB1, SMB202, SMB210, SMB300, SMB302, SMB311
-		prop.setProperty("jcifs.smb.client.minVersion", "SMB1");
+		// SMB1 は署名・暗号化がなくダウングレード攻撃に弱いため、既定では SMB 2.0.2 以上のみ許可する
+		prop.setProperty("jcifs.smb.client.minVersion", allowSmb1 ? "SMB1" : "SMB202");
 		prop.setProperty("jcifs.smb.client.maxVersion", "SMB311");
 
 		// https://github.com/AgNO3/jcifs-ng/issues/171
@@ -137,14 +147,25 @@ public class SmbFileAccess {
 		//prop.setProperty("jcifs.smb.client.signingEnforced", "true");
 		//prop.setProperty("jcifs.smb.client.disableSpnegoIntegrity", "true");
 
+		sBaseContext = new BaseContext(new PropertyConfiguration(prop));
+		sBaseContextAllowSmb1 = allowSmb1;
+		return sBaseContext;
+	}
+
+	// SMB認証
+	public static SmbFile smbFile(@NonNull final String uri, @NonNull final String user, @NonNull final String pass) {
+		int logLevel = Logcat.LOG_LEVEL_WARN;
+
+		SmbFile sfile = null;
+		NtlmPasswordAuthenticator smbAuth;
+		CIFSContext context;
+		CIFSContext base;
+
 		try {
-			// BaseContextではコネクションが足りなくなるため、SingletonContextを使用する
-			//Configuration config = new PropertyConfiguration(prop);
-			//context = new BaseContext(config);
-			SingletonContext.init(prop);
+			base = baseContext();
 		} catch (CIFSException e) {
-			// 既に認証している
-			Logcat.d(logLevel, "", e);
+			Logcat.e(logLevel, "SMB の設定を初期化できません.", e);
+			return null;
 		}
 
 		String[] userData = parseUser(user);
@@ -154,18 +175,18 @@ public class SmbFileAccess {
 
 		if (domain != null && !domain.isEmpty()) {
 			smbAuth = new NtlmPasswordAuthenticator(domain, real_user, pass);
-			context = SingletonContext.getInstance().withCredentials(smbAuth);
+			context = base.withCredentials(smbAuth);
 
 		} else if (real_user != null && !real_user.isEmpty() && !(real_user.equalsIgnoreCase("guest") && pass.isEmpty())) {
 			smbAuth = new NtlmPasswordAuthenticator(real_user, pass);
-			context = SingletonContext.getInstance().withCredentials(smbAuth);
+			context = base.withCredentials(smbAuth);
 
 		} else if (real_user.equalsIgnoreCase("guest") && pass.isEmpty()) {
 			// Guest認証を期待するWindows共有の接続向け
-			context = SingletonContext.getInstance().withGuestCrendentials();
+			context = base.withGuestCrendentials();
 		} else {
 			// Connect with anonymous mode
-			context = SingletonContext.getInstance().withAnonymousCredentials();
+			context = base.withAnonymousCredentials();
 		}
 
         try {
@@ -253,7 +274,7 @@ public class SmbFileAccess {
 
 	public static ParcelFileDescriptor openParcelFileDescriptor(@NonNull final Activity activity, @NonNull final String uri, @NonNull final String user, @NonNull final String pass, @Nullable final Handler handler) throws FileAccessException {
 		int logLevel = Logcat.LOG_LEVEL_WARN;
-		Logcat.d(logLevel, "uri=" + uri + ", user=" + user + ", pass=" + pass);
+		Logcat.d(logLevel, "uri=" + uri + ", user=" + user);
 
 		ParcelFileDescriptor parcelFileDescriptor = null;
 
@@ -274,7 +295,7 @@ public class SmbFileAccess {
 	// ユーザ認証付きSambaストリーム
 	public static SmbRandomAccessFile openRandomAccessFile(@NonNull final String uri, @NonNull final String user, @NonNull final String pass, @NonNull final String mode) throws FileAccessException {
 		int logLevel = Logcat.LOG_LEVEL_WARN;
-		Logcat.d(logLevel, "uri=" + uri + ", user=" + user + ", pass=" + pass);
+		Logcat.d(logLevel, "uri=" + uri + ", user=" + user);
 		//if (debug) {DEF.StackTrace(TAG, "smbAccessFile: ");}
 		SmbRandomAccessFile stream;
 		try {
@@ -347,7 +368,7 @@ public class SmbFileAccess {
 	// ファイル存在チェック
 	public static boolean exists(@NonNull final String uri, @NonNull final String user, @NonNull final String pass) throws FileAccessException {
 		int logLevel = Logcat.LOG_LEVEL_WARN;
-		Logcat.d(logLevel, "uri=" + uri + ", user=" + user + ", pass=" + pass);
+		Logcat.d(logLevel, "uri=" + uri + ", user=" + user);
 		boolean result = false;
 
 		if (!DEF.isUiThread()) {
@@ -440,7 +461,7 @@ public class SmbFileAccess {
 	@SuppressLint("SuspiciousIndentation")
     public static ArrayList<FileData> listFiles(@NonNull final Activity activity, @NonNull final String uri, @NonNull final String user, @NonNull final String pass, @Nullable Handler handler) {
 		int logLevel = Logcat.LOG_LEVEL_WARN;
-		Logcat.d(logLevel, "開始します. uri=" + uri + ", user=" + user + ", pass=" + pass);
+		Logcat.d(logLevel, "開始します. uri=" + uri + ", user=" + user);
 		boolean isLocal;
 
 		String[] urlData = parseUri(uri);
@@ -629,7 +650,7 @@ public class SmbFileAccess {
 
 	public static boolean renameTo(@NonNull final String uri, @NonNull final String fromfile, @NonNull final String tofile, @NonNull final String user, @NonNull final String pass) throws FileAccessException {
 		int logLevel = Logcat.LOG_LEVEL_WARN;
-		Logcat.d(logLevel, "uri=" + uri + ", fromfile=" + fromfile + ", tofile=" + tofile + ", user=" + user + ", pass=" + pass);
+		Logcat.d(logLevel, "uri=" + uri + ", fromfile=" + fromfile + ", tofile=" + tofile + ", user=" + user);
 		if (tofile.indexOf('/') > 0) {
 			throw new FileAccessException(TAG + ": renameTo: Invalid file name.");
 		}
@@ -739,7 +760,7 @@ public class SmbFileAccess {
 	// ファイル削除
 	public static boolean delete(@NonNull final String uri, @NonNull final String user, @NonNull final String pass) throws FileAccessException {
 		int logLevel = Logcat.LOG_LEVEL_WARN;
-		Logcat.d(logLevel, "開始します. uri=" + uri + ", user=" + user + ", pass=" + pass );
+		Logcat.d(logLevel, "開始します. uri=" + uri + ", user=" + user );
 
 		if (!DEF.isUiThread()) {
 			// UIスレッドではない時はそのまま実行

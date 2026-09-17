@@ -20,6 +20,7 @@ import java.util.Arrays;
 import jp.dip.muracoro.comittonx.R;
 import src.comitton.common.DEF;
 import src.comitton.common.Logcat;
+import src.comitton.fileaccess.SmbFileAccess;
 
 public class SetCommonActivity extends BasePreferenceActivity {
 
@@ -165,6 +166,11 @@ public class SetCommonActivity extends BasePreferenceActivity {
 		return flag;
 	}
 
+	// 旧い SMB1 (CIFS) での接続を許可するか. 既定は SMB 2.0.2 以上のみ.
+	public static boolean getSmbAllowV1(SharedPreferences sharedPreferences){
+		return DEF.getBoolean(sharedPreferences, DEF.KEY_SMB_ALLOW_V1, false);
+	}
+
 	public static String getCharsetSummary(SharedPreferences sharedPreferences){
 		int val = getCharset(sharedPreferences);
 		return DEF.CharsetList[val];
@@ -174,6 +180,7 @@ public class SetCommonActivity extends BasePreferenceActivity {
 		int logLevel = Logcat.LOG_LEVEL_WARN;
 		DEF.CHAR_DETECT = sharedPreferences.getBoolean(DEF.KEY_CHAR_DETECT, true);
 		DEF.CHARSET = getCharsetSummary(sharedPreferences);
+		SmbFileAccess.setAllowSmb1(getSmbAllowV1(sharedPreferences));
 
 		DEF.SORT_BY_IGNORE_WIDTH = sharedPreferences.getBoolean(DEF.KEY_SORT_BY_IGNORE_WIDTH, true);
 		DEF.SORT_BY_IGNORE_CASE = sharedPreferences.getBoolean(DEF.KEY_SORT_BY_IGNORE_CASE, true);

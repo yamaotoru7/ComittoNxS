@@ -22,6 +22,14 @@
             android:title="画面を回転するボタン" />
     </PreferenceCategory>
 
+    <PreferenceCategory android:title="ネットワーク" >
+        <src.comitton.config.DescCheckBoxPreference
+            android:defaultValue="false"
+            android:key="SmbAllowV1"
+            android:summary="既定では SMB 2.0.2 以上のみ使用します. SMB1 (CIFS) にしか対応しない古い NAS に接続する場合のみ有効にしてください. SMB1 には署名も暗号化もありません."
+            android:title="SMB1 での接続を許可する" />
+    </PreferenceCategory>
+
     <PreferenceCategory android:title="文字コード" >
         <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"

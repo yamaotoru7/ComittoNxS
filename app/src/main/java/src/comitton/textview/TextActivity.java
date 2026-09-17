@@ -436,7 +436,7 @@ public class TextActivity extends AppCompatActivity implements OnTouchListener, 
 		// バックグラウンドでの実行を許可すると復帰時にonCreate()が呼ばれる
 		// ビュワーを開いた後でintentに上書きしても効果がない
 
-		Logcat.d(logLevel, "mServer=" + mServer + ", mURI=" + mURI + ", mPath=" + mPath + ", mUser=" + mUser + ", mPass=" + mPass
+		Logcat.d(logLevel, "mServer=" + mServer + ", mURI=" + mURI + ", mPath=" + mPath + ", mUser=" + mUser
 				+ ", mFileName=" + mFileName + ", mTextName=" + mTextName);
 
 		if (mTextName.equals("META-INF/container.xml")) {

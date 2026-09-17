@@ -1249,7 +1249,7 @@ public class ImageManager extends InputStream implements Runnable {
 		int maxPage = 0;
 		mMaxOrgLength = 0;
 
-		Logcat.d(logLevel, "開始します. path=" + path + ", user=" + user + ", pass=" + pass);
+		Logcat.d(logLevel, "開始します. path=" + path + ", user=" + user);
 
 		if (mPdfRenderer == null) {
 			Logcat.d(logLevel, "PdfRendererを取得します.");

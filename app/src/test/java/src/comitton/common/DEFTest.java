@@ -1,6 +1,7 @@
 package src.comitton.common;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -36,8 +37,8 @@ public class DEFTest {
 
 	@Test
 	public void testCreateUrl() {
-		// SMB URL 生成
-		assertEquals("smb://user:pass@192.168.1.1/share",
+		// SMB URL 生成 (しおりキーにパスワードを含めない)
+		assertEquals("smb://user@192.168.1.1/share",
 				DEF.createUrl("smb://192.168.1.1/share", "user", "pass"));
 		assertEquals("smb://user@192.168.1.1/share",
 				DEF.createUrl("smb://192.168.1.1/share", "user", ""));
@@ -46,6 +47,19 @@ public class DEFTest {
 		assertEquals("/storage/test",
 				DEF.createUrl("/storage/test", "user", "pass"));
 		assertEquals("", DEF.createUrl(null, "user", "pass"));
+	}
+
+	@Test
+	public void testStripSmbKeyPassword() {
+		assertEquals("smb://user@192.168.1.1/share/book.zip",
+				DEF.stripSmbKeyPassword("smb://user:p%40ss@192.168.1.1/share/book.zip"));
+		assertEquals("smb://user@host/share/a.zip#maxpage",
+				DEF.stripSmbKeyPassword("smb://user:pw@host/share/a.zip#maxpage"));
+		// パスワードを含まないキーは対象外
+		assertNull(DEF.stripSmbKeyPassword("smb://user@host/share/a.zip"));
+		assertNull(DEF.stripSmbKeyPassword("smb://host:445/share/a@b.zip"));
+		assertNull(DEF.stripSmbKeyPassword("/storage/emulated/0/a.zip"));
+		assertNull(DEF.stripSmbKeyPassword(null));
 	}
 
 	@Test
@@ -71,6 +85,9 @@ public class DEFTest {
 		assertTrue(DEF.checkExportKey("smb://192.168.1.1/share"));
 		assertFalse(DEF.checkExportKey("relative/path"));
 		assertTrue(DEF.checkExportKey("general_setting_key"));
+		// 暗号化されたパスワードは書き出さない
+		assertFalse(DEF.checkExportKey("smb-pass0"));
+		assertTrue(DEF.checkExportKey("smb-user0"));
 	}
 
 	@Test

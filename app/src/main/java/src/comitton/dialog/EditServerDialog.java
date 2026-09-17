@@ -90,7 +90,7 @@ public class EditServerDialog extends ImmersiveDialog implements OnClickListener
 		mPass = mServer.getPass(index);
 		mProvider = mServer.getProvider(index);
 
-		Logcat.d(logLevel, "index=" + mIndex + ", accessType=" + mAccessType + ", name=" + mName + ", host=" + mHost + ", user=" + mUser + ", pass=" + mPass + ", provider=" + mProvider);
+		Logcat.d(logLevel, "index=" + mIndex + ", accessType=" + mAccessType + ", name=" + mName + ", host=" + mHost + ", user=" + mUser + ", provider=" + mProvider);
 
 		mListener = listener;
 
@@ -203,7 +203,7 @@ public class EditServerDialog extends ImmersiveDialog implements OnClickListener
 				dispName = SafFileAccess.getPathName(mActivity, mProvider);
 			}
 
-			Logcat.d(logLevel, "index=" + mIndex + ", accessType=" + mAccessType + ", name=" + name + ", host=" + host + ", user=" + user + ", pass=" + pass + ", provider=" + provider + ", dispName=" + dispName);
+			Logcat.d(logLevel, "index=" + mIndex + ", accessType=" + mAccessType + ", name=" + name + ", host=" + host + ", user=" + user + ", provider=" + provider + ", dispName=" + dispName);
 			mListener.onSearch(mAccessType, name, host, user, pass, path, provider, dispName);
 			dismiss();
 		}
@@ -279,7 +279,7 @@ public class EditServerDialog extends ImmersiveDialog implements OnClickListener
 				name = mEditName.getText().toString().trim();
 			}
 
-			Logcat.d(logLevel, "index=" + mIndex + ", accessType=" + mAccessType + ", name=" + name + ", host=" + host + ", user=" + user + ", pass=" + pass + ", provider=" + provider + ", dispName=" + dispName);
+			Logcat.d(logLevel, "index=" + mIndex + ", accessType=" + mAccessType + ", name=" + name + ", host=" + host + ", user=" + user + ", provider=" + provider + ", dispName=" + dispName);
 			mListener.onSearch(mAccessType, name, host, user, pass, path, provider, dispName);
 			dismiss();
 		}

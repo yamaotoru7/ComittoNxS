@@ -5,6 +5,9 @@ import java.nio.charset.Charset;
 import java.text.Normalizer;
 import java.util.Arrays;
 import java.util.Locale;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.text.SimpleDateFormat;
 import java.net.URLEncoder;
 import java.security.MessageDigest;
@@ -422,6 +425,7 @@ public class DEF {
 	public static final String KEY_OLDMENU = "OldMenu";
 
 	public static final String KEY_HIDDENFILE = "HiddenFile";
+	public static final String KEY_SMB_ALLOW_V1 = "SmbAllowV1";
 
 	// public static final String KEY_TITLE = "Title";
 	public static final String KEY_SHARPEN = "Sharpen";
@@ -2352,6 +2356,11 @@ public class DEF {
 			} else {
 				return false;
 			}
+		} else if (key.startsWith("smb-pass")) {
+			// パスワードは端末固有の鍵で暗号化されているため書き出さない
+			return false;
+		} else if (key.equals(KEY_SMB_KEY_MIGRATION)) {
+			return false;
 		} else if (key.equals("path")) {
 			return false;
 		} else if (key.equals("ImportSetting")) {
@@ -2434,6 +2443,7 @@ public class DEF {
 	}
 
 	// Url文字列作成
+	// しおり・既読位置などの SharedPreferences キーに使う. パスワードは含めない (旧バージョンは含めていた).
 	public static String createUrl(String url, String user, String pass) {
 		int logLevel = Logcat.LOG_LEVEL_WARN;
 		if (url == null) {
@@ -2449,14 +2459,70 @@ public class DEF {
 		String ret = "";
 		try {
 			ret = "smb://" + URLEncoder.encode(user, "UTF-8");
-			if (pass != null && !pass.isEmpty()) {
-				ret += ":" + URLEncoder.encode(pass, "UTF-8");
-			}
 		} catch (UnsupportedEncodingException e) {
 			Logcat.e(logLevel, "", e);
 		}
 		ret += "@" + url.substring(6);
 		return ret;
+	}
+
+	private static final String KEY_SMB_KEY_MIGRATION = "SmbKeyMigration";
+	private static final Pattern SMB_KEY_WITH_PASSWORD = Pattern.compile("^smb://([^:@/]+):([^@/]*)@(.*)$");
+
+	/**
+	 * {@code smb://user:pass@host/...} から {@code :pass} を取り除いたキーを返す. 該当しない場合は null.
+	 */
+	public static String stripSmbKeyPassword(String key) {
+		if (key == null) {
+			return null;
+		}
+		Matcher m = SMB_KEY_WITH_PASSWORD.matcher(key);
+		if (!m.matches()) {
+			return null;
+		}
+		return "smb://" + m.group(1) + "@" + m.group(3);
+	}
+
+	/**
+	 * 旧バージョンが {@code smb://user:pass@host/...} 形式で保存したしおりキーから
+	 * パスワードを取り除く一回限りの移行処理.
+	 */
+	public static void migrateSmbBookmarkKeys(SharedPreferences sp) {
+		int logLevel = Logcat.LOG_LEVEL_WARN;
+		if (sp.getInt(KEY_SMB_KEY_MIGRATION, 0) >= 1) {
+			return;
+		}
+		Map<String, ?> all = sp.getAll();
+		SharedPreferences.Editor ed = sp.edit();
+		int count = 0;
+		if (all != null) {
+			for (Map.Entry<String, ?> entry : all.entrySet()) {
+				String key = entry.getKey();
+				String newKey = stripSmbKeyPassword(key);
+				if (newKey == null) {
+					continue;
+				}
+				Object value = entry.getValue();
+				if (!all.containsKey(newKey)) {
+					if (value instanceof Integer) {
+						ed.putInt(newKey, (Integer) value);
+					} else if (value instanceof String) {
+						ed.putString(newKey, (String) value);
+					} else if (value instanceof Boolean) {
+						ed.putBoolean(newKey, (Boolean) value);
+					} else if (value instanceof Long) {
+						ed.putLong(newKey, (Long) value);
+					} else if (value instanceof Float) {
+						ed.putFloat(newKey, (Float) value);
+					}
+				}
+				ed.remove(key);
+				count++;
+			}
+		}
+		ed.putInt(KEY_SMB_KEY_MIGRATION, 1);
+		ed.apply();
+		Logcat.i(logLevel, "SMB しおりキーを移行しました. count=" + count);
 	}
 
 

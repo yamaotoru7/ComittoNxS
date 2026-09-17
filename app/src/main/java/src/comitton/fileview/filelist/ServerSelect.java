@@ -5,6 +5,7 @@ import java.net.URLEncoder;
 
 import jp.dip.muracoro.comittonx.R;
 
+import src.comitton.common.CredentialStore;
 import src.comitton.common.DEF;
 import src.comitton.common.Logcat;
 import src.comitton.fileview.data.ServerData;
@@ -62,7 +63,15 @@ public class ServerSelect {
 			String host = sharedPreferences.getString("smb-host" + i, "");
 			String path = sharedPreferences.getString("smb-path" + i, "");
 			String user = sharedPreferences.getString("smb-user" + i, "");
-			String pass = sharedPreferences.getString("smb-pass" + i, "");
+			String storedPass = sharedPreferences.getString("smb-pass" + i, "");
+			String pass = CredentialStore.decrypt(storedPass);
+			if (!pass.isEmpty() && !CredentialStore.isEncrypted(storedPass)) {
+				// 旧バージョンの平文パスワードを暗号化して保存し直す
+				String encrypted = CredentialStore.encrypt(pass);
+				if (CredentialStore.isEncrypted(encrypted)) {
+					sharedPreferences.edit().putString("smb-pass" + i, encrypted).apply();
+				}
+			}
 			String provider = sharedPreferences.getString("smb-provider" + i, "");
 			String dispName = sharedPreferences.getString("smb-dispname" + i, "");
 			if (dispName.isEmpty()) {
@@ -71,7 +80,7 @@ public class ServerSelect {
 			if (accessType < DEF.ACCESS_TYPE_SMB || accessType > DEF.ACCESS_TYPE_PICKER) {
 				accessType = DEF.ACCESS_TYPE_SMB;
 			}
-			Logcat.d(logLevel, "i=" + i + ", accessType=" + accessType + ", name=" + name + ", host=" + host + ", path=" + path + ", user=" + user + ", pass=" + pass + ", provider=" + provider + ", dispName=" + dispName);
+			Logcat.d(logLevel, "i=" + i + ", accessType=" + accessType + ", name=" + name + ", host=" + host + ", path=" + path + ", user=" + user + ", provider=" + provider + ", dispName=" + dispName);
 			mServer[i].setAccessType(accessType);
 			mServer[i].setName(name);
 			mServer[i].setPath(path);
@@ -350,7 +359,7 @@ public class ServerSelect {
 	public void setData(int index, RecordItem record) {
 		int logLevel = Logcat.LOG_LEVEL_WARN;
 		if (0 <= index && index < DEF.MAX_SERVER) {
-			Logcat.d(logLevel, "index=" + index + ", accessType=" + record.getAccessType() + ", name=" + record.getServerName() + ", host=" + record.getHost() + ", path=" + record.getPath() + ", user=" + record.getUser() + ", pass=" + record.getPass() + ", provider=" + record.getProvider() + ", dispName=" + record.getDispName());
+			Logcat.d(logLevel, "index=" + index + ", accessType=" + record.getAccessType() + ", name=" + record.getServerName() + ", host=" + record.getHost() + ", path=" + record.getPath() + ", user=" + record.getUser() + ", provider=" + record.getProvider() + ", dispName=" + record.getDispName());
 			setData(index, record.getAccessType(), record.getServerName(), record.getHost(), record.getUser(), record.getPass(), record.getPath(), record.getProvider(), record.getDispName());
 			save(index);
 		}
@@ -377,13 +386,13 @@ public class ServerSelect {
 		int logLevel = Logcat.LOG_LEVEL_WARN;
 		Editor ed = mSharedPrefer.edit();
 		// サーバ情報
-		Logcat.d(logLevel, "index=" + index + ", accessType=" + mServer[index].getAccessType() + ", name=" + mServer[index].getName() + ", host=" + mServer[index].getHost() + ", path=" + mServer[index].getPath() + ", user=" + mServer[index].getUser() + ", pass=" + mServer[index].getPass() + ", provider=" + mServer[index].getProvider());
+		Logcat.d(logLevel, "index=" + index + ", accessType=" + mServer[index].getAccessType() + ", name=" + mServer[index].getName() + ", host=" + mServer[index].getHost() + ", path=" + mServer[index].getPath() + ", user=" + mServer[index].getUser() + ", provider=" + mServer[index].getProvider());
 		if (mServer[index].getProvider().equals("user")) {DEF.StackTrace(TAG , "save:");}
 		ed.putInt("smb-access-type" + index, mServer[index].getAccessType());
 		ed.putString("smb-name" + index, mServer[index].getName());
 		ed.putString("smb-host" + index, mServer[index].getHost());
 		ed.putString("smb-user" + index, mServer[index].getUser());
-		ed.putString("smb-pass" + index, mServer[index].getPass());
+		ed.putString("smb-pass" + index, CredentialStore.encrypt(mServer[index].getPass()));
 		ed.putString("smb-path" + index, mServer[index].getPath());
 		ed.putString("smb-provider" + index, mServer[index].getProvider());
 		ed.putString("smb-dispname" + index, mServer[index].getDispName());
