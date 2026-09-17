@@ -398,18 +398,11 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 					mInitialize = 0;
 				}
 
-				if (contentUri != null) {
-					String path = contentUri.getPath();
-					intent.putExtra("Uri", mURI);
-					intent.putExtra("Path", mPath);
-					mServer = new ServerSelect(mSharedPreferences, this);
-					mServer.select(DEF.INDEX_LOCAL);
-					mURI = mServer.getURI();
-					mPath = path.substring(0, path.lastIndexOf('/') + 1);
-					FileData fileData = new FileData(mActivity, path.substring(path.lastIndexOf('/') + 1));
-					Logcat.d(logLevel, "Intent解析中. mPath=" + mPath + ", name=" + fileData.getName());
-
-					openFile(fileData, "");
+				if (contentUri != null && savedInstanceState == null) {
+					// ファイル一覧の準備が終わってから開く
+					final Uri sharedUri = contentUri;
+					final boolean persistable = (intent.getFlags() & Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION) != 0;
+					mHandler.post(() -> openSharedUri(sharedUri, persistable));
 				}
 			}
 
@@ -3296,6 +3289,54 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 		this.moveTaskToBack(true);
 		finish();
 		return;
+	}
+
+	/**
+	 * 他のアプリから共有 (ACTION_SEND / ACTION_VIEW) されたファイルを開く.
+	 * content:// はファイルピッカーで選んだ場合と同じく SAF 経由で開き、file:// はローカルパスとして開く.
+	 * 開いた後はファイル一覧の表示位置を元に戻す.
+	 */
+	private void openSharedUri(Uri uri, boolean persistable) {
+		int logLevel = Logcat.LOG_LEVEL_WARN;
+		if (isFinishing() || isDestroyed()) {
+			return;
+		}
+		String savedUri = mURI;
+		String savedPath = mPath;
+		try {
+			FileData fileData;
+			if (ContentResolver.SCHEME_CONTENT.equals(uri.getScheme())) {
+				if (persistable) {
+					// 共有元が許可していれば権限を永続化する (しおりや履歴から再度開けるように)
+					try {
+						getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+					} catch (SecurityException e) {
+						Logcat.w(logLevel, "URI の権限を永続化できません.", e);
+					}
+				}
+				mURI = uri.toString();
+				mPath = "";
+				fileData = new FileData(mActivity, mURI);
+			}
+			else {
+				String path = uri.getPath();
+				if (path == null || path.isEmpty()) {
+					return;
+				}
+				mServer.select(DEF.INDEX_LOCAL);
+				mURI = mServer.getURI();
+				mPath = path.substring(0, path.lastIndexOf('/') + 1);
+				fileData = new FileData(mActivity, path.substring(path.lastIndexOf('/') + 1));
+			}
+			Logcat.d(logLevel, "共有されたファイルを開きます. mURI=" + mURI + ", mPath=" + mPath + ", name=" + fileData.getName());
+			openFile(fileData, "");
+		} catch (Exception e) {
+			Logcat.e(logLevel, "共有されたファイルを開けません.", e);
+			Toast.makeText(this, String.valueOf(e.getLocalizedMessage()), Toast.LENGTH_LONG).show();
+		} finally {
+			mURI = savedUri;
+			mPath = savedPath;
+		}
 	}
 
 	/**
