@@ -23,7 +23,6 @@ import src.comitton.config.seekbar.PageRangeSeekbar;
 import src.comitton.config.seekbar.ScrollSeekbar;
 import src.comitton.config.seekbar.TapRangeSeekbar;
 import src.comitton.config.seekbar.VolScrlSeekbar;
-import src.comitton.helpview.HelpActivity;
 
 public class SetImageTextDetailActivity extends BasePreferenceActivity {
 
@@ -58,27 +57,6 @@ public class SetImageTextDetailActivity extends BasePreferenceActivity {
 			mVolScrl = findPreference(DEF.KEY_VOLSCRL);
 			mEffectTime = findPreference(DEF.KEY_EFFECTTIME);
 			mMomentMode = findPreference(DEF.KEY_MOMENTMODE);
-
-			// 項目選択
-			Preference onlineHelp = findPreference(DEF.KEY_ITDTLHELP);
-			if (onlineHelp != null) {
-				onlineHelp.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-					@Override
-					public boolean onPreferenceClick(@NonNull Preference preference) {
-						if (getActivity() == null) {
-							return false;
-						}
-						// Activityの遷移
-						Resources res = getResources();
-						String url = res.getString(R.string.url_imagetextdetail);	// 設定画面
-						Intent intent = new Intent(getActivity(), HelpActivity.class);
-						intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-						intent.putExtra("Url", url);
-						startActivity(intent);
-						return true;
-					}
-				});
-			}
 		}
 
 		@Override

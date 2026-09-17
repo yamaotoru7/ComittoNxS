@@ -122,12 +122,4 @@
             android:title="priority word 10"
             android:dialogTitle="priority word 10" />
     </PreferenceCategory>
-
-    <PreferenceCategory android:title="Help" >
-        <PreferenceScreen
-            android:key="CommHelp"
-            android:summary="Displays the help for these settings."
-            android:title="Description of the item" >
-        </PreferenceScreen>
-    </PreferenceCategory>
 </PreferenceScreen>

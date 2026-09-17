@@ -15,7 +15,6 @@ import androidx.preference.PreferenceFragmentCompat;
 import jp.dip.muracoro.comittonx.R;
 import src.comitton.common.DEF;
 import src.comitton.fileview.filelist.RecordList;
-import src.comitton.helpview.HelpActivity;
 
 public class SetRecorderActivity extends BasePreferenceActivity {
 
@@ -39,27 +38,6 @@ public class SetRecorderActivity extends BasePreferenceActivity {
 		public void onCreatePreferences(@Nullable Bundle savedInstanceState, @Nullable String rootKey) {
 			setPreferencesFromResource(R.xml.recorder, rootKey);
 			mHistNum = findPreference(DEF.KEY_HISTNUM);
-
-			// 項目選択
-			Preference onlineHelp = findPreference(DEF.KEY_RECHELP);
-			if (onlineHelp != null) {
-				onlineHelp.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-					@Override
-					public boolean onPreferenceClick(@NonNull Preference preference) {
-						if (getActivity() == null) {
-							return false;
-						}
-						// Activityの遷移
-						Resources res = getResources();
-						String url = res.getString(R.string.url_recordlist);	// 設定画面
-						Intent intent = new Intent(getActivity(), HelpActivity.class);
-						intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-						intent.putExtra("Url", url);
-						startActivity(intent);
-						return true;
-					}
-				});
-			}
 		}
 
 		@Override

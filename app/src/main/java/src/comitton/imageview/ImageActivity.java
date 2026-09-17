@@ -9,7 +9,6 @@ import java.util.Date;
 import jp.dip.muracoro.comittonx.R;
 import src.comitton.common.Logcat;
 import src.comitton.cropimageview.CropImageActivity;
-import src.comitton.helpview.HelpActivity;
 import src.comitton.common.DEF;
 import src.comitton.config.SetCacheActivity;
 import src.comitton.config.SetCommonActivity;
@@ -3281,7 +3280,6 @@ public class ImageActivity extends AppCompatActivity implements OnTouchListener,
 		// 一時設定
 		mMenuDialog.addSection(res.getString(R.string.otherSec));
 		// ヘルプ
-		mMenuDialog.addItem(DEF.MENU_ONLINE, res.getString(R.string.onlineMenu));
 		// 操作確認
 		mMenuDialog.addItem(DEF.MENU_HELP, res.getString(R.string.helpMenu), mGuideView.getOperationMode());
 		// 上部選択メニュー設定
@@ -3478,17 +3476,6 @@ public class ImageActivity extends AppCompatActivity implements OnTouchListener,
 			case DEF.MENU_HELP: {
 				boolean flag = !mGuideView.getOperationMode();
 				mGuideView.setOperationMode(flag);
-				break;
-			}
-			case DEF.MENU_ONLINE: {
-				// 操作方法画面に遷移
-				Resources res = getResources();
-				String url = res.getString(R.string.url_operate);	// 設定画面
-				Intent intent;
-				intent = new Intent(ImageActivity.this, HelpActivity.class);
-				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-				intent.putExtra("Url", url);
-				startActivity(intent);
 				break;
 			}
 			case DEF.MENU_SETTING: {

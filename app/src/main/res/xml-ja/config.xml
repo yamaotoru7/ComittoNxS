@@ -110,11 +110,4 @@
             android:summary="選択したファイルの内容を現在の設定に上書します。\n ([sdcard]/comittona/conf/*.setを参照)"
             android:title="設定ファイルの適用" />
     </PreferenceCategory>
-    <PreferenceCategory android:title="ヘルプ" >
-        <PreferenceScreen
-            android:key="ConfHelp"
-            android:summary="設定項目についてのヘルプを表示します。"
-            android:title="設定項目の説明" >
-        </PreferenceScreen>
-    </PreferenceCategory>
 </PreferenceScreen>

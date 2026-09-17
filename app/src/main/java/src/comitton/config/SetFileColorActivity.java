@@ -29,7 +29,6 @@ import src.comitton.config.color.ColorTitSetting;
 import src.comitton.config.color.ColorTlbSetting;
 import src.comitton.config.color.ColorTldSetting;
 import src.comitton.config.color.ColorTxtSetting;
-import src.comitton.helpview.HelpActivity;
 
 public class SetFileColorActivity extends BasePreferenceActivity {
 
@@ -81,50 +80,6 @@ public class SetFileColorActivity extends BasePreferenceActivity {
 			mTibColor = findPreference(DEF.KEY_TIBRGB);
 			mTldColor = findPreference(DEF.KEY_TLDRGB);
 			mTlbColor = findPreference(DEF.KEY_TLBRGB);
-
-			// 項目選択
-			Preference onlineHelp = findPreference(DEF.KEY_FCLRHELP);
-			if (onlineHelp != null) {
-				onlineHelp.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-					@Override
-					public boolean onPreferenceClick(@NonNull Preference preference) {
-						if (getActivity() == null) {
-							return false;
-						}
-						// ヘルプを起動
-						Resources res = getResources();
-						String url = res.getString(R.string.url_filecolor);	// 設定画面
-						Intent intent = new Intent(getActivity(), HelpActivity.class);
-						intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-						intent.putExtra("Url", url);
-						startActivity(intent);
-						return true;
-					}
-				});
-			}
-
-			mCustomUpdate = findPreference(DEF.KEY_CSTUPDATE);
-			if (mCustomUpdate != null) {
-				mCustomUpdate.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-					@Override
-					public boolean onPreferenceClick(@NonNull Preference preference) {
-						if (mSharedPreferences == null) return false;
-						// プリセットを反映
-						int index = getPreset(mSharedPreferences);
-						if (index > 0 && index < mPresetColor.length) {
-							String[] newKeys = { DEF.KEY_TXTRGB, DEF.KEY_DIRRGB, DEF.KEY_BEFRGB, DEF.KEY_NOWRGB, DEF.KEY_AFTRGB, DEF.KEY_IMGRGB, DEF.KEY_INFRGB, DEF.KEY_MRKRGB, DEF.KEY_BAKRGB, DEF.KEY_CURRGB, DEF.KEY_TITRGB, DEF.KEY_TIBRGB, DEF.KEY_TLDRGB, DEF.KEY_TLBRGB };
-
-							Editor ed = mSharedPreferences.edit();
-							for (int i = 0 ; i < newKeys.length ; i ++) {
-								ed.putInt(newKeys[i], mPresetColor[index][i]);
-							}
-							ed.apply();
-							updateSummarys();
-						}
-						return true;
-					}
-				});
-			}
 		}
 
 		@Override

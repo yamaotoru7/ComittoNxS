@@ -27,7 +27,6 @@ import src.comitton.config.seekbar.TextScrlRngHSeekbar;
 import src.comitton.config.seekbar.TextScrlRngWSeekbar;
 import src.comitton.config.seekbar.TextSpaceHSeekbar;
 import src.comitton.config.seekbar.TextSpaceWSeekbar;
-import src.comitton.helpview.HelpActivity;
 
 public class SetTextActivity extends BasePreferenceActivity {
 
@@ -143,27 +142,6 @@ public class SetTextActivity extends BasePreferenceActivity {
 				mFontName.setEntries(items);
 				mFontName.setEntryValues(values);
 				mFontName.setDefaultValue(values[0]);
-			}
-
-			// 項目選択
-			Preference onlineHelp = findPreference(DEF.KEY_TEXTHELP);
-			if (onlineHelp != null) {
-				onlineHelp.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-					@Override
-					public boolean onPreferenceClick(@NonNull Preference preference) {
-						if (getActivity() == null) {
-							return false;
-						}
-						// Activityの遷移
-						Resources res = getResources();
-						String url = res.getString(R.string.url_text);	// 設定画面
-						Intent intent = new Intent(getActivity(), HelpActivity.class);
-						intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-						intent.putExtra("Url", url);
-						startActivity(intent);
-						return true;
-					}
-				});
 			}
 		}
 

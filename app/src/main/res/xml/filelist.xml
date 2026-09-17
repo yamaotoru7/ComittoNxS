@@ -201,11 +201,4 @@
             android:summary="dummy"
             android:title="Margin cut from thumbnails" />
     </PreferenceCategory>
-    <PreferenceCategory android:title="Help" >
-        <PreferenceScreen
-            android:key="FileHelp"
-            android:summary="dummy"
-            android:title="Description of the item" >
-        </PreferenceScreen>
-    </PreferenceCategory>
 </PreferenceScreen>

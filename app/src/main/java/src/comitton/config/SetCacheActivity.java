@@ -16,7 +16,6 @@ import src.comitton.common.DEF;
 import src.comitton.config.seekbar.MemNextSeekbar;
 import src.comitton.config.seekbar.MemPrevSeekbar;
 import src.comitton.config.seekbar.MemSizeSeekbar;
-import src.comitton.helpview.HelpActivity;
 
 public class SetCacheActivity extends BasePreferenceActivity {
 
@@ -37,27 +36,6 @@ public class SetCacheActivity extends BasePreferenceActivity {
 			mMemSize  = findPreference(DEF.KEY_MEMSIZE);
 			mMemNext  = findPreference(DEF.KEY_MEMNEXT);
 			mMemPrev  = findPreference(DEF.KEY_MEMPREV);
-
-			// 項目選択
-			Preference onlineHelp = findPreference(DEF.KEY_CACHEHELP);
-			if (onlineHelp != null) {
-				onlineHelp.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-					@Override
-					public boolean onPreferenceClick(@NonNull Preference preference) {
-						if (getActivity() == null) {
-							return false;
-						}
-						// Activityの遷移
-						Resources res = getResources();
-						String url = res.getString(R.string.url_cache);	// 設定画面
-						Intent intent = new Intent(getActivity(), HelpActivity.class);
-						intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-						intent.putExtra("Url", url);
-						startActivity(intent);
-						return true;
-					}
-				});
-			}
 		}
 
 		@Override

@@ -20,7 +20,6 @@ import java.util.Arrays;
 import jp.dip.muracoro.comittonx.R;
 import src.comitton.common.DEF;
 import src.comitton.common.Logcat;
-import src.comitton.helpview.HelpActivity;
 
 public class SetCommonActivity extends BasePreferenceActivity {
 
@@ -72,27 +71,6 @@ public class SetCommonActivity extends BasePreferenceActivity {
 			mPriorityWord08 = findPreference(DEF.KEY_SORT_PRIORITY_WORD_08);
 			mPriorityWord09 = findPreference(DEF.KEY_SORT_PRIORITY_WORD_09);
 			mPriorityWord10 = findPreference(DEF.KEY_SORT_PRIORITY_WORD_10);
-
-			// 項目選択
-			Preference onlineHelp = findPreference(DEF.KEY_COMMHELP);
-			if (onlineHelp != null) {
-				onlineHelp.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-					@Override
-					public boolean onPreferenceClick(@NonNull Preference preference) {
-						if (getActivity() == null) {
-							return false;
-						}
-						// Activityの遷移
-						Resources res = getResources();
-						String url = res.getString(R.string.url_common);	// 設定画面
-						Intent intent = new Intent(getActivity(), HelpActivity.class);
-						intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-						intent.putExtra("Url", url);
-						startActivity(intent);
-						return true;
-					}
-				});
-			}
 		}
 
 		@Override

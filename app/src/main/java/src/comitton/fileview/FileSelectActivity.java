@@ -16,7 +16,6 @@ import jp.dip.muracoro.comittonx.R;
 import src.comitton.common.Logcat;
 import src.comitton.config.SetTextActivity;
 import src.comitton.expandview.ExpandActivity;
-import src.comitton.helpview.HelpActivity;
 import src.comitton.imageview.ImageManager;
 import src.comitton.textview.TextActivity;
 import src.comitton.textview.TextManager;
@@ -1829,7 +1828,6 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 			menu.add(0, DEF.MENU_ROTATE, Menu.NONE, res.getString(R.string.rotateMenu)).setIcon(android.R.drawable.ic_menu_rotate);
 		}
 		// ヘルプ
-		menu.add(0, DEF.MENU_ONLINE, Menu.NONE, res.getString(R.string.onlineMenu)).setIcon(android.R.drawable.ic_menu_set_as);
 		// 動作・使用上の注意
 		menu.add(0, DEF.MENU_NOTICE, Menu.NONE, R.string.noticeMenu).setIcon(android.R.drawable.ic_menu_info_details);
 		// バージョン情報
@@ -1899,16 +1897,6 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 			ThumbnailLoader.deleteThumbnailCache(0); // 0個を残す
 			switchFileList();
 			loadThumbnail(true);
-		}
-		else if (id == DEF.MENU_ONLINE) {
-			// 操作方法画面に遷移
-			Resources res = getResources();
-			String url = res.getString(R.string.url_filer);	// 設定画面
-			Intent intent;
-			intent = new Intent(FileSelectActivity.this, HelpActivity.class);
-			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-			intent.putExtra("Url", url);
-			startActivity(intent);
 		}
 		else if (id == DEF.MENU_QUIT) {
 			// アプリ終了

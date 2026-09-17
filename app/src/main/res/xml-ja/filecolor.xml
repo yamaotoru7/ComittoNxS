@@ -115,11 +115,4 @@
             android:summary="dummy"
             android:title="ツールバーのボタン色" />
     </PreferenceCategory>
-    <PreferenceCategory android:title="ヘルプ" >
-        <PreferenceScreen
-            android:key="FClrHelp"
-            android:summary="設定項目についてのヘルプを表示します。"
-            android:title="設定項目の説明" >
-        </PreferenceScreen>
-    </PreferenceCategory>
 </PreferenceScreen>

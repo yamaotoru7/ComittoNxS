@@ -14,7 +14,6 @@ import androidx.preference.PreferenceFragmentCompat;
 
 import jp.dip.muracoro.comittonx.R;
 import src.comitton.common.DEF;
-import src.comitton.helpview.HelpActivity;
 
 public class SetImageActivity extends BasePreferenceActivity {
 
@@ -81,27 +80,6 @@ public class SetImageActivity extends BasePreferenceActivity {
 			mPageSel = findPreference(DEF.KEY_PAGESELECT);
 
 			mResources = getResources();
-
-			// 項目選択
-			Preference onlineHelp = findPreference(DEF.KEY_IMAGEHELP);
-			if (onlineHelp != null) {
-				onlineHelp.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-					@Override
-					public boolean onPreferenceClick(@NonNull Preference preference) {
-						if (getActivity() == null) {
-							return false;
-						}
-						// Activityの遷移
-						Resources res = getResources();
-						String url = res.getString(R.string.url_image);	// 設定画面
-						Intent intent = new Intent(getActivity(), HelpActivity.class);
-						intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-						intent.putExtra("Url", url);
-						startActivity(intent);
-						return true;
-					}
-				});
-			}
 		}
 
 		@Override

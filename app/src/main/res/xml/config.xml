@@ -111,11 +111,4 @@
             android:summary="Overwrite the current settings with the contents of the select file.\n (reference file : [sdcard]/comittona/conf/*.set)"
             android:title="Load setting from file" />
     </PreferenceCategory>
-    <PreferenceCategory android:title="Help" >
-        <PreferenceScreen
-            android:key="ConfHelp"
-            android:summary="Displays the help for these settings."
-            android:title="Description of the item" >
-        </PreferenceScreen>
-    </PreferenceCategory>
 </PreferenceScreen>

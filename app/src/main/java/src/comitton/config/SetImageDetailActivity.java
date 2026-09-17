@@ -21,7 +21,6 @@ import src.comitton.config.seekbar.ScrlRngHSeekbar;
 import src.comitton.config.seekbar.ScrlRngWSeekbar;
 import src.comitton.config.seekbar.WAdjustSeekbar;
 import src.comitton.config.seekbar.WScalingSeekbar;
-import src.comitton.helpview.HelpActivity;
 
 public class SetImageDetailActivity extends BasePreferenceActivity {
 
@@ -54,27 +53,6 @@ public class SetImageDetailActivity extends BasePreferenceActivity {
 			mAutoPlay = findPreference(DEF.KEY_AUTOPLAY);
 			mMaxThread = findPreference(DEF.KEY_MAXTHREAD);
 			mLoupeSize = findPreference(DEF.KEY_LOUPESIZE);
-
-			// 項目選択
-			Preference onlineHelp = findPreference(DEF.KEY_IDTLHELP);
-			if (onlineHelp != null) {
-				onlineHelp.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-					@Override
-					public boolean onPreferenceClick(@NonNull Preference preference) {
-						if (getActivity() == null) {
-							return false;
-						}
-						// Activityの遷移
-						Resources res = getResources();
-						String url = res.getString(R.string.url_imagedetail);	// 設定画面
-						Intent intent = new Intent(getActivity(), HelpActivity.class);
-						intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-						intent.putExtra("Url", url);
-						startActivity(intent);
-						return true;
-					}
-				});
-			}
 		}
 
 		@Override

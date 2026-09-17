@@ -11,7 +11,6 @@ import androidx.preference.PreferenceFragmentCompat;
 
 import jp.dip.muracoro.comittonx.R;
 import src.comitton.common.DEF;
-import src.comitton.helpview.HelpActivity;
 
 public class SetConfigActivity extends BasePreferenceActivity {
 
@@ -24,27 +23,6 @@ public class SetConfigActivity extends BasePreferenceActivity {
 		@Override
 		public void onCreatePreferences(@Nullable Bundle savedInstanceState, @Nullable String rootKey) {
 			setPreferencesFromResource(R.xml.config, rootKey);
-
-			// 項目選択
-			Preference onlineHelp = findPreference(DEF.KEY_CONFHELP);
-			if (onlineHelp != null) {
-				onlineHelp.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-					@Override
-					public boolean onPreferenceClick(@NonNull Preference preference) {
-						if (getActivity() == null) {
-							return false;
-						}
-						// Activityの遷移
-						Resources res = getResources();
-						String url = res.getString(R.string.url_config);	// 設定画面
-						Intent intent = new Intent(getActivity(), HelpActivity.class);
-						intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-						intent.putExtra("Url", url);
-						startActivity(intent);
-						return true;
-					}
-				});
-			}
 		}
 	}
 }

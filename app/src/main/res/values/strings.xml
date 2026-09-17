@@ -90,7 +90,6 @@
     <string name="scrlWayMenuSub1">V->H</string>
     <string name="scrlWayMenuSub2">H->V</string>
     <string name="helpMenu">Operations</string>
-    <string name="onlineMenu">Operation Help</string>
     <string name="sortMenu">Sort</string>
     <string name="setTopMenu">Top Menu Settings</string>
     <string name="setMenu">Settings</string>
@@ -463,26 +462,6 @@
     <string name="fontdlLic">IPA Font License v1.0</string>
     <string name="fontdlMincho">Download IPA MINCHO</string>
     <string name="fontdlGothic">Download IPA GOTHIC</string>
-
-    <string name="url_config">config/config.html</string>
-    <string name="url_filelist">config/file_list.html</string>
-    <string name="url_filecolor">config/file_color.html</string>
-    <string name="url_image">config/image.html</string>
-    <string name="url_imagedetail">config/image_detail.html</string>
-    <string name="url_text">config/text.html</string>
-    <string name="url_imagetext">config/image_text.html</string>
-    <string name="url_imagetextdetail">config/image_text_detail.html</string>
-    <string name="url_imagetextcolor">config/image_text_color.html</string>
-    <string name="url_common">config/common.html</string>
-    <string name="url_cache">config/cache.html</string>
-    <string name="url_operate">config/operate.html</string>
-    <string name="url_operatetext">config/operate_text.html</string>
-    <string name="url_server">config/server.html</string>
-    <string name="url_filer">config/filer.html</string>
-    <string name="url_complist">config/comp_list.html</string>
-    <string name="url_recordlist">config/record_list.html</string>
-    <string name="url_epub">config/epub.html</string>
-    <string name="url_operateepub">config/operate_epub.html</string>
 
     <string name="url_fontlicense">http://ipafont.ipa.go.jp/ipa_font_license_v1.html</string>
     <string name="url_fontdownload1">http://drive.google.com/uc?export=view&amp;id=0Bzx6UxEo3Pg0MzdZMkN5ZHU0NU0</string>

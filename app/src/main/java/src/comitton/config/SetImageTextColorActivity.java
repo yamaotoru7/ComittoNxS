@@ -24,7 +24,6 @@ import src.comitton.config.color.ColorTvtSetting;
 import src.comitton.config.color.ColorTxtCntSetting;
 import src.comitton.config.color.ColorTxtGuiSetting;
 import src.comitton.config.color.ColorTxtMgnSetting;
-import src.comitton.helpview.HelpActivity;
 
 public class SetImageTextColorActivity extends BasePreferenceActivity {
 
@@ -80,27 +79,6 @@ public class SetImageTextColorActivity extends BasePreferenceActivity {
 			mHitColor = findPreference(DEF.KEY_TX_HITRGB);
 
 			mGradation  = findPreference(DEF.KEY_TX_GRADATION);
-
-			// 項目選択
-			Preference onlineHelp = findPreference(DEF.KEY_ITCLRHELP);
-			if (onlineHelp != null) {
-				onlineHelp.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-					@Override
-					public boolean onPreferenceClick(@NonNull Preference preference) {
-						if (getActivity() == null) {
-							return false;
-						}
-						// Activityの遷移
-						Resources res = getResources();
-						String url = res.getString(R.string.url_imagetextcolor);	// 設定画面
-						Intent intent = new Intent(getActivity(), HelpActivity.class);
-						intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-						intent.putExtra("Url", url);
-						startActivity(intent);
-						return true;
-					}
-				});
-			}
 		}
 
 		@Override

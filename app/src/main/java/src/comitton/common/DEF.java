@@ -138,7 +138,6 @@ public class DEF {
 	public static final int MENU_REFRESH = Menu.FIRST + 9;
 	public static final int MENU_QUIT = Menu.FIRST + 11;
 	public static final int MENU_THUMBDEL = Menu.FIRST + 12;
-	public static final int MENU_ONLINE = Menu.FIRST + 13;
 	public static final int MENU_MARKER = Menu.FIRST + 14;
 	public static final int MENU_SHARE = Menu.FIRST + 15;
 	public static final int MENU_SHARER = Menu.FIRST + 16;
@@ -314,19 +313,6 @@ public class DEF {
 
 	public static final String KEY_EXPORTSETTING = "ExportSetting";
 	public static final String KEY_IMPORTSETTING = "ImportSetting";
-
-	public static final String KEY_CONFHELP = "ConfHelp";
-	public static final String KEY_FILEHELP = "FileHelp";
-	public static final String KEY_FCLRHELP = "FClrHelp";
-	public static final String KEY_IMAGEHELP = "ImageHelp";
-	public static final String KEY_IDTLHELP = "IDtlHelp";
-	public static final String KEY_COMMHELP = "CommHelp";
-	public static final String KEY_CACHEHELP = "CacheHelp";
-	public static final String KEY_TEXTHELP = "TextHelp";
-	public static final String KEY_IMTXHELP = "ImgTxtHelp";
-	public static final String KEY_ITDTLHELP = "ImgTxtDtlHelp";
-	public static final String KEY_ITCLRHELP = "ImgTxtClrHelp";
-	public static final String KEY_RECHELP = "RecordHelp";
 
 	public static final String KEY_CSTUPDATE = "CustomUpdate";
 

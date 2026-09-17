@@ -12,7 +12,6 @@ import jp.dip.muracoro.comittonx.R;
 import src.comitton.common.Logcat;
 import src.comitton.config.SetTextActivity;
 import src.comitton.fileview.FileSelectActivity;
-import src.comitton.helpview.HelpActivity;
 import src.comitton.common.DEF;
 import src.comitton.config.SetCommonActivity;
 import src.comitton.config.SetFileColorActivity;
@@ -537,7 +536,6 @@ public class ExpandActivity extends AppCompatActivity implements Handler.Callbac
 		// サムネイル切替
 		menu.add(0, DEF.MENU_THUMBSWT, Menu.NONE, res.getString(R.string.thumbSwt)).setIcon(android.R.drawable.ic_menu_gallery);
 		// ヘルプ
-		menu.add(0, DEF.MENU_ONLINE, Menu.NONE, res.getString(R.string.onlineMenu)).setIcon(android.R.drawable.ic_menu_set_as);
 		return ret;
 	}
 	*/
@@ -556,16 +554,6 @@ public class ExpandActivity extends AppCompatActivity implements Handler.Callbac
 			// サムネイル読み込み
 			loadThumbnail();
 			loadFileState();
-		}
-		else if (id == DEF.MENU_ONLINE) {
-			// 操作方法画面に遷移
-			Resources res = getResources();
-			String url = res.getString(R.string.url_complist);	// 設定画面
-			Intent intent;
-			intent = new Intent(ExpandActivity.this, HelpActivity.class);
-			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-			intent.putExtra("Url", url);
-			startActivity(intent);
 		}
 		return super.onOptionsItemSelected(item);
 	}

@@ -73,12 +73,6 @@
             android:resizeableActivity="true" >
         </activity>
         <activity
-            android:name="src.comitton.helpview.HelpActivity"
-            android:theme="@style/MyAppCompat"
-            android:launchMode="singleTop"
-            android:resizeableActivity="true" >
-        </activity>
-        <activity
             android:name="src.comitton.cropimageview.CropImageActivity"
             android:theme="@style/MyAppCompat"
             android:launchMode="singleTop"

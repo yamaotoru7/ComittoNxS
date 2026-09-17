@@ -23,11 +23,4 @@
             android:summary="dummy"
             android:title="Cache Pages (Prev)" />
     </PreferenceCategory>
-    <PreferenceCategory android:title="Help" >
-        <PreferenceScreen
-            android:key="CacheHelp"
-            android:summary="Displays the help for these settings."
-            android:title="Description of the item" >
-        </PreferenceScreen>
-    </PreferenceCategory>
 </PreferenceScreen>
