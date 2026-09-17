@@ -15,9 +15,14 @@
   if (auto __lock = std::make_unique<std::lock_guard<std::mutex>>(monitor))
 std::mutex monitor_;
 
+// SET_BITMAP で書き込む先のビットマップの大きさ (ImageGetBitmap が設定する)
+int gCanvasWidth[MAX_BUFFER_INDEX] = {0};
+int gCanvasHeight[MAX_BUFFER_INDEX] = {0};
+
 extern bool         gIsInit[];
 extern IMAGEDATA	*gImageData[];
 extern char			*gLoadBuffer[];
+extern long			gLoadFileSize[];
 extern LONG			**gLinesPtr[];
 /** 行のポインタ保持 */
 extern LONG			**gDsLinesPtr[];
@@ -678,6 +683,16 @@ void ScaleMemLineFree(int index)
 
 void CheckImageType(int index, int *type)
 {
+    if (gLoadBuffer[index] == nullptr) {
+        return;
+    }
+    // 先頭 12 バイトまでを比較するので、それより短いデータは JXL のコードストリームだけ判定する
+    if (gLoadFileSize[index] < 12) {
+        if (gLoadFileSize[index] >= 2 && (uint8_t)gLoadBuffer[index][0] == 0xFF && (uint8_t)gLoadBuffer[index][1] == 0x0A) {
+            *type = IMAGETYPE_JXL;
+        }
+        return;
+    }
     if (strncmp(gLoadBuffer[index]+6, "JFIF", 4)==0) {
         *type = IMAGETYPE_JPEG;
     }
@@ -867,6 +882,11 @@ int SetBitmap(int index, int page, uint32_t width, uint32_t height, uint8_t *dat
     if (canvas == nullptr) {
         LOGE("SetBitmap: canvas is null.");
         return -100;
+    }
+    if ((int)width > gCanvasWidth[index] || (int)height > gCanvasHeight[index]) {
+        // デコード結果が書き込み先のビットマップより大きい
+        LOGE("SetBitmap: image %ux%u does not fit the bitmap %dx%d.", width, height, gCanvasWidth[index], gCanvasHeight[index]);
+        return -101;
     }
         // 画像バッファにデータを格納する処理
     for(yy = 0; yy < height; yy++)

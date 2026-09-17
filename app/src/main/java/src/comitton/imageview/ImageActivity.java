@@ -9,6 +9,7 @@ import java.util.Date;
 import jp.dip.muracoro.comittonx.R;
 import src.comitton.common.Logcat;
 import src.comitton.cropimageview.CropImageActivity;
+import src.comitton.common.BackgroundExecutor;
 import src.comitton.common.DEF;
 import src.comitton.config.SetCacheActivity;
 import src.comitton.config.SetCommonActivity;
@@ -1687,44 +1688,59 @@ public class ImageActivity extends AppCompatActivity implements OnTouchListener,
 		int logLevel = Logcat.LOG_LEVEL_WARN;
 		Logcat.d(logLevel, "開始します.");
 
-		Bitmap bm = null;
-		long thumbID = System.currentTimeMillis();
-		int thumH = DEF.calcThumbnailSize(SetFileListActivity.getThumbSizeH(mSharedPreferences));
-		int thumW = DEF.calcThumbnailSize(SetFileListActivity.getThumbSizeW(mSharedPreferences));
+		final long thumbID = System.currentTimeMillis();
+		final int thumH = DEF.calcThumbnailSize(SetFileListActivity.getThumbSizeH(mSharedPreferences));
+		final int thumW = DEF.calcThumbnailSize(SetFileListActivity.getThumbSizeW(mSharedPreferences));
+		final String filePath = mFilePath;
+		final ContentResolver cr = getContentResolver();
 
-		try {
-			ContentResolver cr = getContentResolver();
-			InputStream in = cr.openInputStream(uri);
-			// サイズのみ取得
-			BitmapFactory.Options option = new BitmapFactory.Options();
-			option.inJustDecodeBounds = true;
-			option.inPreferredConfig = Bitmap.Config.RGB_565;
-			BitmapFactory.decodeStream(in, null, option);
-			in.close();
-			if (option.outHeight != -1 && option.outWidth != -1) {
-				// 縮小してファイル読込
-				option.inJustDecodeBounds = false;
+		// デコードとキャッシュ保存は UI スレッドで行わない
+		BackgroundExecutor.execute(() -> {
+			Bitmap bm = null;
+			try {
+				// サイズのみ取得
+				BitmapFactory.Options option = new BitmapFactory.Options();
+				option.inJustDecodeBounds = true;
 				option.inPreferredConfig = Bitmap.Config.RGB_565;
-				option.inSampleSize = DEF.calcThumbnailScale(option.outWidth, option.outHeight, thumW, thumH);
-				in = cr.openInputStream(uri);
-				bm = BitmapFactory.decodeStream(in, null, option);
-				in.close();
-			}
-			if(bm == null)
+				try (InputStream in = cr.openInputStream(uri)) {
+					BitmapFactory.decodeStream(in, null, option);
+				}
+				if (option.outHeight != -1 && option.outWidth != -1) {
+					// 縮小してファイル読込
+					option.inJustDecodeBounds = false;
+					option.inPreferredConfig = Bitmap.Config.RGB_565;
+					option.inSampleSize = DEF.calcThumbnailScale(option.outWidth, option.outHeight, thumW, thumH);
+					try (InputStream in = cr.openInputStream(uri)) {
+						bm = BitmapFactory.decodeStream(in, null, option);
+					}
+				}
+			} catch (Exception e) {
+				Logcat.e(logLevel, "サムネイル画像を読み込めません.", e);
+				final String message = String.valueOf(e.getLocalizedMessage());
+				runOnUiThread(() -> Toast.makeText(mActivity, message, Toast.LENGTH_SHORT).show());
 				return;
-		}catch(IOException e){
-			Logcat.e(logLevel, "error");
-			Toast.makeText(mActivity, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+			}
+			saveThumbnail(bm, thumbID, thumW, thumH, filePath);
+		});
+	}
+
+	// サムネイルキャッシュに保存して結果を表示する (バックグラウンドから呼ぶ)
+	private void saveThumbnail(Bitmap bm, long thumbID, int thumW, int thumH, String filePath) {
+		if (bm == null) {
 			return;
 		}
-
 		bm = ImageAccess.resizeTumbnailBitmap(bm, thumW, thumH, ImageAccess.BMPCROP_NONE, ImageAccess.BMPMARGIN_NONE);
-		if (bm != null) {
-			ThumbnailLoader loader = new ThumbnailLoader(mActivity, "", "", null, thumbID, new ArrayList<FileData>(), thumW, thumH, 0, ImageAccess.BMPCROP_NONE, ImageAccess.BMPMARGIN_NONE);
-			loader.deleteThumbnailCache(mFilePath, thumW, thumH);
-			loader.setThumbnailCache(mFilePath, bm);
-			Toast.makeText(this, R.string.ThumbConfigured, Toast.LENGTH_SHORT).show();
+		if (bm == null) {
+			return;
 		}
+		ThumbnailLoader loader = new ThumbnailLoader(mActivity, "", "", null, thumbID, new ArrayList<FileData>(), thumW, thumH, 0, ImageAccess.BMPCROP_NONE, ImageAccess.BMPMARGIN_NONE);
+		loader.deleteThumbnailCache(filePath, thumW, thumH);
+		loader.setThumbnailCache(filePath, bm);
+		runOnUiThread(() -> {
+			if (!isFinishing() && !isDestroyed()) {
+				Toast.makeText(mActivity, R.string.ThumbConfigured, Toast.LENGTH_SHORT).show();
+			}
+		});
 	}
 
 	//指定したページを書庫／フォルダのサムネイルに設定
@@ -1732,29 +1748,27 @@ public class ImageActivity extends AppCompatActivity implements OnTouchListener,
 		int logLevel = Logcat.LOG_LEVEL_WARN;
 		Logcat.d(logLevel, "開始します.");
 
-		long thumbID = System.currentTimeMillis();
-		int thumH = DEF.calcThumbnailSize(SetFileListActivity.getThumbSizeH(mSharedPreferences));
-		int thumW = DEF.calcThumbnailSize(SetFileListActivity.getThumbSizeW(mSharedPreferences));
-		Bitmap bm = null;
-		try {
-			Object lock = mImageMgr.getLockObject();
-			synchronized (lock) {
-				Logcat.d(logLevel, "Call LoadThumbnail(" + page + ", " + thumW + ", " + thumH + ") start.");
-				// 読み込み処理とは排他する
-				bm = mImageMgr.LoadThumbnail(page, thumW, thumH);
+		final long thumbID = System.currentTimeMillis();
+		final int thumH = DEF.calcThumbnailSize(SetFileListActivity.getThumbSizeH(mSharedPreferences));
+		final int thumW = DEF.calcThumbnailSize(SetFileListActivity.getThumbSizeW(mSharedPreferences));
+		final String filePath = mFilePath;
+		final ImageManager imageMgr = mImageMgr;
+		if (imageMgr == null) {
+			return;
+		}
+		// 読み込み処理と排他するため、ロックの待ちも含めて UI スレッドの外で行う
+		BackgroundExecutor.execute(() -> {
+			Bitmap bm = null;
+			try {
+				synchronized (imageMgr.getLockObject()) {
+					Logcat.d(logLevel, "Call LoadThumbnail(" + page + ", " + thumW + ", " + thumH + ") start.");
+					bm = imageMgr.LoadThumbnail(page, thumW, thumH);
+				}
+			} catch (Exception e) {
+				Logcat.e(logLevel, "サムネイルを作成できません.", e);
 			}
-		} catch (Exception e) {
-			Logcat.e(logLevel, "error");
-		}
-		if (bm != null) {
-			bm = ImageAccess.resizeTumbnailBitmap(bm, thumW, thumH, ImageAccess.BMPCROP_NONE, ImageAccess.BMPMARGIN_NONE);
-		}
-		if (bm != null) {
-			ThumbnailLoader loader = new ThumbnailLoader(mActivity, "", "", null, thumbID, new ArrayList<FileData>(), thumW, thumH, 0, ImageAccess.BMPCROP_NONE, ImageAccess.BMPMARGIN_NONE);
-			loader.deleteThumbnailCache(mFilePath, thumW, thumH);
-			loader.setThumbnailCache(mFilePath, bm);
-			Toast.makeText(this, R.string.ThumbConfigured, Toast.LENGTH_SHORT).show();
-		}
+			saveThumbnail(bm, thumbID, thumW, thumH, filePath);
+		});
 	}
 	public void toggleCenterMargin() {
 		int logLevel = Logcat.LOG_LEVEL_WARN;
@@ -4685,8 +4699,9 @@ public class ImageActivity extends AppCompatActivity implements OnTouchListener,
 			// キャッシュ読込スレッド停止
 			mImageMgr.closeFiles();
 			if (mDelShare) {
-				// 共有一時ファイルの削除
-				mImageMgr.deleteShareCache();
+				// 共有一時ファイルの削除 (ディスク I/O なのでバックグラウンドで行う)
+				final ImageManager imageMgr = mImageMgr;
+				BackgroundExecutor.execute(imageMgr::deleteShareCache);
 			}
 		}
 

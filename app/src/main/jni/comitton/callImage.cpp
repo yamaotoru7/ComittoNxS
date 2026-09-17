@@ -5,6 +5,12 @@
 #include <csetjmp>
 #include <cstring>
 #include "Image.h"
+#include <mutex>
+
+// ImageCommon.cpp のキャッシュ管理用ロック
+extern std::mutex monitor_;
+extern int gCanvasWidth[];
+extern int gCanvasHeight[];
 
 //#define DEBUG
 
@@ -271,15 +277,20 @@ JNIEXPORT jint JNICALL Java_src_comitton_jni_CallImgLibrary_ImageInitialize (JNI
 #endif
 
     // 空いているキャッシュindexを取得する
+    // (複数の ImageManager が同時に初期化しても同じ index を取らないよう、検索と確保をまとめて排他する)
     int index;
-    for (index = 0; index < MAX_BUFFER_INDEX; ++index) {
-        if (gIsInit[index] == false) {
-            break;
+    {
+        std::lock_guard<std::mutex> guard(monitor_);
+        for (index = 0; index < MAX_BUFFER_INDEX; ++index) {
+            if (gIsInit[index] == false) {
+                break;
+            }
         }
-    }
-    if (index == MAX_BUFFER_INDEX) {
-        // キャッシュインデックスに空きがなければエラー終了
-        return ERROR_CODE_CACHE_COUNT_LIMIT_EXCEEDED;
+        if (index == MAX_BUFFER_INDEX) {
+            // キャッシュインデックスに空きがなければエラー終了
+            return ERROR_CODE_CACHE_COUNT_LIMIT_EXCEEDED;
+        }
+        gIsInit[index] = true;
     }
 
     // 読み込み用領域確保
@@ -680,6 +691,13 @@ JNIEXPORT jint JNICALL Java_src_comitton_jni_CallImgLibrary_ImageGetBitmap (JNIE
         LOGE("callImage: ImageGetBitmap: AndroidBitmap_getInfo() failed ! error=%d", ret);
         return -3;
     }
+    // SetBitmap は RGB_565 で 1 行 = 幅 x 2 バイトとして書き込む
+    if (info.format != ANDROID_BITMAP_FORMAT_RGB_565 || info.stride != info.width * sizeof(WORD)) {
+        LOGE("callImage: ImageGetBitmap: unsupported bitmap format=%d, width=%u, stride=%u", info.format, info.width, info.stride);
+        return -4;
+    }
+    gCanvasWidth[index] = (int)info.width;
+    gCanvasHeight[index] = (int)info.height;
 
     if ((ret = AndroidBitmap_lockPixels(env, bitmap, &canvas)) < 0) {
         LOGE("callImage: ImageGetBitmap: AndroidBitmap_lockPixels() failed ! error=%d", ret);

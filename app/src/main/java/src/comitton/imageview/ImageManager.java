@@ -249,7 +249,8 @@ public class ImageManager extends InputStream implements Runnable {
 		mTerminate = false;
 		mCacheBreak = false;
 		mCacheSleep = false;
-		mLock = this;
+		// 自分自身 (InputStream) ではなく専用のオブジェクトで排他する
+		mLock = new Object();
 		mRunningFlag = true;
 		mCloseFlag = false;
 		mHandler = handler;
