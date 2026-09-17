@@ -81,7 +81,7 @@ lint (`:app:lintDebug`) とユニットテスト (`:app:testDebugUnitTest`) の�
 | ID | 重要度 | 場所 | 内容 | 状態 | コメント |
 |---|---|---|---|---|---|
 | C-01 | 低 | `app/build.gradle:52` | release が常に `signingConfigs.debug` で署名される。`release.gradle` があっても切り替わらない。存在時に `signingConfigs.release` を使う。 | 対応不要 | ローカル用なので |
-| C-02 | 低 | `app/build.gradle:24`, `gradle.properties` | `BUILD_DATE = System.currentTimeMillis()` で毎回 BuildConfig が変わり、`org.gradle.caching=true` が無意味になる。git のコミット日時か固定値にする。 | 未対応 | コミット日時にする |
+| C-02 | 低 | `app/build.gradle:24`, `gradle.properties` | `BUILD_DATE = System.currentTimeMillis()` で毎回 BuildConfig が変わり、`org.gradle.caching=true` が無意味になる。git のコミット日時か固定値にする。 | 対応済 | コミット日時にする。SOURCE_DATE_EPOCH があればそれを優先し、git が使えなければ 0 にする。未コミットの変更があっても最終コミットの日時になる。 |
 | C-03 | 低 | `AndroidManifest.xml:5, 13, 15, 29, 158-159, 167-172` | `MANAGE_MEDIA` 未使用、`INSTALL_SHORTCUT` は旧 API 専用、`READ/WRITE_EXTERNAL_STORAGE` に maxSdkVersion なし、`installLocation="preferExternal"` はネイティブライブラリ持ちアプリに有害、`requestLegacyExternalStorage` は無効、`android.max_aspect` は無視される、FileProvider の `readPermission="true"` は権限名として無意味、`<intent-filter android:scheme>` は不正属性。 | 未対応 | |
 | C-04 | 低 | `AndroidManifest.xml:169`, `FileSelectActivity.java:526-536, 731-735` | `MANAGE_EXTERNAL_STORAGE` は Play ポリシー制約あり。拒否時の結果ハンドラが空で無言で失敗する。SAF 対応済みなら任意化を検討。 | 未対応 | |
 | C-05 | 低 | `res/values/style.xml:6, 12` | `windowOptOutEdgeToEdgeEnforcement=true` は targetSdk 36 で消える一時属性。README の Edge-to-Edge 対応と矛盾。 | 未対応 | |

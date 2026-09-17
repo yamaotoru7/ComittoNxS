@@ -8,6 +8,28 @@ def versionMinor = 4
 def versionPatch = 10
 def appVersion = "${versionMajor}.${versionMinor}.${versionPatch}"
 
+// ビルド日時 (エポックミリ秒)
+// SOURCE_DATE_EPOCH (秒) があればそれを、なければ最終コミットの日時を使う. どちらも取れなければ 0
+def buildDateMillis() {
+    def epoch = System.getenv("SOURCE_DATE_EPOCH")
+    if (epoch?.trim()) {
+        return Long.parseLong(epoch.trim()) * 1000L
+    }
+    try {
+        def out = providers.exec {
+            commandLine 'git', 'log', '-1', '--format=%ct'
+            workingDir = rootDir
+            ignoreExitValue = true
+        }.standardOutput.asText.get().trim()
+        if (out.isLong()) {
+            return Long.parseLong(out) * 1000L
+        }
+    } catch (Exception e) {
+        logger.warn("git からビルド日時を取得できません: ${e.message}")
+    }
+    return 0L
+}
+
 if (file('../signingConfigs/release.gradle').exists()) {
     apply from: '../signingConfigs/release.gradle', to: android
 }
@@ -24,7 +46,8 @@ android {
         versionCode versionMajor * 10000 + versionMinor * 100 + versionPatch
         versionName appVersion
 
-        buildConfigField("long", "BUILD_DATE", System.currentTimeMillis().toString())
+        // ビルドのたびに値が変わるとビルドキャッシュが効かないため、最終コミットの日時を使う
+        buildConfigField("long", "BUILD_DATE", "${buildDateMillis()}L")
         resValue("string", "application_id", "jp.dip.muracoro.comittonx")
 
         externalNativeBuild {
