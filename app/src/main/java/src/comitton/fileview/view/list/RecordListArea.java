@@ -9,6 +9,7 @@ import src.comitton.common.Logcat;
 import src.comitton.common.TextFormatter;
 import src.comitton.fileview.data.FileData;
 import src.comitton.fileview.data.RecordItem;
+import src.comitton.fileview.filelist.RecordList;
 import src.comitton.fileview.view.DrawNoticeListener;
 
 import android.content.Context;
@@ -61,10 +62,14 @@ public class RecordListArea extends ListArea {
 
 	private boolean mChangeLayout = false;
 
+	/** このリストの種別(RecordList.TYPE_xxx) */
+	private final int mListType;
+
 	// コンストラクタ
 	public RecordListArea(Context context, int listtype, String title, DrawNoticeListener listener) {
 		super(context, listtype);
 		mContext = context;
+		mListType = listtype;
 		mTitleName = title;
 		// リストファイルの更新日時
 		mLastModified = 0;
@@ -291,6 +296,61 @@ public class RecordListArea extends ListArea {
 		}
 	}
 
+	/** パスの末尾要素(末尾の "/" は無視)。取れなければパスそのもの */
+	private static String lastSegment(String path) {
+		if (path == null || path.isEmpty()) {
+			return "";
+		}
+		String work = path;
+		while (work.endsWith("/") && work.length() > 1) {
+			work = work.substring(0, work.length() - 1);
+		}
+		int idx = work.lastIndexOf('/');
+		return idx >= 0 ? work.substring(idx + 1) : work;
+	}
+
+	/**
+	 * 履歴の見出しに使う書名。
+	 * ZIP/EPUB ならファイル名、画像フォルダならフォルダ名、圧縮ファイル内テキストなら圧縮ファイル名。
+	 */
+	private static String getBookName(RecordItem rd) {
+		String file = rd.getFile();
+		switch (rd.getType()) {
+			case RecordItem.TYPE_COMPTEXT:
+				// path が圧縮ファイルのパス
+				return lastSegment(rd.getPath());
+			case RecordItem.TYPE_TEXT:
+				return file.length() > 0 ? file : lastSegment(rd.getPath());
+			default:
+				if (file.length() > 0 && !file.equals("META-INF/container.xml")) {
+					return file;
+				}
+				// フォルダ内の画像 / EPUB
+				return lastSegment(rd.getPath());
+		}
+	}
+
+	/** サーバ名。登録が消えているサーバは「未定義 #N」と表示する */
+	private static String getServerLabel(Resources res, RecordItem rd) {
+		String name = rd.getServerName();
+		if ((name == null || name.isEmpty()) && rd.getServer() != DEF.INDEX_LOCAL) {
+			return res.getString(R.string.undefine) + " #" + (rd.getServer() + 1);
+		}
+		return name;
+	}
+
+	/** 履歴の情報行に出す場所(書名を除いたパス) */
+	private static String getBookLocation(RecordItem rd) {
+		String path = rd.getPath();
+		if (rd.getType() == RecordItem.TYPE_COMPTEXT) {
+			// 圧縮ファイル内テキスト: 親ディレクトリ + 中のテキスト名
+			int idx = path.lastIndexOf('/');
+			String parent = idx >= 0 ? path.substring(0, idx + 1) : path;
+			return rd.getFile().length() > 0 ? parent + "  (" + rd.getFile() + ")" : parent;
+		}
+		return path;
+	}
+
 	// リストをクリア
 	public void clear() {
 		mRecordList = null;
@@ -348,6 +408,20 @@ public class RecordListArea extends ListArea {
 					mTitleSep[index] = new String[1][];
 					mTitleSep[index][0] = TextFormatter.getMultiLine(rd.getDispName(), tcx, mTitlePaint, 1);
 				}
+				else if (mListType == RecordList.TYPE_HISTORY) {
+					// 履歴: ZIPファイル・フォルダ単位で表示する(見出しは書名、2行目は読んだ位置と日時)
+					mTitleSep[index] = new String[2][];
+					mTitleSep[index][0] = TextFormatter.getMultiLine(getBookName(rd), tcx, mTitlePaint, 2);
+					if (rd.getType() == RecordItem.TYPE_IMAGE || rd.getType() == RecordItem.TYPE_IMAGEDIRECT) {
+						work = res.getString(R.string.historyPage, rd.getPage() + 1);
+					}
+					else {
+						work = res.getString(R.string.historyPage, rd.getPage() + 1) + String.format(" (%.0f%%)", rd.getPageRate() * 100);
+					}
+					// 履歴の表示名は保存日時
+					work += "  " + rd.getDispName();
+					mTitleSep[index][1] = TextFormatter.getMultiLine(work, tcx, mTitlePaint, 1);
+				}
 				else {
 					String name = rd.getDispName();
 					mTitleSep[index] = new String[2][];
@@ -385,9 +459,15 @@ public class RecordListArea extends ListArea {
 					// ビットマップリソースを読み込み
 					mBitmap[index] = ImageAccess.createIcon(res, icon, mBitmapSize, mBitmapColor);
 				}
+				else if (mListType == RecordList.TYPE_HISTORY) {
+					// 履歴: 書名は見出しに出しているので、場所(サーバとパス)だけを添える
+					mInfoSep[index] = new String[2][];
+					mInfoSep[index][0] = TextFormatter.getMultiLine("[" + getServerLabel(res, rd) + "]", tcx, mInfoPaint, 1);
+					mInfoSep[index][1] = TextFormatter.getMultiLine(getBookLocation(rd), tcx, mInfoPaint, 99);
+				}
 				else {
 					mInfoSep[index] = new String[3][];
-					mInfoSep[index][0] = TextFormatter.getMultiLine("[" + rd.getServerName() + "]", tcx, mInfoPaint, 1);
+					mInfoSep[index][0] = TextFormatter.getMultiLine("[" + getServerLabel(res, rd) + "]", tcx, mInfoPaint, 1);
 					mInfoSep[index][1] = TextFormatter.getMultiLine(rd.getPath(), tcx, mInfoPaint, 99);
 					if (rd.getFile().length() > 0  && !rd.getFile().equals("META-INF/container.xml")) {
 						mInfoSep[index][2] = TextFormatter.getMultiLine(rd.getFile(), tcx, mInfoPaint, 99);

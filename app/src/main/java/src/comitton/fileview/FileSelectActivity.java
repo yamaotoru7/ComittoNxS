@@ -4010,7 +4010,13 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 				}
 
 				// サーバ選択とパス選択をファイル一覧に反映
-				moveFileSelectFromServer(server, mLoadListNextPath);
+				if (!moveFileSelectFromServer(server, mLoadListNextPath)) {
+					// 履歴やブックマークが指すサーバの登録が無い(削除済みなど)
+					Logcat.w(logLevel, "サーバが未登録のため開けません. server=" + server);
+					Toast.makeText(this, getResources().getString(R.string.svNotFound), Toast.LENGTH_LONG).show();
+					mLoadListNextOpen = CloseDialog.CLICK_NONE;
+					return;
+				}
 
 				if (listtype == RecordList.TYPE_BOOKMARK) {
 					mLoadListNextOpen = CloseDialog.CLICK_BOOKMARK;

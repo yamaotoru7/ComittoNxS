@@ -372,10 +372,10 @@
     <string name="pageselect01">View slider</string>
     <string name="pageselect02">Thumbnail</string>
     <string name="histnum00">Not save</string>
-    <string name="histnum01">200</string>
-    <string name="histnum02">400</string>
-    <string name="histnum03">600</string>
-    <string name="histnum04">800</string>
+    <string name="histnum01">50</string>
+    <string name="histnum02">100</string>
+    <string name="histnum03">200</string>
+    <string name="histnum04">500</string>
     <string name="histnum05">1000</string>
     <string name="scrlway00">Horizontal -> Direction</string>
     <string name="scrlway01">Direction -> Horizontal</string>
@@ -552,4 +552,5 @@
     <string name="ErrorNoPages">There are no pages to display.</string>
 
     <string name="pref_value_format">Now: %1$s</string>
+    <string name="historyPage">Page %1$d</string>
 </resources>
