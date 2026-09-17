@@ -329,8 +329,8 @@ public class ServerSelect {
 		else{
 			// サーバ名
 			String ret = "smb://";
-			String user = URLEncoder.encode(mServer[index].getUser());
-			String pass = URLEncoder.encode(mServer[index].getPass());
+			String user = encodeUtf8(mServer[index].getUser());
+			String pass = encodeUtf8(mServer[index].getPass());
 			if (!user.equals("")) {
 				ret += user;
 				if (!pass.equals("")) {
@@ -418,6 +418,15 @@ public class ServerSelect {
 			}
 		}
 		ed.apply();
+	}
+
+	private static String encodeUtf8(String value) {
+		try {
+			return URLEncoder.encode(value, "UTF-8");
+		} catch (java.io.UnsupportedEncodingException e) {
+			// UTF-8 は必ず使える
+			throw new IllegalStateException(e);
+		}
 	}
 
 	public static String dispName(String host, String user, String pass) {

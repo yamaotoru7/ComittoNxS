@@ -1,5 +1,6 @@
 package src.comitton.common;
 
+import src.comitton.common.DEF;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -439,7 +440,7 @@ public class ThumbnailLoader {
 		mInfoSizeOrg = SetTextActivity.getFontInfo(mSp);	// ページ情報など
 		mMarginWOrg = SetTextActivity.getMarginW(mSp);	// 左右余白(設定値)
 		mMarginHOrg = SetTextActivity.getMarginH(mSp);	// 上下余白(設定値)
-		mDensity = activity.getResources().getDisplayMetrics().scaledDensity;
+		mDensity = DEF.getScaledDensity(activity.getResources());
 		mHeadSize = DEF.calcFontPix(mHeadSizeOrg, mDensity);	// 見出し
 		mBodySize = DEF.calcFontPix(mBodySizeOrg, mDensity);	// 本文
 		mRubiSize = DEF.calcFontPix(mRubiSizeOrg, mDensity);	// ルビ

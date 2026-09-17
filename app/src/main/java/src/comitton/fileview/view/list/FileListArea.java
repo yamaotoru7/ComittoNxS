@@ -983,7 +983,7 @@ public class FileListArea extends ListArea implements Handler.Callback {
 				mIcon[i] = ImageAccess.createIcon(res, ICON_ID[i], mIconWidth, mIconHeight, mDirColor);
 			}
 			mMark = new Bitmap[FILEMARK_ID.length];
-			float density = res.getDisplayMetrics().scaledDensity;
+			float density = DEF.getScaledDensity(res);
 			mMarkSizeW = (short)DEF.calcSpToPix(32, density);
 			mMarkSizeH = (short)DEF.calcSpToPix(16, density);
 			if (mMarkSizeW > sizew / 2 || mMarkSizeH > sizeh / 4) {

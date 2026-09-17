@@ -1,5 +1,6 @@
 package src.comitton.fileview.view.list;
 
+import android.os.Looper;
 import src.comitton.common.DEF;
 import src.comitton.common.Logcat;
 import src.comitton.fileview.view.list.MomentScroller.ScrollMoveListener;
@@ -100,7 +101,7 @@ public class ListArea implements Handler.Callback, ScrollMoveListener {
 
 		// コンストラクタ
 	public ListArea(Context context, int listtype) {
-		mDensity = context.getResources().getDisplayMetrics().scaledDensity;
+		mDensity = DEF.getScaledDensity(context.getResources());
 		mRangeCancel = (int) (20 * mDensity);
 		mRangeScrollerX = (int) (10 * mDensity);
 		mRangeScrollerY = (int) (20 * mDensity);
@@ -111,7 +112,7 @@ public class ListArea implements Handler.Callback, ScrollMoveListener {
 		mTailRow = -1;
 		mListType = (short)listtype; 
 
-		mHandler = new Handler(this);
+		mHandler = new Handler(Looper.getMainLooper(), this);
 
 		mFillPaint = new Paint();
 		mFillPaint.setStyle(Style.FILL);

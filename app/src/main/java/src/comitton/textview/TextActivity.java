@@ -1,5 +1,6 @@
 package src.comitton.textview;
 
+import android.os.Looper;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -343,10 +344,10 @@ public class TextActivity extends AppCompatActivity implements OnTouchListener, 
 		mScaleMode = DEF.SCALE_ORIGINAL;
 		mTerminate = false;
 		mReadRunning = false;
-		mHandler = new Handler(this);
+		mHandler = new Handler(Looper.getMainLooper(), this);
 		mActivity = this;
 		mDialogHelper = new TextDialogHelper(this);
-		mDensity = getResources().getDisplayMetrics().scaledDensity;
+		mDensity = DEF.getScaledDensity(getResources());
 		mImmCancelRange = (int)(getResources().getDisplayMetrics().density * 6);
 		mIsConfSave = true;
 
@@ -1135,7 +1136,7 @@ public class TextActivity extends AppCompatActivity implements OnTouchListener, 
 		if (mPinchEnable) {
     		int action2 = action & MotionEvent.ACTION_MASK;
     		// ズーム中ではない && ページ表示ではない && ガイド表示ではない
-    		if (action2 == MotionEvent.ACTION_POINTER_1_DOWN) {
+    		if (action2 == MotionEvent.ACTION_POINTER_DOWN) {
     			mPinchDown = true;
     			if (mPinchOn) {
     				// 記録
@@ -1145,7 +1146,7 @@ public class TextActivity extends AppCompatActivity implements OnTouchListener, 
     				mPinchCount ++;
     			}
     		}
-    		else if (action2 == MotionEvent.ACTION_POINTER_1_UP) {
+    		else if (action2 == MotionEvent.ACTION_POINTER_UP) {
     			mPinchDown = false;
     			if (mPinchOn) {
     				// 押されてからの時間を判定
@@ -1187,7 +1188,7 @@ public class TextActivity extends AppCompatActivity implements OnTouchListener, 
     		}
     		if (mPinchOn) {
     			// サイズ変更中
-    			if (action2 == MotionEvent.ACTION_POINTER_1_DOWN || action2 == MotionEvent.ACTION_MOVE) {
+    			if (action2 == MotionEvent.ACTION_POINTER_DOWN || action2 == MotionEvent.ACTION_MOVE) {
     				// サイズ変更
     				int count = event.getPointerCount();
     				float x1 = 0;

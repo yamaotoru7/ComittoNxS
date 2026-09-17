@@ -1,5 +1,6 @@
 package src.comitton.dialog;
 
+import src.comitton.common.DEF;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.util.Log;
@@ -96,14 +97,14 @@ public class TabDialogFragment extends ImmersiveDialogFragment implements View.O
         Logcat.d(logLevel, "isclose=" + isclose + ", halfview=" + halfview + ", top=" + top + ", wide=" + wide);
 
         mActivity = activity;
-        mScale = mActivity.getResources().getDisplayMetrics().scaledDensity;
+        mScale = DEF.getScaledDensity(mActivity.getResources());
 
         mIsClose = isclose;
         mHalfView = halfview;
         mTop = top;
         mWide = wide;
 
-        mScale = mActivity.getResources().getDisplayMetrics().scaledDensity;
+        mScale = DEF.getScaledDensity(mActivity.getResources());
         title_txtsize = (int) (18 * mScale);
         item_txtsize = (int) (20 * mScale);
 

@@ -243,6 +243,13 @@ public class Information implements DialogInterface.OnDismissListener {
 			webView.setBackgroundColor(Color.TRANSPARENT);
 			webView.setWebViewClient(new WebViewClient() {
 				@Override
+				public boolean shouldOverrideUrlLoading(WebView view, android.webkit.WebResourceRequest request) {
+					return shouldOverrideUrlLoading(view, request.getUrl().toString());
+				}
+
+				// Android 7 未満ではこちらが呼ばれる
+				@SuppressWarnings("deprecation")
+				@Override
 				public boolean shouldOverrideUrlLoading(WebView view, String url) {
 					Logcat.d(logLevel, "url=" + url);
 					// ブラウザ起動

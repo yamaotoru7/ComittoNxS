@@ -1,5 +1,6 @@
 package src.comitton.imageview;
 
+import android.os.Looper;
 import java.io.File;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
@@ -512,7 +513,7 @@ public class ImageActivity extends AppCompatActivity implements OnTouchListener,
 		mReverseOrder = false;
 		mTerminate = false;
 		mListLoading = false;
-		mHandler = new Handler(this);
+		mHandler = new Handler(Looper.getMainLooper(), this);
 		mActivity = this;
 		mDialogHelper = new ImageDialogHelper(this);
 		mNextPage = -1;
@@ -530,7 +531,7 @@ public class ImageActivity extends AppCompatActivity implements OnTouchListener,
 			mTouchPoint[i] = new PointF();
 		}
 		mImmCancelRange = (int)(getResources().getDisplayMetrics().density * 6);
-		mSDensity = getResources().getDisplayMetrics().scaledDensity;
+		mSDensity = DEF.getScaledDensity(getResources());
 		RANGE_FLICK = (int) (50 * mSDensity);
 
 		super.onCreate(savedInstanceState);
@@ -1899,7 +1900,7 @@ public class ImageActivity extends AppCompatActivity implements OnTouchListener,
 		if (mPinchEnable) {
     		int action2 = action & MotionEvent.ACTION_MASK;
     		// ズーム中ではない && ページ表示ではない && ガイド表示ではない
-    		if (action2 == MotionEvent.ACTION_POINTER_1_DOWN) {
+    		if (action2 == MotionEvent.ACTION_POINTER_DOWN) {
     			mPinchDown = true;
     			if (mPinchOn) {
     				// 記録
@@ -1909,7 +1910,7 @@ public class ImageActivity extends AppCompatActivity implements OnTouchListener,
     				mPinchCount ++;
     			}
     		}
-    		else if (action2 == MotionEvent.ACTION_POINTER_1_UP) {
+    		else if (action2 == MotionEvent.ACTION_POINTER_UP) {
     			mPinchDown = false;
     			if (mPinchOn) {
     				// 押されてからの時間を判定
@@ -1961,7 +1962,7 @@ public class ImageActivity extends AppCompatActivity implements OnTouchListener,
     				mGuideView.setGuideText(null);
     				mPinchOn = false;
     			}
-    			else if (action2 == MotionEvent.ACTION_POINTER_1_DOWN || action2 == MotionEvent.ACTION_MOVE) {
+    			else if (action2 == MotionEvent.ACTION_POINTER_DOWN || action2 == MotionEvent.ACTION_MOVE) {
     				// サイズ変更
     				int count = event.getPointerCount();
     				float x1 = 0;

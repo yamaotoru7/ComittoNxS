@@ -1,5 +1,6 @@
 package src.comitton.dialog;
 
+import androidx.core.content.ContextCompat;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
@@ -466,7 +467,7 @@ public class ToolbarEditDialog extends ImmersiveDialog implements OnClickListene
 				if (0 <= index && index < COMMAND_DRAWABLE.length) {
 					Logcat.d(logLevel, "アイコンをセットします. index=" + index);
 					drawable = mActivity.getDrawable(COMMAND_DRAWABLE[index]);
-					drawable.setTint(mActivity.getResources().getColor(R.color.white1));
+					drawable.setTint(ContextCompat.getColor(mActivity, R.color.white1));
 					imageview.setImageDrawable(drawable);
 				}
 			}

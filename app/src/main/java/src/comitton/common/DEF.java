@@ -2443,6 +2443,14 @@ public class DEF {
 		}
 	}
 
+	/**
+	 * 1sp あたりのピクセル数 (DisplayMetrics.scaledDensity の代わり).
+	 * 1sp は Android 14 の非線形フォントスケールでも線形域なので、scaledDensity と同じ値になる.
+	 */
+	public static float getScaledDensity(android.content.res.Resources res) {
+		return android.util.TypedValue.applyDimension(android.util.TypedValue.COMPLEX_UNIT_SP, 1f, res.getDisplayMetrics());
+	}
+
 	public static boolean isUiThread() {
 		return Thread.currentThread().equals(Looper.getMainLooper().getThread());
 	}

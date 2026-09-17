@@ -1,5 +1,6 @@
 package src.comitton.fileview.filelist;
 
+import android.os.Looper;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -87,7 +88,7 @@ public class FileSelectList implements Runnable, Callback, DialogInterface.OnDis
 
 	public FileSelectList(Handler handler, AppCompatActivity activity, SharedPreferences sp) {
 		mActivityHandler = handler;
-		mHandler = new Handler(this);
+		mHandler = new Handler(Looper.getMainLooper(), this);
 		mActivity = activity;
 		mSp = sp;
 	}

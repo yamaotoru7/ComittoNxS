@@ -1,5 +1,6 @@
 package src.comitton.dialog;
 
+import android.os.Looper;
 import java.io.OutputStream;
 import java.util.ArrayList;
 
@@ -68,7 +69,7 @@ public class DownloadDialog extends ImmersiveDialog implements Runnable, Handler
 		mLocal = local;
 		mBreak = false;
 
-		mHandler = new Handler(this);
+		mHandler = new Handler(Looper.getMainLooper(), this);
 	}
 
 	protected void onCreate(Bundle savedInstanceState){

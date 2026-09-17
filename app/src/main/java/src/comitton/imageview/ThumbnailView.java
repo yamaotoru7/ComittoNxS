@@ -1,5 +1,6 @@
 package src.comitton.imageview;
 
+import android.os.Looper;
 import src.comitton.common.DEF;
 import src.comitton.common.ImageAccess;
 import src.comitton.common.Logcat;
@@ -81,7 +82,7 @@ public class ThumbnailView extends View implements Runnable, Callback {
 		mRectPaint = new Paint();
 		mRectPaint.setColor(PAGE_COLOR);
 
-		mHandler = new Handler(this);
+		mHandler = new Handler(Looper.getMainLooper(), this);
 		mDrawTop = mDrawLast = -1;
 
 		mTextPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -260,7 +261,7 @@ public class ThumbnailView extends View implements Runnable, Callback {
 				rcSrc = new Rect(0, 0, w, h);
 				rcDst = new Rect(posx, posy, dstWidth - posx, dstHeight - posy);
 
-				Bitmap bm2 = Bitmap.createBitmap(dstWidth, dstHeight, Config.ARGB_4444);
+				Bitmap bm2 = Bitmap.createBitmap(dstWidth, dstHeight, Config.ARGB_8888);
 				//mDrawBitmap = Bitmap.createBitmap(mDrawBitmap, 0, 0, w, h);
 				Canvas offScreen = new Canvas(bm2);
 				offScreen.drawColor(PAGE_COLOR);

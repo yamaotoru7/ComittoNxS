@@ -1,5 +1,6 @@
 package src.comitton.fileview.view.list;
 
+import android.os.Looper;
 import java.util.EventListener;
 
 import android.annotation.SuppressLint;
@@ -43,7 +44,7 @@ public class ListSwitcher implements Callback {
 
 	public ListSwitcher(ListSwitcherListener listener) {
 		// タイマー制御用ハンドラ
-		mHandler = new Handler(this);
+		mHandler = new Handler(Looper.getMainLooper(), this);
 
 		// スクロール通知リスナ
 		mListSwitcherListener = listener;

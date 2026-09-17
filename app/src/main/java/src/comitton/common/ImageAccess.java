@@ -609,7 +609,7 @@ public class ImageAccess {
 			Canvas canvas = new Canvas();
 			int w = drawable.getIntrinsicWidth();
 			int h = drawable.getIntrinsicHeight();
-			bm = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_4444);
+			bm = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
 			canvas.setBitmap(bm);
 			drawable.setBounds(0, 0, w, h);
 			drawable.draw(canvas);
@@ -666,7 +666,7 @@ public class ImageAccess {
 
 	// Drawableのリサイズ
 	public static Drawable zoom(@NonNull Resources res, Drawable drawable, float ratio) {
-		Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_4444);
+		Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
 		Canvas canvas = new Canvas(bitmap);
 		drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
 		drawable.draw(canvas);

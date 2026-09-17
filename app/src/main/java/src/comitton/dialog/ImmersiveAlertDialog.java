@@ -1,5 +1,6 @@
 package src.comitton.dialog;
 
+import src.comitton.common.DEF;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.graphics.Rect;
@@ -48,7 +49,7 @@ public class ImmersiveAlertDialog extends AlertDialog {
 		int cx = size.width();
 		int cy = size.height();
 
-		mScale = mActivity.getResources().getDisplayMetrics().scaledDensity;
+		mScale = DEF.getScaledDensity(mActivity.getResources());
 		mWidth = Math.min(cx, cy) * 80 / 100;
 		int maxWidth = (int)(20 * mScale * 16);
 		if (!wide) {

@@ -187,9 +187,17 @@ public class CropImageView extends AppCompatImageView {
             }
             canvas.concat(mMatrix);
 
-            canvas.clipRect(mFrameRect, Region.Op.DIFFERENCE);
+            // 枠の外側だけを暗くする
+            canvas.save();
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                canvas.clipOutRect(mFrameRect);
+            } else {
+                //noinspection deprecation
+                canvas.clipRect(mFrameRect, Region.Op.DIFFERENCE);
+            }
             canvas.drawRect(0,0,mImageWidth, mImageHeight, mPaintMask);
-            canvas.clipRect(mFrameRect, Region.Op.INTERSECT);
+            canvas.restore();
+            // 枠線 (以前は外側クリップの後に内側で交差させていたため、枠線が描かれていなかった)
             canvas.drawRect(mFrameRect, mPaintGuide);
             canvas.restore();
         }

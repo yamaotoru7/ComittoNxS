@@ -1,5 +1,6 @@
 package src.comitton.textview;
 
+import android.os.Looper;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -249,7 +250,7 @@ public class MyTextView extends SurfaceView implements Handler.Callback, Surface
 		mInitialize = true;
 
 //		mViewTimerHanlder = new ViewTimerHanlder();
-		mHandler = new Handler(this);
+		mHandler = new Handler(Looper.getMainLooper(), this);
 
 		//mTextStream = new TextInputStream();
 		mPicMap1 = new SparseArray<BitmapDrawable>();
@@ -1089,7 +1090,7 @@ public class MyTextView extends SurfaceView implements Handler.Callback, Surface
 			}
 			// ハッシュに登録
 			if (bm != null) {
-				bmdraw = new BitmapDrawable(bm);
+				bmdraw = new BitmapDrawable(getResources(), bm);
 				bmdraw.setBounds(0, 0, bm.getWidth(), bm.getHeight());
 				mPicMap1.put(picindex, bmdraw);
 			}

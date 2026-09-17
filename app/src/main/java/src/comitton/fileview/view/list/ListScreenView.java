@@ -121,7 +121,7 @@ public class ListScreenView extends SurfaceView implements SurfaceHolder.Callbac
 		mHistListArea.setListTitle("[" + res.getString(R.string.hsTitle) + "]", null);
 		mMenuListArea.setListTitle("[" + res.getString(R.string.listname05) + "]", null);
 
-		float density = context.getResources().getDisplayMetrics().scaledDensity;
+		float density = DEF.getScaledDensity(context.getResources());
 		mListBorder = (int) (3 * density);
 
 		// コールバックの登録

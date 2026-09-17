@@ -1,5 +1,6 @@
 package src.comitton.fileview.view.list;
 
+import android.os.Looper;
 import src.comitton.common.DEF;
 import src.comitton.fileview.view.DrawNoticeListener;
 
@@ -65,7 +66,7 @@ public class TitleArea implements Handler.Callback {
 	private int mAreaHeight;
 
 	public TitleArea(Context context, DrawNoticeListener listener) {
-		mHandler = new Handler(this);
+		mHandler = new Handler(Looper.getMainLooper(), this);
 		mIsRunning = true;
 		mTextPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 		mArrowPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -73,7 +74,7 @@ public class TitleArea implements Handler.Callback {
 		mArrowPath = new Path();
 
 		mContext = context;
-		float density = mContext.getResources().getDisplayMetrics().scaledDensity;
+		float density = DEF.getScaledDensity(mContext.getResources());
 		mScrollStep = density;
 		if (mScrollStep < 1) {
 			mScrollStep = 1;

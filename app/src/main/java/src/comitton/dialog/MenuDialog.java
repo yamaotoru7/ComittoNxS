@@ -1,5 +1,6 @@
 package src.comitton.dialog;
 
+import src.comitton.common.DEF;
 import java.util.ArrayList;
 import java.util.EventListener;
 import java.util.List;
@@ -82,8 +83,8 @@ public class MenuDialog extends ImmersiveDialog implements OnTouchListener, OnDi
 
 		mActivity = activity;
 		mMenuList = new ArrayList<MenuList>();
-		mScale = mActivity.getResources().getDisplayMetrics().scaledDensity;
-		RANGE_CANCEL = (int)(20 * getContext().getResources().getDisplayMetrics().scaledDensity);
+		mScale = DEF.getScaledDensity(mActivity.getResources());
+		RANGE_CANCEL = (int)(20 * DEF.getScaledDensity(getContext().getResources()));
 
 		Rect size = new Rect();
 		mActivity.getWindow().getDecorView().getWindowVisibleDisplayFrame(size);

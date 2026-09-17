@@ -1,5 +1,6 @@
 package src.comitton.fileview.view.list;
 
+import android.os.Looper;
 import java.util.EventListener;
 
 import android.graphics.PointF;
@@ -36,7 +37,7 @@ public class MomentScroller implements Callback {
 
 	public MomentScroller(ScrollMoveListener listener, float density) {
 		// タイマー制御用ハンドラ
-		mHandler = new Handler(this);
+		mHandler = new Handler(Looper.getMainLooper(), this);
 
 		// スクロール通知リスナ
 		mScrollMoveListener = listener;

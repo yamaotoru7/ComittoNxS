@@ -1,5 +1,6 @@
 package src.comitton.fileview.view;
 
+import android.os.Looper;
 import src.comitton.common.DEF;
 
 import android.content.Context;
@@ -51,12 +52,12 @@ public class TitleView extends View implements Handler.Callback {
 
 	public TitleView(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		mHandler = new Handler(this);
+		mHandler = new Handler(Looper.getMainLooper(), this);
 		mIsRunning = true;
 		mTextPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
 		mContext = context;
-		float density = mContext.getResources().getDisplayMetrics().scaledDensity;
+		float density = DEF.getScaledDensity(mContext.getResources());
 		mScrollStep = density;
 		if (mScrollStep < 1) {
 			mScrollStep = 1;

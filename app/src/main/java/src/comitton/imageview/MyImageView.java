@@ -1,5 +1,6 @@
 package src.comitton.imageview;
 
+import android.os.Looper;
 import src.comitton.common.DEF;
 import src.comitton.common.Logcat;
 import src.comitton.fileview.view.DrawNoticeListener;
@@ -160,7 +161,7 @@ public class MyImageView extends SurfaceView implements SurfaceHolder.Callback, 
 		mAlphaPaint = new Paint();
 		mDrawRect = new Rect();
 		mWorkRect = new Rect();
-		mHandler = new Handler(this);
+		mHandler = new Handler(Looper.getMainLooper(), this);
 
 		requestFocus();
 		mHolder = getHolder();

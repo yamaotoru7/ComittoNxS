@@ -1,5 +1,6 @@
 package src.comitton.imageview;
 
+import java.util.GregorianCalendar;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -799,7 +800,7 @@ public class ImageManager extends InputStream implements Runnable {
 		int hh = (ftime >> 11) & 0x1F;
 		int nn = (ftime >> 5) & 0x3F;
 		int ss = (ftime & 0x1F) * 2;
-		Date d = new Date(yy, mm, dd, hh, nn, ss);
+		Date d = new GregorianCalendar(yy + 1900, mm, dd, hh, nn, ss).getTime();
 
 		FileListItem file = new FileListItem();
 		file.name = name;
@@ -876,7 +877,7 @@ public class ImageManager extends InputStream implements Runnable {
 		int hh = (ftime >> 11) & 0x1F;
 		int nn = (ftime >> 5) & 0x3F;
 		int ss = (ftime & 0x1F) * 2;
-		Date d = new Date(yy, mm, dd, hh, nn, ss);
+		Date d = new GregorianCalendar(yy + 1900, mm, dd, hh, nn, ss).getTime();
 
 		FileListItem file = new FileListItem();
 		//ローカルファイルヘッダの拡張フィールドのサイズはセントラルディレクトリヘッダからは取得出来ないので、実際の読み込み時に辻褄を合わせる
@@ -1230,7 +1231,7 @@ public class ImageManager extends InputStream implements Runnable {
 		int hh = (ftime >> 11) & 0x1F;
 		int nn = (ftime >> 5) & 0x3F;
 		int ss = (ftime & 0x1F) * 2;
-		Date d = new Date(yy, mm, dd, hh, nn, ss);
+		Date d = new GregorianCalendar(yy + 1900, mm, dd, hh, nn, ss).getTime();
 
 		// Image Fileのみ採用
 		FileListItem imgfile = new FileListItem();

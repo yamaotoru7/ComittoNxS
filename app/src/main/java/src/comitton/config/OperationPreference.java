@@ -39,7 +39,7 @@ public class OperationPreference extends CustomDialogPreference implements OnCli
 		super(context, attrs);
 		mContext = context;
 		mSP = PreferenceManager.getDefaultSharedPreferences(context);
-		mDensity = context.getResources().getDisplayMetrics().scaledDensity;
+		mDensity = DEF.getScaledDensity(context.getResources());
 		mSelIcon = new SelectIconView[ICON_NUM];
 
 		LAYOUT_PADDING = (int)(4 * mDensity);

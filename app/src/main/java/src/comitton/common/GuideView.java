@@ -1,5 +1,6 @@
 package src.comitton.common;
 
+import src.comitton.common.DEF;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.EventListener;
@@ -155,7 +156,7 @@ public class GuideView {
 		mContext = context;
 		mCacheMark = 0;
 		Resources res = context.getResources();
-		float density = res.getDisplayMetrics().scaledDensity;
+		float density = DEF.getScaledDensity(res);
 
 		mIconServer = BitmapFactory.decodeResource(res, R.drawable.ic_ld_server);
 		mIconLocal = BitmapFactory.decodeResource(res, R.drawable.ic_ld_local);

@@ -1,5 +1,6 @@
 package src.comitton.dialog;
 
+import androidx.core.widget.TextViewCompat;
 import androidx.annotation.NonNull;
 import java.util.EventListener;
 
@@ -209,7 +210,7 @@ public class ImageConfigDialog extends TabDialogFragment implements OnClickListe
 		LinearLayout footer = (LinearLayout)inflater.inflate(R.layout.imagetextconfig_footer, mFooter, true);
 		footer.setBackgroundColor(0x80000000);
 		// Android 5.1でテキストの色がおかしかったので暫定
-		((CheckBox)footer.findViewById(R.id.chk_save)).setTextAppearance(mActivity, mThemeResId);
+		TextViewCompat.setTextAppearance((CheckBox)footer.findViewById(R.id.chk_save), mThemeResId);
 		//addFooter(footer);
 
 		mChkIsSave = (CheckBox) mView.findViewById(R.id.chk_save);

@@ -1,5 +1,6 @@
 package src.comitton.dialog;
 
+import android.os.Looper;
 import jp.dip.muracoro.comittonx.R;
 import src.comitton.common.DEF;
 
@@ -46,7 +47,7 @@ public class PageSelectDialog extends ToolbarDialog implements Handler.Callback,
 	public PageSelectDialog(AppCompatActivity activity, @StyleRes int themeResId) {
 		super(activity, themeResId);
 		mIsCancel = false;
-		mHandler = new Handler(this);
+		mHandler = new Handler(Looper.getMainLooper(), this);
 		mAutoApply = true;
 	}
 

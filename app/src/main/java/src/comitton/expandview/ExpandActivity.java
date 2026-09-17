@@ -1,5 +1,6 @@
 package src.comitton.expandview;
 
+import android.os.Looper;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.text.MessageFormat;
@@ -151,9 +152,9 @@ public class ExpandActivity extends AppCompatActivity implements Handler.Callbac
 		Logcat.d(logLevel, "開始します.");
 
 		mActivity = this;
-		mDensity = getResources().getDisplayMetrics().scaledDensity;
+		mDensity = DEF.getScaledDensity(getResources());
 
-		mHandler = new Handler(this);
+		mHandler = new Handler(Looper.getMainLooper(), this);
 		mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 		SetCommonActivity.loadSettings(mSharedPreferences);
 

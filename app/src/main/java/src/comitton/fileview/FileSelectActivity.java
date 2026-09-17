@@ -1,5 +1,7 @@
 package src.comitton.fileview;
 
+import androidx.core.content.IntentCompat;
+import android.os.Looper;
 import static android.provider.Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION;
 
 import java.io.File;
@@ -299,7 +301,7 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 		}
 
 		mActivity = this;
-		mDensity = getResources().getDisplayMetrics().scaledDensity;
+		mDensity = DEF.getScaledDensity(getResources());
 		mInformation = new Information(this);
 
 		// カメラボタンで縦横切替した場合
@@ -312,7 +314,7 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 		SetCommonActivity.loadSettings(mSharedPreferences);
 		readConfig();
 
-		mHandler = new Handler(this);
+		mHandler = new Handler(Looper.getMainLooper(), this);
 		if (mPathHistory == null) {
 			// パス遷移の記録
 			mPathHistory = new PathHistory();
@@ -379,7 +381,7 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 
 				if (Intent.ACTION_SEND.equals(action)) {
 					Logcat.d(logLevel, "Intent.ACTION_SEND");
-					contentUri = (Uri) intent.getExtras().get(Intent.EXTRA_STREAM);
+					contentUri = IntentCompat.getParcelableExtra(intent, Intent.EXTRA_STREAM, Uri.class);
 					if (contentUri != null) {
 						Logcat.d(logLevel, "contentUri=" + contentUri.getPath());
 					}
