@@ -1,5 +1,8 @@
 package src.comitton.textview;
 
+import androidx.annotation.Nullable;
+import androidx.annotation.NonNull;
+import src.comitton.common.ActivityResultHost;
 import android.os.Looper;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -63,7 +66,6 @@ import android.os.SystemClock;
 import android.os.Vibrator;
 import androidx.preference.PreferenceManager;
 import android.util.Log;
-import android.view.Display;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -80,7 +82,10 @@ import androidx.appcompat.app.AppCompatActivity;
  * 画像のスクロールを試すための画面を表します。
  */
 @SuppressLint("NewApi")
-public class TextActivity extends AppCompatActivity implements OnTouchListener, Handler.Callback, MenuSelectListener, PageSelectListener,  BookmarkListenerInterface {
+public class TextActivity extends AppCompatActivity implements OnTouchListener, Handler.Callback, MenuSelectListener, PageSelectListener,  BookmarkListenerInterface, ActivityResultHost.Callback, ActivityResultHost.Launcher {
+	// startActivityForResult の代わり. STARTED より前に登録する必要があるのでフィールドで生成する
+	private final ActivityResultHost mResultHost = new ActivityResultHost(this, this);
+
 	private static final String TAG = "TextActivity";
 
 	private final int mSdkVersion = android.os.Build.VERSION.SDK_INT;
@@ -340,7 +345,7 @@ public class TextActivity extends AppCompatActivity implements OnTouchListener, 
 
 		// 回転
 		mInitFlg = 0;
-		mVibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
+		mVibrator = DEF.getVibrator(this);
 		mScaleMode = DEF.SCALE_ORIGINAL;
 		mTerminate = false;
 		mReadRunning = false;
@@ -362,6 +367,7 @@ public class TextActivity extends AppCompatActivity implements OnTouchListener, 
 		RANGE_FLICK = (int)(50 * mDensity);
 
 		super.onCreate(savedInstanceState);
+		mResultHost.restore(savedInstanceState);
 
 		// タイトル非表示
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -369,10 +375,6 @@ public class TextActivity extends AppCompatActivity implements OnTouchListener, 
 		// 設定の読み込み
 		SetCommonActivity.loadSettings(mSharedPreferences);
 		ReadSetting(mSharedPreferences);
-		if (mNotice) {
-			// 通知領域非表示
-			getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-		}
 		if (mNoSleep) {
 	        // スリープしない
 	        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -901,7 +903,7 @@ public class TextActivity extends AppCompatActivity implements OnTouchListener, 
 					if (mImmEnable && mSdkVersion >= 19) {
 						mReadDialog.getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
 						mReadDialog.show();
-						mReadDialog.getWindow().getDecorView().setSystemUiVisibility(this.getWindow().getDecorView().getSystemUiVisibility());
+						SystemUiHelper.copySystemBars(this, mReadDialog.getWindow());
 						mReadDialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
 					}
 					else {
@@ -1558,8 +1560,7 @@ public class TextActivity extends AppCompatActivity implements OnTouchListener, 
 							});
 							Dialog dialog = dialogBuilder.create();
 							dialog.getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
-							dialog.getWindow().getDecorView().setSystemUiVisibility(
-									mActivity.getWindow().getDecorView().getSystemUiVisibility());
+							SystemUiHelper.copySystemBars(mActivity, dialog.getWindow());
 							dialog.show();
 							dialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
 						}
@@ -2198,7 +2199,7 @@ public class TextActivity extends AppCompatActivity implements OnTouchListener, 
 				mCurrentPageRate = (float)(mCurrentPage + 1) / mTextMgr.length();
 				Intent intent = new Intent(TextActivity.this, SetConfigActivity.class);
 				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-				startActivityForResult(intent, DEF.REQUEST_SETTING);
+				launchForResult(intent, DEF.REQUEST_SETTING);
 				break;
 			}
 			case DEF.MENU_CHG_OPE: {
@@ -2553,9 +2554,20 @@ public class TextActivity extends AppCompatActivity implements OnTouchListener, 
 		}
 	}
 
+	@Override
+	protected void onSaveInstanceState(@NonNull Bundle outState) {
+		super.onSaveInstanceState(outState);
+		mResultHost.save(outState);
+	}
+
+	@Override
+	public void launchForResult(@NonNull Intent intent, int requestCode) {
+		mResultHost.launch(intent, requestCode);
+	}
+
 	// 他アクティビティからの復帰通知
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		super.onActivityResult(requestCode, resultCode, data);
+	@Override
+	public void onActivityResultCompat(int requestCode, int resultCode, @Nullable Intent data) {
 		if (requestCode == DEF.REQUEST_SETTING) {
 			// 設定の読込
 			SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
@@ -2610,7 +2622,7 @@ public class TextActivity extends AppCompatActivity implements OnTouchListener, 
 		if (mImmEnable && mSdkVersion >= 19) {
 			mReadDialog.getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
 			mReadDialog.show();
-			mReadDialog.getWindow().getDecorView().setSystemUiVisibility(this.getWindow().getDecorView().getSystemUiVisibility());
+			SystemUiHelper.copySystemBars(this, mReadDialog.getWindow());
 			mReadDialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
 		}
 		else {
@@ -2690,16 +2702,10 @@ public class TextActivity extends AppCompatActivity implements OnTouchListener, 
 				int cx;
 				int cy;
 				if (mSdkVersion >= 19 && mImmEnable) {
-					// ウィンドウマネージャのインスタンス取得
-					WindowManager wm = (WindowManager)getSystemService(WINDOW_SERVICE);
-					// ディスプレイのインスタンス生成
-					Display disp = wm.getDefaultDisplay();
 					// ナビゲーション以外
-					Point dispSize = new Point();
-					disp.getSize(dispSize);
+					Point dispSize = SystemUiHelper.getAppScreenSize(this);
 					// ハードウェアサイズ
-					Point hardSize = new Point();
-					disp.getRealSize(hardSize);
+					Point hardSize = SystemUiHelper.getRealScreenSize(this);
 					//
 					cx = mTextView.getWidth();
 					cy = hardSize.y - dispSize.y + mTextView.getHeight();
@@ -2823,7 +2829,7 @@ public class TextActivity extends AppCompatActivity implements OnTouchListener, 
 		if (mVibFlag) {
 			if (nowTime > mPrevVibTime + TIME_VIB_TERM) {
 				// 前回と間が空いているときだけ振動
-				mVibrator.vibrate(TIME_VIB_RANGE);
+				DEF.vibrate(mVibrator, TIME_VIB_RANGE);
 				mPrevVibTime = nowTime;
 			}
 		}

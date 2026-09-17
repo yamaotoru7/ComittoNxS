@@ -1,5 +1,6 @@
 package src.comitton.dialog;
 
+import src.comitton.common.SystemUiHelper;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.os.Bundle;
@@ -67,7 +68,7 @@ public abstract class ImmersiveDialogFragment extends DialogFragment {
                     // Copy flags from the activity, assuming it's fullscreen.
                     // It is important to do this after show() was called. If we would do this in onCreateDialog(),
                     // we would get a requestFeature() error.
-                    dialogWindow.getDecorView().setSystemUiVisibility(getActivity().getWindow().getDecorView().getSystemUiVisibility());
+                    SystemUiHelper.copySystemBars(getActivity(), dialogWindow);
 
                     // Make the dialogs window focusable again
                     dialogWindow.clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);

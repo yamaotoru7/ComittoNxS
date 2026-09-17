@@ -1,5 +1,10 @@
 package src.comitton.fileview;
 
+import androidx.core.graphics.drawable.IconCompat;
+import androidx.core.content.pm.ShortcutManagerCompat;
+import androidx.core.content.pm.ShortcutInfoCompat;
+import androidx.annotation.Nullable;
+import src.comitton.common.ActivityResultHost;
 import androidx.core.content.IntentCompat;
 import android.os.Looper;
 import static android.provider.Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION;
@@ -65,10 +70,6 @@ import src.comitton.fileview.view.list.TitleArea;
 import android.Manifest;
 import android.annotation.SuppressLint;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import android.app.Dialog;
@@ -83,21 +84,17 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
-import android.content.pm.ShortcutInfo;
-import android.content.pm.ShortcutManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Point;
-import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
-import android.os.Parcelable;
 import android.os.storage.StorageManager;
 import androidx.preference.PreferenceManager;
 
@@ -118,7 +115,10 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 @SuppressLint("DefaultLocale")
-public class FileSelectActivity extends AppCompatActivity implements OnTouchListener, ListNoticeListener, BookmarkListenerInterface, Handler.Callback {
+public class FileSelectActivity extends AppCompatActivity implements OnTouchListener, ListNoticeListener, BookmarkListenerInterface, Handler.Callback, ActivityResultHost.Callback, ActivityResultHost.Launcher {
+	// startActivityForResult の代わり. STARTED より前に登録する必要があるのでフィールドで生成する
+	private final ActivityResultHost mResultHost = new ActivityResultHost(this, this);
+
 	private static final String TAG = "FileSelectActivity";
 
 	private static final int OPERATE_NONREAD = 0;
@@ -274,6 +274,7 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 	public void onCreate(Bundle savedInstanceState) {
 		int logLevel = Logcat.LOG_LEVEL_WARN;
 		super.onCreate(savedInstanceState);
+		mResultHost.restore(savedInstanceState);
 
 		// 設定の読込
 		mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
@@ -531,7 +532,7 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 				Logcat.d(logLevel, "外部ストレージアクセス権限がありません.");
 				//==== ユーザに自分で権限リストを設定してもらう ====//
 				intent = new Intent(ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION, Uri.parse("package:" + BuildConfig.APPLICATION_ID));
-				startActivityForResult(intent, DEF.APP_STORAGE_ACCESS_REQUEST_CODE);
+				launchForResult(intent, DEF.APP_STORAGE_ACCESS_REQUEST_CODE);
 			}else{
 				Logcat.d(logLevel, "外部ストレージアクセス権限があります.");
 			}
@@ -600,6 +601,7 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 
 	@Override
 	public void onSaveInstanceState(Bundle savedInstanceState) {
+		mResultHost.save(savedInstanceState);
 		savedInstanceState.putString("Path", mPath);
 		savedInstanceState.putString("Server", mServer.getCode());
 		savedInstanceState.putInt("ServerSelect", mServer.getSelect());
@@ -657,17 +659,6 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 		super.onConfigurationChanged(newConfig);
 	}
 
-	public ActivityResultLauncher<Intent> startForResult = registerForActivityResult(
-			new ActivityResultContracts.StartActivityForResult(),
-			new ActivityResultCallback<ActivityResult>() {
-				@Override
-				public void onActivityResult(ActivityResult result) {
-					if(result.getResultCode() == RESULT_OK && result.getData() != null){
-						Intent data = result.getData();
-					}
-				}
-			});
-
 	// ストレージへのアクセス許可の結果
 	private void onStorageAccessResult(boolean granted) {
 		if (granted) {
@@ -697,9 +688,14 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 		}
 	}
 
+	@Override
+	public void launchForResult(@NonNull Intent intent, int requestCode) {
+		mResultHost.launch(intent, requestCode);
+	}
+
 	// 画面遷移が戻ってきた時の通知
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		super.onActivityResult(requestCode, resultCode, data);
+	@Override
+	public void onActivityResultCompat(int requestCode, int resultCode, @Nullable Intent data) {
 		int logLevel = Logcat.LOG_LEVEL_WARN;
 		Logcat.d(logLevel, "開始します. requestCode=" + requestCode + ", resultCode=" + resultCode);
 
@@ -1551,29 +1547,14 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 							shortcutIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
 						}
 
-						// ショートカットをHOMEに作成する
-						if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-							// Android 8 O API26 以降
-							Icon icon = Icon.createWithResource(mActivity, R.drawable.comittonxx);
-							ShortcutInfo shortcut = new ShortcutInfo.Builder(mActivity, title)
-									.setShortLabel(title)
-									.setLongLabel(title)
-									.setIcon(icon)
-									.setIntent(shortcutIntent)
-									.build();
-							ShortcutManager shortcutManager = getSystemService(ShortcutManager.class);
-							shortcutManager.requestPinShortcut(shortcut, null);
-						}
-						else {
-							// Android 7以前
-							Intent intent = new Intent();
-							intent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent);
-							intent.putExtra(Intent.EXTRA_SHORTCUT_NAME, title);
-							Parcelable iconResource = Intent.ShortcutIconResource.fromContext(mActivity, R.drawable.icon);
-							intent.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, iconResource);
-							intent.setAction("com.android.launcher.action.INSTALL_SHORTCUT");
-							sendBroadcast(intent);
-						}
+						// ショートカットをHOMEに作成する (Android 7 以前はランチャへのブロードキャストになる)
+						ShortcutInfoCompat shortcut = new ShortcutInfoCompat.Builder(mActivity, title)
+								.setShortLabel(title)
+								.setLongLabel(title)
+								.setIcon(IconCompat.createWithResource(mActivity, R.drawable.comittonxx))
+								.setIntent(shortcutIntent)
+								.build();
+						ShortcutManagerCompat.requestPinShortcut(mActivity, shortcut, null);
 					}
 
 					@Override
@@ -1907,7 +1888,7 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 			// Intentをつかって画面遷移する
 			Intent intent = new Intent(FileSelectActivity.this, SetConfigActivity.class);
 			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-			startActivityForResult(intent, DEF.REQUEST_SETTING);
+			launchForResult(intent, DEF.REQUEST_SETTING);
 		}
 		else if (id == DEF.MENU_SHORTCUT) {
 			// ショートカット名入力ダイアログ表示
@@ -2767,7 +2748,7 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 						intent.putExtra("aspectRatio", (float) mThumbSizeW / (float) mThumbSizeH);
 						// サムネイル解放
 						releaseThumbnail();
-						startActivityForResult(intent, DEF.REQUEST_CROP);
+						launchForResult(intent, DEF.REQUEST_CROP);
 						break;
 
 				}
@@ -3498,7 +3479,7 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 		intent.putExtra("Pass", mServer.getPass());		// SMB認証用
 		intent.putExtra("File", name);					// EPUBファイル名
 		intent.putExtra("Text", "META-INF/container.xml"); // 中身のファイル名
-		startActivityForResult(intent, DEF.REQUEST_EPUB);
+		launchForResult(intent, DEF.REQUEST_EPUB);
 	}
 
 	/**
@@ -3528,7 +3509,7 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 		intent.putExtra("Pass", mServer.getPass());		// SMB認証用
 		intent.putExtra("File", file);					// ZIPファイル名
 		intent.putExtra("Text", name); 					// 中身のテキストファイル名
-		startActivityForResult(intent, DEF.REQUEST_TEXT);
+		launchForResult(intent, DEF.REQUEST_TEXT);
 	}
 
 	/**
@@ -3575,7 +3556,7 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 		intent.putExtra("Pass", mServer.getPass());		// SMB認証用
 		intent.putExtra("File", "");					// ZIPファイル名
 		intent.putExtra("Image", name); 					// 中身の画像ファイル名
-		startActivityForResult(intent, DEF.REQUEST_IMAGE);
+		launchForResult(intent, DEF.REQUEST_IMAGE);
 	}
 
 	/**
@@ -3600,7 +3581,7 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 		intent.putExtra("Pass", mServer.getPass());		// SMB認証用
 		intent.putExtra("File", "");					// ZIPファイル名
 		intent.putExtra("Image", ""); 				// 中身の画像ファイル名
-		startActivityForResult(intent, DEF.REQUEST_IMAGE);
+		launchForResult(intent, DEF.REQUEST_IMAGE);
 	}
 
 	/**
@@ -3625,7 +3606,7 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 		intent.putExtra("Pass", mServer.getPass());		// SMB認証用
 		intent.putExtra("File", name);					// ZIPファイル名
 		intent.putExtra("Image", ""); 					// 中身の画像ファイル名
-		startActivityForResult(intent, DEF.REQUEST_IMAGE);
+		launchForResult(intent, DEF.REQUEST_IMAGE);
 	}
 
 	/**
@@ -3650,7 +3631,7 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 		intent.putExtra("Pass", mServer.getPass());
 		intent.putExtra("File", comp); // 圧縮ファイル
 		intent.putExtra("Text", text); // 圧縮ファイル内のファイル
-		startActivityForResult(intent, DEF.REQUEST_EXPAND);
+		launchForResult(intent, DEF.REQUEST_EXPAND);
 		return;
 	}
 

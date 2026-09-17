@@ -1,5 +1,6 @@
 package src.comitton.fileaccess;
 
+import src.comitton.common.ActivityResultHost;
 import android.net.Uri;
 import android.app.Activity;
 import android.content.Intent;
@@ -486,7 +487,7 @@ public class LocalFileAccess {
 		if (!uri.isEmpty()) {
 			intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, Uri.parse(uri));
 		}
-		activity.startActivityForResult(Intent.createChooser(intent, activity.getText(R.string.SafChooseTitle)), DEF.REQUEST_CODE_ACTION_OPEN_DOCUMENT_TREE);
+		ActivityResultHost.launch(activity, Intent.createChooser(intent, activity.getText(R.string.SafChooseTitle)), DEF.REQUEST_CODE_ACTION_OPEN_DOCUMENT_TREE);
 
 		Logcat.d(logLevel, "終了します.");
 	}

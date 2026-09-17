@@ -1,5 +1,6 @@
 package src.comitton.dialog;
 
+import src.comitton.common.SystemUiHelper;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
@@ -98,7 +99,7 @@ public class LoadingProgressDialog extends AlertDialog {
 			Context context = getContext();
 			if (context instanceof Activity) {
 				Activity act = (Activity) context;
-				window.getDecorView().setSystemUiVisibility(act.getWindow().getDecorView().getSystemUiVisibility());
+				SystemUiHelper.copySystemBars(act, window);
 			}
 			window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
 		}

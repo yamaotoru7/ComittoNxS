@@ -283,7 +283,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/src/comitton/textview/TextActivity.java"
-            line="2217"
+            line="2219"
             column="25"/>
     </issue>
 
@@ -305,7 +305,7 @@
         errorLine2="              ~~~~~~~~~~~">
         <location
             file="src/main/java/src/comitton/common/ThumbnailLoader.java"
-            line="249"
+            line="250"
             column="15"/>
     </issue>
 
@@ -327,7 +327,7 @@
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/src/comitton/fileaccess/LocalFileAccess.java"
-            line="487"
+            line="488"
             column="20"/>
     </issue>
 
@@ -338,7 +338,7 @@
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/src/comitton/common/ThumbnailLoader.java"
-            line="467"
+            line="468"
             column="20"/>
     </issue>
 
@@ -349,7 +349,7 @@
         errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/src/comitton/common/ThumbnailLoader.java"
-            line="469"
+            line="470"
             column="16"/>
     </issue>
 
@@ -382,7 +382,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/src/comitton/common/GuideView.java"
-            line="201"
+            line="202"
             column="17"/>
     </issue>
 
@@ -393,7 +393,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/src/comitton/common/GuideView.java"
-            line="202"
+            line="203"
             column="17"/>
     </issue>
 
@@ -404,7 +404,7 @@
         errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/src/comitton/common/GuideView.java"
-            line="1348"
+            line="1349"
             column="18"/>
     </issue>
 
@@ -415,7 +415,7 @@
         errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/src/comitton/common/GuideView.java"
-            line="1352"
+            line="1353"
             column="18"/>
     </issue>
 
@@ -502,11 +502,11 @@
         errorLine2="~~~~">
         <location
             file="src/main/java/src/comitton/imageview/ImageManager.java"
-            line="1348"
+            line="1349"
             column="1"/>
         <location
             file="src/main/java/src/comitton/imageview/ImageManager.java"
-            line="1346"
+            line="1347"
             column="1"
             message="Previous line indentation here"/>
     </issue>
@@ -518,11 +518,11 @@
         errorLine2="~~~">
         <location
             file="src/main/java/src/comitton/fileview/view/list/ListArea.java"
-            line="881"
+            line="882"
             column="1"/>
         <location
             file="src/main/java/src/comitton/fileview/view/list/ListArea.java"
-            line="874"
+            line="875"
             column="1"
             message="Previous line indentation here"/>
     </issue>
@@ -534,11 +534,11 @@
         errorLine2="~~">
         <location
             file="src/main/java/src/comitton/fileaccess/LocalFileAccess.java"
-            line="118"
+            line="119"
             column="1"/>
         <location
             file="src/main/java/src/comitton/fileaccess/LocalFileAccess.java"
-            line="111"
+            line="112"
             column="1"
             message="Previous line indentation here"/>
     </issue>
@@ -550,11 +550,11 @@
         errorLine2="~~~~~">
         <location
             file="src/main/java/src/comitton/fileview/view/list/MomentScroller.java"
-            line="121"
+            line="122"
             column="1"/>
         <location
             file="src/main/java/src/comitton/fileview/view/list/MomentScroller.java"
-            line="105"
+            line="106"
             column="1"
             message="Previous line indentation here"/>
     </issue>
@@ -566,11 +566,11 @@
         errorLine2="~~~~">
         <location
             file="src/main/java/src/comitton/imageview/MyImageView.java"
-            line="1378"
+            line="1379"
             column="1"/>
         <location
             file="src/main/java/src/comitton/imageview/MyImageView.java"
-            line="1374"
+            line="1375"
             column="1"
             message="Previous line indentation here"/>
     </issue>
@@ -582,11 +582,11 @@
         errorLine2="      ~">
         <location
             file="src/main/java/src/comitton/textview/MyTextView.java"
-            line="739"
+            line="740"
             column="7"/>
         <location
             file="src/main/java/src/comitton/textview/MyTextView.java"
-            line="738"
+            line="739"
             column="7"
             message="Previous line indentation here"/>
     </issue>
@@ -598,11 +598,11 @@
         errorLine2="       ~">
         <location
             file="src/main/java/src/comitton/textview/MyTextView.java"
-            line="857"
+            line="858"
             column="8"/>
         <location
             file="src/main/java/src/comitton/textview/MyTextView.java"
-            line="856"
+            line="857"
             column="8"
             message="Previous line indentation here"/>
     </issue>
@@ -630,11 +630,11 @@
         errorLine2=" ~">
         <location
             file="src/main/java/src/comitton/dialog/PageSelectDialog.java"
-            line="210"
+            line="211"
             column="2"/>
         <location
             file="src/main/java/src/comitton/dialog/PageSelectDialog.java"
-            line="191"
+            line="192"
             column="2"
             message="Previous line indentation here"/>
     </issue>
@@ -662,11 +662,11 @@
         errorLine2="~~~~~~~">
         <location
             file="src/main/java/src/comitton/textview/TextActivity.java"
-            line="2257"
+            line="2259"
             column="1"/>
         <location
             file="src/main/java/src/comitton/textview/TextActivity.java"
-            line="2256"
+            line="2258"
             column="1"
             message="Previous line indentation here"/>
     </issue>
@@ -678,11 +678,11 @@
         errorLine2="   ~~">
         <location
             file="src/main/java/src/comitton/textview/TextActivity.java"
-            line="2300"
+            line="2302"
             column="4"/>
         <location
             file="src/main/java/src/comitton/textview/TextActivity.java"
-            line="2299"
+            line="2301"
             column="4"
             message="Previous line indentation here"/>
     </issue>
@@ -951,7 +951,7 @@
         errorLine2="                                               ~~~~">
         <location
             file="src/main/java/src/comitton/expandview/ExpandActivity.java"
-            line="823"
+            line="841"
             column="48"/>
     </issue>
 
@@ -962,7 +962,7 @@
         errorLine2="                                                        ~~~~">
         <location
             file="src/main/java/src/comitton/dialog/ImageConfigDialog.java"
-            line="176"
+            line="177"
             column="57"/>
     </issue>
 
@@ -973,7 +973,7 @@
         errorLine2="                                                       ~~~~">
         <location
             file="src/main/java/src/comitton/dialog/ImageConfigDialog.java"
-            line="181"
+            line="182"
             column="56"/>
     </issue>
 
@@ -984,7 +984,7 @@
         errorLine2="                                                       ~~~~">
         <location
             file="src/main/java/src/comitton/dialog/TextConfigDialog.java"
-            line="136"
+            line="137"
             column="56"/>
     </issue>
 
@@ -995,7 +995,7 @@
         errorLine2="                                                      ~~~~">
         <location
             file="src/main/java/src/comitton/dialog/TextConfigDialog.java"
-            line="139"
+            line="140"
             column="55"/>
     </issue>
 
@@ -1006,7 +1006,7 @@
         errorLine2="                                                                                        ~~~~">
         <location
             file="src/main/java/src/comitton/dialog/TextConfigDialog.java"
-            line="165"
+            line="166"
             column="89"/>
     </issue>
 
@@ -1017,7 +1017,7 @@
         errorLine2="                                                          ~~~~">
         <location
             file="src/main/java/src/comitton/dialog/ToolbarEditDialog.java"
-            line="222"
+            line="223"
             column="59"/>
     </issue>
 
@@ -1193,7 +1193,7 @@
         errorLine2="                                           ~~~~~~~~~~~~~">
         <location
             file="src/main/java/src/comitton/common/ThumbnailLoader.java"
-            line="467"
+            line="468"
             column="44"/>
     </issue>
 
@@ -1204,7 +1204,7 @@
         errorLine2="                                       ~~~~~~~~~~~~~">
         <location
             file="src/main/java/src/comitton/common/ThumbnailLoader.java"
-            line="469"
+            line="470"
             column="40"/>
     </issue>
 
@@ -1237,7 +1237,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/src/comitton/dialog/ToolbarEditDialog.java"
-            line="468"
+            line="469"
             column="17"/>
     </issue>
 
@@ -1341,7 +1341,7 @@
         errorLine2="         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/src/comitton/fileview/view/TitleView.java"
-            line="76"
+            line="77"
             column="10"/>
     </issue>
 
@@ -1352,7 +1352,7 @@
         errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/src/comitton/fileview/view/TitleView.java"
-            line="77"
+            line="78"
             column="18"/>
     </issue>
 
@@ -1363,30 +1363,8 @@
         errorLine2="      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/src/comitton/common/DEF.java"
-            line="2741"
+            line="2772"
             column="7"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {"
-        errorLine2="         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/src/comitton/dialog/ImmersiveAlertDialog.java"
-            line="96"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {"
-        errorLine2="         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/src/comitton/dialog/ImmersiveDialog.java"
-            line="97"
-            column="10"/>
     </issue>
 
     <issue
@@ -1613,13 +1591,6 @@
         message="Found bitmap drawable `res/drawable/tappattern03.png` in densityless folder">
         <location
             file="src/main/res/drawable/tappattern03.png"/>
-    </issue>
-
-    <issue
-        id="IconDensities"
-        message="Missing the following drawables in `drawable-hdpi`: icon.png (found in drawable-mdpi)">
-        <location
-            file="src/main/res/drawable-hdpi"/>
     </issue>
 
     <issue
@@ -2072,7 +2043,7 @@
         errorLine2="             ~~~~~~~~~~~">
         <location
             file="src/main/java/src/comitton/imageview/MyImageView.java"
-            line="32"
+            line="33"
             column="14"/>
     </issue>
 
@@ -2083,7 +2054,7 @@
         errorLine2="             ~~~~~~~~~~">
         <location
             file="src/main/java/src/comitton/textview/MyTextView.java"
-            line="46"
+            line="47"
             column="14"/>
     </issue>
 
@@ -2094,7 +2065,7 @@
         errorLine2="                   ~~~~~~~~~~~~">
         <location
             file="src/main/java/src/comitton/cropimageview/CropImageView.java"
-            line="224"
+            line="232"
             column="20"/>
     </issue>
 
@@ -2149,7 +2120,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/src/comitton/fileview/FileSelectActivity.java"
-            line="340"
+            line="343"
             column="3"/>
     </issue>
 
@@ -2160,7 +2131,7 @@
         errorLine2="                ~~~~~~~">
         <location
             file="src/main/java/src/comitton/imageview/ImageActivity.java"
-            line="1836"
+            line="1840"
             column="17"/>
     </issue>
 
@@ -2171,7 +2142,7 @@
         errorLine2="  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/src/comitton/dialog/MenuDialog.java"
-            line="122"
+            line="123"
             column="3"/>
     </issue>
 
@@ -2182,7 +2153,7 @@
         errorLine2="                ~~~~~~~">
         <location
             file="src/main/java/src/comitton/dialog/MenuDialog.java"
-            line="208"
+            line="209"
             column="17"/>
     </issue>
 
@@ -2215,7 +2186,7 @@
         errorLine2="                   ~~~~~~~">
         <location
             file="src/main/java/src/comitton/dialog/TabDialogFragment.java"
-            line="201"
+            line="202"
             column="20"/>
     </issue>
 
@@ -2226,7 +2197,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/src/comitton/dialog/TabDialogFragment.java"
-            line="269"
+            line="270"
             column="9"/>
     </issue>
 
@@ -2237,7 +2208,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/src/comitton/dialog/TabDialogFragment.java"
-            line="277"
+            line="278"
             column="9"/>
     </issue>
 
@@ -2248,7 +2219,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/src/comitton/dialog/TabDialogFragment.java"
-            line="285"
+            line="286"
             column="9"/>
     </issue>
 
@@ -2259,7 +2230,7 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/src/comitton/dialog/TabDialogFragment.java"
-            line="293"
+            line="294"
             column="9"/>
     </issue>
 
@@ -2270,7 +2241,7 @@
         errorLine2="                   ~~~~~~~">
         <location
             file="src/main/java/src/comitton/textview/TextActivity.java"
-            line="1103"
+            line="1106"
             column="20"/>
     </issue>
 
@@ -2556,7 +2527,7 @@
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/src/comitton/dialog/DownloadDialog.java"
-            line="266"
+            line="264"
             column="27"/>
     </issue>
 
@@ -2567,7 +2538,7 @@
         errorLine2="                  ~~~~~~~~~~~~~">
         <location
             file="src/main/java/src/comitton/dialog/PageSelectDialog.java"
-            line="68"
+            line="69"
             column="19"/>
     </issue>
 
@@ -2655,7 +2626,7 @@
         errorLine2="                                                                           ~~~~~">
         <location
             file="src/main/java/src/comitton/dialog/MenuDialog.java"
-            line="78"
+            line="79"
             column="76"/>
     </issue>
 
@@ -2666,7 +2637,7 @@
         errorLine2="                                                                                   ~~~~~">
         <location
             file="src/main/java/src/comitton/dialog/TabDialogFragment.java"
-            line="157"
+            line="158"
             column="84"/>
     </issue>
 
@@ -2677,7 +2648,7 @@
         errorLine2="                                  ~~~~">
         <location
             file="src/main/java/src/comitton/dialog/ToolbarEditDialog.java"
-            line="417"
+            line="418"
             column="35"/>
     </issue>
 
@@ -2688,7 +2659,7 @@
         errorLine2="                                  ~~~~">
         <location
             file="src/main/java/src/comitton/dialog/ToolbarEditDialog.java"
-            line="434"
+            line="435"
             column="35"/>
     </issue>
 

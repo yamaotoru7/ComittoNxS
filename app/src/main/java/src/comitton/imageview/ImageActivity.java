@@ -1,5 +1,8 @@
 package src.comitton.imageview;
 
+import androidx.annotation.Nullable;
+import androidx.annotation.NonNull;
+import src.comitton.common.ActivityResultHost;
 import android.os.Looper;
 import java.io.File;
 import java.text.MessageFormat;
@@ -98,7 +101,10 @@ import src.comitton.common.ThumbnailLoader;
  * 画像のスクロールを試すための画面を表します。
  */
 @SuppressLint("NewApi")
-public class ImageActivity extends AppCompatActivity implements OnTouchListener, Handler.Callback, MenuSelectListener, PageSelectListener, BookmarkListenerInterface {
+public class ImageActivity extends AppCompatActivity implements OnTouchListener, Handler.Callback, MenuSelectListener, PageSelectListener, BookmarkListenerInterface, ActivityResultHost.Callback, ActivityResultHost.Launcher {
+	// startActivityForResult の代わり. STARTED より前に登録する必要があるのでフィールドで生成する
+	private final ActivityResultHost mResultHost = new ActivityResultHost(this, this);
+
 	private static final String TAG = "ImageActivity";
 
 	public static final int FILESORT_NONE = 0;
@@ -508,7 +514,7 @@ public class ImageActivity extends AppCompatActivity implements OnTouchListener,
 		mDispMode = DEF.DISPMODE_IM_NORMAL;
 		mBitmapLoading = false;
 		mLoadingNext = false;
-		mVibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
+		mVibrator = DEF.getVibrator(this);
 		mScaleMode = DEF.SCALE_ORIGINAL;
 		mReverseOrder = false;
 		mTerminate = false;
@@ -535,6 +541,7 @@ public class ImageActivity extends AppCompatActivity implements OnTouchListener,
 		RANGE_FLICK = (int) (50 * mSDensity);
 
 		super.onCreate(savedInstanceState);
+		mResultHost.restore(savedInstanceState);
 
 		// タイトル非表示
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -542,10 +549,6 @@ public class ImageActivity extends AppCompatActivity implements OnTouchListener,
 		// 設定の読み込み
 		SetCommonActivity.loadSettings(mSharedPreferences);
 		ReadSetting(mSharedPreferences);
-		if (mNotice) {
-			// 通知領域非表示
-			getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-		}
 		if (mNoSleep) {
 			// スリープしない
 			getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -1068,7 +1071,7 @@ public class ImageActivity extends AppCompatActivity implements OnTouchListener,
 					if (mImmEnable && mSdkVersion >= 19) {
 						mReadDialog.getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
 						mReadDialog.show();
-						mReadDialog.getWindow().getDecorView().setSystemUiVisibility(this.getWindow().getDecorView().getSystemUiVisibility());
+						SystemUiHelper.copySystemBars(this, mReadDialog.getWindow());
 						mReadDialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
 					} else {
 						mReadDialog.show();
@@ -1151,7 +1154,7 @@ public class ImageActivity extends AppCompatActivity implements OnTouchListener,
 					if (mTouchFirst) {
 						if (mVibFlag) {
 							// 振動
-							mVibrator.vibrate(TIME_VIB_RANGE);
+							DEF.vibrate(mVibrator, TIME_VIB_RANGE);
 						}
 
 						// タッチ位置が範囲内の時だけ処理
@@ -1682,7 +1685,7 @@ public class ImageActivity extends AppCompatActivity implements OnTouchListener,
 		intent.putExtra("Pass", mPass);
 		intent.putExtra("Page", page);
 		intent.putExtra("aspectRatio", (float)thumbW / (float)thumbH);
-		startActivityForResult(intent, DEF.REQUEST_CROP);
+		launchForResult(intent, DEF.REQUEST_CROP);
 	}
 
 	public void setThumb(Uri uri) {
@@ -2420,8 +2423,7 @@ public class ImageActivity extends AppCompatActivity implements OnTouchListener,
 							});
 							Dialog dialog = dialogBuilder.create();
 							dialog.getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
-							dialog.getWindow().getDecorView().setSystemUiVisibility(
-								mActivity.getWindow().getDecorView().getSystemUiVisibility());
+							SystemUiHelper.copySystemBars(mActivity, dialog.getWindow());
 							dialog.show();
 							dialog.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
 						}
@@ -2529,7 +2531,7 @@ public class ImageActivity extends AppCompatActivity implements OnTouchListener,
 
 								Intent intent = new Intent(ImageActivity.this, SetConfigActivity.class);
 								intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-								startActivityForResult(intent, DEF.REQUEST_SETTING);
+								launchForResult(intent, DEF.REQUEST_SETTING);
 								break;
 						}
 					}
@@ -3547,7 +3549,7 @@ public class ImageActivity extends AppCompatActivity implements OnTouchListener,
 
 				Intent intent = new Intent(ImageActivity.this, SetConfigActivity.class);
 				intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-				startActivityForResult(intent, DEF.REQUEST_SETTING);
+				launchForResult(intent, DEF.REQUEST_SETTING);
 				break;
 			}
 			case DEF.MENU_TOP_SETTING: {
@@ -3970,9 +3972,20 @@ public class ImageActivity extends AppCompatActivity implements OnTouchListener,
 		}
 	}
 
+	@Override
+	protected void onSaveInstanceState(@NonNull Bundle outState) {
+		super.onSaveInstanceState(outState);
+		mResultHost.save(outState);
+	}
+
+	@Override
+	public void launchForResult(@NonNull Intent intent, int requestCode) {
+		mResultHost.launch(intent, requestCode);
+	}
+
 	// 他アクティビティからの復帰通知
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		super.onActivityResult(requestCode, resultCode, data);
+	@Override
+	public void onActivityResultCompat(int requestCode, int resultCode, @Nullable Intent data) {
 		int logLevel = Logcat.LOG_LEVEL_WARN;
 		Logcat.d(logLevel, "開始します.");
 
@@ -4227,7 +4240,7 @@ public class ImageActivity extends AppCompatActivity implements OnTouchListener,
 		if (mVibFlag) {
 			if (nowTime > mPrevVibTime + TIME_VIB_TERM) {
 				// 前回と間が空いているときだけ振動
-				mVibrator.vibrate(TIME_VIB_RANGE);
+				DEF.vibrate(mVibrator, TIME_VIB_RANGE);
 				mPrevVibTime = nowTime;
 			}
 		}

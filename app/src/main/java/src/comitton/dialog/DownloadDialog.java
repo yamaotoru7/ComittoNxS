@@ -1,5 +1,6 @@
 package src.comitton.dialog;
 
+import src.comitton.common.SystemUiHelper;
 import android.os.Looper;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -11,14 +12,12 @@ import src.comitton.fileaccess.FileAccess;
 import src.comitton.fileview.data.FileData;
 import src.comitton.fileaccess.WorkStream;
 
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnDismissListener;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
-import android.view.Display;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.View.OnClickListener;
@@ -75,11 +74,9 @@ public class DownloadDialog extends ImmersiveDialog implements Runnable, Handler
 	protected void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
 
-		WindowManager wm = (WindowManager)mActivity.getSystemService(Context.WINDOW_SERVICE);
-		// ディスプレイのインスタンス生成
-		Display disp = wm.getDefaultDisplay();
-		int cx = disp.getWidth();
-		int cy = disp.getHeight();
+		android.graphics.Point screen = SystemUiHelper.getAppScreenSize(mActivity);
+		int cx = screen.x;
+		int cy = screen.y;
 		int width = Math.min(cx, cy);
 
 		setContentView(R.layout.downloaddialog);

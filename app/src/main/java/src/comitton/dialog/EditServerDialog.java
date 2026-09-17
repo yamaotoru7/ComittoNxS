@@ -1,5 +1,6 @@
 package src.comitton.dialog;
 
+import src.comitton.common.ActivityResultHost;
 import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnDismissListener;
@@ -232,7 +233,7 @@ public class EditServerDialog extends ImmersiveDialog implements OnClickListener
 				if (!mProvider.isEmpty()) {
 					intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, Uri.parse(mProvider));
 				}
-				mActivity.startActivityForResult(Intent.createChooser(intent, mActivity.getText(R.string.SafChooseTitle)), DEF.REQUEST_CODE_ACTION_OPEN_DOCUMENT_TREE);
+				ActivityResultHost.launch(mActivity, Intent.createChooser(intent, mActivity.getText(R.string.SafChooseTitle)), DEF.REQUEST_CODE_ACTION_OPEN_DOCUMENT_TREE);
 			}
 
 			else if (mAccessType == DEF.ACCESS_TYPE_PICKER) {
@@ -243,7 +244,7 @@ public class EditServerDialog extends ImmersiveDialog implements OnClickListener
 				if (!mProvider.isEmpty()) {
 					intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, Uri.parse(mProvider));
 				}
-				mActivity.startActivityForResult(intent, DEF.REQUEST_CODE_ACTION_OPEN_DOCUMENT);
+				ActivityResultHost.launch(mActivity, intent, DEF.REQUEST_CODE_ACTION_OPEN_DOCUMENT);
 			}
 		}
 	}

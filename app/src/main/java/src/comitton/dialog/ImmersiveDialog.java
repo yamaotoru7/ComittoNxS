@@ -1,5 +1,6 @@
 package src.comitton.dialog;
 
+import src.comitton.common.SystemUiHelper;
 import src.comitton.common.DEF;
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -93,11 +94,7 @@ public class ImmersiveDialog extends Dialog {
 	 * Copy the visibility of the Activity that has started the dialog {@link mActivity}. If the
 	 * activity is in Immersive mode the dialog will be in Immersive mode too and vice versa.
 	 */
-	@SuppressLint("NewApi")
 	private void copySystemUiVisibility() {
-	    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
-	        getWindow().getDecorView().setSystemUiVisibility(
-	                mActivity.getWindow().getDecorView().getSystemUiVisibility());
-	    }
+		SystemUiHelper.copySystemBars(mActivity, getWindow());
 	}
 }

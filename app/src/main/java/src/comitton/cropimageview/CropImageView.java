@@ -175,6 +175,7 @@ public class CropImageView extends AppCompatImageView {
     }
 
     @Override
+    @SuppressWarnings("deprecation") // API 25 以前の clipRect(Rect, Op)
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas); // 画像は任せて枠だけ自前で描画
         if(mBitmap != null) {
@@ -192,7 +193,6 @@ public class CropImageView extends AppCompatImageView {
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
                 canvas.clipOutRect(mFrameRect);
             } else {
-                //noinspection deprecation
                 canvas.clipRect(mFrameRect, Region.Op.DIFFERENCE);
             }
             canvas.drawRect(0,0,mImageWidth, mImageHeight, mPaintMask);

@@ -131,4 +131,53 @@ public class SystemUiHelper {
             controller.show(WindowInsetsCompat.Type.systemBars());
         }
     }
+
+    /**
+     * Activity のシステムバーの表示状態をダイアログのウィンドウに写す
+     * (setSystemUiVisibility(getSystemUiVisibility()) の置き換え).
+     */
+    public static void copySystemBars(Activity from, Window to) {
+        if (from == null || to == null) return;
+        WindowInsetsCompat insets = androidx.core.view.ViewCompat.getRootWindowInsets(from.getWindow().getDecorView());
+        if (insets == null) return;
+        WindowInsetsControllerCompat controller = WindowCompat.getInsetsController(to, to.getDecorView());
+        controller.setSystemBarsBehavior(WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+        int[] types = {WindowInsetsCompat.Type.statusBars(), WindowInsetsCompat.Type.navigationBars()};
+        for (int type : types) {
+            if (insets.isVisible(type)) {
+                controller.show(type);
+            } else {
+                controller.hide(type);
+            }
+        }
+    }
+
+    /** ナビゲーションバー等を含む画面全体の大きさ (Display.getRealSize の置き換え) */
+    @SuppressWarnings("deprecation")
+    public static android.graphics.Point getRealScreenSize(Activity activity) {
+        android.graphics.Point size = new android.graphics.Point();
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+            android.graphics.Rect bounds = activity.getWindowManager().getMaximumWindowMetrics().getBounds();
+            size.set(bounds.width(), bounds.height());
+        } else {
+            activity.getWindowManager().getDefaultDisplay().getRealSize(size);
+        }
+        return size;
+    }
+
+    /** アプリが使える画面の大きさ (Display.getSize の置き換え. システムバーとカットアウトを除く) */
+    @SuppressWarnings("deprecation")
+    public static android.graphics.Point getAppScreenSize(Activity activity) {
+        android.graphics.Point size = new android.graphics.Point();
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+            android.view.WindowMetrics metrics = activity.getWindowManager().getCurrentWindowMetrics();
+            android.graphics.Insets insets = metrics.getWindowInsets().getInsetsIgnoringVisibility(
+                    android.view.WindowInsets.Type.navigationBars() | android.view.WindowInsets.Type.displayCutout());
+            android.graphics.Rect bounds = metrics.getBounds();
+            size.set(bounds.width() - insets.left - insets.right, bounds.height() - insets.top - insets.bottom);
+        } else {
+            activity.getWindowManager().getDefaultDisplay().getSize(size);
+        }
+        return size;
+    }
 }

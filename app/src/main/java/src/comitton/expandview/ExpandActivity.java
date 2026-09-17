@@ -1,5 +1,7 @@
 package src.comitton.expandview;
 
+import androidx.annotation.Nullable;
+import src.comitton.common.ActivityResultHost;
 import android.os.Looper;
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -61,7 +63,10 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-public class ExpandActivity extends AppCompatActivity implements Handler.Callback, OnScrollListener {
+public class ExpandActivity extends AppCompatActivity implements Handler.Callback, OnScrollListener, ActivityResultHost.Callback, ActivityResultHost.Launcher {
+	// startActivityForResult の代わり. STARTED より前に登録する必要があるのでフィールドで生成する
+	private final ActivityResultHost mResultHost = new ActivityResultHost(this, this);
+
 	private static final String TAG = "ExpandActivity";
 
 	private static final int OPERATE_NONREAD = 0;
@@ -148,6 +153,7 @@ public class ExpandActivity extends AppCompatActivity implements Handler.Callbac
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		mResultHost.restore(savedInstanceState);
 		int logLevel = Logcat.LOG_LEVEL_WARN;
 		Logcat.d(logLevel, "開始します.");
 
@@ -351,9 +357,20 @@ public class ExpandActivity extends AppCompatActivity implements Handler.Callbac
 		return;
 	}
 
+	@Override
+	protected void onSaveInstanceState(@NonNull Bundle outState) {
+		super.onSaveInstanceState(outState);
+		mResultHost.save(outState);
+	}
+
+	@Override
+	public void launchForResult(@NonNull Intent intent, int requestCode) {
+		mResultHost.launch(intent, requestCode);
+	}
+
 	// 画面遷移が戻ってきた時の通知
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		super.onActivityResult(requestCode, resultCode, data);
+	@Override
+	public void onActivityResultCompat(int requestCode, int resultCode, @Nullable Intent data) {
 		int logLevel = Logcat.LOG_LEVEL_WARN;
 		Logcat.d(logLevel, "開始します. requestCode=" + requestCode + ", resultCode=" + resultCode);
 		if (requestCode == DEF.REQUEST_IMAGE) {
@@ -498,7 +515,7 @@ public class ExpandActivity extends AppCompatActivity implements Handler.Callbac
 		intent.putExtra("Pass", mPass);
 		intent.putExtra("File", mFileName);
 		intent.putExtra("Image", image);
-		startActivityForResult(intent, DEF.REQUEST_IMAGE);
+		launchForResult(intent, DEF.REQUEST_IMAGE);
 	}
 
 	private void openTextFile(String text) {
@@ -516,7 +533,7 @@ public class ExpandActivity extends AppCompatActivity implements Handler.Callbac
 		intent.putExtra("Pass", mPass);
 		intent.putExtra("File", mFileName);
 		intent.putExtra("Text", text);
-		startActivityForResult(intent, DEF.REQUEST_TEXT);
+		launchForResult(intent, DEF.REQUEST_TEXT);
 	}
 
 	/*

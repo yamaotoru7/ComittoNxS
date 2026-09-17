@@ -471,8 +471,7 @@ public class ThumbnailLoader {
 		int navigationBarHeight = activity.getResources().getDimensionPixelSize(resourceId);
 
 		if (mPaperSel == DEF.PAPERSEL_SCREEN) {
-			Point point = new Point();
-			activity.getWindowManager().getDefaultDisplay().getRealSize(point);
+			Point point = SystemUiHelper.getRealScreenSize(activity);
 			int cx = point.x;
 			int cy = point.y;
 

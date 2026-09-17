@@ -2451,6 +2451,29 @@ public class DEF {
 		return android.util.TypedValue.applyDimension(android.util.TypedValue.COMPLEX_UNIT_SP, 1f, res.getDisplayMetrics());
 	}
 
+	/** 端末のバイブレータ (無ければ null) */
+	@SuppressWarnings("deprecation")
+	public static android.os.Vibrator getVibrator(Context context) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+			android.os.VibratorManager manager = (android.os.VibratorManager) context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE);
+			return manager != null ? manager.getDefaultVibrator() : null;
+		}
+		return (android.os.Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+	}
+
+	/** 指定時間だけ振動させる */
+	@SuppressWarnings("deprecation")
+	public static void vibrate(android.os.Vibrator vibrator, long millis) {
+		if (vibrator == null || !vibrator.hasVibrator()) {
+			return;
+		}
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			vibrator.vibrate(android.os.VibrationEffect.createOneShot(millis, android.os.VibrationEffect.DEFAULT_AMPLITUDE));
+		} else {
+			vibrator.vibrate(millis);
+		}
+	}
+
 	public static boolean isUiThread() {
 		return Thread.currentThread().equals(Looper.getMainLooper().getThread());
 	}
