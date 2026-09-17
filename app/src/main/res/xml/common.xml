@@ -1,143 +1,142 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    <PreferenceCategory android:title="Common Settings" >
+    <PreferenceCategory android:title="@string/pref_common_preferencecategory1_title" >
         <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"
             android:key="CheckRelease"
-            android:summary="Check regularly to see if new versions have been released."
-            android:title="Check the release" />
+            android:summary="@string/pref_common_CheckRelease_summary"
+            android:title="@string/pref_common_CheckRelease_title" />
         <src.comitton.config.DescCheckBoxPreference
-            android:defaultValue="false"
+            android:defaultValue="true"
             android:key="HiddenFile"
-            android:summary="Do not show files that start with dot."
-            android:title="Not show hidden files in Mac OS X" />
+            android:summary="@string/pref_common_HiddenFile_summary"
+            android:title="@string/pref_common_HiddenFile_title" />
         <src.comitton.config.DescListPreference
-            android:defaultValue="0"
-            android:dialogTitle="Button to rotate the screen"
+            android:defaultValue="1"
+            android:dialogTitle="@string/pref_common_RotateBtn_dialogTitle"
             android:entries="@array/rotatebtn_name_list"
             android:entryValues="@array/rotatebtn_value_list"
             android:key="RotateBtn"
-            android:summary="Buttons the device lacks have no effect"
-            android:title="Button to rotate the screen" />
+            android:summary="@string/pref_common_RotateBtn_summary"
+            android:title="@string/pref_common_RotateBtn_title" />
     </PreferenceCategory>
 
-    <PreferenceCategory android:title="Network" >
+    <PreferenceCategory android:title="@string/pref_common_preferencecategory2_title" >
         <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="false"
             android:key="SmbAllowV1"
-            android:summary="Only SMB 2.0.2 or later is used by default. Enable this for old NAS devices that support SMB1 (CIFS) only. SMB1 has no signing or encryption."
-            android:title="Allow SMB1 connections" />
+            android:summary="@string/pref_common_SmbAllowV1_summary"
+            android:title="@string/pref_common_SmbAllowV1_title" />
     </PreferenceCategory>
 
-
-    <PreferenceCategory android:title="Character Code" >
+    <PreferenceCategory android:title="@string/pref_common_preferencecategory3_title" >
         <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"
             android:key="CharDetect"
-            android:summary="The character code will be automatically detected.\nIf it cannot be detected, the specified character code will be used."
-            android:title="Auto detection" />
-        <src.comitton.config.DescListPreference
-            android:defaultValue="1"
-            android:dialogTitle="Specify the Charset"
-            android:entries="@array/charset_name_list"
-            android:entryValues="@array/charset_value_list"
-            android:key="Charset"
-            android:summary="Auto detection takes precedence when enabled"
-            android:title="Specify the Charset" />
+            android:summary="@string/pref_common_CharDetect_summary"
+            android:title="@string/pref_common_CharDetect_title" />
+    <src.comitton.config.DescListPreference
+        android:defaultValue="1"
+        android:dialogTitle="@string/pref_common_Charset_dialogTitle"
+        android:entries="@array/charset_name_list"
+        android:entryValues="@array/charset_value_list"
+        android:key="Charset"
+        android:summary="@string/pref_common_Charset_summary"
+        android:title="@string/pref_common_Charset_title" />
     </PreferenceCategory>
 
-    <PreferenceCategory android:title="Sort Settings" >
+    <PreferenceCategory android:title="@string/pref_common_preferencecategory4_title" >
         <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"
             android:key="SortByIgnoreWidth"
-            android:summary="Full-width characters are converted to half-width characters before comparison."
-            android:title="Ignore full-width and half-width" />
+            android:summary="@string/pref_common_SortByIgnoreWidth_summary"
+            android:title="@string/pref_common_SortByIgnoreWidth_title" />
         <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"
             android:key="SortByIgnoreCase"
-            android:summary="Lowercase letters [a-z] are converted to uppercase letters [A-Z] before comparison."
-            android:title="Case insensitive" />
+            android:summary="@string/pref_common_SortByIgnoreCase_summary"
+            android:title="@string/pref_common_SortByIgnoreCase_title" />
         <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"
             android:key="SortBySymbol"
-            android:summary="Arranges symbols in an order similar to Windows Explorer."
-            android:title="Change the order of symbols" />
+            android:summary="@string/pref_common_SortBySymbol_summary"
+            android:title="@string/pref_common_SortBySymbol_title" />
         <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"
             android:key="SortByNaturalNumbers"
-            android:summary="Numbers with different digits, such as 0001, are also sorted in ascending order. \nDecimals and comma-separated numbers every three digits are also supported."
-            android:title="Sort by natural numbers" />
+            android:summary="@string/pref_common_SortByNaturalNumbers_summary"
+            android:title="@string/pref_common_SortByNaturalNumbers_title" />
         <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"
             android:key="SortByKanjiNumerals"
-            android:summary="They are arranged in the order of［〇一二三四五六七八九十百千万億兆] or \n[零壱弐参肆伍陸漆捌玖拾什廿卅丗佰仟阡萬]."
-            android:title="Sort by Kanji numbers" />
+            android:summary="@string/pref_common_SortByKanjiNumerals_summary"
+            android:title="@string/pref_common_SortByKanjiNumerals_title" />
         <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"
             android:key="SortByJapaneseVolumeName"
-            android:summary="They are arranged in the order of [上中下] or [前中後]. \n[完短外] is arranged next."
-            android:title="Sort by Japanese volume name" />
+            android:summary="@string/pref_common_SortByJapaneseVolumeName_summary"
+            android:title="@string/pref_common_SortByJapaneseVolumeName_title" />
         <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"
             android:key="SortByFileType"
-            android:summary="Prefer files over directories.\nOnly valid for image viewer and thumbnails."
-            android:title="Give priority to files" />
+            android:summary="@string/pref_common_SortByFileType_summary"
+            android:title="@string/pref_common_SortByFileType_title" />
     </PreferenceCategory>
 
-    <PreferenceCategory android:title="Sorting priority words" >
+    <PreferenceCategory android:title="@string/pref_common_preferencecategory5_title" >
         <Preference
-            android:summary="Treat the priority word as the lowest character in the sort order." />
+            android:summary="@string/pref_common_preference1_summary" />
         <src.comitton.config.DescEditTextPreference
             android:key="SortPriorityWord01"
             android:summary="dummy"
-            android:title="priority word 1"
+            android:title="@string/pref_common_SortPriorityWord01_title"
             android:defaultValue="cover"
-            android:dialogTitle="priority word 1" />
+            android:dialogTitle="@string/pref_common_SortPriorityWord01_dialogTitle" />
         <src.comitton.config.DescEditTextPreference
             android:key="SortPriorityWord02"
             android:summary="dummy"
-            android:title="priority word 2"
-            android:dialogTitle="priority word 2" />
+            android:title="@string/pref_common_SortPriorityWord02_title"
+            android:dialogTitle="@string/pref_common_SortPriorityWord02_dialogTitle" />
         <src.comitton.config.DescEditTextPreference
             android:key="SortPriorityWord03"
             android:summary="dummy"
-            android:title="priority word 3"
-            android:dialogTitle="priority word 3" />
+            android:title="@string/pref_common_SortPriorityWord03_title"
+            android:dialogTitle="@string/pref_common_SortPriorityWord03_dialogTitle" />
         <src.comitton.config.DescEditTextPreference
             android:key="SortPriorityWord04"
             android:summary="dummy"
-            android:title="priority word 4"
-            android:dialogTitle="priority word 4" />
+            android:title="@string/pref_common_SortPriorityWord04_title"
+            android:dialogTitle="@string/pref_common_SortPriorityWord04_dialogTitle" />
         <src.comitton.config.DescEditTextPreference
             android:key="SortPriorityWord05"
             android:summary="dummy"
-            android:title="priority word 5"
-            android:dialogTitle="priority word 5" />
+            android:title="@string/pref_common_SortPriorityWord05_title"
+            android:dialogTitle="@string/pref_common_SortPriorityWord05_dialogTitle" />
         <src.comitton.config.DescEditTextPreference
             android:key="SortPriorityWord06"
             android:summary="dummy"
-            android:title="priority word 6"
-            android:dialogTitle="priority word 6" />
+            android:title="@string/pref_common_SortPriorityWord06_title"
+            android:dialogTitle="@string/pref_common_SortPriorityWord06_dialogTitle" />
         <src.comitton.config.DescEditTextPreference
             android:key="SortPriorityWord07"
             android:summary="dummy"
-            android:title="priority word 7"
-            android:dialogTitle="priority word 7" />
+            android:title="@string/pref_common_SortPriorityWord07_title"
+            android:dialogTitle="@string/pref_common_SortPriorityWord07_dialogTitle" />
         <src.comitton.config.DescEditTextPreference
             android:key="SortPriorityWord08"
             android:summary="dummy"
-            android:title="priority word 8"
-            android:dialogTitle="priority word 8" />
+            android:title="@string/pref_common_SortPriorityWord08_title"
+            android:dialogTitle="@string/pref_common_SortPriorityWord08_dialogTitle" />
         <src.comitton.config.DescEditTextPreference
             android:key="SortPriorityWord09"
             android:summary="dummy"
-            android:title="priority word 9"
-            android:dialogTitle="priority word 9" />
+            android:title="@string/pref_common_SortPriorityWord09_title"
+            android:dialogTitle="@string/pref_common_SortPriorityWord09_dialogTitle" />
         <src.comitton.config.DescEditTextPreference
             android:key="SortPriorityWord10"
             android:summary="dummy"
-            android:title="priority word 10"
-            android:dialogTitle="priority word 10" />
+            android:title="@string/pref_common_SortPriorityWord10_title"
+            android:dialogTitle="@string/pref_common_SortPriorityWord10_dialogTitle" />
     </PreferenceCategory>
 </PreferenceScreen>

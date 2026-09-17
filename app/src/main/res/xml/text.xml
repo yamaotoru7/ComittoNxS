@@ -1,247 +1,247 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
-    <PreferenceCategory android:title="Initial Settings" >
+    <PreferenceCategory android:title="@string/pref_text_preferencecategory1_title" >
         <src.comitton.config.DescListPreference
             android:defaultValue="2"
-            android:dialogTitle="Initial Scale Mode"
+            android:dialogTitle="@string/pref_text_txIniScale_dialogTitle"
             android:entries="@array/txscale_name_list"
             android:entryValues="@array/txscale_value_list"
             android:key="txIniScale"
             android:summary="dummy"
-            android:title="Initial Scale Mode" />
+            android:title="@string/pref_text_txIniScale_title" />
         <src.comitton.config.DescListPreference
             android:defaultValue="2"
-            android:dialogTitle="Initial View Mode"
+            android:dialogTitle="@string/pref_text_txInitView_dialogTitle"
             android:entries="@array/txinitview_name_list"
             android:entryValues="@array/txinitview_value_list"
             android:key="txInitView"
-            android:summary="Continuous scrolls through all pages"
-            android:title="Initial View Mode" />
+            android:summary="@string/pref_text_txInitView_summary"
+            android:title="@string/pref_text_txInitView_title" />
         <src.comitton.config.DescListPreference
             android:defaultValue="0"
-            android:dialogTitle="Paper Size"
+            android:dialogTitle="@string/pref_text_txPaperSize_dialogTitle"
             android:entries="@array/txpaper_name_list"
             android:entryValues="@array/txpaper_value_list"
             android:key="txPaperSize"
-            android:summary="Screen (portrait) follows the device screen"
-            android:title="Paper Size" />
+            android:summary="@string/pref_text_txPaperSize_summary"
+            android:title="@string/pref_text_txPaperSize_title" />
     </PreferenceCategory>
-    <PreferenceCategory android:title="Display Settings(* is common to the image setting)" >
+    <PreferenceCategory android:title="@string/pref_text_preferencecategory2_title" >
         <src.comitton.config.DescListPreference
             android:defaultValue="0"
-            android:dialogTitle="Illustrations Size"
+            android:dialogTitle="@string/pref_text_txPicSize_dialogTitle"
             android:entries="@array/txpic_name_list"
             android:entryValues="@array/txpic_value_list"
             android:key="txPicSize"
             android:summary="dummy"
-            android:title="Illustrations Size" />
+            android:title="@string/pref_text_txPicSize_title" />
         <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"
             android:key="txNotice"
-            android:summary="Required Restart"
-            android:title="Hide the Notification Area" />
+            android:summary="@string/pref_text_txNotice_summary"
+            android:title="@string/pref_text_txNotice_title" />
         <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="false"
             android:key="txNoSleep"
-            android:summary="Required Restart"
-            android:title="Not To Sleep" />
+            android:summary="@string/pref_text_txNoSleep_summary"
+            android:title="@string/pref_text_txNoSleep_title" />
         <src.comitton.config.DescListPreference
             android:defaultValue="0"
-            android:dialogTitle="Screen Orientation"
+            android:dialogTitle="@string/pref_text_txViewRota_dialogTitle"
             android:entries="@array/rotate_name_list"
             android:entryValues="@array/rotate_value_list"
             android:key="txViewRota"
             android:summary="dummy"
-            android:title="Screen orientation" />
+            android:title="@string/pref_text_txViewRota_title" />
         <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"
             android:key="txCMargin"
-            android:summary="Insert Margin in the middle of Dual View"
-            android:title="Center Margin" />
+            android:summary="@string/pref_text_txCMargin_summary"
+            android:title="@string/pref_text_txCMargin_title" />
         <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="false"
             android:key="txCShadow"
-            android:summary="Draw a shadow in the middle of Dual View"
-            android:title="Draw Shadow" />
+            android:summary="@string/pref_text_txCShadow_summary"
+            android:title="@string/pref_text_txCShadow_title" />
         <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"
             android:key="txEffect"
-            android:summary="When you scroll through page turns"
-            android:title="Page turning effect" />
+            android:summary="@string/pref_text_txEffect_summary"
+            android:title="@string/pref_text_txEffect_title" />
         <src.comitton.config.seekbar.TextScrlRngWSeekbar
-            android:dialogMessage="Scroll Width of Vol-Button, etc."
-            android:dialogTitle="Scroll Range (Width)"
+            android:dialogMessage="@string/pref_text_txScrlRngW_dialogMessage"
+            android:dialogTitle="@string/pref_text_txScrlRngW_dialogTitle"
             android:key="txScrlRngW"
             android:negativeButtonText="@null"
             android:summary="dummy"
-            android:title="Scroll Range (Width)" />
+            android:title="@string/pref_text_txScrlRngW_title" />
         <src.comitton.config.seekbar.TextScrlRngHSeekbar
-            android:dialogMessage="Scroll Height of Vol-Button, etc."
-            android:dialogTitle="Scroll Range (Height)"
+            android:dialogMessage="@string/pref_text_txScrlRngH_dialogMessage"
+            android:dialogTitle="@string/pref_text_txScrlRngH_dialogTitle"
             android:key="txScrlRngH"
             android:negativeButtonText="@null"
             android:summary="dummy"
-            android:title="Scroll Range (Height)" />
+            android:title="@string/pref_text_txScrlRngH_title" />
         <src.comitton.config.DescListPreference
             android:defaultValue="0"
-            android:dialogTitle="First Image Position"
+            android:dialogTitle="@string/pref_text_ViewPt_dialogTitle"
             android:entries="@array/viewpt_name_list"
             android:entryValues="@array/viewpt_value_list"
             android:key="ViewPt"
-            android:summary="Top-right is usual for right-to-left books"
-            android:title="First Image Position(*)" />
+            android:summary="@string/pref_text_ViewPt_summary"
+            android:title="@string/pref_text_ViewPt_title" />
         <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"
             android:key="PrevRev"
-            android:summary="To return to the previous page is opposed to the horizontal display position"
-            android:title="PrevPage to Reverse Position(*)" />
+            android:summary="@string/pref_text_PrevRev_summary"
+            android:title="@string/pref_text_PrevRev_title" />
         <src.comitton.config.TimeAndBatteryPreference
-            android:dialogTitle="Time and Battery"
+            android:dialogTitle="@string/pref_text_TimeAndBattery_dialogTitle"
             android:key="TimeAndBattery"
             android:negativeButtonText="@null"
             android:summary="dummy"
-            android:title="Time and Buttery(*)" />
+            android:title="@string/pref_text_TimeAndBattery_title" />
     </PreferenceCategory>
-    <PreferenceCategory android:title="Operation Settings(* is common to the image setting)" >
+    <PreferenceCategory android:title="@string/pref_text_preferencecategory3_title" >
         <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"
             android:key="ConfirmBack"
-            android:summary="Display a confirmation message when you exit via the back button."
-            android:title="Confirmation on exit(*)" />
+            android:summary="@string/pref_text_ConfirmBack_summary"
+            android:title="@string/pref_text_ConfirmBack_title" />
         <src.comitton.config.DescListPreference
             android:defaultValue="1"
-            android:dialogTitle="Operation in last/top page"
+            android:dialogTitle="@string/pref_text_LastPage_dialogTitle"
             android:entries="@array/lastpage_name_list"
             android:entryValues="@array/lastpage_value_list"
             android:key="LastPage"
             android:summary="dummy"
-            android:title="Operation in last/top page(*)" />
+            android:title="@string/pref_text_LastPage_title" />
         <src.comitton.config.OperationPreference
-            android:dialogMessage="Please select the location tap page turning.\n(&lt;:Next Page, &gt;:Prev Page)"
-            android:dialogTitle="Pattern of tap position"
+            android:dialogMessage="@string/pref_text_TapPattern_dialogMessage"
+            android:dialogTitle="@string/pref_text_TapPattern_dialogTitle"
             android:key="TapPattern"
             android:negativeButtonText="@null"
             android:summary="dummy"
-            android:title="Pattern of tap position(*)" />
+            android:title="@string/pref_text_TapPattern_title" />
         <src.comitton.config.DescCheckBoxPreference
-            android:defaultValue="false"
+            android:defaultValue="true"
             android:key="ChgPage"
-            android:summary="When checked, the right of the screen will move to the previous page."
-            android:title="Swap the tap operation(*)" />
+            android:summary="@string/pref_text_ChgPage_summary"
+            android:title="@string/pref_text_ChgPage_title" />
         <!--CheckBoxPreference
             android:defaultValue="false"
             android:key="OldPageSel"
-            android:summary="When checked, the page selection method will be to drag the bottom of the screen."
-            android:title="Old type selection page(*)" /-->
+            android:summary="チェックにより画面下部をドラッグする方式のページ選択になります"
+            android:title="旧タイプのページ選択＊" /-->
         <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="false"
             android:key="VibFlag"
-            android:summary="Vibrate according to the operation"
-            android:title="Vibrate by operation(*)" />
+            android:summary="@string/pref_text_VibFlag_summary"
+            android:title="@string/pref_text_VibFlag_title" />
         <src.comitton.config.DescListPreference
             android:defaultValue="1"
-            android:dialogTitle="Operation by Vol Key"
+            android:dialogTitle="@string/pref_text_VolKey_dialogTitle"
             android:entries="@array/volkey_name_list"
             android:entryValues="@array/volkey_value_list"
             android:key="VolKey"
             android:summary="dummy"
-            android:title="Operation by Vol Key(*)" />
+            android:title="@string/pref_text_VolKey_title" />
         <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="false"
             android:key="TapScrl"
-            android:summary="Also perform scroll by tapping."
-            android:title="Scrolling with the tap(*)" />
+            android:summary="@string/pref_text_TapScrl_summary"
+            android:title="@string/pref_text_TapScrl_title" />
         <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"
             android:key="FlickPage"
-            android:summary="move to next / prev page by flicking."
-            android:title="move page with the flick(*)" />
+            android:summary="@string/pref_text_FlickPage_summary"
+            android:title="@string/pref_text_FlickPage_title" />
         <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"
             android:key="FlickEdge"
-            android:summary="To page turning only when you flick from the edge of the page."
-            android:title="Flick from the edge(*)" />
+            android:summary="@string/pref_text_FlickEdge_summary"
+            android:title="@string/pref_text_FlickEdge_title" />
         <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="false"
             android:key="ChgFlick"
-            android:summary="When checked, the flick in the direction of the front cover will move to the previous page."
-            android:title="Swap the flick operation(*)" />
+            android:summary="@string/pref_text_ChgFlick_summary"
+            android:title="@string/pref_text_ChgFlick_title" />
         <src.comitton.config.DescListPreference
             android:defaultValue="1"
-            android:dialogTitle="Page select operation"
+            android:dialogTitle="@string/pref_text_txPageSelect_dialogTitle"
             android:entries="@array/txpagesel_name_list"
             android:entryValues="@array/txpagesel_value_list"
             android:key="txPageSelect"
             android:summary="dummy"
-            android:title="Page select operation(*)" />
+            android:title="@string/pref_text_txPageSelect_title" />
         <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="false"
             android:key="ChgPageKey"
-            android:summary="When checked, right key will move to the previous page."
-            android:title="Swap the LR key operation(*)" />
+            android:summary="@string/pref_text_ChgPageKey_summary"
+            android:title="@string/pref_text_ChgPageKey_title" />
     </PreferenceCategory>
-    <PreferenceCategory android:title="Font Settings" >
+    <PreferenceCategory android:title="@string/pref_text_preferencecategory4_title" >
         <src.comitton.config.DescListPreference
             android:defaultValue=""
-            android:dialogTitle="Select Font (Select from [sdcard]/comittona/font/)"
+            android:dialogTitle="@string/pref_text_txFontName_dialogTitle"
             android:key="txFontName"
-            android:summary="ttf/otf files in [sdcard]/comittona/font/"
-            android:title="Select Font" />
+            android:summary="@string/pref_text_txFontName_summary"
+            android:title="@string/pref_text_txFontName_title" />
         <src.comitton.config.seekbar.TextFontTopSeekbar
-            android:dialogMessage="Select font size of head."
-            android:dialogTitle="Head Font Size"
+            android:dialogMessage="@string/pref_text_txFontTopSp_dialogMessage"
+            android:dialogTitle="@string/pref_text_txFontTopSp_dialogTitle"
             android:key="txFontTopSp"
             android:negativeButtonText="@null"
             android:summary="dummy"
-            android:title="Head Font Size" />
+            android:title="@string/pref_text_txFontTopSp_title" />
         <src.comitton.config.seekbar.TextFontBodySeekbar
-            android:dialogMessage="Select font size of body."
-            android:dialogTitle="Body Font Size"
+            android:dialogMessage="@string/pref_text_txFontBodySp_dialogMessage"
+            android:dialogTitle="@string/pref_text_txFontBodySp_dialogTitle"
             android:key="txFontBodySp"
             android:negativeButtonText="@null"
             android:summary="dummy"
-            android:title="Body Font Size" />
+            android:title="@string/pref_text_txFontBodySp_title" />
         <src.comitton.config.seekbar.TextFontRubiSeekbar
-            android:dialogMessage="Select font size of Rubi."
-            android:dialogTitle="Rubi Font Size"
+            android:dialogMessage="@string/pref_text_txFontRubiSp_dialogMessage"
+            android:dialogTitle="@string/pref_text_txFontRubiSp_dialogTitle"
             android:key="txFontRubiSp"
             android:negativeButtonText="@null"
             android:summary="dummy"
-            android:title="Rubi Font Size" />
+            android:title="@string/pref_text_txFontRubiSp_title" />
         <src.comitton.config.seekbar.TextFontInfoSeekbar
-            android:dialogMessage="Select font size of Information."
-            android:dialogTitle="Information Font Size"
+            android:dialogMessage="@string/pref_text_txFontInfoSp_dialogMessage"
+            android:dialogTitle="@string/pref_text_txFontInfoSp_dialogTitle"
             android:key="txFontInfoSp"
             android:negativeButtonText="@null"
             android:summary="dummy"
-            android:title="Information Font Size" />
+            android:title="@string/pref_text_txFontInfoSp_title" />
         <src.comitton.config.seekbar.TextSpaceWSeekbar
-            android:dialogMessage="Select size of Lines between."
-            android:dialogTitle="Lines between Size"
+            android:dialogMessage="@string/pref_text_txSpaceW_dialogMessage"
+            android:dialogTitle="@string/pref_text_txSpaceW_dialogTitle"
             android:key="txSpaceW"
             android:negativeButtonText="@null"
             android:summary="dummy"
-            android:title="Lines between Size" />
+            android:title="@string/pref_text_txSpaceW_title" />
         <src.comitton.config.seekbar.TextSpaceHSeekbar
-            android:dialogMessage="Select size of Characters between."
-            android:dialogTitle="Characters between Size"
+            android:dialogMessage="@string/pref_text_txSpaceH_dialogMessage"
+            android:dialogTitle="@string/pref_text_txSpaceH_dialogTitle"
             android:key="txSpaceH"
             android:negativeButtonText="@null"
             android:summary="dummy"
-            android:title="Characters between Size" />
+            android:title="@string/pref_text_txSpaceH_title" />
         <src.comitton.config.seekbar.TextMarginWSeekbar
-            android:dialogMessage="Select size of Left and Right Margins."
-            android:dialogTitle="Left and Right Margins Size"
+            android:dialogMessage="@string/pref_text_txMarginW_dialogMessage"
+            android:dialogTitle="@string/pref_text_txMarginW_dialogTitle"
             android:key="txMarginW"
             android:negativeButtonText="@null"
             android:summary="dummy"
-            android:title="Left and Right Margins Size" />
+            android:title="@string/pref_text_txMarginW_title" />
         <src.comitton.config.seekbar.TextMarginHSeekbar
-            android:dialogMessage="Select size of Top and Bottom Margins."
-            android:dialogTitle="Top and Bottom Margins Size"
+            android:dialogMessage="@string/pref_text_txMarginH_dialogMessage"
+            android:dialogTitle="@string/pref_text_txMarginH_dialogTitle"
             android:key="txMarginH"
             android:negativeButtonText="@null"
             android:summary="dummy"
-            android:title="Top and Bottom Margins Size" />
+            android:title="@string/pref_text_txMarginH_title" />
     </PreferenceCategory>
 </PreferenceScreen>

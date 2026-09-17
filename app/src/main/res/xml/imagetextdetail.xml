@@ -1,97 +1,97 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
-    <PreferenceCategory android:title="View Settings" >
+    <PreferenceCategory android:title="@string/pref_imagetextdetail_preferencecategory1_title" >
         <src.comitton.config.seekbar.MarginSeekbar
-            android:dialogMessage="Select end of scroll margin size."
-            android:dialogTitle="Margin Size"
+            android:dialogMessage="@string/pref_imagetextdetail_Mergin_dialogMessage"
+            android:dialogTitle="@string/pref_imagetextdetail_Mergin_dialogTitle"
             android:key="Mergin"
             android:negativeButtonText="@null"
-            android:summary="Margin that marks the end of scrolling"
-            android:title="Margin Size" />
+            android:summary="@string/pref_imagetextdetail_Mergin_summary"
+            android:title="@string/pref_imagetextdetail_Mergin_title" />
         <src.comitton.config.seekbar.CenterSeekbar
-            android:dialogMessage="Margin width in the middle of Dual View."
-            android:dialogTitle="Center Margin Width"
+            android:dialogMessage="@string/pref_imagetextdetail_Center_dialogMessage"
+            android:dialogTitle="@string/pref_imagetextdetail_Center_dialogTitle"
             android:key="Center"
             android:negativeButtonText="@null"
             android:summary="dummy"
-            android:title="Center Margin Width" />
+            android:title="@string/pref_imagetextdetail_Center_title" />
         <src.comitton.config.seekbar.GradationSeekbar
-            android:dialogMessage="Percentage of Shadows width in the single page."
-            android:dialogTitle="Shadow Width"
+            android:dialogMessage="@string/pref_imagetextdetail_Gradation_dialogMessage"
+            android:dialogTitle="@string/pref_imagetextdetail_Gradation_dialogTitle"
             android:key="Gradation"
             android:negativeButtonText="@null"
             android:summary="dummy"
-            android:title="Shadow Width" />
+            android:title="@string/pref_imagetextdetail_Gradation_title" />
         <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="false"
             android:key="ImmEnable"
-            android:summary="Hide the navigation bar at the terminal of KitKat later."
-            android:title="Enable Immersive Mode" />
+            android:summary="@string/pref_imagetextdetail_ImmEnable_summary"
+            android:title="@string/pref_imagetextdetail_ImmEnable_title" />
         <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="false"
             android:key="OldMenu"
-            android:summary="Menu to select the command in a single action."
-            android:title="Old type on the top menu." />
+            android:summary="@string/pref_imagetextdetail_OldMenu_summary"
+            android:title="@string/pref_imagetextdetail_OldMenu_title" />
     </PreferenceCategory>
-    <PreferenceCategory android:title="Operation Settings" >
+    <PreferenceCategory android:title="@string/pref_imagetextdetail_preferencecategory2_title" >
         <src.comitton.config.seekbar.EffectTimeSeekbar
-            android:dialogMessage="Effect time at turning page"
-            android:dialogTitle="Effect Time"
+            android:dialogMessage="@string/pref_imagetextdetail_EffectTime_dialogMessage"
+            android:dialogTitle="@string/pref_imagetextdetail_EffectTime_dialogTitle"
             android:key="EffectTime"
             android:negativeButtonText="@null"
             android:summary="dummy"
-            android:title="Effect Time" />
+            android:title="@string/pref_imagetextdetail_EffectTime_title" />
         <src.comitton.config.seekbar.ScrollSeekbar
-            android:dialogMessage="To drag ratio of the amount of scrolling."
-            android:dialogTitle="Image Scroll Speed"
+            android:dialogMessage="@string/pref_imagetextdetail_Scroll_dialogMessage"
+            android:dialogTitle="@string/pref_imagetextdetail_Scroll_dialogTitle"
             android:key="Scroll"
             android:negativeButtonText="@null"
-            android:summary="Multiplier applied to the drag distance"
-            android:title="Scrolling Speed" />
+            android:summary="@string/pref_imagetextdetail_Scroll_summary"
+            android:title="@string/pref_imagetextdetail_Scroll_title" />
         <src.comitton.config.seekbar.ClickAreaSeekbar
-            android:dialogMessage="Set the scaling size for the operation area."
-            android:dialogTitle="Operation Area Size"
+            android:dialogMessage="@string/pref_imagetextdetail_ClickAreaSp_dialogMessage"
+            android:dialogTitle="@string/pref_imagetextdetail_ClickAreaSp_dialogTitle"
             android:key="ClickAreaSp"
             android:negativeButtonText="@null"
             android:summary="dummy"
-            android:title="Operation Area Size" />
+            android:title="@string/pref_imagetextdetail_ClickAreaSp_title" />
         <src.comitton.config.seekbar.PageRangeSeekbar
-            android:dialogMessage="Page selection sensitivity at the bottom of the screen."
-            android:dialogTitle="Page Change Sensitivity"
+            android:dialogMessage="@string/pref_imagetextdetail_PageRangeSp_dialogMessage"
+            android:dialogTitle="@string/pref_imagetextdetail_PageRangeSp_dialogTitle"
             android:key="PageRangeSp"
             android:negativeButtonText="@null"
-            android:summary="Drag distance needed to move one page"
-            android:title="Page Selection Sensitivity" />
+            android:summary="@string/pref_imagetextdetail_PageRangeSp_summary"
+            android:title="@string/pref_imagetextdetail_PageRangeSp_title" />
         <src.comitton.config.seekbar.TapRangeSeekbar
-            android:dialogMessage="The sensitivity of the scroll by dragging the start."
-            android:dialogTitle="Scroll Start Sensitivity"
+            android:dialogMessage="@string/pref_imagetextdetail_TapRangeSp_dialogMessage"
+            android:dialogTitle="@string/pref_imagetextdetail_TapRangeSp_dialogTitle"
             android:key="TapRangeSp"
             android:negativeButtonText="@null"
-            android:summary="Movement beyond this starts a scroll"
-            android:title="Scroll Start Sensitivity" />
+            android:summary="@string/pref_imagetextdetail_TapRangeSp_summary"
+            android:title="@string/pref_imagetextdetail_TapRangeSp_title" />
         <src.comitton.config.seekbar.VolScrlSeekbar
-            android:dialogMessage="Scroll Speed of Tap or Vol-Button Operation."
-            android:dialogTitle="Scroll Speed"
+            android:dialogMessage="@string/pref_imagetextdetail_VolScrlSp_dialogMessage"
+            android:dialogTitle="@string/pref_imagetextdetail_VolScrlSp_dialogTitle"
             android:key="VolScrlSp"
             android:negativeButtonText="@null"
-            android:summary="Applies to tap scrolling and volume keys"
-            android:title="Scroll Speed" />
+            android:summary="@string/pref_imagetextdetail_VolScrlSp_summary"
+            android:title="@string/pref_imagetextdetail_VolScrlSp_title" />
         <src.comitton.config.seekbar.MomentModeSeekbar
-            android:dialogMessage="Immediately stop the smaller."
-            android:dialogTitle="Slowdown Amount"
+            android:dialogMessage="@string/pref_imagetextdetail_MomentMode_dialogMessage"
+            android:dialogTitle="@string/pref_imagetextdetail_MomentMode_dialogTitle"
             android:key="MomentMode"
             android:negativeButtonText="@null"
-            android:summary="Smaller values stop sooner"
-            android:title="Amount of Slowdown" />
+            android:summary="@string/pref_imagetextdetail_MomentMode_summary"
+            android:title="@string/pref_imagetextdetail_MomentMode_title" />
         <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"
             android:key="BottomFile"
-            android:summary="Enable to change file by screen bottom Operation."
-            android:title="Enable File Change" />
+            android:summary="@string/pref_imagetextdetail_BottomFile_summary"
+            android:title="@string/pref_imagetextdetail_BottomFile_title" />
         <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"
             android:key="PinchEnable"
-            android:summary="Enable the change of display size by pinch operation."
-            android:title="Pinch Operation" />
+            android:summary="@string/pref_imagetextdetail_PinchEnable_summary"
+            android:title="@string/pref_imagetextdetail_PinchEnable_title" />
     </PreferenceCategory>
 </PreferenceScreen>

@@ -1,26 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
-    <PreferenceCategory android:title="Settings for Memory Cache" >
+    <PreferenceCategory android:title="@string/pref_cache_preferencecategory1_title" >
         <src.comitton.config.seekbar.MemSizeSeekbar
-            android:dialogMessage="The size of the memory used to cache. (Too large to hang.)"
-            android:dialogTitle="Memory Cache Size"
+            android:dialogMessage="@string/pref_cache_MemSize_dialogMessage"
+            android:dialogTitle="@string/pref_cache_MemSize_dialogTitle"
             android:key="MemSize"
             android:negativeButtonText="@null"
-            android:summary="Too large a value may crash the app"
-            android:title="Memory Cache Size" />
+            android:summary="@string/pref_cache_MemSize_summary"
+            android:title="@string/pref_cache_MemSize_title" />
         <src.comitton.config.seekbar.MemNextSeekbar
-            android:dialogMessage="Number of pages to be cached on the following pages."
-            android:dialogTitle="Cache Pages (Next)"
+            android:dialogMessage="@string/pref_cache_MemNext_dialogMessage"
+            android:dialogTitle="@string/pref_cache_MemNext_dialogTitle"
             android:key="MemNext"
             android:negativeButtonText="@null"
             android:summary="dummy"
-            android:title="Cache Pages (Next)" />
+            android:title="@string/pref_cache_MemNext_title" />
         <src.comitton.config.seekbar.MemPrevSeekbar
-            android:dialogMessage="Number of pages to the cache before the previous page."
-            android:dialogTitle="Cache Pages (Prev)"
+            android:dialogMessage="@string/pref_cache_MemPrev_dialogMessage"
+            android:dialogTitle="@string/pref_cache_MemPrev_dialogTitle"
             android:key="MemPrev"
             android:negativeButtonText="@null"
             android:summary="dummy"
-            android:title="Cache Pages (Prev)" />
+            android:title="@string/pref_cache_MemPrev_title" />
     </PreferenceCategory>
 </PreferenceScreen>

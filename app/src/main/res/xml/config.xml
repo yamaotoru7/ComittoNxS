@@ -1,114 +1,113 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
-    <PreferenceCategory>
+    <PreferenceCategory android:title="@string/pref_config_preferencecategory1_title" >
         <PreferenceScreen
             android:key="FileListSet"
-            android:title="Settings for File List"
-            android:summary="Setting the display and operation of the File List when it starts." >
+            android:title="@string/pref_config_FileListSet_title"
+            android:summary="@string/pref_config_FileListSet_summary" >
             <intent
                 android:targetClass="src.comitton.config.SetFileListActivity"
                 android:targetPackage="@string/application_id" />
         </PreferenceScreen>
         <PreferenceScreen
             android:key="RecorderSet"
-            android:title="Settings for Recoder"
-            android:summary="Setting the display and behavior of directory/bookmark/history lists." >
-
-        <intent
+            android:title="@string/pref_config_RecorderSet_title"
+            android:summary="@string/pref_config_RecorderSet_summary" >
+            <intent
                 android:targetClass="src.comitton.config.SetRecorderActivity"
                 android:targetPackage="@string/application_id" />
         </PreferenceScreen>
         <PreferenceScreen
             android:key="FileColor"
-            android:title="Color Settings for File List"
-            android:summary="Setting the display color of the File List." >
+            android:title="@string/pref_config_FileColor_title"
+            android:summary="@string/pref_config_FileColor_summary" >
             <intent
                 android:targetClass="src.comitton.config.SetFileColorActivity"
                 android:targetPackage="@string/application_id" />
         </PreferenceScreen>
     </PreferenceCategory>
-    <PreferenceCategory android:title="Image &amp; Text Viewer Settings" >
+    <PreferenceCategory android:title="@string/pref_config_preferencecategory2_title" >
         <PreferenceScreen
             android:key="ImageSet"
-            android:title="Settings for Image Viewer"
-            android:summary="Setting the display and operation when the Image Viewer starts." >
+            android:title="@string/pref_config_ImageSet_title"
+            android:summary="@string/pref_config_ImageSet_summary" >
             <intent
                 android:targetClass="src.comitton.config.SetImageActivity"
                 android:targetPackage="@string/application_id" />
         </PreferenceScreen>
         <PreferenceScreen
             android:key="DetailSet"
-            android:title="Detail Settings for Image Viewer"
-            android:summary="Sets parameters that affect the behavior of the Image Viewer." >
+            android:title="@string/pref_config_DetailSet_title"
+            android:summary="@string/pref_config_DetailSet_summary" >
             <intent
                 android:targetClass="src.comitton.config.SetImageDetailActivity"
                 android:targetPackage="@string/application_id" />
         </PreferenceScreen>
         <PreferenceScreen
             android:key="TextSet"
-            android:title="Settings for Text Viewer"
-            android:summary="Setting the display and operation of the Text Viewer when it starts." >
+            android:title="@string/pref_config_TextSet_title"
+            android:summary="@string/pref_config_TextSet_summary" >
             <intent
                 android:targetClass="src.comitton.config.SetTextActivity"
                 android:targetPackage="@string/application_id" />
         </PreferenceScreen>
         <PreferenceScreen
             android:key="EpubSet"
-            android:title="Settings for EPUB"
-            android:summary="Setting the display method for EPUB files." >
+            android:title="@string/pref_config_EpubSet_title"
+            android:summary="@string/pref_config_EpubSet_summary" >
             <intent
                 android:targetClass="src.comitton.config.SetEpubActivity"
                 android:targetPackage="@string/application_id" />
         </PreferenceScreen>
         <PreferenceScreen
-            android:key="ImTxDetailSet"
-            android:title="Detail Settings for Image &amp; Text"
-            android:summary="Setting common parameters for Image/Text Viewer." >
+            android:key="ImageTextDetailSet"
+            android:title="@string/pref_config_ImageTextDetailSet_title"
+            android:summary="@string/pref_config_ImageTextDetailSet_summary" >
             <intent
                 android:targetClass="src.comitton.config.SetImageTextDetailActivity"
                 android:targetPackage="@string/application_id" />
         </PreferenceScreen>
         <PreferenceScreen
-            android:key="ImageTextColor"
-            android:title="Color Settings for Image &amp; Text"
-            android:summary="Setting the display color of the Image/Text Viewer." >
+            android:key="ImageColor"
+            android:title="@string/pref_config_ImageColor_title"
+            android:summary="@string/pref_config_ImageColor_summary" >
             <intent
                 android:targetClass="src.comitton.config.SetImageTextColorActivity"
                 android:targetPackage="@string/application_id" />
         </PreferenceScreen>
     </PreferenceCategory>
-    <PreferenceCategory android:title="Common" >
+    <PreferenceCategory android:title="@string/pref_config_preferencecategory3_title" >
         <PreferenceScreen
             android:key="CommOpeSet"
-            android:title="Settings for Common Operation"
-            android:summary="Setting common operations for each screen." >
+            android:title="@string/pref_config_CommOpeSet_title"
+            android:summary="@string/pref_config_CommOpeSet_summary" >
             <intent
                 android:targetClass="src.comitton.config.SetCommonActivity"
                 android:targetPackage="@string/application_id" />
         </PreferenceScreen>
     </PreferenceCategory>
-    <PreferenceCategory android:title="Other Settings" >
+    <PreferenceCategory android:title="@string/pref_config_preferencecategory4_title" >
         <PreferenceScreen
             android:key="MemoryCache"
-            android:title="Settings for memory cache"
-            android:summary="Set parameters for memory cache size and number of pages (Required Restart)." >
+            android:title="@string/pref_config_MemoryCache_title"
+            android:summary="@string/pref_config_MemoryCache_summary" >
             <intent
                 android:targetClass="src.comitton.config.SetCacheActivity"
                 android:targetPackage="@string/application_id" />
         </PreferenceScreen>
     </PreferenceCategory>
-    <PreferenceCategory android:title="Save settings to file" >
+    <PreferenceCategory android:title="@string/pref_config_preferencecategory5_title" >
         <src.comitton.config.ExportSettingPreference
-            android:dialogTitle="Save settings to file"
-            android:dialogMessage="Select or enter a file and click OK to save\n(Do not enter the extension.)"
-            android:key="ExportSetting"   
-            android:summary="Export to a file the current settings.\n (output file : [sdcard]/comittona/conf/*.set)"
-            android:title="Save settings to file" />  
+            android:dialogTitle="@string/pref_config_ExportSetting_dialogTitle"
+            android:dialogMessage="@string/pref_config_ExportSetting_dialogMessage"
+            android:key="ExportSetting"
+            android:summary="@string/pref_config_ExportSetting_summary"
+            android:title="@string/pref_config_ExportSetting_title" />
         <src.comitton.config.ImportSettingPreference
-            android:dialogTitle="Load setting from file"
-            android:dialogMessage="Select the file and click OK to apply"
+            android:dialogTitle="@string/pref_config_ImportSetting_dialogTitle"
+            android:dialogMessage="@string/pref_config_ImportSetting_dialogMessage"
             android:key="ImportSetting"
-            android:summary="Overwrite the current settings with the contents of the select file.\n (reference file : [sdcard]/comittona/conf/*.set)"
-            android:title="Load setting from file" />
+            android:summary="@string/pref_config_ImportSetting_summary"
+            android:title="@string/pref_config_ImportSetting_title" />
     </PreferenceCategory>
 </PreferenceScreen>

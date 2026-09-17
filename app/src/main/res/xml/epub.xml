@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
-    <PreferenceCategory android:title="Viewer Settings" >
+    <PreferenceCategory android:title="@string/pref_epub_preferencecategory1_title" >
         <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="false"
             android:key="epubViewer"
-            android:summary="Opens EPUB files in Image Viewer instead of Text Viewer."
-            android:title="Open in Image Viewer" />
+            android:summary="@string/pref_epub_epubViewer_summary"
+            android:title="@string/pref_epub_epubViewer_title" />
+        <src.comitton.config.DescCheckBoxPreference
+            android:defaultValue="true"
+            android:key="epubOrder"
+            android:summary="@string/pref_epub_epubOrder_summary"
+            android:title="@string/pref_epub_epubOrder_title" />
+        <src.comitton.config.DescCheckBoxPreference
+            android:defaultValue="true"
+            android:key="epubThumb"
+            android:summary="@string/pref_epub_epubThumb_summary"
+            android:title="@string/pref_epub_epubThumb_title" />
     </PreferenceCategory>
-    <src.comitton.config.DescCheckBoxPreference
-        android:defaultValue="true"
-        android:key="epubOrder"
-        android:summary="Follow the display order specified in the Epub file when opening the Epub file in the Imaeg Viewer."
-        android:title="Image Viewer Display Order" />
-    <src.comitton.config.DescCheckBoxPreference
-        android:defaultValue="true"
-        android:key="epubThumb"
-        android:summary="Use the cover image specified in the EPUB file as the thumbnail on the File List."
-        android:title="Use cover image as thumbnail" />
 </PreferenceScreen>

@@ -1,77 +1,77 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
-    <PreferenceCategory android:title="View Settings" >
+    <PreferenceCategory android:title="@string/pref_imagedetail_preferencecategory1_title" >
         <src.comitton.config.seekbar.WAdjustSeekbar
-            android:dialogMessage="Adjust the display&apos;s aspect ratio when the landscape."
-            android:dialogTitle="Aspect Ratio"
+            android:dialogMessage="@string/pref_imagedetail_WAdjust_dialogMessage"
+            android:dialogTitle="@string/pref_imagedetail_WAdjust_dialogTitle"
             android:key="WAdjust"
             android:negativeButtonText="@null"
-            android:summary="Width to height ratio when held landscape"
-            android:title="Aspect Ratie" />
+            android:summary="@string/pref_imagedetail_WAdjust_summary"
+            android:title="@string/pref_imagedetail_WAdjust_title" />
         <src.comitton.config.seekbar.WScalingSeekbar
-            android:dialogMessage="Adjust the width of the iamge."
-            android:dialogTitle="Image Width"
+            android:dialogMessage="@string/pref_imagedetail_WScaling_dialogMessage"
+            android:dialogTitle="@string/pref_imagedetail_WScaling_dialogTitle"
             android:key="WScaling"
             android:negativeButtonText="@null"
             android:summary="dummy"
-            android:title="Image Width" />
+            android:title="@string/pref_imagedetail_WScaling_title" />
         <src.comitton.config.seekbar.ScalingSeekbar
-            android:dialogMessage="Scale image to specified size"
-            android:dialogTitle="Image scaling"
+            android:dialogMessage="@string/pref_imagedetail_Scaling_dialogMessage"
+            android:dialogTitle="@string/pref_imagedetail_Scaling_dialogTitle"
             android:key="Scaling"
             android:negativeButtonText="@null"
             android:summary="dummy"
-            android:title="Image scaling" />
+            android:title="@string/pref_imagedetail_Scaling_title" />
         <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"
             android:key="AccessLamp"
-            android:summary="To view the status of reading in the upper left corner"
-            android:title="View the status file reading" />
+            android:summary="@string/pref_imagedetail_AccessLamp_summary"
+            android:title="@string/pref_imagedetail_AccessLamp_title" />
     </PreferenceCategory>
-    <PreferenceCategory android:title="Operation Settings" >
+    <PreferenceCategory android:title="@string/pref_imagedetail_preferencecategory2_title" >
         <src.comitton.config.seekbar.LongTapSeekbar
-            android:dialogMessage="Time to select the Loupe view in the long tap."
-            android:dialogTitle="Time to Loupe view"
+            android:dialogMessage="@string/pref_imagedetail_LongTap_dialogMessage"
+            android:dialogTitle="@string/pref_imagedetail_LongTap_dialogTitle"
             android:key="LongTap"
             android:negativeButtonText="@null"
             android:summary="dummy"
-            android:title="Time to Loupe view (long tap)" />
+            android:title="@string/pref_imagedetail_LongTap_title" />
         <src.comitton.config.DescListPreference
             android:defaultValue="0"
-            android:dialogTitle="Max number of processing threads"
+            android:dialogTitle="@string/pref_imagedetail_LoupeSize_dialogTitle"
             android:entries="@array/loupesize_name_list"
             android:entryValues="@array/loupesize_value_list"
             android:key="LoupeSize"
             android:summary="dummy"
-            android:title="Size of Loupe view" />
+            android:title="@string/pref_imagedetail_LoupeSize_title" />
         <src.comitton.config.seekbar.ScrlRngWSeekbar
-            android:dialogMessage="Scroll Width of Vol-Button, etc."
-            android:dialogTitle="Scroll Range (Width)"
+            android:dialogMessage="@string/pref_imagedetail_ScrlRngW_dialogMessage"
+            android:dialogTitle="@string/pref_imagedetail_ScrlRngW_dialogTitle"
             android:key="ScrlRngW"
             android:negativeButtonText="@null"
             android:summary="dummy"
-            android:title="Scroll Range (Width)" />
+            android:title="@string/pref_imagedetail_ScrlRngW_title" />
         <src.comitton.config.seekbar.ScrlRngHSeekbar
-            android:dialogMessage="Scroll Height of Vol-Button, etc."
-            android:dialogTitle="Scroll Range (Height)"
+            android:dialogMessage="@string/pref_imagedetail_ScrlRngH_dialogMessage"
+            android:dialogTitle="@string/pref_imagedetail_ScrlRngH_dialogTitle"
             android:key="ScrlRngH"
             android:negativeButtonText="@null"
             android:summary="dummy"
-            android:title="Scroll Range (Height)" />
+            android:title="@string/pref_imagedetail_ScrlRngH_title" />
         <src.comitton.config.seekbar.AutoPlaySeekbar
-            android:dialogMessage="Interval to play automatically."
-            android:dialogTitle="Auto Play Interval"
+            android:dialogMessage="@string/pref_imagedetail_AutoPlayInt_dialogMessage"
+            android:dialogTitle="@string/pref_imagedetail_AutoPlayInt_dialogTitle"
             android:key="AutoPlayInt"
             android:negativeButtonText="@null"
             android:summary="dummy"
-            android:title="Auto Play Interval" />
+            android:title="@string/pref_imagedetail_AutoPlayInt_title" />
         <src.comitton.config.DescListPreference
             android:defaultValue="2"
-            android:dialogTitle="Max number of processing threads"
+            android:dialogTitle="@string/pref_imagedetail_MaxThread_dialogTitle"
             android:entries="@array/maxthread_name_list"
             android:entryValues="@array/maxthread_value_list"
             android:key="MaxThread"
-            android:summary="More is faster but uses more power"
-            android:title="Max number of processing threads" />
+            android:summary="@string/pref_imagedetail_MaxThread_summary"
+            android:title="@string/pref_imagedetail_MaxThread_title" />
     </PreferenceCategory>
 </PreferenceScreen>

@@ -1,205 +1,206 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
-    <PreferenceCategory android:title="File List Settings" >
+    <PreferenceCategory android:title="@string/pref_filelist_preferencecategory1_title" >
         <src.comitton.config.DescListPreference
             android:defaultValue="0"
-            android:dialogTitle="Screen Orientation"
+            android:dialogTitle="@string/pref_filelist_ListRota_dialogTitle"
             android:entries="@array/file_rotaname_list"
             android:entryValues="@array/file_rotavalue_list"
             android:key="ListRota"
             android:summary="dummy"
-            android:title="Screen Orientation" />
+            android:title="@string/pref_filelist_ListRota_title" />
         <src.comitton.config.DescListPreference
             android:defaultValue="2"
-            android:dialogTitle="Sort Type"
+            android:dialogTitle="@string/pref_filelist_ListSort_dialogTitle"
             android:entries="@array/zipsort_name_list"
             android:entryValues="@array/zipsort_value_list"
             android:key="ListSort"
             android:summary="dummy"
-            android:title="Sort Type" />
+            android:title="@string/pref_filelist_ListSort_title" />
         <src.comitton.config.DescListPreference
-            android:defaultValue="2"
-            android:dialogTitle="Back Key Mode"
+            android:defaultValue="0"
+            android:dialogTitle="@string/pref_filelist_BackMode_dialogTitle"
             android:entries="@array/backmode_name_list"
             android:entryValues="@array/backmode_value_list"
             android:key="BackMode"
             android:summary="dummy"
-            android:title="Back Key Mode" />
+            android:title="@string/pref_filelist_BackMode_title" />
         <src.comitton.config.DescCheckBoxPreference
-            android:defaultValue="true"
+            android:defaultValue="false"
             android:key="ResumeOpen"
-            android:summary="Open the file that was last opened automatically when the application starts."
-            android:title="Open the last file on startup" />
+            android:summary="@string/pref_filelist_ResumeOpen_summary"
+            android:title="@string/pref_filelist_ResumeOpen_title" />
         <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="false"
             android:key="TapExpand"
-            android:summary="Expands to display the contents of the file by tapping zip/rar/pdf file."
-            android:title="Expanded file on tap" />
+            android:summary="@string/pref_filelist_TapExpand_summary"
+            android:title="@string/pref_filelist_TapExpand_title" />
         <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="false"
             android:key="epubViewer"
-            android:summary="Opens EPUB files in image Viewer instead of text Viewer."
-            android:title="Open the EPUB file in Image viewer" />
+            android:summary="@string/pref_filelist_epubViewer_summary"
+            android:title="@string/pref_filelist_epubViewer_title" />
         <src.comitton.config.DescCheckBoxPreference
+            android:layout_height="wrap_content"
             android:defaultValue="true"
             android:key="ParentMove"
-            android:summary="Display the move to parent directory in file list."
-            android:title="View Parent Directory" />
+            android:summary="@string/pref_filelist_ParentMove_summary"
+            android:title="@string/pref_filelist_ParentMove_title" />
         <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"
             android:key="Extension"
-            android:summary="Show extension in the file name."
-            android:title="Show Extension" />
+            android:summary="@string/pref_filelist_Extension_summary"
+            android:title="@string/pref_filelist_Extension_title" />
         <src.comitton.config.DescCheckBoxPreference
-            android:defaultValue="false"
+            android:defaultValue="true"
             android:key="SplitFilename"
-            android:summary="Split the file name with []() in Tile View"
-            android:title="Split the file name" />
+            android:summary="@string/pref_filelist_SplitFilename_summary"
+            android:title="@string/pref_filelist_SplitFilename_title" />
         <src.comitton.config.DescListPreference
             android:defaultValue="2"
-            android:dialogTitle="Max lines of Tile View"
+            android:dialogTitle="@string/pref_filelist_MaxLinesFilename_dialogTitle"
             android:entries="@array/max_lines_name_list"
             android:entryValues="@array/max_lines_value_list"
             android:key="MaxLinesFilename"
             android:summary="dummy"
-            android:title="Max lines of Tile View" />
+            android:title="@string/pref_filelist_MaxLinesFilename_title" />
         <src.comitton.config.DescListPreference
-            android:defaultValue="1"
-            android:dialogTitle="Show Delete File"
+            android:defaultValue="2"
+            android:dialogTitle="@string/pref_filelist_FileDelMenu_dialogTitle"
             android:entries="@array/filemenu_name_list"
             android:entryValues="@array/filemenu_value_list"
             android:key="FileDelMenu"
-            android:summary="When it appears in the long-press menu"
-            android:title="Show Delete Menu" />
+            android:summary="@string/pref_filelist_FileDelMenu_summary"
+            android:title="@string/pref_filelist_FileDelMenu_title" />
         <src.comitton.config.DescListPreference
-            android:defaultValue="1"
-            android:dialogTitle="Show Rename Menu"
+            android:defaultValue="0"
+            android:dialogTitle="@string/pref_filelist_FileRenMenu_dialogTitle"
             android:entries="@array/filemenu_name_list"
             android:entryValues="@array/filemenu_value_list"
             android:key="FileRenMenu"
-            android:summary="When it appears in the long-press menu"
-            android:title="Show Rename Menu" />
+            android:summary="@string/pref_filelist_FileRenMenu_summary"
+            android:title="@string/pref_filelist_FileRenMenu_title" />
         <src.comitton.config.seekbar.FontTitleSeekbar
-            android:dialogMessage="Select font size of the title."
-            android:dialogTitle="Title Font Size"
+            android:dialogMessage="@string/pref_filelist_FontTitleSp_dialogMessage"
+            android:dialogTitle="@string/pref_filelist_FontTitleSp_dialogTitle"
             android:key="FontTitleSp"
             android:negativeButtonText="@null"
             android:summary="dummy"
-            android:title="Title Font Size" />
+            android:title="@string/pref_filelist_FontTitleSp_title" />
         <src.comitton.config.seekbar.FontMainSeekbar
-            android:dialogMessage="Select font size of the list."
-            android:dialogTitle="Font Size"
+            android:dialogMessage="@string/pref_filelist_FontMainSp_dialogMessage"
+            android:dialogTitle="@string/pref_filelist_FontMainSp_dialogTitle"
             android:key="FontMainSp"
             android:negativeButtonText="@null"
             android:summary="dummy"
-            android:title="Font Size" />
+            android:title="@string/pref_filelist_FontMainSp_title" />
         <src.comitton.config.seekbar.FontSubSeekbar
-            android:dialogMessage="Select summary font size of the list."
-            android:dialogTitle="Summary Font Size"
+            android:dialogMessage="@string/pref_filelist_FontSubSp_dialogMessage"
+            android:dialogTitle="@string/pref_filelist_FontSubSp_dialogTitle"
             android:key="FontSubSp"
             android:negativeButtonText="@null"
             android:summary="dummy"
-            android:title="Summary Font Size" />
+            android:title="@string/pref_filelist_FontSubSp_title" />
         <src.comitton.config.seekbar.FontTileSeekbar
-            android:dialogMessage="Select font size of the tile view."
-            android:dialogTitle="Tile View Font Size"
+            android:dialogMessage="@string/pref_filelist_FontTileSp_dialogMessage"
+            android:dialogTitle="@string/pref_filelist_FontTileSp_dialogTitle"
             android:key="FontTileSp"
             android:negativeButtonText="@null"
             android:summary="dummy"
-            android:title="Font Size" />
+            android:title="@string/pref_filelist_FontTileSp_title" />
         <src.comitton.config.seekbar.ItemMarginSeekbar
-            android:dialogMessage="Select margin size of list item."
-            android:dialogTitle="List Item Margin"
+            android:dialogMessage="@string/pref_filelist_ItemMarginSp_dialogMessage"
+            android:dialogTitle="@string/pref_filelist_ItemMarginSp_dialogTitle"
             android:key="ItemMarginSp"
             android:negativeButtonText="@null"
             android:summary="dummy"
-            android:title="List Item Margin" />
+            android:title="@string/pref_filelist_ItemMarginSp_title" />
 <!--         <src.comitton.config.DescCheckBoxPreference -->
 <!--             android:defaultValue="true" -->
 <!--             android:key="ShowToolbar" -->
-<!--             android:summary="Show the toolbar to the top of the list." -->
-<!--             android:title="Show Toolbar" /> -->
+<!--             android:summary="一覧上部のツールバーを表示する" -->
+<!--             android:title="ツールバーの表示" /> -->
         <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="true"
             android:key="ToolbarName"
-            android:summary="Show the toolbar icon name."
-            android:title="Toolbar Icon Name" />
+            android:summary="@string/pref_filelist_ToolbarName_summary"
+            android:title="@string/pref_filelist_ToolbarName_title" />
         <src.comitton.config.seekbar.ToolbarSeekbar
-            android:dialogMessage="Set the icon size of the toolbar."
-            android:dialogTitle="Toolbar Size"
+            android:dialogMessage="@string/pref_filelist_ToolbarSeek_dialogMessage"
+            android:dialogTitle="@string/pref_filelist_ToolbarSeek_dialogTitle"
             android:key="ToolbarSeek"
             android:negativeButtonText="@null"
             android:summary="dummy"
-            android:title="Toolbar Size" />
+            android:title="@string/pref_filelist_ToolbarSeek_title" />
         <src.comitton.config.ThumbnailPreference
-            android:dialogMessage="Set the icon size of the thumbnail."
-            android:dialogTitle="Thumbnail Size"
+            android:dialogMessage="@string/pref_filelist_ThumbSeek_dialogMessage"
+            android:dialogTitle="@string/pref_filelist_ThumbSeek_dialogTitle"
             android:key="ThumbSeek"
             android:negativeButtonText="@null"
             android:summary="dummy"
-            android:title="Thumbnail Size" />
+            android:title="@string/pref_filelist_ThumbSeek_title" />
         <src.comitton.config.seekbar.ListThumbSeekbar
-            android:dialogMessage="Set thumbnail size of the list."
-            android:dialogTitle="List Thumbnail Size"
+            android:dialogMessage="@string/pref_filelist_ListThumbSeek_dialogMessage"
+            android:dialogTitle="@string/pref_filelist_ListThumbSeek_dialogTitle"
             android:key="ListThumbSeek"
             android:negativeButtonText="@null"
             android:summary="dummy"
-            android:title="List Thumbnail Size" />
+            android:title="@string/pref_filelist_ListThumbSeek_title" />
         <src.comitton.config.DescListPreference
-            android:defaultValue="3"
-            android:dialogTitle="Thumbnail Cache"
+            android:defaultValue="2"
+            android:dialogTitle="@string/pref_filelist_ThumbCache_dialogTitle"
             android:entries="@array/thumcache_name_list"
             android:entryValues="@array/thumcache_value_list"
             android:key="ThumbCache"
             android:summary="dummy"
-            android:title="Thumbnail Cache" />
+            android:title="@string/pref_filelist_ThumbCache_title" />
         <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="false"
             android:key="ThumbSort"
-            android:summary="To determine the first file name to see all the file name of the compressed file.(Very Slower for RAR file)"
-            android:title="Create first name Thumbnail" />
+            android:summary="@string/pref_filelist_ThumbSort_summary"
+            android:title="@string/pref_filelist_ThumbSort_title" />
         <src.comitton.config.DescListPreference
             android:defaultValue="2"
-            android:dialogTitle="Servertype for create first name Thumbnail"
+            android:dialogTitle="@string/pref_filelist_ThumbSortType_dialogTitle"
             android:entries="@array/ThumbSortType_name_list"
             android:entryValues="@array/ThumbSortType_value_list"
             android:key="ThumbSortType"
-            android:summary="RAR archives on servers are slow to scan"
-            android:title="Servertype for create first name Thumbnail" />
+            android:summary="@string/pref_filelist_ThumbSortType_summary"
+            android:title="@string/pref_filelist_ThumbSortType_title" />
         <src.comitton.config.DescCheckBoxPreference
             android:defaultValue="false"
             android:key="ClearTop"
-            android:summary="Exit existing task at shortcut startup.\n(Valid only in the newly created shortcut.)"
-            android:title="Exit task by shortcut" />
+            android:summary="@string/pref_filelist_ClearTop_summary"
+            android:title="@string/pref_filelist_ClearTop_title" />
         <src.comitton.config.DescCheckBoxPreference
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:defaultValue="true"
             android:key="ThumbnailTap"
-            android:summary="Long-press menu via thumbnail or file name"
-            android:title="Thumbnail on Menu" />
+            android:summary="@string/pref_filelist_ThumbnailTap_summary"
+            android:title="@string/pref_filelist_ThumbnailTap_title" />
         <src.comitton.config.seekbar.MenuLongTapSeekbar
-            android:dialogMessage="Select the long press hold time."
-            android:dialogTitle="Long press time"
+            android:dialogMessage="@string/pref_filelist_MenuLongTap_dialogMessage"
+            android:dialogTitle="@string/pref_filelist_MenuLongTap_dialogTitle"
             android:key="MenuLongTap"
             android:negativeButtonText="@null"
             android:summary="dummy"
-            android:title="Time to long tap" />
+            android:title="@string/pref_filelist_MenuLongTap_title" />
         <src.comitton.config.DescListPreference
             android:defaultValue="0"
-            android:dialogTitle="Thumbnail crop position"
+            android:dialogTitle="@string/pref_filelist_ThumbCrop_dialogTitle"
             android:entries="@array/thumcrop_name_list"
             android:entryValues="@array/thumcrop_value_list"
             android:key="ThumbCrop"
             android:summary="dummy"
-            android:title="Thumbnail crop position" />
+            android:title="@string/pref_filelist_ThumbCrop_title" />
         <src.comitton.config.DescListPreference
             android:defaultValue="0"
-            android:dialogTitle="Margin cut from thumbnails"
+            android:dialogTitle="@string/pref_filelist_ThumbMargin_dialogTitle"
             android:entries="@array/thummargin_name_list"
             android:entryValues="@array/thummargin_value_list"
             android:key="ThumbMargin"
             android:summary="dummy"
-            android:title="Margin cut from thumbnails" />
+            android:title="@string/pref_filelist_ThumbMargin_title" />
     </PreferenceCategory>
 </PreferenceScreen>

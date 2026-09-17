@@ -1,85 +1,85 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
-    <PreferenceCategory android:title="Image Viewer Settings" >
+    <PreferenceCategory android:title="@string/pref_imagetextcolor_preferencecategory1_title" >
         <src.comitton.config.color.ColorMgnSetting
-            android:dialogMessage="Please Select Color."
-            android:dialogTitle="Margin Color"
+            android:dialogMessage="@string/pref_imagetextcolor_MgnRGB_dialogMessage"
+            android:dialogTitle="@string/pref_imagetextcolor_MgnRGB_dialogTitle"
             android:key="MgnRGB"
             android:negativeButtonText="@null"
             android:summary="dummy"
-            android:title="Margin Color" />
+            android:title="@string/pref_imagetextcolor_MgnRGB_title" />
         <src.comitton.config.color.ColorCntSetting
-            android:dialogMessage="Please Select Color."
-            android:dialogTitle="Center Mrgin Color"
+            android:dialogMessage="@string/pref_imagetextcolor_CntRGB_dialogMessage"
+            android:dialogTitle="@string/pref_imagetextcolor_CntRGB_dialogTitle"
             android:key="CntRGB"
             android:negativeButtonText="@null"
             android:summary="dummy"
-            android:title="Center Mrgin Color" />
+            android:title="@string/pref_imagetextcolor_CntRGB_title" />
         <src.comitton.config.color.ColorGuiSetting
-            android:dialogMessage="Please Select Color."
-            android:dialogTitle="Guide Color"
+            android:dialogMessage="@string/pref_imagetextcolor_GuiRGB_dialogMessage"
+            android:dialogTitle="@string/pref_imagetextcolor_GuiRGB_dialogTitle"
             android:key="GuiRGB"
             android:negativeButtonText="@null"
             android:summary="dummy"
-            android:title="Guide Color" />
+            android:title="@string/pref_imagetextcolor_GuiRGB_title" />
     </PreferenceCategory>
-    <PreferenceCategory android:title="Text Viewer Settings" >
+    <PreferenceCategory android:title="@string/pref_imagetextcolor_preferencecategory2_title" >
         <src.comitton.config.color.ColorTxtMgnSetting
-            android:dialogMessage="Please Select Color."
-            android:dialogTitle="Margin Color"
+            android:dialogMessage="@string/pref_imagetextcolor_txMgnRGB_dialogMessage"
+            android:dialogTitle="@string/pref_imagetextcolor_txMgnRGB_dialogTitle"
             android:key="txMgnRGB"
             android:negativeButtonText="@null"
             android:summary="dummy"
-            android:title="Margin Color" />
+            android:title="@string/pref_imagetextcolor_txMgnRGB_title" />
         <src.comitton.config.color.ColorTxtCntSetting
-            android:dialogMessage="Please Select Color."
-            android:dialogTitle="Center Mrgin Color"
+            android:dialogMessage="@string/pref_imagetextcolor_txCntRGB_dialogMessage"
+            android:dialogTitle="@string/pref_imagetextcolor_txCntRGB_dialogTitle"
             android:key="txCntRGB"
             android:negativeButtonText="@null"
             android:summary="dummy"
-            android:title="Center Mrgin Color" />
+            android:title="@string/pref_imagetextcolor_txCntRGB_title" />
         <src.comitton.config.color.ColorTxtGuiSetting
-            android:dialogMessage="Please Select Color."
-            android:dialogTitle="Guide Color"
+            android:dialogMessage="@string/pref_imagetextcolor_txGuiRGB_dialogMessage"
+            android:dialogTitle="@string/pref_imagetextcolor_txGuiRGB_dialogTitle"
             android:key="txGuiRGB"
             android:negativeButtonText="@null"
             android:summary="dummy"
-            android:title="Guide Color" />
+            android:title="@string/pref_imagetextcolor_txGuiRGB_title" />
         <src.comitton.config.color.ColorTvtSetting
-            android:dialogMessage="Please Select Color."
-            android:dialogTitle="Text Color"
+            android:dialogMessage="@string/pref_imagetextcolor_txTvtRGB_dialogMessage"
+            android:dialogTitle="@string/pref_imagetextcolor_txTvtRGB_dialogTitle"
             android:key="txTvtRGB"
             android:negativeButtonText="@null"
             android:summary="dummy"
-            android:title="Text Color" />
+            android:title="@string/pref_imagetextcolor_txTvtRGB_title" />
         <src.comitton.config.color.ColorTvbSetting
-            android:dialogMessage="Please Select Color."
-            android:dialogTitle="Background Color"
+            android:dialogMessage="@string/pref_imagetextcolor_txTvbRGB_dialogMessage"
+            android:dialogTitle="@string/pref_imagetextcolor_txTvbRGB_dialogTitle"
             android:key="txTvbRGB"
             android:negativeButtonText="@null"
             android:summary="dummy"
-            android:title="Background Color" />
+            android:title="@string/pref_imagetextcolor_txTvbRGB_title" />
         <src.comitton.config.color.ColorTvgSetting
-            android:dialogMessage="Please Select Color."
-            android:dialogTitle="Background Color for Gradation"
+            android:dialogMessage="@string/pref_imagetextcolor_txTvgRGB_dialogMessage"
+            android:dialogTitle="@string/pref_imagetextcolor_txTvgRGB_dialogTitle"
             android:key="txTvgRGB"
             android:negativeButtonText="@null"
             android:summary="dummy"
-            android:title="Background Color for Gradation" />
+            android:title="@string/pref_imagetextcolor_txTvgRGB_title" />
         <src.comitton.config.DescListPreference
             android:defaultValue="1"
-            android:dialogTitle="Gradation Settings"
+            android:dialogTitle="@string/pref_imagetextcolor_txGradation_dialogTitle"
             android:entries="@array/txgradation_name_list"
             android:entryValues="@array/txgradation_value_list"
             android:key="txGradation"
-            android:summary="Blends the two background colors"
-            android:title="Gradation Settings" />
+            android:summary="@string/pref_imagetextcolor_txGradation_summary"
+            android:title="@string/pref_imagetextcolor_txGradation_title" />
         <src.comitton.config.color.ColorHitSetting
-            android:dialogMessage="Please Select Color."
-            android:dialogTitle="Search Hit Color"
+            android:dialogMessage="@string/pref_imagetextcolor_txHitRGB_dialogMessage"
+            android:dialogTitle="@string/pref_imagetextcolor_txHitRGB_dialogTitle"
             android:key="txHitRGB"
             android:negativeButtonText="@null"
             android:summary="dummy"
-            android:title="Search Hit Color" />
+            android:title="@string/pref_imagetextcolor_txHitRGB_title" />
     </PreferenceCategory>
 </PreferenceScreen>
