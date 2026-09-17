@@ -36,6 +36,12 @@ int			gMaxThreadNum = 1;
 /** キャッシュ領域の割り当て状況 */
 BUFFMNG		*gBuffMng[MAX_BUFFER_INDEX] = {nullptr};
 long		gBuffNum[MAX_BUFFER_INDEX] = {0};
+/** ページ/種別/半面ごとの使用中ブロック番号リスト [gTotalPages * BLOCKTYPE_NUM * BLOCKHALF_NUM] */
+BLOCKLIST	*gPageBlocks[MAX_BUFFER_INDEX] = {nullptr};
+/** 未使用ブロック番号のスタック */
+int			*gFreeList[MAX_BUFFER_INDEX] = {nullptr};
+/** 未使用ブロック数 */
+int			gFreeNum[MAX_BUFFER_INDEX] = {0};
 
 /** サイズ変更画像待避用領域の割り当て状況 */
 BUFFMNG		*gSclBuffMng[MAX_BUFFER_INDEX] = {nullptr};
@@ -346,9 +352,6 @@ JNIEXPORT jint JNICALL Java_src_comitton_jni_CallImgLibrary_ImageSetPage (JNIEnv
  */
 JNIEXPORT jint JNICALL Java_src_comitton_jni_CallImgLibrary_ImageSetData (JNIEnv *env, jclass obj, jint index, jbyteArray dataArray, jint size)
 {
-	jbyte *data = env->GetByteArrayElements(dataArray, nullptr);
-
-
     if (index < 0 || MAX_BUFFER_INDEX <= index) {
         return ERROR_CODE_CACHE_INDEX_OUT_OF_RANGE;
     }
@@ -357,14 +360,31 @@ JNIEXPORT jint JNICALL Java_src_comitton_jni_CallImgLibrary_ImageSetData (JNIEnv
         return ERROR_CODE_CACHE_NOT_INITIALIZED;
     }
 
+    if (dataArray == nullptr || size <= 0) {
+        return 0;
+    }
+
+    jsize arrayLen = env->GetArrayLength(dataArray);
+    if (size > arrayLen) {
+        size = arrayLen;
+    }
 	if (gLoadFileSize[index] - gLoadFilePos[index] < size) {
         // セットしたサイズを超えないように
 		size = gLoadFileSize[index] - gLoadFilePos[index];
 	}
+    if (size <= 0) {
+        return 0;
+    }
+
+    // Critical版はコピーなしで配列に直接触れられる(区間内で他のJNI呼び出しはしない)
+    void *data = env->GetPrimitiveArrayCritical(dataArray, nullptr);
+    if (data == nullptr) {
+        return ERROR_CODE_MALLOC_FAILURE;
+    }
 	memcpy(&gLoadBuffer[index][gLoadFilePos[index]], data, size);
+	env->ReleasePrimitiveArrayCritical(dataArray, data, JNI_ABORT);
 	gLoadFilePos[index] += size;
 
-	env->ReleaseByteArrayElements(dataArray, data, 0);
 //	LOGD("setdata end");
 	return size;
 }
@@ -538,12 +558,14 @@ JNIEXPORT jint JNICALL Java_src_comitton_jni_CallImgLibrary_ImageSetBitmap (JNIE
         return -4;
     }
 
-    if ((ret = SetBuff(index, gLoadPage[index], info.width, info.height, (uint8_t *)canvas, colorFormat)) < 0) {
+    ret = SetBuff(index, gLoadPage[index], info.width, info.height, info.stride, (uint8_t *)canvas, colorFormat);
+
+    AndroidBitmap_unlockPixels(env, bitmap);
+
+    if (ret < 0) {
         LOGE("callImage: ImageSetBitmap: SetBuff() failed ! error=%d", ret);
         return ret;
     }
-
-    AndroidBitmap_unlockPixels(env, bitmap);
 
     gImageData[index][gLoadPage[index]].UseFlag = 1;
     gImageData[index][gLoadPage[index]].OrgWidth = info.width;
@@ -746,16 +768,10 @@ JNIEXPORT jint JNICALL Java_src_comitton_jni_CallImgLibrary_ImageGetFreeSize (JN
         return ERROR_CODE_CACHE_NOT_INITIALIZED;
     }
 
-    int  count = 0, i;
-	for (i = 0 ; i < gBuffNum[index] ; i ++) {
-		if (gBuffMng[index][i].Page == -1) {
-			count ++;
-		}
-	}
 #ifdef DEBUG
-	LOGD("callImage: ImageGetFreeSize : %d / %d", count, (int)gBuffNum[index]);
+	LOGD("callImage: ImageGetFreeSize : %d / %d", gFreeNum[index], (int)gBuffNum[index]);
 #endif
-	return (count);
+	return gFreeNum[index];
 }
 
 /*

@@ -125,7 +125,7 @@ int LoadImageJxl(int index, int loadCommand, IMAGEDATA *pData, int page, int sca
 #ifdef DEBUG
                 LOGD("LoadImageJxl: SetBuff() Start. page=%d, width=%d, height=%d", page, width, height);
 #endif
-                returnCode = SetBuff(index, page, width, height, buffer, COLOR_FORMAT_RGB);
+                returnCode = SetBuff(index, page, width, height, 0, buffer, COLOR_FORMAT_RGB);
                 if (returnCode < 0) {
                     LOGE("LoadImageJxl: SetBuff() failed. return=%d", returnCode);
                     returnCode = -10;

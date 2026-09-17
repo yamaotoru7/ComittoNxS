@@ -23,6 +23,9 @@ extern long			gBuffNum[];
 extern BUFFMNG		*gSclBuffMng[];
 extern long			gSclBuffNum[];
 
+extern int			*gFreeList[];
+extern int			gFreeNum[];
+
 extern int			gCancel[];
 
 // RetSize 返却用ポインタ
@@ -431,6 +434,17 @@ int SetLinesPtr(int index, int Page, int Half, int Count, int OrgWidth, int OrgH
 	int buffindex = -1;
 	int buffpos = 0;
 	int lineindex;
+	BLOCKLIST *list = nullptr;
+	int listindex = -1;
+
+	if (Count == 0) {
+		// 元画像はブロック索引から引く
+		list = GetBlockList(index, Page, BLOCKTYPE_ORG, 0);
+		if (list == nullptr || list->Num == 0) {
+			LOGE("CreateScale : Data Error page=%d (no blocks)", Page);
+			return -2;
+		}
+	}
 
 	for (lineindex = 0 ; lineindex < linenum ; lineindex ++) {
 		if (gCancel[index]) {
@@ -438,15 +452,25 @@ int SetLinesPtr(int index, int Page, int Half, int Count, int OrgWidth, int OrgH
 			return ERROR_CODE_USER_CANCELED;
 		}
 		if (buffindex < 0 || BLOCKSIZE - buffpos < linesize ) {
-			for (buffindex ++ ; buffindex < nMngnum ; buffindex ++) {
-				if (pMngptr[buffindex].Page == Page && pMngptr[buffindex].Type == Type && pMngptr[buffindex].Half == Half) {
-					break;
+			if (list != nullptr) {
+				listindex ++;
+				if (listindex >= list->Num) {
+					LOGE("CreateScale : Data Error page=%d, lineindex=%d/%d", Page, lineindex, linenum);
+					return -2;
 				}
+				buffindex = list->Blocks[listindex];
 			}
-			if (buffindex >= nMngnum) {
-				// 領域不足
-				LOGE("CreateScale : Data Error page=%d, lineindex=%d/%d", Page, lineindex, linenum);
-				return -2;
+			else {
+				for (buffindex ++ ; buffindex < nMngnum ; buffindex ++) {
+					if (pMngptr[buffindex].Page == Page && pMngptr[buffindex].Type == Type && pMngptr[buffindex].Half == Half) {
+						break;
+					}
+				}
+				if (buffindex >= nMngnum) {
+					// 領域不足
+					LOGE("CreateScale : Data Error page=%d, lineindex=%d/%d", Page, lineindex, linenum);
+					return -2;
+				}
 			}
 			buffpos = 0;
 		}
@@ -494,6 +518,14 @@ int NextSclBuff(int index, int Page, int Half, int Count, int *pBuffIndex, int *
 			LOGE("NextSclBuff : Data Error page=%d, buffindex=%d/%d (Scale)", Page, buffindex, (int)gSclBuffNum[index]);
 			return ERROR_CODE_CACHE_IS_FULL;
 		}
+		if (gSclBuffMng[index][buffindex].Buff == nullptr) {
+			// ポインタ交換で未確保ブロックを受け取った場合はここで確保する
+			gSclBuffMng[index][buffindex].Buff = (LONG*)malloc(BLOCKSIZE * sizeof(LONG));
+			if (gSclBuffMng[index][buffindex].Buff == nullptr) {
+				LOGE("NextSclBuff : malloc error. buffindex=%d", buffindex);
+				return ERROR_CODE_MALLOC_FAILURE;
+			}
+		}
 		gSclBuffMng[index][buffindex].Page = Page;
 		gSclBuffMng[index][buffindex].Size = 0;
 		gSclBuffMng[index][buffindex].Type = 1;
@@ -527,35 +559,48 @@ int EraseSclBuffMng(int index, int Count)
 	return 0;
 }
 
+/**
+ * スケール作業領域に残った最終結果ブロックを本領域へ移す。
+ * 512KB のコピーはせず、空きブロックとポインタを交換する。
+ */
 int CopySclBuffMngToBuffMng(int index)
 {
-	int buffindex = -1;
-
 	for (int i = 0 ; i < gSclBuffNum[index] ; i ++) {
-		if (gSclBuffMng[index][i].Page != -1) {
-			// コピー先を探す
-			for (buffindex ++ ; buffindex < gBuffNum[index] ; buffindex ++) {
-				if (gBuffMng[index][buffindex].Page == -1) {
-					// 見つけた
-					break;
-				}
-			}
-			if (buffindex >= gBuffNum[index]) {
-				// 領域不足
-				LOGE("CopySclBuffMngToBuffMng : Data Error buffindex=%d/%d", buffindex, (int)gBuffNum[index]);
-				return -1;
-			}
-			// メモリコピー
-//			LOGD("CopySclBuffMngToBuffMng St : %d/%d -> %d/%d", i, gSclBuffNum[index], buffindex, gBuffNum[index]);
-
-			gBuffMng[index][buffindex].Page = gSclBuffMng[index][i].Page;
-			gBuffMng[index][buffindex].Type = gSclBuffMng[index][i].Type;
-			gBuffMng[index][buffindex].Half = gSclBuffMng[index][i].Half;
-			gBuffMng[index][buffindex].Size = gSclBuffMng[index][i].Size;
-			gBuffMng[index][buffindex].Count = 0;
-			memcpy(gBuffMng[index][buffindex].Buff, gSclBuffMng[index][i].Buff, BLOCKSIZE * sizeof(LONG));
-//			LOGD("CopySclBuffMngToBuffMng Ed : %d/%d -> %d/%d", i, gSclBuffNum[index], buffindex, gBuffNum[index]);
+		BUFFMNG *scl = &gSclBuffMng[index][i];
+		if (scl->Page == -1) {
+			continue;
 		}
+
+		if (gFreeNum[index] <= 0) {
+			// 領域不足
+			LOGE("CopySclBuffMngToBuffMng : Data Error (cache is full) free=%d/%d", gFreeNum[index], (int)gBuffNum[index]);
+			return -1;
+		}
+		int buffindex = gFreeList[index][gFreeNum[index] - 1];
+		BUFFMNG *dst = &gBuffMng[index][buffindex];
+
+		int ret = AppendBlock(index, scl->Page, scl->Type, scl->Half, buffindex);
+		if (ret < 0) {
+			return ret;
+		}
+		gFreeNum[index]--;
+
+		// ポインタ交換(本領域側が未確保ならそのまま nullptr を作業領域へ渡す。NextSclBuff で必要時に確保される)
+		LONG *work = dst->Buff;
+		dst->Buff = scl->Buff;
+		scl->Buff = work;
+
+		dst->Page = scl->Page;
+		dst->Type = scl->Type;
+		dst->Half = scl->Half;
+		dst->Size = scl->Size;
+		dst->Count = 0;
+
+		scl->Page = -1;
+		scl->Type = 0;
+		scl->Half = 0;
+		scl->Size = 0;
+		scl->Count = -1;
 	}
 	return 0;
 }

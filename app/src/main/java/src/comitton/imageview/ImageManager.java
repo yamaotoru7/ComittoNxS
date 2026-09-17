@@ -221,6 +221,11 @@ public class ImageManager extends InputStream implements Runnable {
 	private final String mRarCharset;
 	private int mCacheIndex = DEF.ERROR_CODE_CACHE_INDEX_OUT_OF_RANGE;
 
+	/** BitmapFactory のデコード先として使い回す作業Bitmap(mLock 配下でのみ使用) */
+	private Bitmap mDecodeBitmap = null;
+	/** ネイティブへ画像データを渡す際の読み込みバッファ(mLock 配下でのみ使用) */
+	private final byte[] mReadBuffer = new byte[BIS_BUFFSIZE];
+
 	@SuppressLint("SuspiciousIndentation")
     public ImageManager(AppCompatActivity activity, String path, String cmpfile, String user, String pass, int sort, Handler handler, boolean hidden, int openmode, int maxthread) {
 		int logLevel = Logcat.LOG_LEVEL_WARN;
@@ -1542,17 +1547,11 @@ public class ImageManager extends InputStream implements Runnable {
 						}
 
 						if (0 <= chkPage && chkPage < mFileList.length) {
-							if (mFileList[chkPage].width <= 0) {
-								if (SizeCheckImage(chkPage) < 0) {
-									Logcat.e(logLevel, "SizeCheckImage(chkPage) < 0, chkPage=" + chkPage);
-									break;
-								}
-							}
-
 							// 範囲内の時だけチェック
 							if (!mMemCacheFlag[chkPage].fSource) {
-								if (prevReadPage != chkPage && memWriteLock(chkPage, 0, false)) {
-									// メモリキャッシュ確保OK
+								// サイズ取得とメモリキャッシュ確保は LoadImage 内で
+								// 本読み込みと同じストリームを使って行う(再シーク・再展開を避ける)
+								if (prevReadPage != chkPage) {
 									// Logcat.d(logLevel, "current" + mCurrentPage + ", chkPage" + chkPage + ", prevPage=" + prevReadPage);
 									page = chkPage;
 									prevReadPage = chkPage;
@@ -1560,11 +1559,11 @@ public class ImageManager extends InputStream implements Runnable {
 									fContinue = false;
 								}
 								else {
-									// メモリがなくなったら終了
+									// 直前に読み込みに失敗したページなら終了
 									// Logcat.d(logLevel, "chkPage" + chkPage + ", prevReadPage=" + prevReadPage);
 									fMemCacheExec = false;
 								}
-								// ロックしてみたら結果によらずこれ以上探さない
+								// 対象を決めたら結果によらずこれ以上探さない
 								break;
 							}
 							else if (mCurrentPage >= 0 && mCurrentPage < mFileList.length) {
@@ -2311,6 +2310,16 @@ public class ImageManager extends InputStream implements Runnable {
 					Logcat.v(logLevel, "CallImgLibrary.ImageTerminate(mActivity, mHandler, mCacheIndex=" + mCacheIndex + ")");
 					int returnCode = CallImgLibrary.ImageTerminate(mActivity, mHandler, mCacheIndex);
 					Logcat.v(logLevel, "returnCode=" + returnCode);
+
+					// デコード用の作業Bitmapを解放(デコード中に解放しないよう mLock を取る)
+					synchronized (mLock) {
+						if (mDecodeBitmap != null) {
+							if (!mDecodeBitmap.isRecycled()) {
+								mDecodeBitmap.recycle();
+							}
+							mDecodeBitmap = null;
+						}
+					}
 				}
 				else {
 					Logcat.w(logLevel, "mCloseFlag=true");
@@ -2909,6 +2918,10 @@ public class ImageManager extends InputStream implements Runnable {
 						break;
 					}
 					if (0 <= clr && clr < mMemCacheFlag.length) {
+						if (isDisplayPage(clr)) {
+							// 表示中のページを追い出すと画面が消えるので対象外
+							continue;
+						}
 						if (mMemCacheFlag[clr].fSource) {
 							mMemCacheFlag[clr].fSource = false;
 							if (memFreeCache(clr)) {
@@ -3050,12 +3063,9 @@ public class ImageManager extends InputStream implements Runnable {
 		}
 
 		if (mFileList[page].o_width == 0) {
-			BitmapFactory.Options option = new BitmapFactory.Options();
 			boolean fError = false;
 
 			mCheWriteFlag = false;
-			option.inJustDecodeBounds = true;
-			InputStream inputStream = null;
 
 			try {
 				Logcat.v(logLevel, "setLoadBitmapStartを開始します.");
@@ -3083,59 +3093,20 @@ public class ImageManager extends InputStream implements Runnable {
 					Logcat.v(logLevel, "PDF: width=" + width + ", height=" + height + ", " + mFileList[page].name);
 					//PdfRenderer.Pageを閉じる、この処理を忘れると次回読み込む時に例外が発生する。
 					pdfPage.close();
-				}
-				else if (mFileType == FILETYPE_ZIP) {
-					Logcat.v(logLevel, "ZIPファイルです.");
-					// メモリキャッシュ読込時のみZIP展開する
-					// ファイルキャッシュを作成するときはZIP展開不要
-					ZipInputStream zipStream = new ZipInputStream(new BufferedInputStream(this, BIS_BUFFSIZE));
-					zipStream.getNextEntry();
-					mLoadingPage = page;
-					inputStream = new BufferedInputStream(zipStream);
-				}
-				else if (mFileType == FILETYPE_RAR) {
-					Logcat.v(logLevel, "RARファイルです.");
-					// メモリキャッシュ読込時のみRAR展開する
-					// ファイルキャッシュを作成するときはRAR展開不要
-					inputStream = new RarInputStream(new BufferedInputStream(this, BIS_BUFFSIZE), page, mFileList[page]);
+					if (width <= 0 || height <= 0) {
+						fError = true;
+					}
 				}
 				else {
-					Logcat.d(logLevel, "イメージファイルです.");
-					inputStream = new BufferedInputStream(this, BIS_BUFFSIZE);
-				}
-				Logcat.v(logLevel, "inputStreamの準備が完了しました.");
-
-				inputStream.mark(mFileList[page].orglen + 1);
-
-				if (width <= 0 || height <= 0) {
-					if (FileData.getExtType(mActivity, mFileList[page].name) != FileData.EXTTYPE_AVIF && FileData.getExtType(mActivity, mFileList[page].name) != FileData.EXTTYPE_JXL) {
-						Logcat.v(logLevel, "BitmapFactoryでデコードします. " + mFileList[page].name);
-						BitmapFactory.decodeStream(new BufferedInputStream(inputStream), null, option);
-						width = option.outWidth;
-						height = option.outHeight;
-					}
-					if (width > 0 && height > 0) {
-						Logcat.v(logLevel, "BitmapFactoryでデコードに成功しました. " + mFileList[page].name);
+					BufferedInputStream inputStream = openPageStream(page);
+					inputStream.mark(mFileList[page].orglen + 1);
+					returnCode = SizeCheckImageFromStream(page, inputStream);
+					if (returnCode < 0) {
+						Logcat.e(logLevel, "SizeCheckImageFromStream に失敗しました. returnCode=" + returnCode + ", " + mFileList[page].name);
 					}
 					else {
-						Logcat.v(logLevel, "BitmapFactoryでデコードに失敗しました. " + mFileList[page].name);
-						try {
-							inputStream.reset();
-						} catch (IOException e) {
-							Logcat.e(logLevel, "inputStreamのリセットでエラーになりました. " + mFileList[page].name, e);
-							inputStream.close();
-							return -3;
-						}
-						int[] imagesize = new int[2];
-						returnCode = SizeCheckImage(page, inputStream, imagesize);
-						if (returnCode == 0 && imagesize[0] > 0 && imagesize[1] > 0) {
-							Logcat.v(logLevel, "SizeCheckImage(3) に成功しました. " + mFileList[page].name);
-							width = imagesize[0];
-							height = imagesize[1];
-						} else {
-							Logcat.e(logLevel, "SizeCheckImage(3) に失敗しました. " + mFileList[page].name);
-							return -4;
-						}
+						width = mFileList[page].o_width;
+						height = mFileList[page].o_height;
 					}
 				}
 			}
@@ -3161,14 +3132,182 @@ public class ImageManager extends InputStream implements Runnable {
 			if (fError) {
 				return -5;
 			}
-			mFileList[page].o_width = width;
-			mFileList[page].o_height = height;
+			if (returnCode < 0) {
+				return returnCode;
+			}
+			if (mFileType == FileData.FILETYPE_PDF) {
+				applyImageSize(page, width, height);
+			}
 		}
-		mFileList[page].scale = DEF.calcScale(mFileList[page].o_width, mFileList[page].o_height, mFileList[page].exttype, 3200, 3200);
-		mFileList[page].width = DEF.divRoundUp(mFileList[page].o_width, mFileList[page].scale);
-		mFileList[page].height = DEF.divRoundUp(mFileList[page].o_height, mFileList[page].scale);
+		if (mFileList[page].width <= 0) {
+			// 元サイズは既知で縮小率だけ未確定の場合
+			applyImageSize(page, mFileList[page].o_width, mFileList[page].o_height);
+		}
 		Logcat.d(logLevel, "終了します. " + mFileList[page].name);
 		return returnCode;
+	}
+
+	/**
+	 * ページのエントリを読むストリームを開く。
+	 * 呼び出し前に setLoadBitmapStart() で読み込み位置を設定しておくこと。
+	 * @return mark/reset 可能な BufferedInputStream
+	 */
+	private BufferedInputStream openPageStream(int page) throws IOException {
+		InputStream is;
+		if (mFileType == FILETYPE_ZIP) {
+			// メモリキャッシュ読込時のみZIP展開する
+			// ファイルキャッシュを作成するときはZIP展開不要
+			ZipInputStream zipStream = new ZipInputStream(new BufferedInputStream(this, BIS_BUFFSIZE));
+			zipStream.getNextEntry();
+			is = zipStream;
+		}
+		else if (mFileType == FILETYPE_RAR) {
+			// メモリキャッシュ読込時のみRAR展開する
+			// ファイルキャッシュを作成するときはRAR展開不要
+			if (mRarStream == null || mRarStream.getLoadPage() != page) {
+				mRarStream = new RarInputStream(new BufferedInputStream(this, BIS_BUFFSIZE), page, mFileList[page]);
+			}
+			else {
+				mRarStream.initSeek();
+			}
+			is = mRarStream;
+		}
+		else {
+			is = this;
+		}
+		return new BufferedInputStream(is, BIS_BUFFSIZE);
+	}
+
+	/**
+	 * 元画像サイズから縮小率と読み込み後サイズを確定する
+	 */
+	private void applyImageSize(int page, int width, int height) {
+		mFileList[page].o_width = width;
+		mFileList[page].o_height = height;
+		int scale = DEF.calcScale(width, height, mFileList[page].exttype, 3200, 3200);
+		scale = limitScaleByMemory(page, width, height, scale);
+		mFileList[page].scale = scale;
+		mFileList[page].width = DEF.divRoundUp(width, scale);
+		mFileList[page].height = DEF.divRoundUp(height, scale);
+	}
+
+	/**
+	 * 画像1枚がキャッシュブロック何個ぶんになるかを返す(ネイティブ側の詰め方と同じ計算)
+	 */
+	private static int calcBlocksFor(int width, int height) {
+		if (width <= 0 || height <= 0) {
+			return 0;
+		}
+		int linesPerBlock = BLOCKSIZE / (width + HOKAN_DOTS);
+		if (linesPerBlock <= 0) {
+			return Integer.MAX_VALUE;
+		}
+		return (height + linesPerBlock - 1) / linesPerBlock;
+	}
+
+	/**
+	 * メモリキャッシュが小さい設定でも元画像が収まるよう、縮小率を引き上げる。
+	 * 表示用のスケール画像2枚分(見開き)を差し引いた残りの半分を元画像1枚の上限とする。
+	 * AVIF/JXL はネイティブデコーダが縮小率を扱わないため対象外。
+	 */
+	private int limitScaleByMemory(int page, int width, int height, int scale) {
+		int extType = mFileList[page].exttype;
+		if (extType == FileData.EXTTYPE_AVIF || extType == FileData.EXTTYPE_JXL) {
+			return scale;
+		}
+		if (mMemSize <= 0) {
+			return scale;
+		}
+		// ネイティブ側: buffnum = memsize(MB) * 8 / sizeof(LONG) → 512KB ブロック数
+		int totalBlocks = mMemSize * 2;
+		if (totalBlocks <= 0) {
+			return scale;
+		}
+
+		int sclBlocks = 0;
+		if (mScrWidth > 0 && mScrHeight > 0) {
+			// 縦横どちらの持ち方でも足りるよう大きい方を採る
+			sclBlocks = Math.max(calcBlocksFor(mScrWidth, mScrHeight), calcBlocksFor(mScrHeight, mScrWidth));
+		}
+		// 表示用スケール画像2枚分を差し引き、見開き表示なら元画像2枚が入るよう半分にする
+		int budget = totalBlocks - sclBlocks * 2;
+		if (isDualView()) {
+			budget /= 2;
+		}
+		budget = Math.max(budget, totalBlocks / 4);
+		budget = Math.max(budget, 1);
+
+		int limited = scale;
+		while (calcBlocksFor(DEF.divRoundUp(width, limited), DEF.divRoundUp(height, limited)) > budget) {
+			// BitmapFactory の inSampleSize は 2 のべき乗に丸められるので倍々にする
+			int next = Integer.highestOneBit(limited) * 2;
+			if (next > 64) {
+				break;
+			}
+			limited = next;
+		}
+		if (limited != scale) {
+			Logcat.w(Logcat.LOG_LEVEL_WARN, "メモリキャッシュが小さいため縮小率を引き上げます. page=" + page + ", size=" + width + "x" + height + ", scale=" + scale + "→" + limited + ", budget=" + budget + "/" + totalBlocks + " blocks");
+		}
+		return limited;
+	}
+
+	/**
+	 * 表示中(またはその見開き相手)のページか。これらの元画像は先読みのために追い出さない。
+	 */
+	private boolean isDisplayPage(int page) {
+		if (page == mCurrentPage) {
+			return true;
+		}
+		if (isDualView() && !mCurrentSingle && page == mCurrentPage + 1) {
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * 開いているストリームから画像サイズだけを取得する。
+	 * 呼び出し側で inputStream.mark(orglen + 1) 済みであること。終了時はストリームを mark 位置へ戻す。
+	 * @return 0: 成功 / マイナス: 失敗
+	 */
+	private int SizeCheckImageFromStream(int page, BufferedInputStream inputStream) throws IOException {
+		int logLevel = Logcat.LOG_LEVEL_WARN;
+		int width = -1;
+		int height = -1;
+
+		int extType = FileData.getExtType(mActivity, mFileList[page].name);
+		if (extType != FileData.EXTTYPE_AVIF && extType != FileData.EXTTYPE_JXL) {
+			// ヘッダだけ読んでサイズを得る(エントリ全体は展開しない)
+			BitmapFactory.Options option = new BitmapFactory.Options();
+			option.inJustDecodeBounds = true;
+			BitmapFactory.decodeStream(new BufferedInputStream(inputStream), null, option);
+			width = option.outWidth;
+			height = option.outHeight;
+		}
+
+		if ((width <= 0 || height <= 0) && mFileList[page].o_width > 0 && mFileList[page].o_height > 0) {
+			// 元サイズが既知なら再取得不要
+			width = mFileList[page].o_width;
+			height = mFileList[page].o_height;
+		}
+
+		if (width <= 0 || height <= 0) {
+			Logcat.v(logLevel, "BitmapFactoryでサイズ取得できなかったのでネイティブで取得します. " + mFileList[page].name);
+			inputStream.reset();
+			int[] imagesize = new int[2];
+			int returnCode = SizeCheckImage(page, inputStream, imagesize);
+			if (returnCode < 0 || imagesize[0] <= 0 || imagesize[1] <= 0) {
+				Logcat.e(logLevel, "SizeCheckImage(3) に失敗しました. " + mFileList[page].name);
+				return -4;
+			}
+			width = imagesize[0];
+			height = imagesize[1];
+		}
+
+		// 本読み込みに備えて先頭へ戻す
+		inputStream.reset();
+		applyImageSize(page, width, height);
+		return 0;
 	}
 
 	private int SizeCheckImage(int page, InputStream inputStream, int[] imagesize) {
@@ -3364,11 +3503,16 @@ public class ImageManager extends InputStream implements Runnable {
 				int Outwidth = width / scale;
 				int Outheight = height / scale;
 				Logcat.d(logLevel, "Bitmap.createScaledBitmap start. width=" + Outwidth + ", height=" + Outheight);
-				bm = Bitmap.createScaledBitmap(bm, Outwidth, Outheight, true);
-				if (bm == null) {
+				Bitmap scaled = Bitmap.createScaledBitmap(bm, Outwidth, Outheight, true);
+				if (scaled == null) {
 					Logcat.e(logLevel, "Bitmap.createScaledBitmap failed.");
 					return null;
 				}
+				if (scaled != bm) {
+					// 縮小前の元Bitmapは不要なので即解放
+					bm.recycle();
+				}
+				bm = scaled;
 			}
 		}
 		if (bm == null) {
@@ -3395,47 +3539,49 @@ public class ImageManager extends InputStream implements Runnable {
 
 //		Logcat.d(logLevel, "start");
 
-		if (mFileList[page].width <= 0) {
-			SizeCheckImage(page);
-		}
-
-		if (!memWriteLock(page, 0, false)) {
-			// throw new IOException("Memory Lock Error.");
-			return null;
-		}
-
-		ZipInputStream zipStream = null;
-		try {
-			setLoadBitmapStart(page, notice);
-			if (mFileType == FileData.FILETYPE_PDF) {
+		if (mFileType == FileData.FILETYPE_PDF) {
+			// PDF はサイズ取得にストリームを使わないので従来通り
+			if (mFileList[page].width <= 0) {
+				SizeCheckImage(page);
+			}
+			if (!memWriteLock(page, 0, false)) {
+				return null;
+			}
+			try {
+				setLoadBitmapStart(page, notice);
 				id = LoadPdfImageData(page, mPdfRenderer);
 			}
-			else if (mFileType == FILETYPE_ZIP) {
-				// メモリキャッシュ読込時のみZIP展開する
-				// ファイルキャッシュを作成するときはZIP展開不要
-				zipStream = new ZipInputStream(new BufferedInputStream(this, BIS_BUFFSIZE));
-				zipStream.getNextEntry();
-				id = LoadImageData(page, zipStream, mFileList[page].orglen);
-				// ファイル破損時に無限ループするのでコメント化
-				// zipStream.closeEntry();
-			}
-			else if (mFileType == FILETYPE_RAR) {
-				// メモリキャッシュ読込時のみRAR展開する
-				// ファイルキャッシュを作成するときはRAR展開不要
-				if (mRarStream == null || mRarStream.getLoadPage() != page) {
-					mRarStream = new RarInputStream(new BufferedInputStream(this, BIS_BUFFSIZE), page, mFileList[page]);
-				}
-				else {
-					mRarStream.initSeek();
-				}
-				id = LoadImageData(page, mRarStream, mFileList[page].orglen);
-			}
-			else {
-				id = LoadImageData(page, this, mFileList[page].orglen);
+			catch (IOException e) {
+				Logcat.e(logLevel, "", e);
 			}
 		}
-		catch (IOException e) {
-			Logcat.e(logLevel, "", e);
+		else {
+			try {
+				setLoadBitmapStart(page, notice);
+				BufferedInputStream inputStream = openPageStream(page);
+				inputStream.mark(mFileList[page].orglen + 1);
+
+				boolean fReady = true;
+				if (mFileList[page].width <= 0) {
+					// サイズ未確定なら同じストリームで境界だけ先に読む(再シーク・再展開を避ける)
+					if (SizeCheckImageFromStream(page, inputStream) < 0) {
+						Logcat.e(logLevel, "サイズ取得に失敗しました. " + mFileList[page].name);
+						fReady = false;
+					}
+				}
+
+				if (fReady && !memWriteLock(page, 0, false)) {
+					// メモリキャッシュを確保できない
+					fReady = false;
+				}
+
+				if (fReady) {
+					id = LoadImageData(page, inputStream, mFileList[page].orglen);
+				}
+			}
+			catch (IOException e) {
+				Logcat.e(logLevel, "", e);
+			}
 		}
 
 		try {
@@ -3840,11 +3986,17 @@ public class ImageManager extends InputStream implements Runnable {
 				int Outwidth = mFileList[page].width / mFileList[page].scale;
 				int Outheight = mFileList[page].height / mFileList[page].scale;
 				Logcat.d(logLevel, "Bitmap.createScaledBitmap start. width=" + Outwidth + ", height=" + Outheight);
-				bm = Bitmap.createScaledBitmap(bm, Outwidth, Outheight, true);
-				if (bm == null) {
+				Bitmap scaled = Bitmap.createScaledBitmap(bm, Outwidth, Outheight, true);
+				if (scaled == null) {
 					Logcat.e(logLevel, "Bitmap.createScaledBitmap failed.");
+					bm.recycle();
 					return null;
 				}
+				if (scaled != bm) {
+					// 縮小前の元Bitmapは不要なので即解放
+					bm.recycle();
+				}
+				bm = scaled;
 			}
 
 			Logcat.d(logLevel, "CallImgLibrary.ImageSetPage succeed. " + mFileList[page].name);
@@ -3867,10 +4019,55 @@ public class ImageManager extends InputStream implements Runnable {
 	}
 
 	// ビュワー表示用の画像読込
-	private ImageData LoadImageData(int page, InputStream is, int orglen) throws IOException {
+	/**
+	 * BitmapFactory でデコードする。可能なら前回の作業Bitmapを inBitmap で再利用し、
+	 * ページごとの大きな確保と GC を避ける。
+	 * 呼び出し側で inputStream.mark() 済みであること(再利用失敗時に reset する)。
+	 */
+	private Bitmap decodeBitmapReusable(BufferedInputStream inputStream, BitmapFactory.Options option, int width, int height) throws IOException {
+		int logLevel = Logcat.LOG_LEVEL_WARN;
+		Bitmap bm = null;
+		option.inMutable = true;
+
+		Bitmap reuse = mDecodeBitmap;
+		long needBytes = (long) width * (long) height * 4L;
+		if (reuse != null && !reuse.isRecycled() && reuse.isMutable() && width > 0 && height > 0 && reuse.getAllocationByteCount() >= needBytes) {
+			option.inBitmap = reuse;
+			try {
+				bm = BitmapFactory.decodeStream(new BufferedInputStream(inputStream), null, option);
+			}
+			catch (IllegalArgumentException e) {
+				// 再利用条件を満たさない場合は通常確保にフォールバック
+				Logcat.d(logLevel, "inBitmap での再利用に失敗しました. 通常確保します.");
+				bm = null;
+			}
+			if (bm == null) {
+				inputStream.reset();
+				option.inBitmap = null;
+			}
+		}
+
+		if (bm == null) {
+			bm = BitmapFactory.decodeStream(new BufferedInputStream(inputStream), null, option);
+		}
+
+		if (bm != null && bm != mDecodeBitmap) {
+			// 新しく確保したら次回以降の作業Bitmapとして保持する
+			if (mDecodeBitmap != null && !mDecodeBitmap.isRecycled()) {
+				mDecodeBitmap.recycle();
+			}
+			mDecodeBitmap = bm;
+		}
+		return bm;
+	}
+
+	// ビュワー表示用の画像読込
+	/**
+	 * @param inputStream openPageStream() で開いたストリーム(mark/reset 可能で先頭位置にあること)
+	 */
+	private ImageData LoadImageData(int page, BufferedInputStream inputStream, int orglen) throws IOException {
 		int logLevel = Logcat.LOG_LEVEL_WARN;
 		int ret = 0;
-		InputStream inputStream = new BufferedInputStream(is);
 
 		BitmapFactory.Options option = new BitmapFactory.Options();
 		Bitmap bm = null;
@@ -3883,8 +4080,9 @@ public class ImageManager extends InputStream implements Runnable {
 		Logcat.d(logLevel, "Start. " + mFileList[page].name);
 
 		inputStream.mark(orglen + 1);
-		if (FileData.getExtType(mActivity, mFileList[page].name) != FileData.EXTTYPE_AVIF && FileData.getExtType(mActivity, mFileList[page].name) != FileData.EXTTYPE_JXL) {
-			bm = BitmapFactory.decodeStream(new BufferedInputStream(inputStream), null, option);
+		int extType = FileData.getExtType(mActivity, mFileList[page].name);
+		if (extType != FileData.EXTTYPE_AVIF && extType != FileData.EXTTYPE_JXL) {
+			bm = decodeBitmapReusable(inputStream, option, mFileList[page].width, mFileList[page].height);
 		}
 		if (bm != null) {
 			Logcat.v(logLevel, "BitmapFactory decode succeed. " + mFileList[page].name);
@@ -3900,7 +4098,7 @@ public class ImageManager extends InputStream implements Runnable {
 				return null;
 			}
 			Logcat.v(logLevel, "CallImgLibrary.ImageSetBitmap succeed. " + mFileList[page].name);
-			bm.recycle();
+			// bm は次ページのデコードで再利用するので recycle しない
 			// 読み込み成功
 			mMemCacheFlag[page].fSource = true;
 			id = new ImageData();
@@ -3927,7 +4125,7 @@ public class ImageManager extends InputStream implements Runnable {
 			}
 
 //			Logcat.d(logLevel, "start: page=" + page);
-			byte[] data = new byte[100 * 1024];
+			byte[] data = mReadBuffer;
 			int total = 0;
 			while (true) {
 				int size = 0;

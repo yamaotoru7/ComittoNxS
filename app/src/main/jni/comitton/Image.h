@@ -105,6 +105,21 @@ typedef struct buff_manage {
 	LONG		*Buff;
 } BUFFMNG;
 
+/** ページ/種別/半面ごとに使用中ブロック番号を保持するリスト */
+typedef struct block_list {
+	int		*Blocks;
+	int		Num;
+	int		Cap;
+} BLOCKLIST;
+
+/** BUFFMNG.Type の値: 元画像 */
+#define BLOCKTYPE_ORG	0
+/** BUFFMNG.Type の値: スケール済み画像 */
+#define BLOCKTYPE_SCL	1
+#define BLOCKTYPE_NUM	2
+#define BLOCKHALF_NUM	3
+#define BLOCKLIST_KEY(page, type, half)	(((page) * BLOCKTYPE_NUM + (type)) * BLOCKHALF_NUM + (half))
+
 #define TYPE_ORIGINAL	1
 #define TYPE_SCALING	2
 
@@ -142,9 +157,12 @@ int ThumbnailDraw(long long, int, int, int, int, BYTE*);
 void ThumbnailFree(long long);
 
 void CheckImageType(int, int *);
-int SetBuff(int, int, uint32_t, uint32_t, uint8_t*, colorFormat);
+int SetBuff(int, int, uint32_t, uint32_t, uint32_t, uint8_t*, colorFormat);
 int SetBitmap(int, int, uint32_t, uint32_t, uint8_t*, colorFormat, WORD *);
 int ReleaseBuff(int, int, int, int);
+int AllocBlock(int, int, int, int);
+int AppendBlock(int, int, int, int, int);
+BLOCKLIST *GetBlockList(int, int, int, int);
 int MemAlloc(int, int);
 void MemFree(int);
 int ScaleMemLine(int, int);

@@ -32,6 +32,10 @@ extern long			gBuffNum[];
 extern BUFFMNG		*gSclBuffMng[];
 extern long			gSclBuffNum[];
 
+extern BLOCKLIST	*gPageBlocks[];
+extern int			*gFreeList[];
+extern int			gFreeNum[];
+
 extern int			gCancel[];
 
 extern char gDitherX_3bit[8][8];
@@ -105,58 +109,41 @@ int DrawBitmap(int index, int page, int half, int x, int y, void *canvas, int wi
 //	LOGD("DrawBitmap : x=%d, y=%d, w=%d, h=%d, s=%d, l=%d, d=%d, xp=%d, yp=%d", x, y, width, height, stride, lines, dots, xpos, ypos);
 
 	int		yy;
-    int	loopx;
-    int rgb;
     LONG	*pixeldata;
 
-	int buffindex = -1;
-	int buffpos = 0;
 	int linesize = image_width + HOKAN_DOTS;
-	LONG *buffptr = nullptr;
-
-	// バッファのスキップ
-	for (yy = 0 ; yy < ypos ; yy ++) {
-		if (buffindex < 0 || BLOCKSIZE - buffpos < linesize) {
-			for (buffindex ++ ; buffindex < gBuffNum[index] ; buffindex ++) {
-				if (gBuffMng[index][buffindex].Page == page && gBuffMng[index][buffindex].Type == 1 && gBuffMng[index][buffindex].Half == half) {
-					break;
-				}
-			}
-			if (buffindex >= gBuffNum[index]) {
-				// 領域不足
-				LOGE("DrawBitmap/1: Data Error page=%d, buffindex=%d", page, buffindex);
-				return ERROR_CODE_CACHE_IS_FULL;
-			}
-			buffpos = 0;
-		}
-		buffpos += linesize;
-//		LOGD("DEBUG1:yy=%d/%d, idx=%d, pos=%d", yy, ypos, buffindex, buffpos);
+	/** 1ブロックあたりの行数 */
+	int linesPerBlock = BLOCKSIZE / linesize;
+	if (linesPerBlock <= 0) {
+		return ERROR_CODE_CACHE_IS_FULL;
 	}
 
+	BLOCKLIST *list = GetBlockList(index, page, BLOCKTYPE_SCL, half);
+	if (list == nullptr) {
+		LOGE("DrawBitmap/1: Data Error page=%d", page);
+		return ERROR_CODE_CACHE_IS_FULL;
+	}
+
+	// 描画開始行が含まれるブロックへ直接ジャンプ
+	int listindex = ypos / linesPerBlock;
+	int buffpos = (ypos % linesPerBlock) * linesize;
+
 	for (yy = 0 ; yy < lines ; yy++) {
-		if (buffindex < 0 || BLOCKSIZE - buffpos < linesize) {
-			for (buffindex ++ ; buffindex < gBuffNum[index] ; buffindex ++) {
-				if (gBuffMng[index][buffindex].Page == page && gBuffMng[index][buffindex].Type == 1 && gBuffMng[index][buffindex].Half == half) {
-					break;
-				}
-			}
-			if (buffindex >= gBuffNum[index]) {
-				// 領域不足
-				LOGE("DrawBitmap/2: Data Error page=%d, line=%d, buffindex=%d", page, yy, buffindex);
-				return ERROR_CODE_CACHE_IS_FULL;
-			}
-			buffpos = 0;
+		if (listindex >= list->Num) {
+			// 領域不足
+			LOGE("DrawBitmap/2: Data Error page=%d, line=%d, listindex=%d/%d", page, yy, listindex, list->Num);
+			return ERROR_CODE_CACHE_IS_FULL;
 		}
-//		LOGD("DEBUG2:yy=%d, idx=%d, pos=%d, off=%d", yy, buffindex, buffpos, buffpos + xpos + HOKAN_DOTS / 2);
-        pixeldata = &gBuffMng[index][buffindex].Buff[buffpos + xpos + HOKAN_DOTS / 2];
-        for	(loopx = 0 ; loopx < dots ; loopx++)	{
-            rgb = *(pixeldata + loopx);
-            *(pixels + loopx * 2 + 0) = rgb & 0xffff;
-            *(pixels + loopx * 2 + 1) = (rgb >> 16) & 0xffff;
-        }
+        pixeldata = &gBuffMng[index][list->Blocks[listindex]].Buff[buffpos + xpos + HOKAN_DOTS / 2];
+		// キャッシュは RGBA_8888 と同じバイト配置なので行ごとに一括転送
+		memcpy(pixels, pixeldata, (size_t)dots * sizeof(LONG));
 
 		pixels = (WORD*)(((char*)pixels) + stride);
 		buffpos += linesize;
+		if (BLOCKSIZE - buffpos < linesize) {
+			listindex ++;
+			buffpos = 0;
+		}
 	}
 	return 0;
 }
@@ -182,10 +169,10 @@ int DrawScaleBitmap(int index, int page, int rotate, int s_x, int s_y, int s_cx,
 		return -5;
 	}
 
-	int buffindex;
 	int buffpos = 0;
 	int linesize = (pData->OrgWidth + HOKAN_DOTS);
 	int lineindex = 0;
+	int listindex = 0;
 
 	// 領域確保
     ret = ScaleMemLine(index, pData->OrgHeight - cut_top - cut_bottom);
@@ -193,30 +180,30 @@ int DrawScaleBitmap(int index, int page, int rotate, int s_x, int s_y, int s_cx,
 		return ret;
 	}
 
-	buffindex = -1;
+	BLOCKLIST *list = GetBlockList(index, page, BLOCKTYPE_ORG, 0);
+	if (list == nullptr || list->Num == 0) {
+		LOGE("DrawScaleBitmap: Data Error page=%d (no blocks)", page);
+		return ERROR_CODE_CACHE_IS_FULL;
+	}
+
 	for (lineindex = 0 ; lineindex < pData->OrgHeight - cut_bottom ; lineindex ++) {
 		if (gCancel[index]) {
 //			LOGD("DrawScaleBitmap : cancel.");
 			return ERROR_CODE_USER_CANCELED;
 		}
-		if (buffindex < 0 || BLOCKSIZE - buffpos < linesize) {
-			for (buffindex ++ ; buffindex < gBuffNum[index] ; buffindex ++) {
-				if (gBuffMng[index][buffindex].Page == page && gBuffMng[index][buffindex].Type == 0) {
-					break;
-				}
-			}
-			if (buffindex >= gBuffNum[index]) {
-				// 領域不足
-				LOGE("DrawScaleBitmap: Data Error page=%d, lineindex=%d/%d", page, lineindex, (int)pData->OrgHeight);
-				return ERROR_CODE_CACHE_IS_FULL;
-			}
-			buffpos = 0;
+		if (listindex >= list->Num) {
+			// 領域不足
+			LOGE("DrawScaleBitmap: Data Error page=%d, lineindex=%d/%d", page, lineindex, (int)pData->OrgHeight);
+			return ERROR_CODE_CACHE_IS_FULL;
 		}
-//		LOGD("DrawScaleBitmap : lineindex=%d, buffindex=%d, buffpos=%d", lineindex, buffindex, buffpos);
         if (lineindex - cut_top >= 0) {
-    		gDsLinesPtr[index][lineindex - cut_top] = gBuffMng[index][buffindex].Buff + buffpos + cut_left + HOKAN_DOTS / 2;
+    		gDsLinesPtr[index][lineindex - cut_top] = gBuffMng[index][list->Blocks[listindex]].Buff + buffpos + cut_left + HOKAN_DOTS / 2;
 		}
 		buffpos += linesize;
+		if (BLOCKSIZE - buffpos < linesize) {
+			listindex ++;
+			buffpos = 0;
+		}
 	}
 
 	int		yy, xx, yi, xi;
@@ -272,8 +259,7 @@ int DrawScaleBitmap(int index, int page, int rotate, int s_x, int s_y, int s_cx,
 							xi = OrgHeight - (ypos + 1);
 							yi = xpos[xx];
 						}
-                        pixels[xx * 2 + 0] = gDsLinesPtr[index][yi][xi] & 0xffff;
-                        pixels[xx * 2 + 1] = ((gDsLinesPtr[index][yi][xi] >> 16) & 0xffff);
+                        ((LONG*)pixels)[xx] = gDsLinesPtr[index][yi][xi];
 					}
 				}
 			}
@@ -321,8 +307,7 @@ int DrawScaleBitmap(int index, int page, int rotate, int s_x, int s_y, int s_cx,
                             xi = OrgHeight - (ypos[yy] + 1);
                             yi = xpos;
                         }
-                        pixels[xx * 2 + 0] = gDsLinesPtr[index][yi][xi] & 0xffff;
-                        pixels[xx * 2 + 1] = ((gDsLinesPtr[index][yi][xi] >> 16) & 0xffff);
+                        ((LONG*)pixels)[xx] = gDsLinesPtr[index][yi][xi];
                     }
 				}
 			}
@@ -368,17 +353,36 @@ int MemAlloc(int index, int buffsize)
             goto ERROREND;
         }
 
+        // ブロック本体は初回使用時に確保する(遅延確保)
         int i;
         for (i = 0; i < buffnum; i++) {
             gBuffMng[index][i].Page = -1;    // 未使用状態に初期化
-            gBuffMng[index][i].Buff = (LONG *) malloc(BLOCKSIZE * sizeof(LONG));
-            if (gBuffMng[index][i].Buff == nullptr) {
-                LOGE("MemAlloc: malloc error.(Buff / index=%d)", i);
-                ret = ERROR_CODE_MALLOC_FAILURE;
-                goto ERROREND;
-            }
-            gBuffMng[index][i].Page = -1;
-            gBuffNum[index] = i;
+            gBuffMng[index][i].Type = 0;
+            gBuffMng[index][i].Half = 0;
+            gBuffMng[index][i].Size = 0;
+            gBuffMng[index][i].Count = 0;
+            gBuffMng[index][i].Buff = nullptr;
+        }
+        gBuffNum[index] = buffnum;
+
+        // 未使用ブロックのスタック(先頭から順に払い出されるよう逆順に積む)
+        gFreeList[index] = (int *) malloc(sizeof(int) * buffnum);
+        if (gFreeList[index] == nullptr) {
+            LOGE("MemAlloc: malloc error.(FreeList)");
+            ret = ERROR_CODE_MALLOC_FAILURE;
+            goto ERROREND;
+        }
+        for (i = 0; i < buffnum; i++) {
+            gFreeList[index][i] = buffnum - 1 - i;
+        }
+        gFreeNum[index] = buffnum;
+
+        // ページごとのブロック番号リスト
+        gPageBlocks[index] = (BLOCKLIST *) calloc((size_t) gTotalPages[index] * BLOCKTYPE_NUM * BLOCKHALF_NUM, sizeof(BLOCKLIST));
+        if (gPageBlocks[index] == nullptr) {
+            LOGE("MemAlloc: malloc error.(PageBlocks)");
+            ret = ERROR_CODE_MALLOC_FAILURE;
+            goto ERROREND;
         }
 
         // 拡大縮小画像領域確保
@@ -429,6 +433,24 @@ void MemFree(int index)
             gBuffMng[index] = nullptr;
         }
         gBuffNum[index] = 0;
+
+        // ブロック索引の解放
+        if (gPageBlocks[index] != nullptr) {
+            long listnum = gTotalPages[index] * BLOCKTYPE_NUM * BLOCKHALF_NUM;
+            for (long i = 0; i < listnum; i++) {
+                if (gPageBlocks[index][i].Blocks != nullptr) {
+                    free(gPageBlocks[index][i].Blocks);
+                    gPageBlocks[index][i].Blocks = nullptr;
+                }
+            }
+            free(gPageBlocks[index]);
+            gPageBlocks[index] = nullptr;
+        }
+        if (gFreeList[index] != nullptr) {
+            free(gFreeList[index]);
+            gFreeList[index] = nullptr;
+        }
+        gFreeNum[index] = 0;
 
         // 拡大縮小画像領域解放
         if (gSclBuffMng[index] != nullptr) {
@@ -661,7 +683,7 @@ void CheckImageType(int index, int *type)
         *type = IMAGETYPE_HEIF;
     }
     else if (
-        ((uint8_t)*gLoadBuffer[index] == 0xFF && (uint8_t)*gLoadBuffer[index] == 0x0A) ||
+        ((uint8_t)gLoadBuffer[index][0] == 0xFF && (uint8_t)gLoadBuffer[index][1] == 0x0A) ||
         strncmp(gLoadBuffer[index]+4,"JXL",3)==0
     ) {
         *type = IMAGETYPE_JXL;
@@ -672,18 +694,54 @@ void CheckImageType(int index, int *type)
 }
 
 
-int SetBuff(int index, int page, uint32_t width, uint32_t height, uint8_t *data, colorFormat colorFormat)
+/**
+ * 1画素あたりのバイト数
+ */
+static int BytesPerPixel(colorFormat colorFormat)
+{
+    switch (colorFormat) {
+        case COLOR_FORMAT_RGB:
+        case COLOR_FORMAT_BGR:
+            return 3;
+        case COLOR_FORMAT_RGBA:
+        case COLOR_FORMAT_ARGB:
+        case COLOR_FORMAT_BGRA:
+        case COLOR_FORMAT_ABGR:
+            return 4;
+        case COLOR_FORMAT_RGB565:
+            return 2;
+        case COLOR_FORMAT_GRAYSCALE:
+        default:
+            return 1;
+    }
+}
+
+/**
+ * デコード済み画素をキャッシュブロックへ格納する
+ * @param stride 入力の1行のバイト数(0なら width * 画素サイズ)
+ */
+int SetBuff(int index, int page, uint32_t width, uint32_t height, uint32_t stride, uint8_t *data, colorFormat colorFormat)
 {
     int returnCode = 0;
 
     int buffindex = -1;
     int buffpos = 0;
     int linesize = (width + HOKAN_DOTS);
-    int ret = 0;
     LONG *buffptr = nullptr;
 
-    int yy, xx, yd3, yd2;
+    int yy, xx;
     int rr, gg, bb;
+
+    if (width == 0 || height == 0) {
+        return 0;
+    }
+    if (linesize > BLOCKSIZE) {
+        LOGE("SetBuff: line too long. width=%u", width);
+        return ERROR_CODE_CACHE_IS_FULL;
+    }
+    if (stride == 0) {
+        stride = width * BytesPerPixel(colorFormat);
+    }
 
     // 画像バッファにデータを格納する処理
     for(yy = 0; yy < height; yy++)
@@ -698,68 +756,60 @@ int SetBuff(int index, int page, uint32_t width, uint32_t height, uint8_t *data,
 
         // ライン毎のバッファの位置を保存
         if (buffindex < 0 || BLOCKSIZE - buffpos < linesize) {
-            for (buffindex++; buffindex < gBuffNum[index] ; buffindex++) {
-                if (gBuffMng[index][buffindex].Page == -1) {
-                    break;
-                }
-            }
-            if (buffindex >= gBuffNum[index]) {
-                LOGE("SetBuff: Out of memory.");
+            buffindex = AllocBlock(index, page, BLOCKTYPE_ORG, 0);
+            if (buffindex < 0) {
+                LOGE("SetBuff: Out of memory. ret=%d", buffindex);
                 // 領域不足
-                returnCode = ERROR_CODE_CACHE_IS_FULL;
+                returnCode = buffindex;
                 break;
             }
             buffpos = 0;
-            gBuffMng[index][buffindex].Page = page;
-            gBuffMng[index][buffindex].Type = 0;
-            gBuffMng[index][buffindex].Half = 0;
-            gBuffMng[index][buffindex].Size = 0;
-            gBuffMng[index][buffindex].Count = 0;
         }
 
         buffptr = gBuffMng[index][buffindex].Buff + buffpos + HOKAN_DOTS / 2;
+        const uint8_t *src = data + (size_t)yy * stride;
 
-        // データセット
-        yd3 = gDitherY_3bit[yy & 0x07];
-        yd2 = gDitherY_2bit[yy & 0x03];
-
-        for (xx = 0 ; xx < width ; xx++) {
-            if (colorFormat == COLOR_FORMAT_RGB565) {
-                WORD rgb = *(WORD *)data; data += sizeof(WORD);
+        if (colorFormat == COLOR_FORMAT_RGBA) {
+            // Skia の RGBA_8888 はメモリ上 R,G,B,A の順で MAKE8888 と同じ配置。
+            // alpha だけ 0xFF に揃える(従来仕様)
+            const LONG *srcpix = (const LONG *)src;
+            for (xx = 0 ; xx < width ; xx++) {
+                buffptr[xx] = srcpix[xx] | 0xFF000000u;
+            }
+        }
+        else if (colorFormat == COLOR_FORMAT_RGB565) {
+            const WORD *srcpix = (const WORD *)src;
+            for (xx = 0 ; xx < width ; xx++) {
+                WORD rgb = srcpix[xx];
                 rr = RGB565_RED_256(rgb);
                 gg = RGB565_GREEN_256(rgb);
                 bb = RGB565_BLUE_256(rgb);
+                buffptr[xx] = MAKE8888(rr, gg, bb);
             }
-            else {
+        }
+        else {
+            for (xx = 0 ; xx < width ; xx++) {
                 if (colorFormat == COLOR_FORMAT_ARGB || colorFormat == COLOR_FORMAT_ABGR) {
-                    data++;
+                    src++;
                 }
-                if (colorFormat == COLOR_FORMAT_RGB || colorFormat == COLOR_FORMAT_RGBA ||
-                    colorFormat == COLOR_FORMAT_ARGB) {
-                    rr = *data;
-                    data++;
-                    gg = *data;
-                    data++;
-                    bb = *data;
-                    data++;
+                if (colorFormat == COLOR_FORMAT_RGB || colorFormat == COLOR_FORMAT_ARGB) {
+                    rr = *src++;
+                    gg = *src++;
+                    bb = *src++;
                 } else if (colorFormat == COLOR_FORMAT_BGR || colorFormat == COLOR_FORMAT_BGRA ||
                            colorFormat == COLOR_FORMAT_ABGR) {
-                    bb = *data;
-                    data++;
-                    gg = *data;
-                    data++;
-                    rr = *data;
-                    data++;
+                    bb = *src++;
+                    gg = *src++;
+                    rr = *src++;
+                } else {
+                    // COLOR_FORMAT_GRAYSCALE
+                    rr = gg = bb = *src++;
                 }
-                if (colorFormat == COLOR_FORMAT_RGBA || colorFormat == COLOR_FORMAT_BGRA) {
-                    data++;
+                if (colorFormat == COLOR_FORMAT_BGRA) {
+                    src++;
                 }
-                if (colorFormat == COLOR_FORMAT_GRAYSCALE) {
-                    rr = gg = bb = *data;
-                    data++;
-                }
+                buffptr[xx] = MAKE8888(rr, gg, bb);
             }
-            buffptr[xx] = MAKE8888(rr, gg, bb);
         }
 
         // 補完用の余裕
@@ -856,21 +906,115 @@ int SetBitmap(int index, int page, uint32_t width, uint32_t height, uint8_t *dat
     return returnCode;
 }
 
+/**
+ * ページ/種別/半面に対応するブロック番号リストを返す
+ * @return 範囲外なら nullptr
+ */
+BLOCKLIST *GetBlockList(int index, int page, int type, int half)
+{
+	if (gPageBlocks[index] == nullptr) {
+		return nullptr;
+	}
+	if (page < 0 || gTotalPages[index] <= page || type < 0 || BLOCKTYPE_NUM <= type || half < 0 || BLOCKHALF_NUM <= half) {
+		return nullptr;
+	}
+	return &gPageBlocks[index][BLOCKLIST_KEY(page, type, half)];
+}
+
+/**
+ * ブロック番号をページのリスト末尾へ追加する
+ */
+int AppendBlock(int index, int page, int type, int half, int block)
+{
+	BLOCKLIST *list = GetBlockList(index, page, type, half);
+	if (list == nullptr) {
+		return -1;
+	}
+	if (list->Num >= list->Cap) {
+		int newcap = list->Cap == 0 ? 16 : list->Cap * 2;
+		int *newblocks = (int *) realloc(list->Blocks, sizeof(int) * newcap);
+		if (newblocks == nullptr) {
+			LOGE("AppendBlock: malloc error.");
+			return ERROR_CODE_MALLOC_FAILURE;
+		}
+		list->Blocks = newblocks;
+		list->Cap = newcap;
+	}
+	list->Blocks[list->Num++] = block;
+	return 0;
+}
+
+/**
+ * 未使用ブロックを1つ払い出し、ページ/種別/半面に割り当てる
+ * @return ブロック番号。確保できなければマイナス値
+ */
+int AllocBlock(int index, int page, int type, int half)
+{
+	if (gFreeNum[index] <= 0) {
+		return ERROR_CODE_CACHE_IS_FULL;
+	}
+	int block = gFreeList[index][gFreeNum[index] - 1];
+	BUFFMNG *mng = &gBuffMng[index][block];
+	if (mng->Buff == nullptr) {
+		// 遅延確保
+		mng->Buff = (LONG *) malloc(BLOCKSIZE * sizeof(LONG));
+		if (mng->Buff == nullptr) {
+			LOGE("AllocBlock: malloc error.(block=%d)", block);
+			return ERROR_CODE_MALLOC_FAILURE;
+		}
+	}
+	int ret = AppendBlock(index, page, type, half, block);
+	if (ret < 0) {
+		return ret;
+	}
+	gFreeNum[index]--;
+	mng->Page = page;
+	mng->Type = type;
+	mng->Half = half;
+	mng->Size = 0;
+	mng->Count = 0;
+	return block;
+}
+
+/**
+ * 1つのリストに含まれるブロックを全て未使用に戻す
+ */
+static void ReleaseBlockList(int index, BLOCKLIST *list)
+{
+	for (int i = 0 ; i < list->Num ; i ++) {
+		int block = list->Blocks[i];
+		gBuffMng[index][block].Page = -1;
+		gBuffMng[index][block].Type = 0;
+		gBuffMng[index][block].Half = 0;
+		gBuffMng[index][block].Size = 0;
+		gBuffMng[index][block].Count = 0;
+		gFreeList[index][gFreeNum[index]++] = block;
+	}
+	list->Num = 0;
+}
+
+/**
+ * ページデータ解放
+ * page / type / half に -1 を指定するとその条件を無視して全て解放する
+ */
 int ReleaseBuff(int index, int page, int type, int half)
 {
-	// ページデータ解放
-	int	i;
-	for (i = 0 ; i < gBuffNum[index] ; i ++) {
-		if (gBuffMng[index][i].Page == page || page == -1) {
-			if (gBuffMng[index][i].Type == type || type == -1) {
-				if (gBuffMng[index][i].Half == half || half == -1) {
-					// 使用状況設定
-//					LOGD("ReleaseBuff : index=%d, page=%d, type=%d, half=%d, size=%d",
-//							i, gBuffMng[index][i].Page, gBuffMng[index][i].Type, gBuffMng[index][i].Half, gBuffMng[index][i].Size );
-					gBuffMng[index][i].Page = -1;
-					gBuffMng[index][i].Type = 0;
-					gBuffMng[index][i].Half = 0;
-					gBuffMng[index][i].Size = 0;
+	if (gPageBlocks[index] == nullptr) {
+		return 0;
+	}
+	int pageSt = page == -1 ? 0 : page;
+	int pageEd = page == -1 ? (int)gTotalPages[index] : page + 1;
+	int typeSt = type == -1 ? 0 : type;
+	int typeEd = type == -1 ? BLOCKTYPE_NUM : type + 1;
+	int halfSt = half == -1 ? 0 : half;
+	int halfEd = half == -1 ? BLOCKHALF_NUM : half + 1;
+
+	for (int p = pageSt ; p < pageEd ; p ++) {
+		for (int t = typeSt ; t < typeEd ; t ++) {
+			for (int h = halfSt ; h < halfEd ; h ++) {
+				BLOCKLIST *list = GetBlockList(index, p, t, h);
+				if (list != nullptr && list->Num > 0) {
+					ReleaseBlockList(index, list);
 				}
 			}
 		}
