@@ -4357,6 +4357,42 @@ public class ImageManager extends InputStream implements Runnable {
 	}
 
 	// サムネイルに近い縮尺を求める
+	/** 表紙に使わない縦横比 (長辺 / 短辺). 帯や背の画像を除くため */
+	private static final float COVER_MAX_ASPECT = 2.0f;
+	/** 表紙を探す枚数. RAR のサムネイル取得では一覧も先頭 5 枚までしか作らない */
+	private static final int COVER_SEARCH_PAGES = 5;
+
+	/**
+	 * 表紙サムネイルに使うページを返す.
+	 * 先頭に帯や背の画像が入っていることがあるので、長辺が短辺の COVER_MAX_ASPECT 倍を超える画像は飛ばす.
+	 * 先頭 COVER_SEARCH_PAGES 枚がすべて当てはまるときは 0 ページ目を使う.
+	 */
+	public int findCoverPage() throws IOException {
+		if (mFileList == null || mFileList.length == 0) {
+			LoadImageList(0, 0, 0);
+		}
+		if (mFileList == null || mFileList.length == 0 || mFileType == FileData.FILETYPE_PDF) {
+			return 0;
+		}
+		int num = Math.min(mFileList.length, COVER_SEARCH_PAGES);
+		for (int page = 0; page < num; page++) {
+			if (mFileList[page].width <= 0) {
+				SizeCheckImage(page);
+			}
+			int w = mFileList[page].o_width > 0 ? mFileList[page].o_width : mFileList[page].width;
+			int h = mFileList[page].o_height > 0 ? mFileList[page].o_height : mFileList[page].height;
+			if (w <= 0 || h <= 0) {
+				// サイズが分からない画像は飛ばす
+				continue;
+			}
+			if ((float) Math.max(w, h) / Math.min(w, h) <= COVER_MAX_ASPECT) {
+				return page;
+			}
+			Logcat.d(Logcat.LOG_LEVEL_WARN, "縦横比が極端なので表紙にしません. page=" + page + ", size=" + w + "x" + h + ", " + mFileList[page].name);
+		}
+		return 0;
+	}
+
 	public Bitmap LoadEpubThumbnail(int width, int height) throws IOException {
 		int logLevel = Logcat.LOG_LEVEL_WARN;
 		Logcat.d(logLevel, "開始します. width=" + width + ", height=" + height);

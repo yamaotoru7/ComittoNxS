@@ -403,8 +403,10 @@ public class FileThumbnailLoader extends ThumbnailLoader implements Runnable {
 				Logcat.d(logLevel, "index=" + index + ", LoadEpubThumbnail を実行します. width=" + mThumbSizeW + ", height=" + mThumbSizeH + " filename=" + filename);
 				bm = mImageMgr.LoadEpubThumbnail(mThumbSizeW, mThumbSizeH);
 			} else {
-				Logcat.d(logLevel, "index=" + index + ", LoadThumbnail を実行します. page=0, width=" + mThumbSizeW + ", height=" + mThumbSizeH + " filename=" + filename);
-				bm = mImageMgr.LoadThumbnail(0, mThumbSizeW, mThumbSizeH);
+				// 帯や背のような極端に縦長・横長の画像は飛ばして表紙を選ぶ
+				int page = mImageMgr.findCoverPage();
+				Logcat.d(logLevel, "index=" + index + ", LoadThumbnail を実行します. page=" + page + ", width=" + mThumbSizeW + ", height=" + mThumbSizeH + " filename=" + filename);
+				bm = mImageMgr.LoadThumbnail(page, mThumbSizeW, mThumbSizeH);
 			}
 			Logcat.v(logLevel, "new ImageManager() cacheIndex=" + mImageMgr.getCacheIndex());
 			releaseManager();
