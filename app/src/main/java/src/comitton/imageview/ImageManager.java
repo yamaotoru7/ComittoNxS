@@ -259,6 +259,10 @@ public class ImageManager extends InputStream implements Runnable {
 	private static final String PERF_TAG = "CachePerf";
 	// cmpRead がサーバから読んだ量と時間 (mLock 配下で更新)
 	private long mPerfNetBytes;
+	// 一覧解析の内訳 (エントリ解析全体, うちファイル名の文字コード変換, 種別判定)
+	private long mPerfEntryNanos;
+	private long mPerfNameNanos;
+	private long mPerfTypeNanos;
 	private long mPerfNetNanos;
 	private int mPerfNetCalls;
 
@@ -294,9 +298,9 @@ public class ImageManager extends InputStream implements Runnable {
 		}
 	}
 
-	/** キャッシュスレッドの処理中に、画面側の読み込み要求が来た */
+	/** キャッシュスレッドの処理中に、画面側の読み込み要求が来た (またはページ一覧などで休止を求められた) */
 	private boolean isCacheThreadCanceled() {
-		return mCacheBreak && Thread.currentThread() == mThread;
+		return (mCacheBreak || mCacheSleep) && Thread.currentThread() == mThread;
 	}
 
 	private void userOpStart() {
@@ -562,19 +566,19 @@ public class ImageManager extends InputStream implements Runnable {
 					return;
 				}
 
-				Logcat.d(logLevel, MessageFormat.format("ループ実行: count={0}, fileLength={1}, headpos={2}", new Object[]{count, fileLength, headpos}));
+				if (Logcat.isDebugEnabled(logLevel)) Logcat.d(logLevel, MessageFormat.format("ループ実行: count={0}, fileLength={1}, headpos={2}", new Object[]{count, fileLength, headpos}));
 				if(headpos != 0){
 					if(headpos < fileLength) {
 						readSize = (int) ((fileLength - headpos >= 1024) ? 1024 : fileLength - headpos);
 						int pos = (int) (cdhLength - (fileLength - headpos));
 						buf = Arrays.copyOfRange(cdhBuf, pos, readSize+pos);
-						Logcat.d(logLevel, MessageFormat.format("バッファをコピーします: count={0}, readSize={1}, pos={2}", new Object[]{count, readSize, pos}));
+						if (Logcat.isDebugEnabled(logLevel)) Logcat.d(logLevel, MessageFormat.format("バッファをコピーします: count={0}, readSize={1}, pos={2}", new Object[]{count, readSize, pos}));
 					}else
 						readSize = -1;
 				}else {
 					// RARはファイル情報とファイルデータが交互に格納されている
 					readSize = cmpDirectRead(buf, 0, SIZE_BUFFER);
-					Logcat.d(logLevel, MessageFormat.format("バッファを読み込みました: count={0}, readSize={1}", new Object[]{count, readSize}));
+					if (Logcat.isDebugEnabled(logLevel)) Logcat.d(logLevel, MessageFormat.format("バッファを読み込みました: count={0}, readSize={1}", new Object[]{count, readSize}));
 				}
 				if (readSize <= 0) {
 					// ファイル終了
@@ -587,7 +591,9 @@ public class ImageManager extends InputStream implements Runnable {
 						fl = zipFileListItem(buf, cmppos, orgpos, readSize, true);
 						fl.sizefixed = true;
 					} else {
+						long perfEntry = System.nanoTime();
 						fl = zipFileListOldItemLite(buf, orgpos, readSize);
+						mPerfEntryNanos += System.nanoTime() - perfEntry;
 						if (fl != null) {
 							fl.sizefixed = false;
 						}
@@ -612,7 +618,9 @@ public class ImageManager extends InputStream implements Runnable {
 					// 対象ファイル判定
 					if (fl.name != null && fl.name.length() > 4 && fl.orglen > 0 && fl.cmplen > 0) {
 						if (!mHidden || !DEF.checkHiddenFile(fl.name)) {
+							long perfType = System.nanoTime();
 							fl.type = FileData.getType(mActivity, fl.name);
+							mPerfTypeNanos += System.nanoTime() - perfType;
 							fl.exttype = FileData.getExtType(mActivity, fl.name);
 							boolean use = true;
 							if (fl.type == FileData.FILETYPE_ARC || fl.type == FileData.FILETYPE_PARENT || fl.type == FileData.FILETYPE_DIR) {
@@ -708,13 +716,12 @@ public class ImageManager extends InputStream implements Runnable {
 					orgpos += fl.orglen;
 					if (mFileType == FILETYPE_ZIP && headpos > 0) {
 						// 旧タイプのZIPの場合はセントラルヘッダをアクセス
+						// (読み込み済みのバッファから取り出すのでシークは不要)
 						headpos += fl.header;
-						cmpDirectSeek(headpos);
-						Logcat.d(logLevel, MessageFormat.format("シークします: count={0}, headpos={1}", new Object[]{count, headpos}));
 					}
 					else {
 						cmpDirectSeek(cmppos);
-						Logcat.d(logLevel, MessageFormat.format("シークします: count={0}, cmppos={1}", new Object[]{count, cmppos}));
+						if (Logcat.isDebugEnabled(logLevel)) Logcat.d(logLevel, MessageFormat.format("シークします: count={0}, cmppos={1}", new Object[]{count, cmppos}));
 					}
 
 					count++;
@@ -737,7 +744,9 @@ public class ImageManager extends InputStream implements Runnable {
 			}
 		}
 
-		perf("list: parse time=" + perfMs(perfParse) + "ms count=" + count);
+		perf("list: parse time=" + perfMs(perfParse) + "ms count=" + count
+				+ " entry=" + mPerfEntryNanos / 1000000 + "ms name=" + mPerfNameNanos / 1000000 + "ms type=" + mPerfTypeNanos / 1000000 + "ms"
+				+ (list.isEmpty() ? "" : " sample=" + list.get(0).name));
 		perfStart = System.nanoTime();
 		sort(list);
 		perf("list: sort time=" + perfMs(perfStart) + "ms");
@@ -1067,7 +1076,9 @@ public class ImageManager extends InputStream implements Runnable {
 		file.dtime = d.getTime();
 		// ファイル名までのデータがあり
 		try {
+			long perfStart = System.nanoTime();
 			file.name = DEF.toUTF8(buf, OFFSET_CTL_FNAME, lenFName);
+			mPerfNameNanos += System.nanoTime() - perfStart;
 		}
 		catch (Exception e) {
 			file.name = "Unknown";
@@ -2281,14 +2292,39 @@ public class ImageManager extends InputStream implements Runnable {
 
 	// 現在ページを設定
 	public void setCurrentPage(int page, boolean single) {
+		// キャッシュ範囲などで使用
+		mCurrentPage = page;
+		mCurrentSingle = single;
 		wakeCacheThread();
 		FileCacheDownloader downloader = mDownloader;
 		if (downloader != null) {
 			downloader.wake();
 		}
-		// キャッシュ範囲などで使用
-		mCurrentPage = page;
-		mCurrentSingle = single;
+	}
+
+	/**
+	 * ページ一覧のサムネイル用に、ページの圧縮データをファイルキャッシュに揃える.
+	 * mLock の外で呼ぶ (待っている間もロックを持たないので、ページ移動などを妨げない).
+	 * 揃えば、続く LoadThumbnail はサーバではなくファイルキャッシュから読む.
+	 * @return 揃った、または揃える必要がない (ローカルなど) なら true
+	 */
+	public boolean prepareThumbnail(int page, FileCacheDownloader.Cancel cancel) {
+		FileCacheDownloader downloader = mDownloader;
+		if (downloader == null || mFileList == null || page < 0 || page >= mFileList.length || !needDownload(page)) {
+			return true;
+		}
+		long perfStart = System.nanoTime();
+		boolean done = downloader.waitPage(page, FileCacheDownloader.PRIORITY_THUMB, cancel, null);
+		perf("thumb wait page=" + page + (done ? " done" : " NOT-DONE") + " time=" + perfMs(perfStart) + "ms");
+		return done;
+	}
+
+	/** ページ一覧でこれからサムネイルを作るページを知らせる (null で解除) */
+	public void setThumbnailPages(int[] pages) {
+		FileCacheDownloader downloader = mDownloader;
+		if (downloader != null) {
+			downloader.setThumbnailPages(pages);
+		}
 	}
 
 	// ビットマップ読み込み開始
@@ -2827,8 +2863,8 @@ public class ImageManager extends InputStream implements Runnable {
 			sendHandler(DEF.HMSG_LOADING, FROMTYPE_SERVER, 0, null);
 		}
 		final long startTime = System.currentTimeMillis();
-		boolean done = downloader.waitPage(page, !interruptible,
-				() -> !mRunningFlag || mCloseFlag || (interruptible && mCacheBreak),
+		boolean done = downloader.waitPage(page, interruptible ? FileCacheDownloader.PRIORITY_WANT : FileCacheDownloader.PRIORITY_URGENT,
+				() -> !mRunningFlag || mCloseFlag || (interruptible && (mCacheBreak || mCacheSleep)),
 				!progress ? null : (doneBytes, total) -> {
 					long elapsed = Math.max(1, System.currentTimeMillis() - startTime);
 					int prog = total > 0 ? (int) (doneBytes * 100 / total) : 0;
@@ -2836,7 +2872,7 @@ public class ImageManager extends InputStream implements Runnable {
 					sendHandler(DEF.HMSG_LOADING, prog << 24 | 0x0100 | FROMTYPE_SERVER, rate, null);
 				});
 		perf("wait page=" + page + " current=" + mCurrentPage + (done ? " done" : " NOT-DONE") + " time=" + perfMs(perfStart) + "ms");
-		if (!done && downloader.isFailed(page) && mRunningFlag && !(interruptible && mCacheBreak)) {
+		if (!done && downloader.isFailed(page) && mRunningFlag && !(interruptible && (mCacheBreak || mCacheSleep))) {
 			// ダウンロードスレッドが諦めたページはこのスレッドで読む
 			return downloadToFileCache(page, notice, interruptible);
 		}
@@ -2876,7 +2912,7 @@ public class ImageManager extends InputStream implements Runnable {
 			// ZIP は最初の読み込みでローカルヘッダの拡張フィールドぶんサイズが伸びるので、
 			// 残りサイズではなくキャッシュ済みフラグか終端で止める
 			while (mRunningFlag && !mCloseFlag && !cheGetCacheFlag(page)) {
-				if (interruptible && mCacheBreak) {
+				if (interruptible && (mCacheBreak || mCacheSleep)) {
 					// メインスレッドでビットマップの読込処理が入った
 					break;
 				}
@@ -4083,7 +4119,7 @@ public class ImageManager extends InputStream implements Runnable {
 				// キャッシュスレッドの読み込みは画面側の操作で中断する
 				boolean interruptible = Thread.currentThread() == mThread;
 				downloaded = ensureFileCache(page, notice, interruptible);
-				if (!downloaded && ((interruptible && mCacheBreak) || !mRunningFlag || mCloseFlag)) {
+				if (!downloaded && ((interruptible && (mCacheBreak || mCacheSleep)) || !mRunningFlag || mCloseFlag)) {
 					// 中断された
 					return null;
 				}

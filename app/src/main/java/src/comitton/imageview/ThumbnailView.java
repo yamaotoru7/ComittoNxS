@@ -1,12 +1,15 @@
 package src.comitton.imageview;
 
 import android.os.Looper;
+import android.os.SystemClock;
 import src.comitton.common.DEF;
 import src.comitton.common.ImageAccess;
 import src.comitton.common.Logcat;
 import src.comitton.common.WaitFor;
 import src.comitton.dialog.PageThumbnail;
 import src.comitton.jni.CallImgLibrary;
+
+import java.util.Arrays;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -40,7 +43,8 @@ public class ThumbnailView extends View implements Runnable, Callback {
 
 	private int mMaxPage;
 	private int mFirstPage;
-	private int mDispPage;
+	// onDraw (UI スレッド) で更新し、サムネイルのスレッドが読む
+	private volatile int mDispPage;
 	private int mThumW;
 	private int mThumH;
 	private long mThumID;
@@ -147,6 +151,7 @@ public class ThumbnailView extends View implements Runnable, Callback {
 		int newpage = calcReversePage(page);
 		if (newpage != mDispPage) {
 			mDispPage = newpage;
+			mDispChangedAt = SystemClock.uptimeMillis();
 			// スレッドにページ変更通知
 			mWaitFor.interrupt();
 		}
@@ -470,7 +475,35 @@ public class ThumbnailView extends View implements Runnable, Callback {
 	private void releaseThumbnail() {
 		// サムネイル読み込みスレッドを停止
 		mBreakThread = true;
+		mImageMgr.setThumbnailPages(null);
 		mWaitFor.interrupt();
+	}
+
+	// サムネイルの先読みページ数 (表示される数より少し多め)
+	private static final int THUMB_PREFETCH_PAGES = 8;
+	// 表示位置が変わってから、サムネイルを読み始めるまでの待ち時間
+	private static final long THUMB_SETTLE_MILLIS = 150;
+	// 表示位置 (mDispPage) が最後に変わった時刻 (uptimeMillis)
+	private volatile long mDispChangedAt = 0;
+
+	/** run() と同じ順 (表示位置の前後交互) で、まだサムネイルがないページを max 個まで返す */
+	private int[] pendingPages(int firstindex, int range, int max) {
+		int[] pages = new int[max];
+		int num = 0;
+		for (int count = 0; count < range && num < max; count++) {
+			int prev = firstindex - count;
+			int next = firstindex + count + 1;
+			if (prev < 0 && next >= mMaxPage) {
+				break;
+			}
+			if (prev >= 0 && CallImgLibrary.ThumbnailCheck(mThumID, prev) == 0) {
+				pages[num++] = prev;
+			}
+			if (num < max && next < mMaxPage && CallImgLibrary.ThumbnailCheck(mThumID, next) == 0) {
+				pages[num++] = next;
+			}
+		}
+		return Arrays.copyOf(pages, num);
 	}
 
 	// スレッド開始
@@ -489,7 +522,19 @@ public class ThumbnailView extends View implements Runnable, Callback {
 		int firstindex = -1;
 
 		while (!mBreakThread) {
+			// スクロール中は表示位置が落ち着くまで待つ.
+			// 通り過ぎるページのデータまで読み始めると、回線の帯域をそちらに使ってしまう
+			long rest;
+			while (!mBreakThread && (rest = THUMB_SETTLE_MILLIS - (SystemClock.uptimeMillis() - mDispChangedAt)) > 0) {
+				try {
+					Thread.sleep(rest);
+				}
+				catch (InterruptedException ignored) {
+				}
+			}
 			firstindex = mDispPage;
+			// これから作る順に、まだないサムネイルのページを先読みさせる
+			mImageMgr.setThumbnailPages(pendingPages(firstindex, range, THUMB_PREFETCH_PAGES));
 		
 			int count;
 			boolean prevflag = false;
@@ -529,6 +574,14 @@ public class ThumbnailView extends View implements Runnable, Callback {
             			Bitmap bm = null;
             			// Logcat.d(logLevel, "Loop - index:" + index + ", page:" + page);
             
+            			long perfStart = System.nanoTime();
+            			// サーバから読む場合は、ロックを取る前にファイルキャッシュへ落としておく
+            			final int index = firstindex;
+            			if (!mImageMgr.prepareThumbnail(page, () -> mBreakThread || index != mDispPage)
+            					&& (mBreakThread || index != mDispPage)) {
+            				// 表示位置が変わったので作り直す
+            				continue;
+            			}
             			try {
             				synchronized (mLock) {
 								Logcat.d(logLevel, "page=" + page + " LoadThumbnailを実行します. width=" + thumDataW + ", height=" + thumDataH);
@@ -580,6 +633,7 @@ public class ThumbnailView extends View implements Runnable, Callback {
 							}
             			}
         
+            			ImageManager.perf("thumb page=" + page + (bm != null ? " ok" : " FAILED") + " total=" + ImageManager.perfMs(perfStart) + "ms");
             			// 通知
         				Message message = new Message();
         				message.what = MESSAGE_LOADED;

@@ -98,6 +98,10 @@ public class FileCacheDownloader {
 	private int mUrgentPage = -1;
 	/** キャッシュスレッドが待っているページ */
 	private int mWantPage = -1;
+	/** ページ一覧が待っているサムネイルのページ */
+	private int mThumbPage = -1;
+	/** ページ一覧がこれから作るサムネイルのページ (作る順) */
+	private int[] mThumbPages = null;
 	private boolean mRunning = true;
 
 	private RandomAccessFile mCacheRaf;
@@ -181,6 +185,19 @@ public class FileCacheDownloader {
 			initState(list);
 			mUrgentPage = -1;
 			mWantPage = -1;
+			mThumbPage = -1;
+			mThumbPages = null;
+			mLock.notifyAll();
+		}
+	}
+
+	/**
+	 * ページ一覧でこれからサムネイルを作るページを、作る順に知らせる (null で解除).
+	 * 1 ページずつ待つと回線の遅延のぶん待ちが増えるので、先の数ページも並行して読ませる
+	 */
+	public void setThumbnailPages(int[] pages) {
+		synchronized (mLock) {
+			mThumbPages = pages;
 			mLock.notifyAll();
 		}
 	}
@@ -225,19 +242,29 @@ public class FileCacheDownloader {
 		void onProgress(long done, long total);
 	}
 
+	/** 画面側が表示のために待つ (最優先) */
+	public static final int PRIORITY_URGENT = 0;
+	/** キャッシュスレッドが先読みのために待つ */
+	public static final int PRIORITY_WANT = 1;
+	/** ページ一覧がサムネイルのために待つ */
+	public static final int PRIORITY_THUMB = 2;
+
 	/**
 	 * ページがキャッシュに揃うまで待つ.
-	 * @param urgent true なら画面側の要求として最優先、false ならキャッシュスレッドの要求として次に優先する
+	 * @param priority PRIORITY_URGENT / PRIORITY_WANT / PRIORITY_THUMB
 	 * @return 揃ったら true. 諦めた・中断された・閉じられたら false
 	 */
-	public boolean waitPage(int page, boolean urgent, @NonNull Cancel cancel, Progress progress) {
+	public boolean waitPage(int page, int priority, @NonNull Cancel cancel, Progress progress) {
 		long lastNotice = 0;
 		synchronized (mLock) {
-			if (urgent) {
+			if (priority == PRIORITY_URGENT) {
 				mUrgentPage = page;
 			}
-			else {
+			else if (priority == PRIORITY_WANT) {
 				mWantPage = page;
+			}
+			else {
+				mThumbPage = page;
 			}
 			mLock.notifyAll();
 		}
@@ -274,11 +301,14 @@ public class FileCacheDownloader {
 		}
 		finally {
 			synchronized (mLock) {
-				if (urgent && mUrgentPage == page) {
+				if (priority == PRIORITY_URGENT && mUrgentPage == page) {
 					mUrgentPage = -1;
 				}
-				else if (!urgent && mWantPage == page) {
+				else if (priority == PRIORITY_WANT && mWantPage == page) {
 					mWantPage = -1;
+				}
+				else if (priority == PRIORITY_THUMB && mThumbPage == page) {
+					mThumbPage = -1;
 				}
 			}
 		}
@@ -296,6 +326,16 @@ public class FileCacheDownloader {
 		}
 		if ((c = chunkOfLocked(mWantPage)) != null) {
 			return c;
+		}
+		if ((c = chunkOfLocked(mThumbPage)) != null) {
+			return c;
+		}
+		if (mThumbPages != null) {
+			for (int p : mThumbPages) {
+				if ((c = chunkOfLocked(p)) != null) {
+					return c;
+				}
+			}
 		}
 		int cur = Math.max(0, Math.min(mHost.currentPage(), total - 1));
 		if ((c = chunkOfLocked(cur)) != null) {
@@ -339,14 +379,23 @@ public class FileCacheDownloader {
 		BitSet busy = mBusy[page];
 		if (mZip && !item.sizefixed) {
 			// 先頭の区画でローカルヘッダの拡張フィールドを読むまでサイズが確定しない
-			if (done.get(0) || busy.get(0)) {
-				return null;
+			if (!done.get(0) && !busy.get(0)) {
+				busy.set(0);
+				// 拡張フィールドの分も含めて読めるよう、確定前のサイズに最大長を足して読む
+				// (はみ出した分は次のエントリの正しいデータなので書いても問題ない)
+				int len = (int) Math.min(CHUNK_SIZE, (long) item.cmplen + MAX_ZIP_EXTRA);
+				return new Chunk(mGen, page, 0, item.cmppos, len, true);
 			}
-			busy.set(0);
-			// 拡張フィールドの分も含めて読めるよう、確定前のサイズに最大長を足して読む
-			// (はみ出した分は次のエントリの正しいデータなので書いても問題ない)
-			int len = (int) Math.min(CHUNK_SIZE, (long) item.cmplen + MAX_ZIP_EXTRA);
-			return new Chunk(mGen, page, 0, item.cmppos, len, true);
+			// 確定で伸びるのは末尾だけ (拡張フィールドは区画 1 つより短い) なので、
+			// 最後の区画以外は確定を待たずに読める. 待っている 1 ページに全スレッドを使うため
+			int count = (int) (((long) item.cmplen + CHUNK_SIZE - 1) / CHUNK_SIZE);
+			for (int i = 1; i < count - 1; i++) {
+				if (!done.get(i) && !busy.get(i)) {
+					busy.set(i);
+					return new Chunk(mGen, page, i, item.cmppos + (long) i * CHUNK_SIZE, CHUNK_SIZE, false);
+				}
+			}
+			return null;
 		}
 		int count = (int) (((long) item.cmplen + CHUNK_SIZE - 1) / CHUNK_SIZE);
 		for (int i = 0; i < count; i++) {

@@ -839,6 +839,10 @@ public class ImageActivity extends AppCompatActivity implements OnTouchListener,
 			mImageMgr = new ImageManager(this.mActivity, mUriPath, mFileName, mUser, mPass, mFileSort, handler, mHidden, ImageManager.OPENMODE_VIEW, mMaxThread);
 			Logcat.v(logLevel, "メモリ利用状況.\n" + DEF.getMemoryString(mActivity));
 			setMgrConfig(true);
+			if (mRestorePage >= 0) {
+				// 一覧ができたらすぐ、表示するページからダウンロードを始めさせる
+				mImageMgr.setCurrentPage(mRestorePage, false);
+			}
 			ImageManager.perf("list: create manager time=" + ImageManager.perfMs(perfStart) + "ms");
 			perfStart = System.nanoTime();
 			mImageMgr.LoadImageList(mMemSize, mMemNext, mMemPrev);

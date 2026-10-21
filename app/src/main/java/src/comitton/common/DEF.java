@@ -2,6 +2,7 @@ package src.comitton.common;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.text.Normalizer;
 import java.util.Arrays;
 import java.util.Locale;
@@ -2608,12 +2609,27 @@ public class DEF {
 			tmp_length = length - 1;
 		}
 
+		if (isAscii(bytes, tmp_offset, tmp_length)) {
+			// ASCII だけなら判定は不要 (どの判定結果でも同じ文字列になる).
+			// 判定ライブラリの生成は重く、ZIP の一覧作成で 1 エントリごとに呼ばれるため
+			return new String(bytes, tmp_offset, tmp_length, StandardCharsets.US_ASCII);
+		}
+
 		Logcat.d(logLevel, "文字コードを自動判定します.");
 		encoding = CharDetecter(bytes, tmp_offset, tmp_length);
 
 		dst = new String(bytes, tmp_offset, tmp_length, Charset.forName(encoding));
 		Logcat.d(logLevel, "Stringを出力します. dst=" + dst);
 		return dst;
+	}
+
+	private static boolean isAscii(byte[] bytes, int offset, int length) {
+		for (int i = offset; i < offset + length; i++) {
+			if (bytes[i] < 0) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	public static String CharDetecter(byte[] bytes, int offset, int length) {
