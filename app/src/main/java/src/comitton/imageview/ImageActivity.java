@@ -830,13 +830,19 @@ public class ImageActivity extends AppCompatActivity implements OnTouchListener,
 			int logLevel = Logcat.LOG_LEVEL_WARN;
 
 			// 更新日時 (SMB ではネットワークアクセスになるため UI スレッドで取得しない)
+			long perfStart = System.nanoTime();
 			mTimestamp = FileAccess.date(mActivity, mFilePath, mUser, mPass);
+			ImageManager.perf("list: date time=" + ImageManager.perfMs(perfStart) + "ms");
+			perfStart = System.nanoTime();
 
 			// ファイルリストの読み込み
 			mImageMgr = new ImageManager(this.mActivity, mUriPath, mFileName, mUser, mPass, mFileSort, handler, mHidden, ImageManager.OPENMODE_VIEW, mMaxThread);
 			Logcat.v(logLevel, "メモリ利用状況.\n" + DEF.getMemoryString(mActivity));
 			setMgrConfig(true);
+			ImageManager.perf("list: create manager time=" + ImageManager.perfMs(perfStart) + "ms");
+			perfStart = System.nanoTime();
 			mImageMgr.LoadImageList(mMemSize, mMemNext, mMemPrev);
+			ImageManager.perf("list: LoadImageList time=" + ImageManager.perfMs(perfStart) + "ms");
 			Logcat.v(logLevel, "メモリ利用状況.(2回目)\n" + DEF.getMemoryString(mActivity));
 			mImageMgr.setViewSize(mViewWidth, mViewHeight);
 			mImageView.setImageManager(mImageMgr);

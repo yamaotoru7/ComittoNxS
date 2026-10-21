@@ -94,6 +94,8 @@ public class ImageManager extends InputStream implements Runnable {
 
 	public static final int OFFSET_TRM_SIGNA_LEN = 0;
 	public static final int OFFSET_TRM_CNTRL_LEN = 16;
+	// 終端レコードの全エントリ数 (ZIP64 なら 0xFFFF)
+	public static final int OFFSET_TRM_TOTAL_LEN = 10;
 
 	// RAR Format
 	public static final int RAR_HTYPE_MARK = 0x72;
@@ -138,6 +140,9 @@ public class ImageManager extends InputStream implements Runnable {
 
 	public static final int SIZE_LOCALHEADER = 30;
 	public static final int SIZE_CENTHEADER = 46;
+	// ZIP64 終端ロケータと ZIP64 終端レコード (可変部分を除く) の大きさ
+	private static final int SIZE_ZIP64_LOCATOR = 20;
+	private static final int SIZE_ZIP64_EOCD = 56;
 	public static final int SIZE_TERMHEADER = 22;
 	public static final int SIZE_EXTRAHEADER1 = 16;
 	public static final int SIZE_EXTRAHEADER2 = 12;
@@ -257,13 +262,13 @@ public class ImageManager extends InputStream implements Runnable {
 	private long mPerfNetNanos;
 	private int mPerfNetCalls;
 
-	private static void perf(String msg) {
+	static void perf(String msg) {
 		if (DEF.DEBUG) {
 			Log.i(PERF_TAG, "[" + Thread.currentThread().getName() + "] " + msg);
 		}
 	}
 
-	private static long perfMs(long startNanos) {
+	static long perfMs(long startNanos) {
 		return (System.nanoTime() - startNanos) / 1000000L;
 	}
 
@@ -393,8 +398,12 @@ public class ImageManager extends InputStream implements Runnable {
 				epubFileList();
 			}
 			else {
+				long perfStart = System.nanoTime();
 				fileAccessInit(mFilePath);
+				perf("list: open time=" + perfMs(perfStart) + "ms");
+				perfStart = System.nanoTime();
 				cmpFileList();
+				perf("list: cmpFileList time=" + perfMs(perfStart) + "ms entries=" + (mFileList != null ? mFileList.length : 0));
 			}
 
 			if (mCloseFlag) {
@@ -402,6 +411,7 @@ public class ImageManager extends InputStream implements Runnable {
 				return;
 			}
 
+			long perfInit = System.nanoTime();
 			// メモリキャッシュの初期化(JNI)
 			Logcat.d(logLevel, MessageFormat.format("メモリキャッシュを初期化します. MemoryCacheInit({0}, {1}, {2}, {3}, {4})", new Object[]{mMemSize, mMemNextPages, mMemPrevPages, mFileList.length, mMaxOrgLength}));
 			if (!MemoryCacheInit(mMemSize, mMemNextPages, mMemPrevPages, mFileList.length, mMaxOrgLength)) {
@@ -419,6 +429,7 @@ public class ImageManager extends InputStream implements Runnable {
 			fileCacheInit(mFileList.length, mHostType != DEF.ACCESS_TYPE_LOCAL);
 			startDownloader();
 			startCacheRead();
+			perf("list: cache init time=" + perfMs(perfInit) + "ms");
 
 		}
 		catch (IOException ex) {
@@ -471,8 +482,10 @@ public class ImageManager extends InputStream implements Runnable {
 		int maxorglen = 0;
 		List<FileListItem> list = new ArrayList<FileListItem>();
 		byte [] cdhBuf = null;
+		long perfStart = System.nanoTime();
 		long fileLength = cmpDirectLength();
 		long cdhLength = 0;		//central directory header length
+		perf("list: length time=" + perfMs(perfStart) + "ms");
 
 		boolean rar5 = false;
 
@@ -504,7 +517,10 @@ public class ImageManager extends InputStream implements Runnable {
 
 		if (mFileType == FILETYPE_ZIP) {
 			// 圧縮されたファイル情報取得
+			perfStart = System.nanoTime();
 			headpos = zipSearchCentral();
+			perf("list: search central time=" + perfMs(perfStart) + "ms");
+			perfStart = System.nanoTime();
 			Logcat.d(logLevel, MessageFormat.format("ZIPセントラルディレクトリヘッダ位置: fileLength={0}, headpos={1}", new Object[]{fileLength, headpos}));
 			if (headpos == 0) {
 				cmpDirectSeek(0);
@@ -517,7 +533,9 @@ public class ImageManager extends InputStream implements Runnable {
 				cmpDirectSeek(headpos);
 				Logcat.d(logLevel, MessageFormat.format("セントラルディレクトリヘッダをバッファに読み込みます: cdhLength={0}", new Object[]{cdhLength}));
 			}
+			perf("list: read central time=" + perfMs(perfStart) + "ms len=" + cdhLength);
 		}
+		long perfParse = System.nanoTime();
 
 		// 簡易的なRAR5判定
 		if (mFileType == FILETYPE_RAR) {
@@ -719,7 +737,10 @@ public class ImageManager extends InputStream implements Runnable {
 			}
 		}
 
+		perf("list: parse time=" + perfMs(perfParse) + "ms count=" + count);
+		perfStart = System.nanoTime();
 		sort(list);
+		perf("list: sort time=" + perfMs(perfStart) + "ms");
 		mFileList = list.toArray(new FileListItem[0]);
 		if (mFileType == FILETYPE_RAR && list.isEmpty() && (mRarHeadersEncrypted || mRarEncryptedCount > 0)) {
 			// パスワード付き RAR は展開できない
@@ -807,7 +828,15 @@ public class ImageManager extends InputStream implements Runnable {
 			// ヘッダがおかしい
 			throw new IOException("Central header is not found.");
 		}
-		int posCentral = getInt(buff, pos + OFFSET_TRM_CNTRL_LEN);
+		// 位置は符号なし 32bit. 2GB を超える ZIP で負にならないよう long で扱う
+		long posCentral = getInt(buff, pos + OFFSET_TRM_CNTRL_LEN) & 0xFFFFFFFFL;
+		if (posCentral == 0xFFFFFFFFL || (getShort(buff, pos + OFFSET_TRM_TOTAL_LEN) & 0xFFFF) == 0xFFFF) {
+			// ZIP64 なら、終端レコードの直前にある ZIP64 終端ロケータから本当の位置を読む
+			long pos64 = zip64CentralPosition(filePos + pos, fileLength);
+			if (pos64 >= 0) {
+				posCentral = pos64;
+			}
+		}
 		if (posCentral >= fileLength || posCentral < 0) {
 			// ヘッダがおかしい、けどとりあえず先頭から読み込ませてみる
 			//throw new IOException("Broken Zip File.");
@@ -817,6 +846,65 @@ public class ImageManager extends InputStream implements Runnable {
 		// セントラルヘッダに移動
 		cmpDirectSeek(posCentral);
 		return posCentral;
+	}
+
+	/**
+	 * ZIP64 終端ロケータと ZIP64 終端レコードからセントラルディレクトリの位置を得る.
+	 * @param eocdPos 終端レコード (PK) のファイル内位置
+	 * @return 位置. ZIP64 でなければ -1
+	 */
+	private long zip64CentralPosition(long eocdPos, long fileLength) throws IOException {
+		if (eocdPos < SIZE_ZIP64_LOCATOR) {
+			return -1;
+		}
+		byte[] loc = new byte[SIZE_ZIP64_LOCATOR];
+		cmpDirectSeek(eocdPos - SIZE_ZIP64_LOCATOR);
+		if (cmpDirectRead(loc, 0, loc.length) < loc.length || getInt(loc, 0) != 0x07064b50) {
+			return -1;
+		}
+		long recPos = getLong(loc, 8);
+		if (recPos < 0 || recPos + SIZE_ZIP64_EOCD > fileLength) {
+			return -1;
+		}
+		byte[] rec = new byte[SIZE_ZIP64_EOCD];
+		cmpDirectSeek(recPos);
+		if (cmpDirectRead(rec, 0, rec.length) < rec.length || getInt(rec, 0) != 0x06064b50) {
+			return -1;
+		}
+		return getLong(rec, 48);
+	}
+
+	// 8バイト数値取得
+	private static long getLong(byte[] b, int pos) {
+		long val = 0;
+		for (int i = 7; i >= 0; i--) {
+			val = (val << 8) | (b[pos + i] & 0xFFL);
+		}
+		return val;
+	}
+
+	/**
+	 * セントラルディレクトリの拡張フィールドにある ZIP64 情報 (ID 0x0001) からローカルヘッダの位置を得る.
+	 * 値は元サイズ・圧縮サイズ・位置の順に、32bit 側が 0xFFFFFFFF のものだけが入っている.
+	 * @return 位置. 見つからなければ -1
+	 */
+	private static long zip64LocalOffset(byte[] buf, int extraPos, int extraLen, boolean orgFull, boolean cmpFull) {
+		int end = Math.min(extraPos + extraLen, buf.length);
+		int p = extraPos;
+		while (p + 4 <= end) {
+			int id = (buf[p] & 0xFF) | ((buf[p + 1] & 0xFF) << 8);
+			int len = (buf[p + 2] & 0xFF) | ((buf[p + 3] & 0xFF) << 8);
+			int data = p + 4;
+			if (id == 0x0001) {
+				int q = data + (orgFull ? 8 : 0) + (cmpFull ? 8 : 0);
+				if (q + 8 <= Math.min(data + len, end)) {
+					return getLong(buf, q);
+				}
+				return -1;
+			}
+			p = data + len;
+		}
+		return -1;
 	}
 
 	private int getExtraSize(byte [] buf){
@@ -949,7 +1037,14 @@ public class ImageManager extends InputStream implements Runnable {
 		int lenFName = getShort(buf, OFFSET_CTL_FNAME_LEN);
 		int lenExtra = getShort(buf, OFFSET_CTL_EXTRA_LEN);
 		int lenComent = getShort(buf, OFFSET_CTL_CMENT_LEN);
-		int lclOffset = getInt(buf, OFFSET_CTL_LOCAL_LEN);
+		long lclOffset = getInt(buf, OFFSET_CTL_LOCAL_LEN) & 0xFFFFFFFFL;
+		if (lclOffset == 0xFFFFFFFFL) {
+			// ZIP64: 本当の位置は拡張フィールドにある
+			long offset64 = zip64LocalOffset(buf, OFFSET_CTL_FNAME + lenFName, lenExtra, lenOrg == -1, lenCmp == -1);
+			if (offset64 >= 0) {
+				lclOffset = offset64;
+			}
+		}
 		int ftime = getShort(buf, OFFSET_CTL_FTIME_LEN);
 		int fdate = getShort(buf, OFFSET_CTL_FDATE_LEN);
 
