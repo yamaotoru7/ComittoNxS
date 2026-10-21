@@ -31,8 +31,13 @@ public class FileCacheDownloader {
 
 	/** 1 回に読む大きさ. jcifs はこれを 64KB ずつの要求に分ける */
 	static final int CHUNK_SIZE = 256 * 1024;
-	/** 同時に読むスレッド数 */
-	static final int THREAD_NUM = 3;
+	/**
+	 * 同時に読むスレッド数. 実測 (Wi-Fi, 1 ページ約 3MB) で 2 本 17MB/s, 3 本 24MB/s, 4 本 32MB/s, 6 本 41MB/s.
+	 * 4 本でデコード速度 (約 10 ページ/秒) を上回るので、サーバへの負荷も考えて 4 本にする
+	 */
+	static final int THREAD_NUM = 4;
+	/** デバッグビルドでスレッド数を試すときのシステムプロパティ (adb shell setprop debug.comitton.dlthreads 4) */
+	private static final String PROP_THREAD_NUM = "debug.comitton.dlthreads";
 	/** 区画の読み込みに失敗したとき、ページを諦めるまでの回数 */
 	private static final int MAX_RETRY = 3;
 	/** 先読みする範囲. ImageManager の先読み範囲 (前方 4 ページ, 後方 2 ページの割合で 50 回) と同じ */
@@ -122,11 +127,35 @@ public class FileCacheDownloader {
 		// ImageManager.fileCacheInit が作ったファイルに、別のハンドルで書き込む
 		mCacheRaf = new RandomAccessFile(mCacheFile, "rw");
 		mCacheChannel = mCacheRaf.getChannel();
-		for (int i = 0; i < THREAD_NUM; i++) {
+		int threadNum = threadNum();
+		if (DEF.DEBUG) {
+			Log.i(PERF_TAG, "downloader start threads=" + threadNum);
+		}
+		for (int i = 0; i < threadNum; i++) {
 			Thread t = new Thread(this::workerLoop, "comitton-download-" + i);
 			t.setPriority(Thread.MIN_PRIORITY);
 			t.start();
 		}
+	}
+
+	private static int threadNum() {
+		if (DEF.DEBUG) {
+			try {
+				Process process = Runtime.getRuntime().exec(new String[]{"getprop", PROP_THREAD_NUM});
+				try (java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.InputStreamReader(process.getInputStream()))) {
+					String line = reader.readLine();
+					if (line != null && !line.trim().isEmpty()) {
+						int num = Integer.parseInt(line.trim());
+						if (num >= 1 && num <= 16) {
+							return num;
+						}
+					}
+				}
+			}
+			catch (IOException | NumberFormatException ignored) {
+			}
+		}
+		return THREAD_NUM;
 	}
 
 	public void close() {
@@ -469,7 +498,7 @@ public class FileCacheDownloader {
 				Log.i(PERF_TAG, "[" + Thread.currentThread().getName() + "] chunk FAILED page=" + chunk.page + " index=" + chunk.index + " read=" + read + " time=" + ms + "ms");
 			}
 			else if (completed) {
-				Log.i(PERF_TAG, "[" + Thread.currentThread().getName() + "] cached page=" + chunk.page + " current=" + mHost.currentPage());
+				Log.i(PERF_TAG, "[" + Thread.currentThread().getName() + "] cached page=" + chunk.page + " len=" + mList[chunk.page].cmplen + " current=" + mHost.currentPage());
 			}
 		}
 	}

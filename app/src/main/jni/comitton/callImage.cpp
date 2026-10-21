@@ -350,9 +350,14 @@ JNIEXPORT jint JNICALL Java_src_comitton_jni_CallImgLibrary_ImageSetPage (JNIEnv
     gLoadPage[index] = page;
     gLoadFileSize[index] = size;
     gLoadFilePos[index] = 0;
-    gImageData[index][page].SclFlag[0] = 0;
-    gImageData[index][page].SclFlag[1] = 0;
-    gImageData[index][page].SclFlag[2] = 0;
+    // 表示用画像のブロックが残っていれば (元画像だけ手放して読み直す場合) そのまま使えるので消さない.
+    // 通常はページ全体を ImageFree してから読み込むので、ここで無効になる
+    for (int half = 0; half < BLOCKHALF_NUM; half++) {
+        BLOCKLIST *list = GetBlockList(index, page, BLOCKTYPE_SCL, half);
+        if (list == nullptr || list->Num == 0) {
+            gImageData[index][page].SclFlag[half] = 0;
+        }
+    }
 	return 0;
 }
 
@@ -881,6 +886,31 @@ JNIEXPORT jint JNICALL Java_src_comitton_jni_CallImgLibrary_ImageFree (JNIEnv *e
 	gImageData[index][page].UseFlag = 0;
     // 画像の領域全部を解放
 	ReleaseBuff(index, page, -1, -1);
+    return 0;
+}
+
+/*
+ * Class:     src_comitton_stream_CallImgLibrary
+ * Method:    ImageFreeSource
+ * 元画像だけ解放し、表示用 (スケール済み) 画像は残す
+ */
+JNIEXPORT jint JNICALL Java_src_comitton_jni_CallImgLibrary_ImageFreeSource (JNIEnv *env, jclass obj, jint index, jint page)
+{
+    if (index < 0 || MAX_BUFFER_INDEX <= index) {
+        return ERROR_CODE_CACHE_INDEX_OUT_OF_RANGE;
+    }
+
+    if (!gIsInit[index]) {
+        return ERROR_CODE_CACHE_NOT_INITIALIZED;
+    }
+
+    if (page < 0 || gTotalPages[index] <= page) {
+		LOGE("callImage: ImageFreeSource : Illegal Page.(%d)", page);
+		return -1;
+	}
+	// 元画像がないので拡大描画 (ImageScaleDraw) は描かずにエラーを返すようになる
+	gImageData[index][page].UseFlag = 0;
+	ReleaseBuff(index, page, BLOCKTYPE_ORG, -1);
     return 0;
 }
 

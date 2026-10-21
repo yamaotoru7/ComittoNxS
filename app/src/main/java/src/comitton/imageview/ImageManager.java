@@ -8,6 +8,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InterruptedIOException;
 import java.io.RandomAccessFile;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -286,6 +287,11 @@ public class ImageManager extends InputStream implements Runnable {
 			}
 			mCacheSignaled = false;
 		}
+	}
+
+	/** キャッシュスレッドの処理中に、画面側の読み込み要求が来た */
+	private boolean isCacheThreadCanceled() {
+		return mCacheBreak && Thread.currentThread() == mThread;
 	}
 
 	private void userOpStart() {
@@ -1731,6 +1737,13 @@ public class ImageManager extends InputStream implements Runnable {
 				}
 				long perfScan = System.nanoTime();
 				if (fMemCacheExec) {
+					// 表示中のページの元画像 (ルーペ・拡大表示で使う) を先に戻す
+					int restore = displayPageWithoutSource();
+					if (restore >= 0 && prevReadPage != restore) {
+						page = restore;
+						prevReadPage = restore;
+						fMemCacheWrite = true;
+					}
 					int iPrio;
 					for (iPrio = 1; iPrio < mMemPriority.length && page == -1; iPrio++) {
 						if (mCloseFlag) {
@@ -1772,7 +1785,8 @@ public class ImageManager extends InputStream implements Runnable {
 
 						if (0 <= chkPage && chkPage < mFileList.length) {
 							// 範囲内の時だけチェック
-							if (!mMemCacheFlag[chkPage].fSource) {
+							// 表示中でないページは、表示用画像があれば元画像を読み直さない
+							if (!mMemCacheFlag[chkPage].fSource && (!mMemCacheFlag[chkPage].hasScale() || isDisplayPage(chkPage))) {
 								// サイズ取得とメモリキャッシュ確保は LoadImage 内で
 								// 本読み込みと同じストリームを使って行う(再シーク・再展開を避ける)
 								if (prevReadPage != chkPage) {
@@ -1948,6 +1962,8 @@ public class ImageManager extends InputStream implements Runnable {
 						fMemCacheExec = false;
 						perf("memcache window done current=" + mCurrentPage);
 					}
+					// 表示用画像を作り終えたページの元画像を手放す
+					dropFarSources();
 //					Logcat.d(logLevel, "----  End  ----");
 					if (page == -1 && perfMs(perfScan) >= 1) {
 						perf("scale/scan current=" + mCurrentPage + " time=" + perfMs(perfScan) + "ms");
@@ -2188,8 +2204,8 @@ public class ImageManager extends InputStream implements Runnable {
 		}
 
 		ImageData id = null;
-		if (mMemCacheFlag[page].fSource) {
-			// メモリキャッシュあり
+		if (mMemCacheFlag[page].hasAny()) {
+			// メモリキャッシュあり (元画像を手放して表示用画像だけのこともある)
 			id = new ImageData();
 			id.Page = page;
 			id.Width = mFileList[page].width;
@@ -2223,13 +2239,14 @@ public class ImageManager extends InputStream implements Runnable {
 			CallImgLibrary.ImageCancel(mActivity, mHandler, mCacheIndex, 1);
 			synchronized (mLock) {
 				long perfLockWait = perfMs(perfStart);
-				boolean perfMemHit = !mCloseFlag && mMemCacheFlag[page].fSource;
+				boolean perfMemHit = !mCloseFlag && mMemCacheFlag[page].hasAny();
 				if (!mCloseFlag) {
 					mCacheBreak = false;
 					CallImgLibrary.ImageCancel(mActivity, mHandler, mCacheIndex, 0);
 					mThreadLoading = false;
-					if (mMemCacheFlag[page].fSource) {
-						// メモリキャッシュあり
+					if (mMemCacheFlag[page].hasAny()) {
+						// メモリキャッシュあり. 元画像がなくても表示用画像があれば読み込まない
+						// (並びが変わるなどで作り直すときは ImageScaling が元画像を読み直す)
 						id = new ImageData();
 						id.Page = page;
 						id.Width = mFileList[page].width;
@@ -2373,6 +2390,10 @@ public class ImageManager extends InputStream implements Runnable {
 	public int read(byte[] buf, int off, int len) throws IOException {
 		int logLevel = Logcat.LOG_LEVEL_WARN;
 		Logcat.d(logLevel, MessageFormat.format("開始します. off={0}, len={1}", new Object[]{off, len}));
+		if (isCacheThreadCanceled()) {
+			// 画面側の読み込み要求が来たので、キャッシュスレッドのデコードを打ち切ってロックを空ける
+			throw new InterruptedIOException("cache break");
+		}
 		int ret = 0;
 		try {
 			if (mCacheMode == CACHEMODE_FILE) {
@@ -3056,6 +3077,86 @@ public class ImageManager extends InputStream implements Runnable {
 	private static class MemCacheFlag {
 		public boolean fSource = false;
 		public boolean[] fScale = { false, false, false };
+		// 表示用画像を作ったときに並べたページ (単ページなら -1). 元画像なしで使い回せるかの判定用
+		public int[] partner = { -1, -1, -1 };
+
+		boolean hasScale() {
+			return fScale[0] || fScale[1] || fScale[2];
+		}
+
+		boolean hasAny() {
+			return fSource || hasScale();
+		}
+	}
+
+	/**
+	 * 表示中でないページの元画像を手放し、表示用画像だけ残す.
+	 * 元画像は 1 ピクセル 4 バイトで画面よりずっと大きいことが多く、残すと先読みできる枚数が減る.
+	 * 元画像が必要になったら (ルーペ表示、表示用画像の作り直し) ファイルキャッシュから読み直す.
+	 */
+	private void dropFarSources() {
+		if (mMemCacheFlag == null || mFileList == null) {
+			return;
+		}
+		int count = 0;
+		for (int i = 0; i < mMemCacheFlag.length; i++) {
+			MemCacheFlag flag = mMemCacheFlag[i];
+			if (flag.fSource && flag.hasScale() && !isDisplayPage(i) && i != mScalingPage1 && i != mScalingPage2) {
+				if (CallImgLibrary.ImageFreeSource(mActivity, mHandler, mCacheIndex, i) == 0) {
+					flag.fSource = false;
+					count++;
+				}
+			}
+		}
+		if (count > 0) {
+			perf("drop sources count=" + count + " current=" + mCurrentPage + " free=" + CallImgLibrary.ImageGetFreeSize(mActivity, mHandler, mCacheIndex));
+		}
+	}
+
+	// ImageScaling 中のページ. 並べるページの元画像を途中で手放さないため
+	private int mScalingPage1 = -1;
+	private int mScalingPage2 = -1;
+
+	/** 元画像を持っていない表示中のページ. なければ -1 */
+	private int displayPageWithoutSource() {
+		int[] pages = { mCurrentPage, mCurrentPage + 1 };
+		for (int p : pages) {
+			if (0 <= p && p < mMemCacheFlag.length && isDisplayPage(p) && !mMemCacheFlag[p].fSource) {
+				return p;
+			}
+		}
+		return -1;
+	}
+
+	/** 元画像がなければ読み直す. mLock 配下で呼ぶこと */
+	private boolean ensureSource(int page) {
+		if (page < 0 || mMemCacheFlag[page].fSource) {
+			return true;
+		}
+		perf("reload source page=" + page + " current=" + mCurrentPage);
+		try {
+			return LoadImage(page, false) != null;
+		}
+		catch (IOException e) {
+			return false;
+		}
+	}
+
+	/** page の half 用の表示用画像が、partner と並べた状態で作ってあるか */
+	private boolean hasScaleFor(int page, int half, int partner) {
+		MemCacheFlag flag = mMemCacheFlag[page];
+		return flag.fScale[half] && flag.partner[half] == partner
+				&& mFileList[page].swidth[half] > 0 && mFileList[page].sheight[half] > 0;
+	}
+
+	private void fillScaleInfo(ImageData img, int page, int half, int fitHalf) {
+		if (img == null) {
+			return;
+		}
+		img.SclWidth = mFileList[page].swidth[half];
+		img.SclHeight = mFileList[page].sheight[half];
+		img.FitWidth = mFileList[page].fwidth[fitHalf];
+		img.FitHeight = mFileList[page].fheight[fitHalf];
 	}
 
 	private boolean MemoryCacheInit(int memsize, int next, int prev, int total, long maxorglen) {
@@ -3180,7 +3281,13 @@ public class ImageManager extends InputStream implements Runnable {
 			// 元画像モード
 			lineCount = (BLOCKSIZE / (mFileList[page].width + HOKAN_DOTS));
 			useCount = (int) (Math.ceil((double) mFileList[page].height / (double) lineCount));
-			CallImgLibrary.ImageFree(mActivity, mHandler, mCacheIndex, page);
+			if (mMemCacheFlag[page].hasScale()) {
+				// 元画像だけ読み直す. 表示用画像は残す
+				CallImgLibrary.ImageFreeSource(mActivity, mHandler, mCacheIndex, page);
+			}
+			else {
+				CallImgLibrary.ImageFree(mActivity, mHandler, mCacheIndex, page);
+			}
 		}
 		else {
 			// スケールモード
@@ -3199,10 +3306,15 @@ public class ImageManager extends InputStream implements Runnable {
 		}
 
 			if (loop == 0) {
+				// 表示中でないページの元画像を手放す (表示用画像は残るので読み直しは少ない)
+				dropFarSources();
+				if (CallImgLibrary.ImageGetFreeSize(mActivity, mHandler, mCacheIndex) >= useCount) {
+					return true;
+				}
 				// 初回は範囲外を全て消す
 				for (int i = 0; i < mMemCacheFlag.length; i++) {
 					if (i < mCurrentPage - mMemPrevPages || mCurrentPage + mMemNextPages < i) {
-						if (mMemCacheFlag[i].fSource) {
+						if (mMemCacheFlag[i].hasAny()) {
 							// メモリ使用中であれば解放
 							mMemCacheFlag[i].fSource = false;
 							if (memFreeCache(i)) {
@@ -3234,7 +3346,7 @@ public class ImageManager extends InputStream implements Runnable {
 							// 表示中のページを追い出すと画面が消えるので対象外
 							continue;
 						}
-						if (mMemCacheFlag[clr].fSource) {
+						if (mMemCacheFlag[clr].hasAny()) {
 							mMemCacheFlag[clr].fSource = false;
 							if (memFreeCache(clr)) {
 								// 解放する物があった
@@ -4428,6 +4540,10 @@ public class ImageManager extends InputStream implements Runnable {
 		if (extType != FileData.EXTTYPE_AVIF && extType != FileData.EXTTYPE_JXL) {
 			bm = decodeBitmapReusable(inputStream, option, mFileList[page].width, mFileList[page].height);
 		}
+		if (isCacheThreadCanceled()) {
+			// 途中で打ち切ったデコード結果 (下の方が欠けた画像) は使わない
+			return null;
+		}
 		if (bm != null) {
 			Logcat.v(logLevel, "BitmapFactory decode succeed. " + mFileList[page].name);
 			ret = CallImgLibrary.ImageSetPage(mActivity, mHandler, mCacheIndex, page, 0);
@@ -4668,11 +4784,41 @@ public class ImageManager extends InputStream implements Runnable {
 	 * イメージを並べて作成
 	 */
 	public boolean ImageScaling(int page1, int page2, int half1, int half2, ImageData img1, ImageData img2) {
+		mScalingPage1 = page1;
+		mScalingPage2 = page2;
+		try {
+			return ImageScalingMain(page1, page2, half1, half2, img1, img2);
+		}
+		finally {
+			mScalingPage1 = -1;
+			mScalingPage2 = -1;
+		}
+	}
+
+	private boolean ImageScalingMain(int page1, int page2, int half1, int half2, ImageData img1, ImageData img2) {
 		int logLevel = Logcat.LOG_LEVEL_WARN;
 		Logcat.d(logLevel, "Page=" + page1 + ", Half=" + half1 + ", ■■■■■ ■■■■■ 開始 ■■■■■ ■■■■■ ");
 
 		if (mScrWidth == 0 || mScrHeight == 0) {
 			return false;
+		}
+
+		// 元画像を手放したページでも、同じ並びで作った表示用画像があればそのまま使う
+		// (設定や画面サイズが変わると freeScaleCache / setViewSize で表示用画像ごと消える)
+		boolean noSource = !mMemCacheFlag[page1].fSource || (page2 >= 0 && !mMemCacheFlag[page2].fSource);
+		if (noSource) {
+			if (hasScaleFor(page1, half1, page2) && (page2 < 0 || hasScaleFor(page2, half2, page1))) {
+				fillScaleInfo(img1, page1, half1, half1);
+				if (page2 >= 0) {
+					// 下の処理と同じく 2 ページ目の fwidth も half1 の位置を使う
+					fillScaleInfo(img2, page2, half2, half1);
+				}
+				return true;
+			}
+			// 作り直すので元画像を読み直す (読めなかったページは下の処理で飛ばされる)
+			if (ensureSource(page1) && page2 >= 0) {
+				ensureSource(page2);
+			}
 		}
 
 		int[] src_x = {0, 0}; // 映像オリジナルサイズ
@@ -5157,6 +5303,7 @@ public class ImageManager extends InputStream implements Runnable {
 			Logcat.v(logLevel, "Page=" + page1 + ", Half=" + half1 + ", ソース読み込み済み");
 			if (mFileList[page1].swidth[half1] == width[0] && mFileList[page1].sheight[half1] == height[0] && mMemCacheFlag[page1].fScale[half1]) {
 				Logcat.v(logLevel, "Page=" + page1 + ", Half=" + half1 + ", 画像作成済み");
+				mMemCacheFlag[page1].partner[half1] = page2;
 				if (img1 != null) {
 					img1.SclWidth = width[0];
 					img1.SclHeight = height[0];
@@ -5176,6 +5323,7 @@ public class ImageManager extends InputStream implements Runnable {
 					if (CallImgLibrary.ImageScale(mActivity, mHandler, mCacheIndex, page1, half1, width[0], height[0], left[0], right[0], top[0], bottom[0], mScrAlgoMode, mScrRotate, mMarginCut, mMarginCutColor, mSharpen, mBright, mGamma, param, size) >= 0) {
 						Logcat.v(logLevel, "Page=" + page1 + ", Half=" + half1 + ", 完成サイズP1 size_w=" + size[0] + ", size_h=" + size[1]);
 						mMemCacheFlag[page1].fScale[half1] = true;
+						mMemCacheFlag[page1].partner[half1] = page2;
 						if (img1 != null) {
 							img1.SclWidth = width[0];
 							img1.SclHeight = height[0];
@@ -5202,6 +5350,7 @@ public class ImageManager extends InputStream implements Runnable {
 		if (page2 >= 0 && mMemCacheFlag[page2].fSource && width[1] > 0 && height[1] > 0) {
 			// 見開き時
 			if (mFileList[page2].swidth[half2] == width[1] && mFileList[page2].sheight[half2] == height[1] && mMemCacheFlag[page2].fScale[half2]) {
+				mMemCacheFlag[page2].partner[half2] = page1;
 				if (img2 != null) {
 					img2.SclWidth = width[1];
 					img2.SclHeight = height[1];
@@ -5220,6 +5369,7 @@ public class ImageManager extends InputStream implements Runnable {
 					if (CallImgLibrary.ImageScale(mActivity, mHandler, mCacheIndex, page2, half2, width[1], height[1], left[1], right[1], top[1], bottom[1], mScrAlgoMode, mScrRotate, mMarginCut, mMarginCutColor, mSharpen, mBright, mGamma, param, size) >= 0) {
 						Logcat.d(logLevel, "Page=" + page2 + ", Half=" + half2 + ", 完成サイズP2 size_w=" + size[0] + ", size_h=" + size[1]);
 						mMemCacheFlag[page2].fScale[half2] = true;
+						mMemCacheFlag[page2].partner[half2] = page1;
 						if (img2 != null) {
 							img2.SclWidth = width[1];
 							img2.SclHeight = height[1];

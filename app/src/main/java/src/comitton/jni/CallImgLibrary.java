@@ -24,6 +24,7 @@ public class CallImgLibrary {
 	private static native int ImageTerminate(int index);
 	private static native int ImageGetFreeSize(int index);
 	private static native int ImageFree(int index, int page);
+	private static native int ImageFreeSource(int index, int page);
 	private static native int ImageScaleFree(int index, int page, int half);
 
 	private static native int ImageSetPage(int index, int page, long size);
@@ -89,6 +90,13 @@ public class CallImgLibrary {
 		Logcat.v(logLevel, "index=" + index);
 		int ret = ImageFree(index, page);
 		checkResult(context, handler, ret, "ImageFree: index=" + index + ", page=" + page);
+		return ret;
+	}
+
+	public static int ImageFreeSource(Context context, Handler handler, int index, int page) {
+		Logcat.v(logLevel, "index=" + index);
+		int ret = ImageFreeSource(index, page);
+		checkResult(context, handler, ret, "ImageFreeSource: index=" + index + ", page=" + page);
 		return ret;
 	}
 
