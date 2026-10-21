@@ -434,6 +434,8 @@ public class ImageActivity extends AppCompatActivity implements OnTouchListener,
 	private Handler mHandler;
 	private BmpLoad mBmpLoad;
 	private Thread mBmpThread;
+	// BmpLoad を開始してから HMSG_LOAD_END を処理するまで true (UI スレッドで更新)
+	private boolean mBmpLoadRunning = false;
 	private volatile boolean mBitmapLoading = false;
 	private boolean mLoadingNext = false;
 
@@ -1178,6 +1180,13 @@ public class ImageActivity extends AppCompatActivity implements OnTouchListener,
 
 			case DEF.HMSG_EVENT_EFFECT:
 			case DEF.HMSG_EVENT_EFFECT_NEXT:
+				if (mBmpLoadRunning && mBmpThread != null && mBmpThread.isAlive()) {
+					// 画像の読み込み中 (タッチなどの固まり対策から呼ばれた場合).
+					// ここで mBitmapLoading を下ろすと次のページ移動で読み込みが重なり、
+					// 後の読み込みが前の読み込みを取り消して片方のページだけが一瞬表示される (チラつく).
+					// 読み込みが終われば HMSG_LOAD_END で続きを行う
+					break;
+				}
 				// 稼働中のみ次のイベント登録
 				if (logLevel <= Logcat.LOG_LEVEL_DEBUG) {
 					String now_ms = (new SimpleDateFormat("HH:mm:ss.SSS", Locale.getDefault())).format(now);
@@ -1248,6 +1257,7 @@ public class ImageActivity extends AppCompatActivity implements OnTouchListener,
 				break;
 
 			case DEF.HMSG_LOAD_END: // 画像読み込み終了
+				mBmpLoadRunning = false;
 				Logcat.v(logLevel, "HMSG_LOAD_END: mEffectRate=" + mEffectRate);
 				if (mBitmapLoading) {
 					// Loading中を消去
@@ -1446,6 +1456,7 @@ public class ImageActivity extends AppCompatActivity implements OnTouchListener,
 
 		mBmpLoad = new BmpLoad(mHandler, DEF.HMSG_LOAD_END);
 		mBmpThread = new Thread(mBmpLoad);
+		mBmpLoadRunning = true;
 		mBmpThread.start();
 
 		startViewTimer(DEF.HMSG_EVENT_LOADING);

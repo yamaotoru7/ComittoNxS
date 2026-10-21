@@ -13,6 +13,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -32,6 +33,7 @@ import android.graphics.pdf.PdfRenderer;
 import android.os.Handler;
 import android.os.Message;
 import android.os.ParcelFileDescriptor;
+import android.os.SystemClock;
 import android.util.Log;
 
 import jp.dip.muracoro.comittonx.R;
@@ -207,6 +209,18 @@ public class ImageManager extends InputStream implements Runnable {
 	private volatile boolean mCacheSleep;
 	private final Object mLock;
 
+	// キャッシュスレッドの待機と起床 (Thread.sleep の代わり)
+	private final Object mCacheSignal = new Object();
+	private boolean mCacheSignaled = false;	// mCacheSignal で保護
+	// 画面側のページ読み込み・スケーリングの実行数と最後に終わった時刻 (uptimeMillis)
+	private final AtomicInteger mUserOps = new AtomicInteger(0);
+	// サーバ上の ZIP / RAR をファイルキャッシュへ並行して落とすスレッド群 (表示モードのみ)
+	private volatile FileCacheDownloader mDownloader = null;
+	private volatile long mUserOpEnd = 0;
+	// 画面側の操作が終わってからキャッシュ読み込みを再開するまでの待ち時間
+	// (ページ 2 枚の読み込みとスケーリングの合間に割り込まないため)
+	private static final long USER_QUIET_MILLIS = 100;
+
 	/** URIとパスとファイル名 */
 	private final String mPath;
 	private final String mFileName;
@@ -234,6 +248,67 @@ public class ImageManager extends InputStream implements Runnable {
 	private Bitmap mDecodeBitmap = null;
 	/** ネイティブへ画像データを渡す際の読み込みバッファ(mLock 配下でのみ使用) */
 	private final byte[] mReadBuffer = new byte[BIS_BUFFSIZE];
+
+	/** 読み込み時間の計測ログ (デバッグビルドのみ). adb logcat -s CachePerf で見る */
+	private static final String PERF_TAG = "CachePerf";
+	// cmpRead がサーバから読んだ量と時間 (mLock 配下で更新)
+	private long mPerfNetBytes;
+	private long mPerfNetNanos;
+	private int mPerfNetCalls;
+
+	private static void perf(String msg) {
+		if (DEF.DEBUG) {
+			Log.i(PERF_TAG, "[" + Thread.currentThread().getName() + "] " + msg);
+		}
+	}
+
+	private static long perfMs(long startNanos) {
+		return (System.nanoTime() - startNanos) / 1000000L;
+	}
+
+	/** キャッシュスレッドを起こす */
+	private void wakeCacheThread() {
+		synchronized (mCacheSignal) {
+			mCacheSignaled = true;
+			mCacheSignal.notifyAll();
+		}
+	}
+
+	/** wakeCacheThread() が呼ばれるか millis 経過するまで待つ */
+	private void waitCacheSignal(long millis) {
+		synchronized (mCacheSignal) {
+			if (!mCacheSignaled && millis > 0) {
+				try {
+					mCacheSignal.wait(millis);
+				}
+				catch (InterruptedException ignored) {
+				}
+			}
+			mCacheSignaled = false;
+		}
+	}
+
+	private void userOpStart() {
+		mUserOps.incrementAndGet();
+	}
+
+	private void userOpEnd() {
+		mUserOpEnd = SystemClock.uptimeMillis();
+		mUserOps.decrementAndGet();
+		wakeCacheThread();
+	}
+
+	private void perfReset() {
+		mPerfNetBytes = 0;
+		mPerfNetNanos = 0;
+		mPerfNetCalls = 0;
+	}
+
+	private String perfNet() {
+		long ms = mPerfNetNanos / 1000000L;
+		long kbps = ms > 0 ? mPerfNetBytes * 1000L / 1024L / ms : 0;
+		return "net=" + (mPerfNetBytes / 1024) + "KB/" + ms + "ms/" + mPerfNetCalls + "calls(" + kbps + "KB/s)";
+	}
 
 	@SuppressLint("SuspiciousIndentation")
     public ImageManager(AppCompatActivity activity, String path, String cmpfile, String user, String pass, int sort, Handler handler, boolean hidden, int openmode, int maxthread) {
@@ -336,6 +411,7 @@ public class ImageManager extends InputStream implements Runnable {
 			}
 
 			fileCacheInit(mFileList.length, mHostType != DEF.ACCESS_TYPE_LOCAL);
+			startDownloader();
 			startCacheRead();
 
 		}
@@ -1493,9 +1569,48 @@ public class ImageManager extends InputStream implements Runnable {
 			return;
 		}
 		// キャッシュ読込みスレッド開始
-		mThread = new Thread(this);
+		perf("startCacheRead pages=" + (mFileList != null ? mFileList.length : 0) + " host=" + mHostType);
+		mThread = new Thread(this, "comitton-cache");
 		mThread.setPriority(Thread.MIN_PRIORITY);
 		mThread.start();
+	}
+
+	/**
+	 * サーバ上の ZIP / RAR を表示するときは、ファイルキャッシュへのダウンロードを別スレッドで始める.
+	 */
+	private void startDownloader() {
+		int logLevel = Logcat.LOG_LEVEL_WARN;
+		if (mOpenMode != OPENMODE_VIEW || !mCheEnable || mHostType == DEF.ACCESS_TYPE_LOCAL
+				|| (mFileType != FILETYPE_ZIP && mFileType != FILETYPE_RAR) || mFileList == null || mFileList.length == 0) {
+			return;
+		}
+		FileCacheDownloader downloader = new FileCacheDownloader(mActivity, mFilePath, mUser, mPass,
+				new File(cacheFilePath()), mFileList, mFileType == FILETYPE_ZIP, new FileCacheDownloader.Host() {
+			@Override
+			public int currentPage() {
+				return mCurrentPage;
+			}
+
+			@Override
+			public boolean isCached(int page) {
+				return cheGetCacheFlag(page);
+			}
+
+			@Override
+			public void onPageCached(int page) {
+				cheSetCacheFlag(page);
+				wakeCacheThread();
+			}
+		});
+		try {
+			downloader.start();
+			mDownloader = downloader;
+		}
+		catch (IOException e) {
+			// ダウンロードスレッドなしでも、キャッシュスレッドが 1 ページずつ落とす
+			Logcat.e(logLevel, "ダウンロードを開始できません.", e);
+			downloader.close();
+		}
 	}
 
 	// 画像の並びを逆にする
@@ -1525,6 +1640,10 @@ public class ImageManager extends InputStream implements Runnable {
 						}
 					}
 					mFileList = newlist;
+					FileCacheDownloader downloader = mDownloader;
+					if (downloader != null) {
+						downloader.reset(newlist);
+					}
 				}
 			}
 		}
@@ -1560,12 +1679,12 @@ public class ImageManager extends InputStream implements Runnable {
 		final int CACHE_FPAGE = 4;
 		final int CACHE_BPAGE = 2;
 		final int CACHE_RANGE = 50;
-		byte[] buf = new byte[BIS_BUFFSIZE];
 		boolean isError = false;
-		boolean fMemCacheExec = false;
+		boolean fMemCacheExec = mMemPriority != null && mMemPriority.length > 0;
 		int prevReadPage = -1;
 		int sleepTimer;
 
+		// 最初のページの表示が終わると userOpEnd() で起こされる
 		sleepTimer = 1000;
 
 		// キャッシュ読込
@@ -1574,32 +1693,35 @@ public class ImageManager extends InputStream implements Runnable {
 			// 処理中断フラグ
 			boolean fContinue = false;
 
-			if (sleepTimer > 0) {
-				try {
-					// 指定秒数スリープ
-					Thread.sleep(sleepTimer);
-				}
-				catch (InterruptedException e) {
-
-				}
-			}
-			sleepTimer = 50;
+			// 待機中に起こされたら (ページ移動など) すぐに再開する
+			waitCacheSignal(sleepTimer);
+			// 他のスレッドが mLock を取れるよう、処理の合間に少しだけ空ける
+			sleepTimer = 5;
 
 			boolean fMemCacheWrite = false;
 			int page = -1;
 			if (mCacheBreak || mCacheSleep) {
+				perf("cache " + (mCacheBreak ? "break" : "sleep") + " current=" + mCurrentPage);
 				mCacheBreak = false;
 				if (mMemPriority != null && mMemPriority.length > 0) {
 					fMemCacheExec = true;
 					prevReadPage = -1;
 				}
 
-				try {
-					Thread.sleep(300);
+				if (mCacheSleep) {
+					waitCacheSignal(300);
 				}
-				catch (InterruptedException e) {
-
+				else {
+					// 画面側の読み込みとスケーリングが終わり、少し経つまで待つ
+					while (mRunningFlag && !mCacheSleep) {
+						long rest = USER_QUIET_MILLIS - (SystemClock.uptimeMillis() - mUserOpEnd);
+						if (mUserOps.get() == 0 && rest <= 0) {
+							break;
+						}
+						waitCacheSignal(mUserOps.get() > 0 ? 1000 : rest);
+					}
 				}
+				sleepTimer = 0;
 				continue;
 			}
 
@@ -1607,6 +1729,7 @@ public class ImageManager extends InputStream implements Runnable {
 				if (mCloseFlag) {
 					break;
 				}
+				long perfScan = System.nanoTime();
 				if (fMemCacheExec) {
 					int iPrio;
 					for (iPrio = 1; iPrio < mMemPriority.length && page == -1; iPrio++) {
@@ -1628,7 +1751,20 @@ public class ImageManager extends InputStream implements Runnable {
 						int chkPage2 = mMemPriority[iPrio] + mCurrentPage + (mMemPriority[iPrio] >= 0 ? 1 : -1);
 
 						if (0 <= chkPage2 && chkPage2 < mFileList.length && mFileList[chkPage2].width <= 0) {
-							if (SizeCheckImage(chkPage2) < 0) {
+							// 先にファイルキャッシュへ落としておき、サイズはローカルから読む
+							// (サーバから先頭だけ読むと、後で本読み込みでもう一度読むことになる)
+							if (needDownload(chkPage2)) {
+								ensureFileCache(chkPage2, false, true);
+								if (mCacheBreak) {
+									// 中断された
+									break;
+								}
+							}
+							perfReset();
+							long perfStart = System.nanoTime();
+							int perfRet = SizeCheckImage(chkPage2);
+							perf("sizecheck2 page=" + chkPage2 + " ret=" + perfRet + " time=" + perfMs(perfStart) + "ms " + perfNet());
+							if (perfRet < 0) {
 								Logcat.e(logLevel, "SizeCheckImage(chkPage2) < 0, chkPage2=" + chkPage2);
 								break;
 							}
@@ -1810,8 +1946,12 @@ public class ImageManager extends InputStream implements Runnable {
 					}
 					if (iPrio >= mMemPriority.length) {
 						fMemCacheExec = false;
+						perf("memcache window done current=" + mCurrentPage);
 					}
 //					Logcat.d(logLevel, "----  End  ----");
+					if (page == -1 && perfMs(perfScan) >= 1) {
+						perf("scale/scan current=" + mCurrentPage + " time=" + perfMs(perfScan) + "ms");
+					}
 				}
 				if (fContinue) {
 					// スケール作成した
@@ -1824,7 +1964,8 @@ public class ImageManager extends InputStream implements Runnable {
 				}
 
 				// キャッシュ対象ページ
-				if (page == -1 && mHostType != DEF.ACCESS_TYPE_LOCAL) {
+				// ダウンロードスレッドがあれば、ファイルキャッシュはそちらで作る
+				if (page == -1 && mHostType != DEF.ACCESS_TYPE_LOCAL && mDownloader == null) {
 					// 読込ページを探す
 					int startPage = mCurrentPage;
 					int range;
@@ -1955,74 +2096,8 @@ public class ImageManager extends InputStream implements Runnable {
 
 					}
 					else {
-						// このページの読込サイズ
-						int lastsize;
-						if (!fMemCacheWrite && mFileType != FileData.FILETYPE_DIR) {
-							lastsize = mFileList[page].cmplen;// + SIZE_CENTHEADER + SIZE_TERMHEADER;
-						}
-						else {
-							lastsize = mFileList[page].orglen;
-						}
-
 						// ファイルキャッシュする
-						mCheWriteFlag = true;
-						long pos;
-						int len;
-						if (mFileType != FileData.FILETYPE_DIR) {
-							pos = mFileList[page].cmppos;
-							len = mFileList[page].cmplen;
-						}
-						else {
-							pos = mFileList[page].orgpos;
-							len = mFileList[page].orglen;
-						}
-
-						try {
-							// ファイル読み込み準備
-							setLoadBitmapStart(page, false);
-							cheSeek(pos, len, page);
-						}
-						catch (IOException e) {
-							Logcat.e(logLevel, "ファイル読み込み準備に失敗しました.", e);
-						}
-
-						//
-						while (mRunningFlag) {
-							if (mCloseFlag) {
-								break;
-							}
-							// Logcat.d(logLevel, "---- Start ----");
-							if (!mRunningFlag) {
-								// closeされた場合
-								break;
-							}
-							if (mCacheBreak) {
-								// メインスレッドでビットマップの読込処理が入った
-								break;
-							}
-							try {
-								int retsize;
-								retsize = this.read(buf);
-								if (retsize > 0) {
-									lastsize -= retsize;
-								}
-								if (lastsize == 0 || retsize <= 0) {
-									// ファイル終端？
-									break;
-								}
-							}
-							catch (Exception e) {
-								Logcat.e(logLevel, "", e);
-								// isError = true;
-								break;
-							}
-						}
-						try {
-							setLoadBitmapEnd();
-						}
-						catch (IOException e) {
-							Logcat.e(logLevel, "", e);
-						}
+						downloadToFileCache(page, false, true);
 					}
 
 					// キャッシュ読み込み完了を通知
@@ -2095,6 +2170,11 @@ public class ImageManager extends InputStream implements Runnable {
 
 	// 現在ページを設定
 	public void setCurrentPage(int page, boolean single) {
+		wakeCacheThread();
+		FileCacheDownloader downloader = mDownloader;
+		if (downloader != null) {
+			downloader.wake();
+		}
 		// キャッシュ範囲などで使用
 		mCurrentPage = page;
 		mCurrentSingle = single;
@@ -2136,47 +2216,57 @@ public class ImageManager extends InputStream implements Runnable {
 		}
 
 		ImageData id = null;
-		mCacheBreak = true;
-		CallImgLibrary.ImageCancel(mActivity, mHandler, mCacheIndex, 1);
-		synchronized (mLock) {
-			if (!mCloseFlag) {
-				mCacheBreak = false;
-				CallImgLibrary.ImageCancel(mActivity, mHandler, mCacheIndex, 0);
-				mThreadLoading = false;
-				if (mMemCacheFlag[page].fSource) {
-					// メモリキャッシュあり
-					id = new ImageData();
-					id.Page = page;
-					id.Width = mFileList[page].width;
-					id.Height = mFileList[page].height;
-				} else {
-					// メモリキャッシュ無しなので読み込み
-					mCheWriteFlag = false;
-					if (mCacheMode != CACHEMODE_FILE && mHostType != DEF.ACCESS_TYPE_LOCAL) {
-						// メモリキャッシュに保存できない場合はファイルキャッシュする
-						mCheWriteFlag = true;
-						long pos;
-						int len;
-						if (mFileType != FileData.FILETYPE_DIR) {
-							pos = mFileList[page].cmppos;
-							len = mFileList[page].cmplen;// + SIZE_CENTHEADER + SIZE_TERMHEADER;
-						} else {
-							pos = mFileList[page].orgpos;
-							len = mFileList[page].orglen;
+		long perfStart = System.nanoTime();
+		userOpStart();
+		try {
+			mCacheBreak = true;
+			CallImgLibrary.ImageCancel(mActivity, mHandler, mCacheIndex, 1);
+			synchronized (mLock) {
+				long perfLockWait = perfMs(perfStart);
+				boolean perfMemHit = !mCloseFlag && mMemCacheFlag[page].fSource;
+				if (!mCloseFlag) {
+					mCacheBreak = false;
+					CallImgLibrary.ImageCancel(mActivity, mHandler, mCacheIndex, 0);
+					mThreadLoading = false;
+					if (mMemCacheFlag[page].fSource) {
+						// メモリキャッシュあり
+						id = new ImageData();
+						id.Page = page;
+						id.Width = mFileList[page].width;
+						id.Height = mFileList[page].height;
+					} else {
+						// メモリキャッシュ無しなので読み込み
+						mCheWriteFlag = false;
+						if (mCacheMode != CACHEMODE_FILE && mHostType != DEF.ACCESS_TYPE_LOCAL) {
+							// メモリキャッシュに保存できない場合はファイルキャッシュする
+							mCheWriteFlag = true;
+							long pos;
+							int len;
+							if (mFileType != FileData.FILETYPE_DIR) {
+								pos = mFileList[page].cmppos;
+								len = mFileList[page].cmplen;// + SIZE_CENTHEADER + SIZE_TERMHEADER;
+							} else {
+								pos = mFileList[page].orgpos;
+								len = mFileList[page].orglen;
+							}
+							try {
+								cheSeek(pos, len, page);
+							} catch (IOException e) {
+								Logcat.e(logLevel, "cheSeek Catch Exeption. ", e);
+								mCheWriteFlag = false;
+							}
 						}
-						try {
-							cheSeek(pos, len, page);
-						} catch (IOException e) {
-							Logcat.e(logLevel, "cheSeek Catch Exeption. ", e);
-							mCheWriteFlag = false;
+						if (!mCloseFlag) {
+							id = LoadImage(page, notice);
 						}
 					}
-					if (!mCloseFlag) {
-						id = LoadImage(page, notice);
-					}
+					mThreadLoading = true;
 				}
-				mThreadLoading = true;
+				perf("user page=" + page + (perfMemHit ? " memhit" : " miss") + " lockwait=" + perfLockWait + "ms total=" + perfMs(perfStart) + "ms");
 			}
+		}
+		finally {
+			userOpEnd();
 		}
 		return id;
 	}
@@ -2348,6 +2438,12 @@ public class ImageManager extends InputStream implements Runnable {
 		Logcat.d(logLevel, "開始します. mCloseFlag=" + mCloseFlag);
 		// 読み込みループを即座に止める
 		mRunningFlag = false;
+		wakeCacheThread();
+		FileCacheDownloader downloader = mDownloader;
+		if (downloader != null) {
+			mDownloader = null;
+			downloader.close();
+		}
 		if (!mCloseRequested.compareAndSet(false, true)) {
 			// 既に閉じている
 			return;
@@ -2452,6 +2548,7 @@ public class ImageManager extends InputStream implements Runnable {
 	private int mCheSize;
 	private int mChePos;
 	private boolean[] mCheCacheFlag;
+	private final Object mCheFlagLock = new Object();
 	private boolean mCheEnable;
 
 	public void fileCacheInit(int total, boolean isEnable) throws IOException {
@@ -2462,7 +2559,7 @@ public class ImageManager extends InputStream implements Runnable {
 		// サーバアクセス時はファイルキャッシュも行う
 		if (isEnable) {
 			// キャッシュ読込モードオン
-			String file = DEF.getBaseDirectory() + "comittona.cache";
+			String file = cacheFilePath();
 			String path = DEF.getBaseDirectory() + "thumb/";
 			try {
 				new File(path).mkdirs();
@@ -2488,17 +2585,27 @@ public class ImageManager extends InputStream implements Runnable {
 		Logcat.d(logLevel, "終了します.");
 	}
 
+	private static String cacheFilePath() {
+		return DEF.getBaseDirectory() + "comittona.cache";
+	}
+
+	// ダウンロードスレッドからも更新されるのでロックを取る
+	// (フラグが立ったら、ダウンロード側で確定したエントリサイズも見えるようにするため)
 	public void cheSetCacheFlag(int index) {
-		if (mCheCacheFlag != null && index >= 0 && index < mCheCacheFlag.length) {
-			mCheCacheFlag[index] = true;
+		synchronized (mCheFlagLock) {
+			if (mCheCacheFlag != null && index >= 0 && index < mCheCacheFlag.length) {
+				mCheCacheFlag[index] = true;
+			}
 		}
 	}
 
 	public boolean cheGetCacheFlag(int index) {
-		if (mCheCacheFlag != null && index >= 0 && index < mCheCacheFlag.length) {
-			return mCheCacheFlag[index];
+		synchronized (mCheFlagLock) {
+			if (mCheCacheFlag != null && index >= 0 && index < mCheCacheFlag.length) {
+				return mCheCacheFlag[index];
+			}
+			return false;
 		}
-		return false;
 	}
 
 	public int cheRead(byte[] buf, int off, int len) throws IOException {
@@ -2575,6 +2682,111 @@ public class ImageManager extends InputStream implements Runnable {
 		}
 	}
 
+	/**
+	 * 先にファイルキャッシュへ落としてからデコードするページか.
+	 * サーバ上の ZIP / RAR で、まだキャッシュしていないページが対象.
+	 */
+	private boolean needDownload(int page) {
+		return mCheEnable && mHostType != DEF.ACCESS_TYPE_LOCAL
+				&& (mFileType == FILETYPE_ZIP || mFileType == FILETYPE_RAR)
+				&& !cheGetCacheFlag(page);
+	}
+
+	/**
+	 * ページの圧縮データをファイルキャッシュに揃える. mLock 配下で呼ぶこと.
+	 * ダウンロードスレッドがあればその完了を待ち (ダウンロード側は mLock を取らない)、なければこのスレッドで読む.
+	 * @param interruptible true ならキャッシュスレッドからの呼び出しとして、画面側の読み込み要求 (mCacheBreak) で中断する.
+	 *                      false なら画面側の要求として最優先で読ませる
+	 * @return キャッシュが揃ったら true
+	 */
+	private boolean ensureFileCache(int page, boolean notice, boolean interruptible) {
+		FileCacheDownloader downloader = mDownloader;
+		if (downloader == null || downloader.isFailed(page)) {
+			return downloadToFileCache(page, notice, interruptible);
+		}
+		long perfStart = System.nanoTime();
+		final boolean progress = notice && !mThreadLoading;
+		if (progress) {
+			// 0%
+			sendHandler(DEF.HMSG_LOADING, FROMTYPE_SERVER, 0, null);
+		}
+		final long startTime = System.currentTimeMillis();
+		boolean done = downloader.waitPage(page, !interruptible,
+				() -> !mRunningFlag || mCloseFlag || (interruptible && mCacheBreak),
+				!progress ? null : (doneBytes, total) -> {
+					long elapsed = Math.max(1, System.currentTimeMillis() - startTime);
+					int prog = total > 0 ? (int) (doneBytes * 100 / total) : 0;
+					int rate = (int) (doneBytes * 10 / elapsed);
+					sendHandler(DEF.HMSG_LOADING, prog << 24 | 0x0100 | FROMTYPE_SERVER, rate, null);
+				});
+		perf("wait page=" + page + " current=" + mCurrentPage + (done ? " done" : " NOT-DONE") + " time=" + perfMs(perfStart) + "ms");
+		if (!done && downloader.isFailed(page) && mRunningFlag && !(interruptible && mCacheBreak)) {
+			// ダウンロードスレッドが諦めたページはこのスレッドで読む
+			return downloadToFileCache(page, notice, interruptible);
+		}
+		return done;
+	}
+
+	/**
+	 * ページの圧縮データを展開せずにファイルキャッシュへ書き込む. mLock 配下で呼ぶこと.
+	 * @param interruptible true なら画面側の読み込み要求 (mCacheBreak) で中断する
+	 * @return キャッシュが揃ったら true
+	 */
+	private boolean downloadToFileCache(int page, boolean notice, boolean interruptible) {
+		int logLevel = Logcat.LOG_LEVEL_WARN;
+		if (cheGetCacheFlag(page)) {
+			return true;
+		}
+		long pos;
+		int len;
+		if (mFileType != FileData.FILETYPE_DIR) {
+			pos = mFileList[page].cmppos;
+			len = mFileList[page].cmplen;
+		}
+		else {
+			pos = mFileList[page].orgpos;
+			len = mFileList[page].orglen;
+		}
+
+		perfReset();
+		long perfStart = System.nanoTime();
+		byte[] buf = mReadBuffer;
+		try {
+			// ファイル読み込み準備
+			setLoadBitmapStart(page, notice);
+			mCheWriteFlag = true;
+			cheSeek(pos, len, page);
+
+			// ZIP は最初の読み込みでローカルヘッダの拡張フィールドぶんサイズが伸びるので、
+			// 残りサイズではなくキャッシュ済みフラグか終端で止める
+			while (mRunningFlag && !mCloseFlag && !cheGetCacheFlag(page)) {
+				if (interruptible && mCacheBreak) {
+					// メインスレッドでビットマップの読込処理が入った
+					break;
+				}
+				if (read(buf, 0, buf.length) <= 0) {
+					// ファイル終端
+					break;
+				}
+			}
+		}
+		catch (Exception e) {
+			Logcat.e(logLevel, "", e);
+		}
+		finally {
+			mCheWriteFlag = false;
+			try {
+				setLoadBitmapEnd();
+			}
+			catch (IOException e) {
+				Logcat.e(logLevel, "", e);
+			}
+		}
+		boolean done = cheGetCacheFlag(page);
+		perf("download page=" + page + " current=" + mCurrentPage + " len=" + len + (done ? " done" : " ABORTED") + " time=" + perfMs(perfStart) + "ms " + perfNet());
+		return done;
+	}
+
 	/*************************** CompressAccess ***************************/
 	private WorkStream mWorkStream;
 	private int mCmpSize;
@@ -2639,7 +2851,13 @@ public class ImageManager extends InputStream implements Runnable {
 			size = mCmpSize - mCmpPos;
 		}
 		if (size > 0) {
+			long perfStart = System.nanoTime();
 			ret = mWorkStream.read(buf, off, size);
+			mPerfNetNanos += System.nanoTime() - perfStart;
+			mPerfNetCalls++;
+			if (ret > 0) {
+				mPerfNetBytes += ret;
+			}
 		}
 		if (ret <= 0) {
 			return -1;
@@ -3650,18 +3868,38 @@ public class ImageManager extends InputStream implements Runnable {
 			}
 		}
 		else {
+			boolean perfFromFile = cheGetCacheFlag(page);
+			boolean downloaded = false;
+			if (needDownload(page)) {
+				// サーバから受信しながらデコードするより、全部ファイルキャッシュに落としてから
+				// ローカルでデコードするほうが速い (受信中のデコード待ちでネットワークが止まらない)
+				// キャッシュスレッドの読み込みは画面側の操作で中断する
+				boolean interruptible = Thread.currentThread() == mThread;
+				downloaded = ensureFileCache(page, notice, interruptible);
+				if (!downloaded && ((interruptible && mCacheBreak) || !mRunningFlag || mCloseFlag)) {
+					// 中断された
+					return null;
+				}
+				// それ以外の失敗は従来どおりサーバから読みながらデコードする
+			}
+			perfReset();
+			long perfStart = System.nanoTime();
+			long perfSize = 0;
 			try {
-				setLoadBitmapStart(page, notice);
+				// ダウンロード時に進捗を出したので、ここでは 0% を出し直さない
+				setLoadBitmapStart(page, notice && !downloaded);
 				BufferedInputStream inputStream = openPageStream(page);
 				inputStream.mark(mFileList[page].orglen + 1);
 
 				boolean fReady = true;
 				if (mFileList[page].width <= 0) {
 					// サイズ未確定なら同じストリームで境界だけ先に読む(再シーク・再展開を避ける)
+					long perfSizeStart = System.nanoTime();
 					if (SizeCheckImageFromStream(page, inputStream) < 0) {
 						Logcat.e(logLevel, "サイズ取得に失敗しました. " + mFileList[page].name);
 						fReady = false;
 					}
+					perfSize = perfMs(perfSizeStart);
 				}
 
 				if (fReady && !memWriteLock(page, 0, false)) {
@@ -3676,6 +3914,10 @@ public class ImageManager extends InputStream implements Runnable {
 			catch (IOException e) {
 				Logcat.e(logLevel, "", e);
 			}
+			perf("load page=" + page + " current=" + mCurrentPage + (perfFromFile ? " src=filecache" : " src=server")
+					+ " cmplen=" + mFileList[page].cmplen + (id != null ? " ok" : " FAILED")
+					+ " total=" + perfMs(perfStart) + "ms sizecheck=" + perfSize + "ms " + perfNet()
+					+ (perfFromFile ? "" : (cheGetCacheFlag(page) ? " cached" : " NOT-CACHED")));
 		}
 
 		try {
@@ -4402,13 +4644,22 @@ public class ImageManager extends InputStream implements Runnable {
 
 	public boolean ImageScalingSync(int page1, int page2, int half1, int half2, ImageData img1, ImageData img2) {
 		boolean ret = false;
-		mCacheBreak = true;
-		CallImgLibrary.ImageCancel(mActivity, mHandler, mCacheIndex, 1);
-		synchronized (mLock) {
-			if (!mCloseFlag) {
-				CallImgLibrary.ImageCancel(mActivity, mHandler, mCacheIndex, 0);
-				ret = ImageScaling(page1, page2, half1, half2, img1, img2);
+		long perfStart = System.nanoTime();
+		userOpStart();
+		try {
+			mCacheBreak = true;
+			CallImgLibrary.ImageCancel(mActivity, mHandler, mCacheIndex, 1);
+			synchronized (mLock) {
+				long perfLockWait = perfMs(perfStart);
+				if (!mCloseFlag) {
+					CallImgLibrary.ImageCancel(mActivity, mHandler, mCacheIndex, 0);
+					ret = ImageScaling(page1, page2, half1, half2, img1, img2);
+				}
+				perf("user scale page=" + page1 + "," + page2 + " lockwait=" + perfLockWait + "ms total=" + perfMs(perfStart) + "ms");
 			}
+		}
+		finally {
+			userOpEnd();
 		}
 		return ret;
 	}
