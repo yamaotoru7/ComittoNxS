@@ -283,9 +283,9 @@
     <string name="showmenu02">ローカルのみ表示</string>
     <string name="showmenu03">サーバのみ表示</string>
     <string name="thumbcache00">保持しない</string>
-    <string name="thumbcache01">最大100ファイル</string>
-    <string name="thumbcache02">最大500ファイル</string>
-    <string name="thumbcache03">最大1000ファイル</string>
+    <string name="thumbcache01">最大200ファイル</string>
+    <string name="thumbcache02">最大1000ファイル</string>
+    <string name="thumbcache03">最大2000ファイル</string>
     <string name="thumbcache04">削除しない(手動削除)</string>
     <string name="thumbsorttype00">しない</string>
     <string name="thumbsorttype01">ローカル</string>

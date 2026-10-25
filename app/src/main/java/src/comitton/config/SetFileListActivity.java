@@ -315,9 +315,9 @@ public class SetFileListActivity extends BasePreferenceActivity {
 		, R.string.showmenu03 };	// サーバのみ表示
 	public static final int[] ThumCacheName =
 		{ R.string.thumbcache00		// 保持しない
-		, R.string.thumbcache01		// 100まで
-		, R.string.thumbcache02		// 500まで
-		, R.string.thumbcache03		// 1000まで
+		, R.string.thumbcache01		// 200まで
+		, R.string.thumbcache02		// 1000まで
+		, R.string.thumbcache03		// 2000まで
 		, R.string.thumbcache04 };	// 手動で削除
 	public static final int[] ThumSortTypeName =
 		{ R.string.thumbsorttype00		// なし
@@ -523,19 +523,19 @@ public class SetFileListActivity extends BasePreferenceActivity {
 
 	public static int getThumbCacheNum(SharedPreferences sharedPreferences){
 		int val = getThumbCache(sharedPreferences);
-		int num = 500;
+		int num = 1000;
 		switch (val) {
 			case 0:
 				num = 0;
 				break;
 			case 1:
-				num = 100;
+				num = 200;
 				break;
 			case 2:
-				num = 500;
+				num = 1000;
 				break;
 			case 3:
-				num = 1000;
+				num = 2000;
 				break;
 			case 4:
 				num = -1;

@@ -67,9 +67,9 @@
     </string-array>
     <string-array name="thumcache_name_list">
         <item>保持しない</item>
-        <item>最大100ファイル</item>
-        <item>最大500ファイル</item>
+        <item>最大200ファイル</item>
         <item>最大1000ファイル</item>
+        <item>最大2000ファイル</item>
         <item>削除しない(手動削除)</item>
     </string-array>
     <string-array name="thumcache_value_list">

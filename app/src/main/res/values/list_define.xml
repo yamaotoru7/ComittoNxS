@@ -67,9 +67,9 @@
     </string-array>
     <string-array name="thumcache_name_list">
         <item>Not retain</item>
-        <item>Max 100 files</item>
-        <item>Max 500 files</item>
+        <item>Max 200 files</item>
         <item>Max 1000 files</item>
+        <item>Max 2000 files</item>
         <item>Delete manually</item>
     </string-array>
     <string-array name="thumcache_value_list">

@@ -283,9 +283,9 @@
     <string name="showmenu02">Show Only Local</string>
     <string name="showmenu03">Show Only Server</string>
     <string name="thumbcache00">Not retain</string>
-    <string name="thumbcache01">Max 100 files</string>
-    <string name="thumbcache02">Max 500 files</string>
-    <string name="thumbcache03">Max 1000 files</string>
+    <string name="thumbcache01">Max 200 files</string>
+    <string name="thumbcache02">Max 1000 files</string>
+    <string name="thumbcache03">Max 2000 files</string>
     <string name="thumbcache04">Delete manually</string>
     <string name="thumbsorttype00">DO NOT</string>
     <string name="thumbsorttype01">LOCAL</string>
