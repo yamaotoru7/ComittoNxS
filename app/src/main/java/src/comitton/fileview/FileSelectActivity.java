@@ -226,6 +226,7 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 	private int mDuration = 800; // 長押し時間
 	private FileStatusLoader mFileStatusLoader;
 	private FileThumbnailLoader mThumbnailLoader;
+	private FileThumbnailLoader mPendingReleaseLoader;	// onStop で画像を解放するサムネイル
 	private Handler mHandler;
 	private int mThumbSizeW;
 	private int mThumbSizeH;
@@ -963,7 +964,7 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 				Logcat.d(logLevel, "nextopen != CloseDialog.CLICK_CANCEL && nextopen != CloseDialog.CLICK_CLOSE");
 				if (openFile(nextfile, infile)) {
 					// サムネイル解放
-					releaseThumbnail();
+					releaseThumbnailOnStop();
 					return true;
 				}
 			}
@@ -1410,6 +1411,7 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 			mFileStatusLoader.breakThread();
 			mFileStatusLoader = null;
 		}
+		releasePendingThumbnail();
 	}
 
 	// Activityの破棄
@@ -2664,7 +2666,7 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 				switch (mOperate[item]) {
 					case OPERATE_EXPAND:	// ファイルの展開
 						// サムネイル解放
-						releaseThumbnail();
+						releaseThumbnailOnStop();
 
 						if (mTapExpand) {
 							// zip/rar/pdfファイルを開く
@@ -2703,7 +2705,7 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 
 						if (mOperate[item] == OPERATE_FIRST) {
 							// サムネイル解放
-							releaseThumbnail();
+							releaseThumbnailOnStop();
 
 							// ファイルオープン
 							openFile(mFileData, "");
@@ -2727,7 +2729,7 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 
 					case OPERATE_OPEN:		// ディレクトリ内のイメージ表示
 						// サムネイル解放
-						releaseThumbnail();
+						releaseThumbnailOnStop();
 
 						openImageDir(mFileData.getName());
 						break;
@@ -2765,7 +2767,7 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 						intent.putExtra("Pass", mServer.getPass());
 						intent.putExtra("aspectRatio", (float) mThumbSizeW / (float) mThumbSizeH);
 						// サムネイル解放
-						releaseThumbnail();
+						releaseThumbnailOnStop();
 						launchForResult(intent, DEF.REQUEST_CROP);
 						break;
 
@@ -3834,6 +3836,30 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 			mFileStatusLoader.breakThread();
 			mFileStatusLoader = null;
 		}
+		releasePendingThumbnail();
+	}
+
+	// サムネイル読み込みスレッドを停止し、画像は画面が隠れてから(onStop)解放する
+	// ビューワー起動前に解放するとビューワーが表示されるまでの間 NoImage が表示されるため
+	private void releaseThumbnailOnStop() {
+		if (mThumbnailLoader != null) {
+			mThumbnailLoader.breakThread();
+			releasePendingThumbnail();
+			mPendingReleaseLoader = mThumbnailLoader;
+			mThumbnailLoader = null;
+		}
+		if (mFileStatusLoader != null) {
+			mFileStatusLoader.breakThread();
+			mFileStatusLoader = null;
+		}
+	}
+
+	// 解放を保留しているサムネイル画像を解放
+	private void releasePendingThumbnail() {
+		if (mPendingReleaseLoader != null) {
+			mPendingReleaseLoader.releaseThumbnail();
+			mPendingReleaseLoader = null;
+		}
 	}
 
 	public FileData searchNextFile(ArrayList<FileData> files, String file, int nextopen) {
@@ -4078,7 +4104,7 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 					}
 					else if (type == FileData.FILETYPE_ARC) {
 						// サムネイル解放
-						releaseThumbnail();
+						releaseThumbnailOnStop();
 						if (mTapExpand) {
 							// zip/rar/pdfファイルを展開
 							expandCompFile(name);
@@ -4089,7 +4115,7 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 					}
 					else {
 						// サムネイル解放
-						releaseThumbnail();
+						releaseThumbnailOnStop();
 						// ファイル表示
 						openFile(file, "");
 					}
