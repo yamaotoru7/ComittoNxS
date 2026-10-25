@@ -215,10 +215,8 @@ public class ThumbnailCacheLoader extends ThumbnailLoader implements Runnable {
             return false;
         }
 
-        String uri = DEF.relativePath(activity.getApplicationContext(), mURI, mPath, fileData.getName());
-        String pathcode = DEF.makeCode(uri, mThumbSizeW, mThumbSizeH);
+        String pathcode = getCacheCode(activity, fileData);
         Bitmap bm;
-        Logcat.d(logLevel, "uri=" + uri);
 
         // キャッシュから読込
         if (checkThumbnailCache(pathcode)) {

@@ -897,10 +897,17 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 		bm = ImageAccess.resizeTumbnailBitmap(bm, thumW, thumH, ImageAccess.BMPCROP_NONE, ImageAccess.BMPMARGIN_NONE);
 		if (bm != null) {
 			ThumbnailLoader loader = new ThumbnailLoader(mActivity, "", "", null, thumbID, new ArrayList<FileData>(), thumW, thumH, 0, mThumbCrop, mThumbMargin);
-			loader.deleteThumbnailCache(DEF.relativePath(mActivity, mURI, mPath, mFileData.getName()), thumW, thumH);
-			loader.setThumbnailCache(DEF.relativePath(mActivity, mURI, mPath, mFileData.getName()), bm);
+			loader.setThumbnailCache(getThumbnailCode(mFileData, thumW, thumH), bm);
 			Toast.makeText(this, R.string.ThumbConfigured, Toast.LENGTH_SHORT).show();
 		}
+	}
+
+	// 一覧中のファイルのサムネイルキャッシュのキー. 書庫・画像はファイル名、フォルダはフルパスと更新日時から作る
+	private String getThumbnailCode(FileData fd, int thumW, int thumH) {
+		if (fd.getType() == FileData.FILETYPE_DIR) {
+			return ThumbnailLoader.makeDirCode(DEF.relativePath(mActivity, mURI, mPath, fd.getName()), fd.getDate(), thumW, thumH);
+		}
+		return ThumbnailLoader.makeFileCode(fd.getName(), thumW, thumH);
 	}
 
 	// 次のファイルを開く
@@ -1938,7 +1945,7 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 		}
 		else if (id == DEF.MENU_THUMBDEL) {
 			// サムネイルキャッシュ削除
-			ThumbnailLoader.deleteThumbnailCache(0); // 0個を残す
+			ThumbnailLoader.deleteThumbnailCache(mActivity, 0); // 0個を残す
 			switchFileList();
 			loadThumbnail(true);
 		}
@@ -2747,16 +2754,29 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 						break;
 
 					case OPERATE_DELCACHE: // サムネイルキャッシュ削除
-						ThumbnailLoader.deleteThumbnailCache(DEF.relativePath(mActivity, mURI, mPath, mFileData.getName()), mThumbSizeW, mThumbSizeH);
+						ThumbnailLoader.deleteThumbnailCache(mActivity, getThumbnailCode(mFileData, mThumbSizeW, mThumbSizeH));
 						if (mThumbnailLoader != null) {
 							mThumbnailLoader.update(mFileData);
 						}
 						mListScreenView.mFileListArea.update(false);
 						break;
 
-					case OPERATE_SETTHUMBASDIR:		// 親ディレクトリのサムネイルとして設定
-						mThumbnailLoader.setThumbnailCache(DEF.relativePath(mActivity, mURI, mPath, mFileData.getName()), DEF.relativePath(mActivity, mURI, mPath));
+					case OPERATE_SETTHUMBASDIR: {		// 親ディレクトリのサムネイルとして設定
+						final FileThumbnailLoader loader = mThumbnailLoader;
+						if (loader == null) {
+							break;
+						}
+						final String srccode = getThumbnailCode(mFileData, mThumbSizeW, mThumbSizeH);
+						final String dirUri = DEF.relativePath(mActivity, mURI, mPath);
+						final int thumW = mThumbSizeW;
+						final int thumH = mThumbSizeH;
+						// 今いるフォルダの更新日時を問い合わせるので UI スレッドの外で行う
+						BackgroundExecutor.execute(() -> {
+							String dstcode = ThumbnailLoader.makeDirCode(dirUri, FileAccess.date(mActivity, dirUri, user, pass), thumW, thumH);
+							loader.copyThumbnailCache(srccode, dstcode);
+						});
 						break;
+					}
 
 					case OPERATE_SETTHUMBCROPPED:		// クロップしてサムネイルに設定
 						Intent intent = new Intent(mActivity, CropImageActivity.class);

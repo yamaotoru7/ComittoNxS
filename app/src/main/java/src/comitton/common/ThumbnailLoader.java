@@ -16,6 +16,8 @@ import src.comitton.fileview.data.FileData;
 import src.comitton.jni.CallImgLibrary;
 
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -117,7 +119,7 @@ public class ThumbnailLoader {
 		mFiles = new ArrayList<>(files);
 
 		// キャッシュフォルダ
-		mCachePath = DEF.getBaseDirectory() + "thumb/";
+		mCachePath = activity != null ? getCacheDirectory(activity) : null;
 		try {
 			new File(mCachePath).mkdirs();
 		}
@@ -141,31 +143,49 @@ public class ThumbnailLoader {
 		interruptThread();
 	}
 
-	//path1のサムネイルをpath2のキャッシュとして割り当て
-	public void setThumbnailCache(String path1, String path2) {
-		int logLevel = Logcat.LOG_LEVEL_WARN;
-		// 他のパスのキャッシュとして保存
-		String pathcode = DEF.makeCode(path1, mThumbSizeW, mThumbSizeH);
-		Bitmap bm = loadThumbnailCache(pathcode);
+	// キャッシュフォルダ. アプリの内部ストレージに置くのでアンインストールまで消えない
+	public static String getCacheDirectory(Context context) {
+		return context.getFilesDir().getAbsolutePath() + "/thumb/";
+	}
+
+	// 書庫・画像ファイルのキャッシュキー. 置き場所に依らずファイル名で決める
+	public static String makeFileCode(String filename, int thum_cx, int thum_cy) {
+		return DEF.makeCode(filename, thum_cx, thum_cy);
+	}
+
+	// フォルダのキャッシュキー. 中を一覧しなくても決まるようにフルパスと更新日時で決める
+	public static String makeDirCode(String uri, long date, int thum_cx, int thum_cy) {
+		// 末尾の / の有無で変わらないようにする
+		return DEF.makeCode(uri.replaceFirst("/+$", "") + "\t" + date, thum_cx, thum_cy);
+	}
+
+	// パスからキャッシュキーを作る. 種別と更新日時を問い合わせるので UI スレッドから呼ばない
+	public static String makeCode(Activity activity, String uri, String user, String pass, int thum_cx, int thum_cy) {
+		if (FileAccess.isDirectory(activity, uri, user, pass)) {
+			return makeDirCode(uri, FileAccess.date(activity, uri, user, pass), thum_cx, thum_cy);
+		}
+		return makeFileCode(FileAccess.filename(activity, uri), thum_cx, thum_cy);
+	}
+
+	// 一覧中のファイルのキャッシュキー
+	protected String getCacheCode(Context context, FileData file) {
+		if (file.getType() == FileData.FILETYPE_DIR) {
+			return makeDirCode(DEF.relativePath(context, mURI, mPath, file.getName()), file.getDate(), mThumbSizeW, mThumbSizeH);
+		}
+		return makeFileCode(file.getName(), mThumbSizeW, mThumbSizeH);
+	}
+
+	// srcのサムネイルをdstのキャッシュとして割り当て
+	public void copyThumbnailCache(String srccode, String dstcode) {
+		Bitmap bm = loadThumbnailCache(srccode);
 		if (bm != null) {
-			try {
-				deleteThumbnailCache(path2, mThumbSizeW, mThumbSizeH);//キャッシュが有れば削除して
-				String pathcode2 = DEF.makeCode(path2, mThumbSizeW, mThumbSizeH);
-				String cacheFile = getThumbnailCacheName(pathcode2);
-				FileOutputStream cacheSave = new FileOutputStream(cacheFile);
-				bm.compress(CompressFormat.JPEG, 80, cacheSave);
-				cacheSave.flush();
-				cacheSave.close();
-			} catch (Exception e) {
-				Logcat.e(logLevel, "", e);
-			}
+			setThumbnailCache(dstcode, bm);
 		}
 	}
 
-	//特定のパスにサムネイルキャッシュを割り当てる
-	public void setThumbnailCache(String path, Bitmap bm) {
+	// 特定のキーにサムネイルキャッシュを割り当てる
+	public void setThumbnailCache(String pathcode, Bitmap bm) {
 		int logLevel = Logcat.LOG_LEVEL_WARN;
-		String pathcode = DEF.makeCode(path, mThumbSizeW, mThumbSizeH);
 		String cacheFile = getThumbnailCacheName(pathcode);
 		if (bm != null) {
 			try {
@@ -225,14 +245,14 @@ public class ThumbnailLoader {
 	 * サムネイルのキャッシュサイズが保存上限数を超えていたら削除する
 	 * @param leave 保存上限数（-1を指定したときは削除しない）
 	 */
-	public static void deleteThumbnailCache(int leave) {
-		if (leave < 0) {
+	public static void deleteThumbnailCache(Context context, int leave) {
+		if (leave < 0 || context == null) {
 			// -1を指定の場合は削除しない
 			return;
 		}
 
 		// キャッシュ保存先
-		String path = DEF.getBaseDirectory() + "thumb/";
+		String path = getCacheDirectory(context);
 
 		File[] files = new File(path).listFiles();
 		if (files == null) {
@@ -271,10 +291,9 @@ public class ThumbnailLoader {
 		}
 	}
 
-	public static void deleteThumbnailCache(String filepath, int thum_cx, int thum_cy) {
+	public static void deleteThumbnailCache(Context context, String pathcode) {
 		// キャッシュ保存先
-		String path = DEF.getBaseDirectory() + "thumb/";
-		String pathcode = DEF.makeCode(filepath, thum_cx, thum_cy);
+		String path = getCacheDirectory(context);
 
 		// キャッシュファイルを削除
 		File file = new File(path + pathcode + ".cache");
@@ -283,11 +302,9 @@ public class ThumbnailLoader {
 		}
 	}
 
-	public static void renameThumbnailCache(String fromfilepath, String tofilepath, int thum_cx, int thum_cy) {
+	public static void renameThumbnailCache(Context context, String frompathcode, String topathcode) {
 		// キャッシュ保存先
-		String path = DEF.getBaseDirectory() + "thumb/";
-		String frompathcode = DEF.makeCode(fromfilepath, thum_cx, thum_cy);
-		String topathcode = DEF.makeCode(tofilepath, thum_cx, thum_cy);
+		String path = getCacheDirectory(context);
 
 		// キャッシュファイルの名前を変更
 		File fromfile = new File(path + frompathcode + ".cache");

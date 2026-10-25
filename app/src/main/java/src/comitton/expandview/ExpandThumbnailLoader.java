@@ -28,10 +28,12 @@ import androidx.appcompat.app.AppCompatActivity;
 public class ExpandThumbnailLoader extends ThumbnailLoader implements Runnable {
 	private ImageManager mImageMgr = null;
 	private Thread mThread;
+	private String mFileName;	// 書庫のファイル名. キャッシュキーに使う
 
-	public ExpandThumbnailLoader(AppCompatActivity activity, String uri, String path, Handler handler, long id, ImageManager imagemgr, ArrayList<FileData> files, int sizeW, int sizeH, int cachenum, int crop, int margin) {
+	public ExpandThumbnailLoader(AppCompatActivity activity, String uri, String path, String filename, Handler handler, long id, ImageManager imagemgr, ArrayList<FileData> files, int sizeW, int sizeH, int cachenum, int crop, int margin) {
 		super(activity, uri, path, handler, id, files, sizeW, sizeH, cachenum, crop, margin);
 		mImageMgr = imagemgr;
+		mFileName = filename;
 
 		// スレッド起動
 		mThread = new Thread(this);
@@ -253,7 +255,7 @@ public class ExpandThumbnailLoader extends ThumbnailLoader implements Runnable {
 		if (!mThreadBreak) {
 			// サムネイルキャッシュ削除
 			if (mCachePath != null) {
-				deleteThumbnailCache(mThumbCacheNum);
+				deleteThumbnailCache(getActivity(), mThumbCacheNum);
 			}
 		}
 
@@ -282,8 +284,7 @@ public class ExpandThumbnailLoader extends ThumbnailLoader implements Runnable {
 		}
 
 		Bitmap bm = null;
-		String filepath = mUriPath + ":" + data.getName();
-		String pathcode = DEF.makeCode(filepath, thum_cx, thum_cy);
+		String pathcode = makeFileCode(mFileName + ":" + data.getName(), thum_cx, thum_cy);
 		boolean skipFile = false;
 		boolean retval = true;
 

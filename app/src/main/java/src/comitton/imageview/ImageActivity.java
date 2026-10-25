@@ -1759,8 +1759,8 @@ public class ImageActivity extends AppCompatActivity implements OnTouchListener,
 			return;
 		}
 		ThumbnailLoader loader = new ThumbnailLoader(mActivity, "", "", null, thumbID, new ArrayList<FileData>(), thumW, thumH, 0, ImageAccess.BMPCROP_NONE, ImageAccess.BMPMARGIN_NONE);
-		loader.deleteThumbnailCache(filePath, thumW, thumH);
-		loader.setThumbnailCache(filePath, bm);
+		// 書庫はファイル名、フォルダはフルパスと更新日時をキーにする
+		loader.setThumbnailCache(ThumbnailLoader.makeCode(mActivity, filePath, mUser, mPass, thumW, thumH), bm);
 		runOnUiThread(() -> {
 			if (!isFinishing() && !isDestroyed()) {
 				Toast.makeText(mActivity, R.string.ThumbConfigured, Toast.LENGTH_SHORT).show();

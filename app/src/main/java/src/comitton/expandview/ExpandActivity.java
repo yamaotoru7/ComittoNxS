@@ -13,6 +13,7 @@ import java.util.Comparator;
 import jp.dip.muracoro.comittonx.R;
 
 import src.comitton.common.Logcat;
+import src.comitton.common.ThumbnailLoader;
 import src.comitton.config.SetTextActivity;
 import src.comitton.fileview.FileSelectActivity;
 import src.comitton.common.DEF;
@@ -685,9 +686,9 @@ public class ExpandActivity extends AppCompatActivity implements Handler.Callbac
 						}
 						case OPERATE_SETTHUMBNAIL: {
 							FileData data = mFileList.get(datapos);
-							String path2 = DEF.relativePath(mActivity, mURI, mPath, mFileName);
-							String path1 = path2 + ":" + data.getName();
-							mThumbnailLoader.setThumbnailCache(path1, path2);
+							String code1 = ThumbnailLoader.makeFileCode(mFileName + ":" + data.getName(), mThumbSizeW, mThumbSizeH);
+							String code2 = ThumbnailLoader.makeFileCode(mFileName, mThumbSizeW, mThumbSizeH);
+							mThumbnailLoader.copyThumbnailCache(code1, code2);
 							break;
 						}
 					}
@@ -1214,7 +1215,7 @@ public class ExpandActivity extends AppCompatActivity implements Handler.Callbac
 		mImageMgr.unsetBreakTrigger();
 		mThumbID = System.currentTimeMillis();
 
-		mThumbnailLoader = new ExpandThumbnailLoader(mActivity, mURI, DEF.relativePath(mActivity, mPath, mFileName), mHandler, mThumbID, mImageMgr, mFileList, mThumbSizeW, mThumbSizeH, mThumbNum, mThumbCrop, mThumbMargin);
+		mThumbnailLoader = new ExpandThumbnailLoader(mActivity, mURI, DEF.relativePath(mActivity, mPath, mFileName), mFileName, mHandler, mThumbID, mImageMgr, mFileList, mThumbSizeW, mThumbSizeH, mThumbNum, mThumbCrop, mThumbMargin);
 		mThumbnailLoader.setDispRange(mFirstIndex, mLastIndex);
 	}
 

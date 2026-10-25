@@ -55,7 +55,12 @@ public class FileOperationHelper {
 				ed.remove(file + "META-INF/container.xml" + "#maxpage");
 				ed.remove(file + "META-INF/container.xml");
 				ed.apply();
-				ThumbnailLoader.deleteThumbnailCache(uri, thumbW, thumbH);
+				if (fileData.getType() == FileData.FILETYPE_DIR) {
+					ThumbnailLoader.deleteThumbnailCache(activity, ThumbnailLoader.makeDirCode(uri, fileData.getDate(), thumbW, thumbH));
+				}
+				else {
+					ThumbnailLoader.deleteThumbnailCache(activity, ThumbnailLoader.makeFileCode(fileData.getName(), thumbW, thumbH));
+				}
 				return true;
 			} else {
 				Logcat.e(LOG_LEVEL, activity.getResources().getString(R.string.delErrorMsg));
@@ -131,7 +136,13 @@ public class FileOperationHelper {
 				ed.remove(from + "META-INF/container.xml" + "#maxpage");
 				ed.remove(from + "META-INF/container.xml");
 				ed.apply();
-				ThumbnailLoader.renameThumbnailCache(fromUri, toUri, thumbW, thumbH);
+				if (filetype == FileData.FILETYPE_DIR) {
+					// 名前を変えてもフォルダ自身の更新日時は変わらない
+					ThumbnailLoader.renameThumbnailCache(activity, ThumbnailLoader.makeDirCode(fromUri, fileData.getDate(), thumbW, thumbH), ThumbnailLoader.makeDirCode(toUri, fileData.getDate(), thumbW, thumbH));
+				}
+				else {
+					ThumbnailLoader.renameThumbnailCache(activity, ThumbnailLoader.makeFileCode(fromfile, thumbW, thumbH), ThumbnailLoader.makeFileCode(finalName, thumbW, thumbH));
+				}
 				return true;
 			} else {
 				Logcat.e(LOG_LEVEL, activity.getText(R.string.renameErrorMsg) + ": " + DEF.relativePath(activity, baseUri, path, fromfile));

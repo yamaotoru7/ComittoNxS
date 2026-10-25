@@ -232,8 +232,7 @@ public class FileThumbnailLoader extends ThumbnailLoader implements Runnable {
 				continue;
 			}
 
-			String uri = DEF.relativePath(activity.getApplicationContext(), mURI, mPath, mCurrentFile.getName());
-			String pathcode = DEF.makeCode(uri, mThumbSizeW, mThumbSizeH);
+			String pathcode = getCacheCode(activity, mCurrentFile);
 			if (checkThumbnailCache(pathcode)) {
 				// ファイルキャッシュが存在すれば次のファイルを処理する
 				removeFile(mCurrentFile);
@@ -250,7 +249,7 @@ public class FileThumbnailLoader extends ThumbnailLoader implements Runnable {
 		}
 
 		// サムネイルのファイルキャッシュ削除
-		deleteThumbnailCache(mThumbCacheNum);
+		deleteThumbnailCache(getActivity(), mThumbCacheNum);
 		Logcat.d(logLevel, "終了します.");
 	}
 
@@ -266,7 +265,7 @@ public class FileThumbnailLoader extends ThumbnailLoader implements Runnable {
 		int index = file.getIndex();
 		String filename = file.getName();
 		String uri = DEF.relativePath(activity.getApplicationContext(), mURI, mPath, filename);
-		String pathcode = DEF.makeCode(uri, mThumbSizeW, mThumbSizeH);
+		String pathcode = getCacheCode(activity, file);
 
 		Logcat.d(logLevel,"index=" + index + " loadFileCache: 開始します. filename=" + filename);
 
