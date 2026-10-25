@@ -99,6 +99,8 @@ public class MyImageView extends SurfaceView implements SurfaceHolder.Callback, 
 	private ImageManager mImageManager;
 	private final ImageData[] mImage = new ImageData[2];
 	private Bitmap mBackBitmap;
+	private int mBackDrawLeft = 0;
+	private int mBackDrawWidthSum = 0;
 	private Bitmap mCanvasBitmap;
 
 	private Point[] mScrollPos;
@@ -406,23 +408,41 @@ public class MyImageView extends SurfaceView implements SurfaceHolder.Callback, 
 				}
 				float tx = 0;
 				float ty = 0;
-				if (!pseLand) {
-					if(effectRate > 0) {
-						tx = Math.min(cx * effectRate * -1 + mLastOverScrollX, 0);
-						//Logcat.d(logLevel, "tx=" + tx + ", cx=" + cx + ", effectRate=" + effectRate + ", mLastOverScrollX=" + mLastOverScrollX);
+				// 移動量は画面幅
+				float dx = cx;
+				float dy = cy;
+				if (mScrlNext) {
+					// 前後のページも描画するときは、新しいページを前のページの隣に表示されていた位置から動かす
+					// 画面幅で動かすとページ幅が画面幅と違う場合に前のページが逆方向へずれて見える
+					int dist;
+					if (effectRate > 0) {
+						dist = drawLeft + drawWidthSum - mBackDrawLeft;
 					}
 					else {
-						//Logcat.d(logLevel, "tx=" + tx + ",cx=" + cx + ", effectRate=" + effectRate + ", mLastOverScrollX=" + mLastOverScrollX);
-						tx = Math.max(cx * effectRate * -1 + mLastOverScrollX, 0);
+						dist = mBackDrawLeft + mBackDrawWidthSum - drawLeft;
+					}
+					if (dist > 0) {
+						dx = dist;
+						dy = dist;
+					}
+				}
+				if (!pseLand) {
+					if(effectRate > 0) {
+						tx = Math.min(dx * effectRate * -1 + mLastOverScrollX, 0);
+						//Logcat.d(logLevel, "tx=" + tx + ", dx=" + dx + ", effectRate=" + effectRate + ", mLastOverScrollX=" + mLastOverScrollX);
+					}
+					else {
+						//Logcat.d(logLevel, "tx=" + tx + ",dx=" + dx + ", effectRate=" + effectRate + ", mLastOverScrollX=" + mLastOverScrollX);
+						tx = Math.max(dx * effectRate * -1 + mLastOverScrollX, 0);
 					}
 				} else {
 					if(effectRate > 0) {
-						//Logcat.d(logLevel, "ty=" + ty + ", cy=" + cy + ", effectRate=" + effectRate + ", mLastOverScrollX=" + mLastOverScrollX);
-						ty = Math.min(cy * effectRate * -1 + mLastOverScrollX, 0);
+						//Logcat.d(logLevel, "ty=" + ty + ", dy=" + dy + ", effectRate=" + effectRate + ", mLastOverScrollX=" + mLastOverScrollX);
+						ty = Math.min(dy * effectRate * -1 + mLastOverScrollX, 0);
 					}
 					else {
-						//Logcat.d(logLevel, "ty=" + ty + ", cy=" + cy + ", effectRate=" + effectRate + ", mLastOverScrollX=" + mLastOverScrollX);
-						ty = Math.max(cy * effectRate * -1 + mLastOverScrollX, 0);
+						//Logcat.d(logLevel, "ty=" + ty + ", dy=" + dy + ", effectRate=" + effectRate + ", mLastOverScrollX=" + mLastOverScrollX);
+						ty = Math.max(dy * effectRate * -1 + mLastOverScrollX, 0);
 					}
 				}
 //					if (mScrlNext == false || mOverScrollX == 0) {
@@ -1137,6 +1157,9 @@ public class MyImageView extends SurfaceView implements SurfaceHolder.Callback, 
 		// 一時保存モード
 		if (flag) {
 			// ローディング前の待避
+			// エフェクトの開始位置を求めるため以前のページの位置を記憶
+			mBackDrawLeft = (int)mDrawLeft;
+			mBackDrawWidthSum = mDrawWidthSum;
 			if (mBackBitmap != null) {
 				Canvas canvas = new Canvas(mBackBitmap);
 				draw(canvas, true);
