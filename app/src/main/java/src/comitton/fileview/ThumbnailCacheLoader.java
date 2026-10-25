@@ -114,7 +114,7 @@ public class ThumbnailCacheLoader extends ThumbnailLoader implements Runnable {
                             mSorting = true;
                             if (mFiles != null && !mFiles.isEmpty()) {
                                 // 一覧の変更はすべて mFileListLock の中で行うので、並べ替えは競合しない
-                                Collections.sort(mFiles, mComparator);
+                                Collections.sort(mFiles, mComparator.copy());
                                 if (CallImgLibrary.ThumbnailCheckAll(mID) != 0) {
                                     // メモリキャッシュに全部入り切れていない時は実行する
                                     interruptThread();

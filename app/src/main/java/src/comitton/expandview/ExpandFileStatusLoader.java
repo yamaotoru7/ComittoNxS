@@ -102,7 +102,7 @@ public class ExpandFileStatusLoader extends ThumbnailLoader implements Runnable 
         synchronized (mFileListLock) {
             if (mFiles != null && !mFiles.isEmpty()) {
                 // mFiles の変更はすべて mFileListLock の中で行うので、ここで並べ替えても競合しない
-                Collections.sort(mFiles, mComparator);
+                Collections.sort(mFiles, mComparator.copy());
                 if (mComparator.compare(mFiles.get(0), mCurrentFile) < 0) {
                     interruptThread();
                 }

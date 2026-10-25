@@ -138,7 +138,7 @@ public class FileThumbnailLoader extends ThumbnailLoader implements Runnable {
 				synchronized (mFileListLock) {
 					if (mFiles != null && !mFiles.isEmpty()) {
 						// 一覧の変更はすべて mFileListLock の中で行うので、並べ替えは競合しない
-						Collections.sort(mFiles, mComparator);
+						Collections.sort(mFiles, mComparator.copy());
 						if (mComparator.compare(mFiles.get(0), mCurrentFile) < 0) {
 							interruptThread();
 						}
@@ -174,7 +174,7 @@ public class FileThumbnailLoader extends ThumbnailLoader implements Runnable {
 							mSorting = true;
 							if (mFiles != null && !mFiles.isEmpty()) {
 								// 一覧の変更はすべて mFileListLock の中で行うので、並べ替えは競合しない
-								Collections.sort(mFiles, mComparator);
+								Collections.sort(mFiles, mComparator.copy());
 								if (logLevel <= Logcat.LOG_LEVEL_VERBOSE) {
 									for (int i = 0; i < mFiles.size(); ++i) {
 										Logcat.v(logLevel, "mFiles[" + i + "]=" + mFiles.get(i).getIndex() + " : " + mFiles.get(i).getName());

@@ -338,11 +338,12 @@ public class ThumbnailLoader {
 	}
 
 	// スクロール位置でソート
+	// 表示範囲は UI スレッドから変わるので、並べ替えには copy() で写し取ったものを使う
 	public static class FileRangeComparator implements Comparator<FileData> {
 
-		private static int mFirstIndex = -1;
-		private static int mLastIndex = -1;
-		private static int mCenter = -1;
+		private int mFirstIndex = -1;
+		private int mLastIndex = -1;
+		private int mCenter = -1;
 
 		public int compare(FileData file1, FileData file2) {
 
@@ -357,23 +358,31 @@ public class ThumbnailLoader {
 			int distance1 = Math.abs(file1.getIndex() - mCenter);
 			int distance2 = Math.abs(file2.getIndex() - mCenter);
 
-			return distance1 - distance2;
+			return Integer.compare(distance1, distance2);
 		}
 
 		// 表示中の範囲を設定
-		public void setDispRange(int firstindex, int lastindex) {
+		public synchronized void setDispRange(int firstindex, int lastindex) {
 			mFirstIndex = firstindex;
 			mLastIndex = lastindex;
 			mCenter = (mLastIndex + mFirstIndex) / 2 ;
 		}
+
+		// 今の表示範囲で並べ替えるための写し. 並べ替えの途中で範囲が変わると比較結果が食い違う
+		public synchronized FileRangeComparator copy() {
+			FileRangeComparator comparator = new FileRangeComparator();
+			comparator.setDispRange(mFirstIndex, mLastIndex);
+			return comparator;
+		}
 	}
 
 	// ファイル種別とスクロール位置でソート
+	// 表示範囲は UI スレッドから変わるので、並べ替えには copy() で写し取ったものを使う
 	public static class FileTypeSortComparator implements Comparator<FileData> {
 
-		private static int mFirstIndex = 0;
-		private static int mLastIndex = 1;
-		private static int mRange = 1;
+		private int mFirstIndex = 0;
+		private int mLastIndex = 1;
+		private int mRange = 1;
 
 		public int compare(FileData file1, FileData file2) {
 
@@ -403,7 +412,7 @@ public class ThumbnailLoader {
 			}
 
 			if (distance1 != distance2) {
-				return distance1 - distance2;
+				return Integer.compare(distance1, distance2);
 			}
 
 			// ファイルタイプの単純な順
@@ -411,18 +420,25 @@ public class ThumbnailLoader {
 			int type2 = getType(file2);
 
 			if (type1 != type2) {
-				return type1 - type2;
+				return Integer.compare(type1, type2);
 			}
 
-			// ファイルサイズの小さい順
-			return (int)(file1.getSize() - file2.getSize());
+			// ファイルサイズの小さい順. 差を int にすると 2GB を超える差で符号が変わる
+			return Long.compare(file1.getSize(), file2.getSize());
 		}
 
 		// 表示中の範囲を設定
-		public void setDispRange(int firstindex, int lastindex) {
+		public synchronized void setDispRange(int firstindex, int lastindex) {
 			mFirstIndex = firstindex;
 			mLastIndex = lastindex;
-			mRange = mLastIndex - mFirstIndex;
+			mRange = Math.max(1, mLastIndex - mFirstIndex);
+		}
+
+		// 今の表示範囲で並べ替えるための写し. 並べ替えの途中で範囲が変わると比較結果が食い違う
+		public synchronized FileTypeSortComparator copy() {
+			FileTypeSortComparator comparator = new FileTypeSortComparator();
+			comparator.setDispRange(mFirstIndex, mLastIndex);
+			return comparator;
 		}
 
 		private int getType(FileData file) {
