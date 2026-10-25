@@ -228,6 +228,13 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 	private FileThumbnailLoader mThumbnailLoader;
 	private FileThumbnailLoader mPendingReleaseLoader;	// onStop で画像を解放するサムネイル
 	private Handler mHandler;
+	// サムネイルや既読情報の通知が続けて届いたときは、この間隔でまとめて一覧を描き直す
+	private static final int LIST_UPDATE_DELAY = 50;
+	private boolean mListUpdatePending = false;
+	private final Runnable mListUpdateRunnable = () -> {
+		mListUpdatePending = false;
+		mListScreenView.mFileListArea.update(false);
+	};
 	private int mThumbSizeW;
 	private int mThumbSizeH;
 	private int mThumbNum;
@@ -1424,6 +1431,9 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 	// Activityの破棄
 	protected void onDestroy() {
 		super.onDestroy();
+		if (mHandler != null) {
+			mHandler.removeCallbacks(mListUpdateRunnable);
+		}
 
 		// サムネイルスレッド終了
 		if (mThumbnailLoader != null) {
@@ -3719,8 +3729,12 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 				loadThumbnail(false);
 				return true;
 			}
-			case DEF.HMSG_THUMBNAIL, DEF.HMSG_FILE_STATUS:
+			case DEF.HMSG_THUMBNAIL:
 				// Bitmapの通知
+				requestListUpdate();
+				return true;
+			case DEF.HMSG_FILE_STATUS:
+				// 既読情報の通知
 				String name = (String) msg.obj;
 				int bmIndex = msg.arg1;
 				//Logcat.i(logLevel, "HMSG_THUMBNAIL: bmIndex=" + bmIndex + ", name=" + name);
@@ -3735,7 +3749,7 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 									//updateListView();
 								}
 								// リストの更新
-								mListScreenView.mFileListArea.update(false);
+								requestListUpdate();
 								return true;
 							}
 						}
@@ -3744,6 +3758,14 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 				return true;
 		}
 		return false;
+	}
+
+	// 一覧の描き直しを予約する. 予約済みならまとめて描き直す
+	private void requestListUpdate() {
+		if (!mListUpdatePending) {
+			mListUpdatePending = true;
+			mHandler.postDelayed(mListUpdateRunnable, LIST_UPDATE_DELAY);
+		}
 	}
 
 	public void loadFileState(boolean reload) {

@@ -12,12 +12,16 @@ import androidx.preference.PreferenceManager;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import src.comitton.common.DEF;
 import src.comitton.common.ImageAccess;
 import src.comitton.common.Logcat;
 import src.comitton.common.ThumbnailLoader;
+import src.comitton.common.ThumbnailMemoryCache;
 import src.comitton.common.WaitFor;
 import src.comitton.config.SetEpubActivity;
 import src.comitton.fileview.data.FileData;
@@ -34,6 +38,11 @@ public class ThumbnailCacheLoader extends ThumbnailLoader implements Runnable {
     private FileThumbnailLoader mFileThumbnailLoader;
     private FileRangeComparator mComparator;
     private FileData mCurrentFile;
+
+    // ファイルキャッシュの展開と縮小を並列に行うスレッド数と、まとめて処理する数
+    private static final int DECODE_THREADS = 3;
+    private static final int DECODE_BATCH = DECODE_THREADS * 2;
+    private static final ExecutorService sDecodeExecutor = Executors.newFixedThreadPool(DECODE_THREADS);
 
     private WaitFor mWaitFor;
     private boolean mSkip;
@@ -139,53 +148,67 @@ public class ThumbnailCacheLoader extends ThumbnailLoader implements Runnable {
             mSleep = false;
             mSkip = false;
 
-            for (int i = 0; i < mFiles.size() && !mThreadBreak && !mSkip; ++i) {
-                Logcat.v(logLevel,"while: for(" + i + " < "+ mFiles.size() + "): 開始します.");
-
+            int i = 0;
+            while (i < mFiles.size() && !mThreadBreak && !mSkip) {
                 if (CallImgLibrary.ThumbnailCheckAll(mID) == 0) {
                     // メモリキャッシュに全部入り切れたら
                     // ファイルキャッシュが更新されるまで待機する
-                    Logcat.v(logLevel,"while: for(" + i + "): 全てのサムネイルがメモリキャッシュに格納されています. mCurrentFile=" + (mCurrentFile != null ? mCurrentFile.getName() : "null"));
+                    Logcat.v(logLevel,"while: 全てのサムネイルがメモリキャッシュに格納されています.");
                     mSleep = true;
                     break;
                 }
 
-                boolean isChanged;
-                mCurrentFile = mFiles.get(i);
-
-                Logcat.v(logLevel,"while: for(" + i + "): index=" + mCurrentFile.getIndex() + ", mCurrentFile=" + mCurrentFile.getName());
-                if (CallImgLibrary.ThumbnailCheck(mID, mCurrentFile.getIndex()) > 0) {
-                    // 既に読み込み済み
-                    Logcat.v(logLevel,"while: for(" + i + "): メモリキャッシュに格納されています. index=" + mCurrentFile.getIndex() + ", mCurrentFile=" + mCurrentFile.getName());
-                    if (i >= mFiles.size() - 1) {
-                        mSleep = true;
-                        break;
+                // まだメモリキャッシュにないものを表示の中心に近い順に集める
+                ArrayList<FileData> batch = new ArrayList<>(DECODE_BATCH);
+                while (i < mFiles.size() && batch.size() < DECODE_BATCH) {
+                    FileData file = mFiles.get(i++);
+                    if (CallImgLibrary.ThumbnailCheck(mID, file.getIndex()) > 0) {
+                        // 既に読み込み済み
+                        continue;
                     }
-                    continue;
+                    batch.add(file);
                 }
-
-                try {
-                    isChanged = loadCache(mCurrentFile);
-                }
-                catch (CacheException e) {
-                    Logcat.v(logLevel,"while: for(" + i + "): CacheException: ループを抜けます.  index=" + mCurrentFile.getIndex() + ", mCurrentFile=" + mCurrentFile.getName());
+                if (batch.isEmpty()) {
                     mSleep = true;
                     break;
                 }
 
-                Logcat.v(logLevel,"while: for(" + i + "): isChanged=" + isChanged + ", index=" + mCurrentFile.getIndex() + ", mCurrentFile=" + mCurrentFile.getName());
-
-                if (isChanged) {
-                    Logcat.v(logLevel,"while: for(" + i + "): 変更を通知します. index=" + mCurrentFile.getIndex() + ", mCurrentFile=" + mCurrentFile.getName());
-                    DEF.sendMessage(mHandler, DEF.HMSG_THUMBNAIL, mCurrentFile.getIndex(), 0, mCurrentFile.getName());
+                // ファイルキャッシュの展開と縮小は並列に行う
+                ArrayList<Future<Bitmap>> results = new ArrayList<>(batch.size());
+                for (FileData file : batch) {
+                    results.add(sDecodeExecutor.submit(() -> decodeCache(file)));
                 }
 
-                if (i >= mFiles.size() - 1) {
+                // メモリキャッシュへの格納は表示に近い順に行う
+                boolean full = false;
+                for (int j = 0; j < batch.size(); ++j) {
+                    mCurrentFile = batch.get(j);
+                    Bitmap bm;
+                    try {
+                        bm = results.get(j).get();
+                    } catch (InterruptedException | ExecutionException e) {
+                        bm = null;
+                    }
+                    if (full || mThreadBreak) {
+                        // 残りの展開が終わるのを待つだけ
+                        continue;
+                    }
+                    try {
+                        if (storeMemory(mCurrentFile, bm)) {
+                            Logcat.v(logLevel,"while: 変更を通知します. index=" + mCurrentFile.getIndex() + ", mCurrentFile=" + mCurrentFile.getName());
+                            DEF.sendMessage(mHandler, DEF.HMSG_THUMBNAIL, mCurrentFile.getIndex(), 0, mCurrentFile.getName());
+                        }
+                    }
+                    catch (CacheException e) {
+                        Logcat.v(logLevel,"while: CacheException: ループを抜けます.  index=" + mCurrentFile.getIndex() + ", mCurrentFile=" + mCurrentFile.getName());
+                        full = true;
+                    }
+                }
+
+                if (full || i >= mFiles.size()) {
                     mSleep = true;
                     break;
                 }
-
-                Logcat.v(logLevel,"while: for(" + i + "): 次のファイルを実行します. index=" + mCurrentFile.getIndex() + ", mCurrentFile=" + mCurrentFile.getName());
             }
 
             if (mSleep) {
@@ -201,56 +224,62 @@ public class ThumbnailCacheLoader extends ThumbnailLoader implements Runnable {
     }
 
     /**
-     * サムネイルのファイルキャッシュが存在すればメモリキャッシュに格納する
+     * サムネイルを格納できる形で取り出す. メモリに残っていればそれを、なければファイルキャッシュを展開して縮小する
+     * 複数スレッドから呼ばれる
      * @param fileData
-     * @return メモリキャッシュに変動があればtrue、それ以外はfalse
-     * @exception CacheException メモリキャッシュが空けられなかった場合
+     * @return 縮小済みのビットマップ. ファイルキャッシュがなければ null
      */
-    private boolean loadCache(FileData fileData) throws CacheException {
+    private Bitmap decodeCache(FileData fileData) {
         int logLevel = Logcat.LOG_LEVEL_WARN;
         Logcat.d(logLevel, "開始します. fileData=" + fileData.getName());
 
         AppCompatActivity activity = getActivity();
-        if (activity == null || activity.isFinishing() || activity.isDestroyed()) {
-            return false;
+        if (activity == null || activity.isFinishing() || activity.isDestroyed() || mThreadBreak) {
+            return null;
         }
 
         String pathcode = getCacheCode(activity, fileData);
-        Bitmap bm;
-
-        // キャッシュから読込
-        if (checkThumbnailCache(pathcode)) {
-            bm = loadThumbnailCache(pathcode);
-            if (bm == null) {
-                Logcat.d(logLevel,"ファイルキャッシュが空でした.スキップします. fileData=" + fileData.getName());
-                return false;
-            }
-            else {
-                Logcat.d(logLevel,"ファイルキャッシュがありました. fileData=" + fileData.getName());
-                if (logLevel <= Logcat.LOG_LEVEL_DEBUG) {
-                    bm = ImageAccess.setText(bm, String.valueOf(fileData.getIndex()), Color.RED, DEF.ALIGN_TOP);
-                }
-                return loadMemory(fileData, bm);
-            }
+        Bitmap bm = ThumbnailMemoryCache.get(pathcode, mThumbCrop, mThumbMargin);
+        if (bm != null) {
+            Logcat.d(logLevel,"メモリに残っていました. fileData=" + fileData.getName());
+            return bm;
         }
 
-        return false;
+        // キャッシュから読込
+        if (!checkThumbnailCache(pathcode)) {
+            return null;
+        }
+        bm = loadThumbnailCache(pathcode);
+        if (bm == null) {
+            Logcat.d(logLevel,"ファイルキャッシュが空でした.スキップします. fileData=" + fileData.getName());
+            return null;
+        }
+        Logcat.d(logLevel,"ファイルキャッシュがありました. fileData=" + fileData.getName());
+        bm = prepareBitmap(bm, mThumbSizeW, mThumbSizeH);
+        if (bm == null) {
+            return null;
+        }
+        ThumbnailMemoryCache.put(pathcode, mThumbCrop, mThumbMargin, bm);
+        if (logLevel <= Logcat.LOG_LEVEL_DEBUG) {
+            bm = ImageAccess.setText(bm, String.valueOf(fileData.getIndex()), Color.RED, DEF.ALIGN_TOP);
+        }
+        return bm;
     }
 
     /**
-     * ビットマップデータをメモリキャッシュに格納する
+     * 縮小済みのビットマップデータをメモリキャッシュに格納する
      * @param fileData
      * @param bm
      * @return メモリキャッシュに変動があればtrue、それ以外はfalse
      * @exception CacheException メモリキャッシュが空けられなかった場合
      */
-    public boolean loadMemory(FileData fileData, Bitmap bm) throws CacheException {
-        if (mFirstIndex <= fileData.getIndex() && fileData.getIndex() <= mLastIndex) {
-            return mFileThumbnailLoader.loadMemory(fileData.getIndex(), mThumbSizeW, mThumbSizeH, bm, true);
+    private boolean storeMemory(FileData fileData, Bitmap bm) throws CacheException {
+        if (bm == null) {
+            return false;
         }
-        else {
-            return mFileThumbnailLoader.loadMemory(fileData.getIndex(), mThumbSizeW, mThumbSizeH, bm, false);
-        }
+        // 表示中のものは表示範囲外のものを追い出してでも格納する
+        boolean priority = mFirstIndex <= fileData.getIndex() && fileData.getIndex() <= mLastIndex;
+        return mFileThumbnailLoader.storeMemory(fileData.getIndex(), bm, priority);
     }
 
 }

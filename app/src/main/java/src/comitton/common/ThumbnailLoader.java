@@ -188,6 +188,7 @@ public class ThumbnailLoader {
 		int logLevel = Logcat.LOG_LEVEL_WARN;
 		String cacheFile = getThumbnailCacheName(pathcode);
 		if (bm != null) {
+			ThumbnailMemoryCache.remove(pathcode);
 			try {
 				FileOutputStream cacheSave = new FileOutputStream(cacheFile);
 				bm.compress(CompressFormat.JPEG, 80, cacheSave);
@@ -250,6 +251,9 @@ public class ThumbnailLoader {
 			// -1を指定の場合は削除しない
 			return;
 		}
+		if (leave == 0) {
+			ThumbnailMemoryCache.clear();
+		}
 
 		// キャッシュ保存先
 		String path = getCacheDirectory(context);
@@ -287,6 +291,7 @@ public class ThumbnailLoader {
 					break;
 				}
 				work.delete();
+				ThumbnailMemoryCache.remove(work.getName().replaceFirst("\\.cache$", ""));
 			}
 		}
 	}
@@ -296,6 +301,7 @@ public class ThumbnailLoader {
 		String path = getCacheDirectory(context);
 
 		// キャッシュファイルを削除
+		ThumbnailMemoryCache.remove(pathcode);
 		File file = new File(path + pathcode + ".cache");
 		if (file.exists()) {
 			file.delete();
@@ -307,6 +313,8 @@ public class ThumbnailLoader {
 		String path = getCacheDirectory(context);
 
 		// キャッシュファイルの名前を変更
+		ThumbnailMemoryCache.remove(frompathcode);
+		ThumbnailMemoryCache.remove(topathcode);
 		File fromfile = new File(path + frompathcode + ".cache");
 		File tofile = new File(path + topathcode + ".cache");
 		fromfile.renameTo(tofile);
@@ -556,34 +564,28 @@ public class ThumbnailLoader {
 
 
 	/**
-	 * ビットマップデータをメモリキャッシュに格納する
-	 * @param index
+	 * ビットマップをメモリキャッシュに格納できる形(サムネイルサイズ以内の RGB_565)にする
+	 * 複数スレッドから呼んでよい
+	 * @param bm
 	 * @param thum_cx
 	 * @param thum_cy
-	 * @param bm
-	 * @param priority 強制挿入する時はtrue
-	 * @return メモリキャッシュに変動があればtrue、それ以外はfalse
-	 * @exception CacheException メモリキャッシュが空けられなかった場合
+	 * @return 変換したビットマップ. 変換できなければ null
 	 */
-	public boolean loadMemory(int index, int thum_cx, int thum_cy, Bitmap bm, boolean priority) throws CacheException {
+	public Bitmap prepareBitmap(Bitmap bm, int thum_cx, int thum_cy) {
 		int logLevel = Logcat.LOG_LEVEL_WARN;
-		Logcat.d(logLevel, "index=" + index + " 開始します. priority=" + priority);
-
-		int result;
-		boolean save = false;
 
 		if (bm == null) {
-			Logcat.d(logLevel, "index=" + index + " NULLです");
-			return false;
-		} else {
-			Logcat.d(logLevel, "index=" + index + " NULLじゃないです.");
+			return null;
 		}
 
 		// ビットマップをサムネイルサイズぴったりにリサイズする
-		Logcat.d(logLevel, "index=" + index + " リサイズします. thum_cx=" + thum_cx + ", thum_cy=" + thum_cy + ", crop=" + mThumbCrop + ", margin=" + mThumbMargin);
+		Logcat.d(logLevel, "リサイズします. thum_cx=" + thum_cx + ", thum_cy=" + thum_cy + ", crop=" + mThumbCrop + ", margin=" + mThumbMargin);
 		bm = ImageAccess.resizeTumbnailBitmap(bm, thum_cx, thum_cy, mThumbCrop, mThumbMargin);
+		if (bm == null) {
+			return null;
+		}
 
-		Logcat.d(logLevel, "index=" + index + " 切り出します.");
+		Logcat.d(logLevel, "切り出します.");
 		int w = bm.getWidth();
 		int h = bm.getHeight();
 		boolean chg = false;
@@ -607,6 +609,27 @@ public class ThumbnailLoader {
 			offScreen.drawRect(0, 0, w, h, drawBmp);
 			offScreen.drawBitmap(bm, 0, 0, null);
 			bm = bm2;
+		}
+		return bm;
+	}
+
+	/**
+	 * prepareBitmap で変換したビットマップデータをメモリキャッシュに格納する
+	 * @param index
+	 * @param bm
+	 * @param priority 強制挿入する時はtrue
+	 * @return メモリキャッシュに変動があればtrue、それ以外はfalse
+	 * @exception CacheException メモリキャッシュが空けられなかった場合
+	 */
+	public boolean storeMemory(int index, Bitmap bm, boolean priority) throws CacheException {
+		int logLevel = Logcat.LOG_LEVEL_WARN;
+		Logcat.d(logLevel, "index=" + index + " 開始します. priority=" + priority);
+
+		int result;
+
+		if (bm == null) {
+			Logcat.d(logLevel, "index=" + index + " NULLです");
+			return false;
 		}
 
 		if (logLevel <= Logcat.LOG_LEVEL_DEBUG) {
