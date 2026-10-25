@@ -34,6 +34,7 @@ public class FileSelectList implements Runnable, Callback, DialogInterface.OnDis
 
 	private ArrayList<FileData> mFileList = null;
 	private ArrayList<FileData> mFileList2 = null;
+	private String mFileList2Path = null;	// mFileList2 を読み込んだパス
 
 	private String mURI;
 	private String mPath;
@@ -224,7 +225,8 @@ public class FileSelectList implements Runnable, Callback, DialogInterface.OnDis
 		String currentPath = DEF.relativePath(mActivity, mURI, mPath);
 
 		try {
-			if (!mCacheFile) {
+			// 別のパスの一覧を使い回さないよう、キャッシュは同じパスのときだけ使う
+			if (!mCacheFile || mFileList2 == null || !currentPath.equals(mFileList2Path)) {
 				fileList = FileAccess.listFiles(mActivity, currentPath, mUser, mPass, mHandler);
 
 				if (thread.isInterrupted()) {
@@ -274,6 +276,7 @@ public class FileSelectList implements Runnable, Callback, DialogInterface.OnDis
 					fileList.add(0, fileData);
 				}
 				mFileList2 = fileList;
+				mFileList2Path = currentPath;
 				mCacheFile = true;
 
 				mFileList = fileList;

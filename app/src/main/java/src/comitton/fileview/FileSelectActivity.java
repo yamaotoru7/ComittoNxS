@@ -18,6 +18,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import jp.dip.muracoro.comittonx.BuildConfig;
 import jp.dip.muracoro.comittonx.R;
@@ -629,7 +630,14 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 		int serverSelect = intent.getIntExtra("ServerSelect", -2);
 		Logcat.d(logLevel, "path=" + path + ", server=" + server + ", serverSelect=" + serverSelect);
 
-		if (path == null || !path.isEmpty()) {
+		if (path == null && server == null && serverSelect == -2) {
+			// ランチャーのアイコンなどから戻ったときは場所の指定がないので今の場所のままにする
+			return;
+		}
+
+		String oldUri = mURI;
+		String oldPath = mPath;
+		if (path != null && !path.isEmpty()) {
 			mPath = path;
 		}
 
@@ -654,6 +662,10 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 			mServer.select(DEF.INDEX_LOCAL);
 			mPath = mServer.getPath();
 			mURI = mServer.getURI();
+		}
+		if (!Objects.equals(oldUri, mURI) || !Objects.equals(oldPath, mPath)) {
+			// パスが更新された場合はファイルリストをフラッシュ
+			mFileList.FlushFileList();
 		}
 		loadListView();
 	}
