@@ -297,6 +297,8 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 				// ローカルはストレージルートにリセット
 				String path = Environment.getExternalStorageDirectory().getAbsolutePath() + '/';
 				ed.putString("path", path);
+				// 前回のサーバではなくローカルから始める
+				ed.putInt(DEF.KEY_LASTSERVER, DEF.INDEX_LOCAL);
 				// 表示モードはリスト表示(サムネイルOFF)にセット
 				ed.putInt(DEF.KEY_LISTMODE, FileListArea.LISTMODE_LIST);
 				ed.putBoolean(DEF.KEY_THUMBNAIL, false);
@@ -496,6 +498,18 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 		}
 
 		String cursor = intent.getStringExtra("Cursor");
+
+		if ((path == null || path.isEmpty()) && (server == null || server.isEmpty()) && serverSelect == -2) {
+			// 場所の指定がなければ最後に開いていたサーバのフォルダから始める
+			int lastServer = mSharedPreferences.getInt(DEF.KEY_LASTSERVER, DEF.INDEX_LOCAL);
+			if (lastServer != DEF.INDEX_LOCAL && mServer.select(lastServer) && isServerConfigured(mServer)) {
+				mURI = mServer.getURI();
+				mPath = mServer.getPath();
+			}
+			else {
+				mServer.select(DEF.INDEX_LOCAL);
+			}
+		}
 
 		if (mPath == null || mPath.isEmpty()) {
 			mServer.select(DEF.INDEX_LOCAL);
@@ -3294,6 +3308,18 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 		loadListView();
 	}
 
+	// サーバの接続先が設定されているか
+	private static boolean isServerConfigured(ServerSelect server) {
+		String uri = server.getURI();
+		if (server.getAccesType() == DEF.ACCESS_TYPE_SMB && uri.equalsIgnoreCase("smb://")) {
+			return false;
+		}
+		if (server.getAccesType() == DEF.ACCESS_TYPE_SAF && uri.isEmpty()) {
+			return false;
+		}
+		return true;
+	}
+
 	/**
 	 * パスの移動
 	 */
@@ -3306,11 +3332,7 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 		}
 		String uri = server.getURI();
 		Logcat.v(logLevel, "uri=" + uri);
-		if (server.getAccesType() == DEF.ACCESS_TYPE_SMB && uri.equalsIgnoreCase("smb://")) {
-			Logcat.v(logLevel, "return false");
-			return false;
-		}
-		if (server.getAccesType() == DEF.ACCESS_TYPE_SAF && uri.isEmpty()) {
+		if (!isServerConfigured(server)) {
 			Logcat.v(logLevel, "return false");
 			return false;
 		}

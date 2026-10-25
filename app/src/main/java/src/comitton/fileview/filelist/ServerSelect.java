@@ -417,6 +417,8 @@ public class ServerSelect {
 				ed.putString("smb-path" + mSelect, path);
 			}
 		}
+		// 次の起動時に最後に開いていたサーバのフォルダから始める
+		ed.putInt(DEF.KEY_LASTSERVER, mSelect);
 		ed.apply();
 	}
 

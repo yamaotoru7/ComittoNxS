@@ -460,6 +460,7 @@ public class DEF {
 	public static final String KEY_TAPRATE = "TapRate";
 	public static final String KEY_OLDPAGESEL = "OldPageSel";
 	public static final String KEY_RESUMEOPEN = "ResumeOpen";
+	public static final String KEY_LASTSERVER = "LastServer";	// 最後に開いていたサーバ
 	public static final String KEY_CONFIRMBACK = "ConfirmBack";
 	public static final String KEY_CLEARTOP = "ClearTop";
 	public static final String KEY_HISTNUM = "RLSave3";
