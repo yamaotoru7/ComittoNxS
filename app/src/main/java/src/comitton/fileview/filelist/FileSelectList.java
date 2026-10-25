@@ -281,6 +281,10 @@ public class FileSelectList implements Runnable, Callback, DialogInterface.OnDis
 
 			} else {
 				fileList = mFileList2;
+
+				// ビュワーで読んだ後に戻ったときなどは既読情報が変わっているので読み直す
+				mFileList = fileList;
+				updateListView(thread);
 			}
 
 			String uri = FileAccess.parent(mActivity, mPath);

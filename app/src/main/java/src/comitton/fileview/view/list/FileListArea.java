@@ -102,7 +102,6 @@ public class FileListArea extends ListArea implements Handler.Callback {
 
 	private String[][] mTitleSep;
 	private String[][] mInfoSep;
-	private String[] mReadInfo;
 
 	private int mTileSize;
 	private int mTileAscent;
@@ -820,7 +819,8 @@ public class FileListArea extends ListArea implements Handler.Callback {
 
 				mReadPaint.setColor(color);
 				mReadPaint.setTextSize(mInfoSize);
-				canvas.drawText(mReadInfo[index], x, y + ty + mInfoAscent, mReadPaint);
+				// 既読情報はバックグラウンドで更新されるので描画のたびに作る
+				canvas.drawText(getReadInfo(fd), x, y + ty + mInfoAscent, mReadPaint);
 			}
 
 //			if (mIconHeight > ty) {
@@ -832,6 +832,24 @@ public class FileListArea extends ListArea implements Handler.Callback {
 			ypos += itemHeight + BORDER_HEIGHT;
 		}
 		return;
+	}
+
+	private String getReadInfo(FileData fd) {
+		if ((fd.getState() >= 0) && (fd.getMaxpage() > 0)) {
+			// 読書率
+			float rate = (float) (fd.getState() + 1) / (float) fd.getMaxpage();
+			return (int)(rate * 100) + "% Read.";
+		}
+		else if (fd.getState() == DEF.PAGENUMBER_READ) {
+			return "100% Read.";
+		}
+		else if (fd.getState() == DEF.PAGENUMBER_UNREAD) {
+			return "Unread.";
+		}
+		else if (fd.getMaxpage() == DEF.PAGENUMBER_NONE) {
+			return "??% Read.";
+		}
+		return "";
 	}
 
 	private void drawPagerate(Canvas canvas, FileData file, int width, int height, int x, int y, int color) {
@@ -1094,7 +1112,6 @@ public class FileListArea extends ListArea implements Handler.Callback {
 
 				mTitleSep = new String[listSize][];
 				mInfoSep = new String[listSize][];
-				mReadInfo = new String[listSize];
 
 				// 項目高さを求める
 				int height = (mTitleSize + mTitleDescent) + (mInfoSize + mInfoDescent);
@@ -1168,23 +1185,6 @@ public class FileListArea extends ListArea implements Handler.Callback {
 				mTitleSep[index] = getMultiLine(fd.getName(), tcx, MAXLINE_TITLE, mNamePaint);
 
 				String info = fd.getFileInfo();
-
-				mReadInfo[index] = "";
-				if ((fd.getState() >= 0) && (fd.getMaxpage() > 0)) {
-					// 読書率
-					float rate = (float) (fd.getState() + 1) / (float) fd.getMaxpage();
-					mReadInfo[index] = (int)(rate * 100) + "% Read.";
-
-				}
-				else if (fd.getState() == DEF.PAGENUMBER_READ) {
-					mReadInfo[index] = "100% Read.";
-				}
-				else if (fd.getState() == DEF.PAGENUMBER_UNREAD) {
-					mReadInfo[index] = "Unread.";
-				}
-				else if (fd.getState() != DEF.PAGENUMBER_UNREAD && fd.getMaxpage() == DEF.PAGENUMBER_NONE) {
-					mReadInfo[index] = "??% Read.";
-				}
 
 				if (info != null) {
 					float[] result = new float[info.length()];
