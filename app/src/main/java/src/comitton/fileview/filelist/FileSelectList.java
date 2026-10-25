@@ -406,16 +406,20 @@ public class FileSelectList implements Runnable, Callback, DialogInterface.OnDis
 			if (maxpage == DEF.PAGENUMBER_NONE) {
 				state = DEF.PAGENUMBER_NONE;
 			}
-			else if (state + 1 >= maxpage) {
-				// ページ+1が最終ページなら既読
-				state = DEF.PAGENUMBER_READ;
-			}
-			else if (state + 1 >= maxpage - 1) {
-				// ページ+1が最終ページ-1なら 見開き表示なら既読
-				if (openmode == ImageManager.OPENMODE_TEXTVIEW && mTextPageDual) {
+			else {
+				// 末尾のマージン内なら既読、先頭のマージン内なら未読
+				int margin = DEF.readMarginPages(maxpage);
+				int remain = maxpage - (state + 1);
+				if (remain < margin) {
 					state = DEF.PAGENUMBER_READ;
-				} else if (openmode != ImageManager.OPENMODE_TEXTVIEW && mImagePageDual && !(state == 0 && mImageTopSingle)) {
+				}
+				else if (remain < margin + 1 && ((openmode == ImageManager.OPENMODE_TEXTVIEW && mTextPageDual)
+						|| (openmode != ImageManager.OPENMODE_TEXTVIEW && mImagePageDual && !(state == 0 && mImageTopSingle)))) {
+					// 見開き表示なら最終ページも表示されているので既読
 					state = DEF.PAGENUMBER_READ;
+				}
+				else if (state < margin) {
+					state = DEF.PAGENUMBER_UNREAD;
 				}
 			}
 		}

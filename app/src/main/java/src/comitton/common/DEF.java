@@ -823,6 +823,14 @@ public class DEF {
 	/** 未定 */
 	public static final int PAGENUMBER_NONE = -3;
 
+	/**
+	 * 既読・未読とみなす先頭と末尾のページ数 (総ページ数の3%、最低1ページ)
+	 * @param maxpage 総ページ数
+	 */
+	static public int readMarginPages(int maxpage) {
+		return Math.max(1, maxpage * 3 / 100);
+	}
+
 	// 縦長チェック
 	static public boolean checkPortrait(int cx, int cy) {
 		return cx <= cy ? true : false;

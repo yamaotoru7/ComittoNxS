@@ -149,6 +149,8 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 	private boolean mIsLoading = false;
 	private String mLoadListCursor;
 	private int mLoadListTopIndex;
+	private int mLoadListTopRow = -1;
+	private int mLoadListTopPos;
 	private int mLoadListNextOpen;
 	private String mLoadListNextPath;
 	private String mLoadListNextFile;
@@ -817,7 +819,17 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 						} else {
 							// 次のファイルを開かない場合
 							Logcat.d(logLevel, "nextopen == CloseDialog.CLICK_CLOSE");
-							moveFileSelect(mURI, path, file, true);
+							if (path != null && path.equals(mPath)) {
+								// 同じフォルダに戻るときは開く前のスクロール位置のままにする
+								int toprow = mListScreenView.mFileListArea.getTopRow();
+								int toppos = mListScreenView.mFileListArea.getTopPos();
+								moveFileSelect(mURI, path, true);
+								mLoadListTopRow = toprow;
+								mLoadListTopPos = toppos;
+							}
+							else {
+								moveFileSelect(mURI, path, file, true);
+							}
 						}
 					}
 				}
@@ -1995,6 +2007,7 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 		}
 		mLoadListCursor = null;
 		mLoadListTopIndex = 0;
+		mLoadListTopRow = -1;
 		mLoadListNextOpen = CloseDialog.CLICK_NONE;
 
 		// パス情報の保存
@@ -2039,7 +2052,12 @@ public class FileSelectActivity extends AppCompatActivity implements OnTouchList
 		}
 
 		// カーソル位置設定
-		if (mLoadListCursor != null && !mLoadListCursor.isEmpty()) {
+		if (mLoadListTopRow >= 0) {
+			// 以前のスクロール位置に戻す
+			mListScreenView.mFileListArea.setTopRowPos(mLoadListTopRow, mLoadListTopPos);
+			mLoadListTopRow = -1;
+		}
+		else if (mLoadListCursor != null && !mLoadListCursor.isEmpty()) {
 			int i;
 			ArrayList<FileData> list = mFileList.getFileList(mMarker, mFilter, mApplyDir);
 
