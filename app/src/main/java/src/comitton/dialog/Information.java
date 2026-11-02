@@ -98,8 +98,8 @@ public class Information implements DialogInterface.OnDismissListener {
 
 		long recent_time = 0L;
 		try {
-			// タイムゾーン(グリニッジ標準時)
-			final TimeZone DATE_TIME_ZONE = TimeZone.getTimeZone("Europe/London");
+			// タイムゾーン (GitHub API の日時は UTC)
+			final TimeZone DATE_TIME_ZONE = TimeZone.getTimeZone("UTC");
 			// 時刻の形式
 			final String DATE_TIME_PATTERN = "yyyy-MM-dd'T'HH:mm:ss'Z'";
 
@@ -410,7 +410,8 @@ public class Information implements DialogInterface.OnDismissListener {
 
 			try {
 				JSONObject jsonObject = new JSONObject(string);
-				mRecentVersion = jsonObject.getString("name");
+				// リリース名ではなくタグ名 (= versionName) と比較する
+				mRecentVersion = jsonObject.getString("tag_name");
 				mRecentHtml = jsonObject.getString("html_url");
 				mRecentDate = jsonObject.getString("published_at");
 				return true;

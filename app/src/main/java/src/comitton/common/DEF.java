@@ -50,8 +50,8 @@ public class DEF {
 	public static final Semaphore sSemaphoe = new Semaphore(1);
 
 	// 更新確認 (新しいリリースの通知) を行うか.
-	// このアプリのリポジトリにまだリリースが無いため一旦止めている
-	public static final boolean RELEASE_CHECK_ENABLED = false;
+	// GitHub の最新リリースのタグ名を versionName と比べて新しい版を知らせる
+	public static final boolean RELEASE_CHECK_ENABLED = true;
 	public static final String DOWNLOAD_URL = "https://github.com/yamaotoru7/ComittoNxS";
 	public static final String API_RECENT_RELEASE = "https://api.github.com/repos/yamaotoru7/ComittoNxS/releases/latest";
 	public static final int MESSAGE_FILE_DELETE = 1000;
