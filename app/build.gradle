@@ -5,7 +5,7 @@ plugins {
 def applicationName = "ComittoNxS"
 def versionMajor = 3
 def versionMinor = 0
-def versionPatch = 0
+def versionPatch = 1
 def appVersion = "${versionMajor}.${versionMinor}.${versionPatch}"
 
 // ビルド日時 (エポックミリ秒)
