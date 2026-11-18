@@ -27,6 +27,10 @@ jobs:
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          # 既定値の "tools platform-tools" の tools は SDK から削除済みで、
+          # 新しい cmdline-tools では見つからずに失敗するため指定しない
+          packages: platform-tools
 
       - name: Install SDK packages
         # CMake は README 記載のバージョン. NDK は AGP の既定バージョンが自動で入る
