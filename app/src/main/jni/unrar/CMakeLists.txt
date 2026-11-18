@@ -59,7 +59,8 @@ if(DOWNLOAD_UNRAR_SOURCES)
     )
   else()
     execute_process(
-      COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/patch-unrar.sh "${PATCH_PATH}"
+      # Windows でコミットすると実行権限が付かないことがあるため、bash で直接実行する
+      COMMAND bash "${CMAKE_CURRENT_SOURCE_DIR}/patch-unrar.sh" "${PATCH_PATH}"
       WORKING_DIRECTORY "${unrar_SOURCE_DIR}/unrar"
       RESULT_VARIABLE BUILD_COMMAND_RESULT
       OUTPUT_VARIABLE BUILD_COMMAND_STDOUT
